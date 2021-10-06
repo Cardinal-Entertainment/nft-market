@@ -13,29 +13,49 @@ Zoombies contract - 0x3E7997B8D30AA6216102fb2e9206246e478d57d3
 ---
 Before Listing or bidding, the user must set Approvals for the market contract on the NFTs and the saleToken contracts.
 
-the dapp must call and get confirmed:
+For a seller, the dapp must call and get confirmed:
+
+zoomInstance.setApprovalForAll("0x0D81Cd8e1c613c7A86A83C7269cB26B4fC6440b7", true)
 zoombiesInstance.setApprovalForAll("0x0D81Cd8e1c613c7A86A83C7269cB26B4fC6440b7", true)
+
+
 
 ---
 then it can call the exposed contract methods:
 
 Payable with saleToken ZOOM or WMOVR
-listItem(
+marketInstance.listItem(
     auctionEnd,
     minPrice,
     nftTokenIds[],
     saleToken
 )
 
-
 payable matching the list saleToken
-bid(
+marketInstance.bid(
     itemNumber,
     bidAmount
 )
 
-
 After auctionEnd
-settle {
+marketInstance.settle {
   itemNumber
 }
+
+--
+READ-ONLY:
+
+marketInstance.itemCount();
+RETURNS uint256
+
+marketInstance.Items(itemNumber);
+RETURNS
+struct Item {
+        uint256 auctionEnd;
+        uint256 minPrice;
+        address saleToken;
+        address seller;
+        address highestBidder;
+        uint256[] tokenIds;
+        uint256 highestBid;
+    }
