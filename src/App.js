@@ -20,14 +20,27 @@ const setupEthers = async () => {
     zoombies_nft_json.abi,
     signer
   )
-  console.log({ZoombiesContract})
-  ZoombiesContract.setApprovalForAll("0x0D81Cd8e1c613c7A86A83C7269cB26B4fC6440b7", true)
+
+  const marketContractAddress = "0x0D81Cd8e1c613c7A86A83C7269cB26B4fC6440b7"
+  const marketContract = new ethers.Contract(
+    marketContractAddress,
+    zoombies_market_place_json.abi,
+    signer
+  )
+
+  //console.log({ZoombiesContract})
+  const marketIsApproved = await ZoombiesContract.isApprovedForAll(signerAddress, marketContractAddress)
+  console.log("marketIsApproved", marketIsApproved);
+  if(!marketIsApproved) {
+    ZoombiesContract.setApprovalForAll("0x0D81Cd8e1c613c7A86A83C7269cB26B4fC6440b7", true)
+  }
+
 }
 const App = () => {
   useEffect(() => {
     setupEthers()
   }, [])
-  
+
   return (
     <div className="App">
       <header className="App-header">
