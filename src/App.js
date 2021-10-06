@@ -32,9 +32,25 @@ const setupEthers = async () => {
   const marketIsApproved = await ZoombiesContract.isApprovedForAll(signerAddress, marketContractAddress)
   console.log("marketIsApproved", marketIsApproved);
   if(!marketIsApproved) {
-    ZoombiesContract.setApprovalForAll("0x0D81Cd8e1c613c7A86A83C7269cB26B4fC6440b7", true)
+    await ZoombiesContract.setApprovalForAll("0x0D81Cd8e1c613c7A86A83C7269cB26B4fC6440b7", true)
   }
 
+  //Get a list itemCount
+  const itemCount = await marketContract.itemCount();
+  console.log('market items:' , itemCount.toString());
+
+  //get listItem
+  const item = await marketContract.Items(2);
+  console.log('Item2:',
+   item,
+   item.auctionEnd.toString(),
+   item.minPrice.toString(),
+   item.saleToken,
+   item.seller,
+   item.tokenIds,
+   item.highestBidder,
+   item.highestBid.toString()
+  );
 }
 const App = () => {
   useEffect(() => {
