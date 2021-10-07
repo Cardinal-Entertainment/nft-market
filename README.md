@@ -45,11 +45,11 @@ marketInstance.settle {
 
 --
 READ-ONLY:
-
+--
 marketInstance.itemCount();
 RETURNS uint256
 
-marketInstance.Items(itemNumber);
+marketInstance.getListItem(itemNumber);
 RETURNS
 struct Item {
         uint256 auctionEnd;
@@ -57,6 +57,32 @@ struct Item {
         address saleToken;
         address seller;
         address highestBidder;
-        uint256[] tokenIds;
         uint256 highestBid;
+        uint256[] tokenIds;
     }
+
+--
+EVENTS    
+--
+
+event ItemListed(
+    address indexed lister,
+    uint256[] indexed tokenIds,
+    address indexed saleToken,
+    uint256 minPrice
+);
+
+event Bid(
+    uint256 itemNumber,
+    uint256 bidAmount,
+    address indexed bidder,
+    uint256[] indexed tokenIds
+);
+
+event Settled(
+    uint256 itemNumber,
+    uint256 bidAmount,
+    address indexed winner,
+    address indexed seller,
+    uint256[] indexed tokenIds
+);
