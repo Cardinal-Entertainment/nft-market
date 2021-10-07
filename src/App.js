@@ -14,6 +14,13 @@ const setupEthers = async () => {
   const signer = provider.getSigner();
   const signerAddress = await signer.getAddress()
 
+  const marketContractAddress = "0x174faA908bee1bCb6f714b39216257DFfA1d921c"
+  const marketContract = new ethers.Contract(
+    marketContractAddress,
+    zoombies_market_place_json.abi,
+    signer
+  )
+
   const zoombiesContractAddress = "0x3E7997B8D30AA6216102fb2e9206246e478d57d3"
   const ZoombiesContract = new ethers.Contract(
     zoombiesContractAddress,
@@ -21,36 +28,32 @@ const setupEthers = async () => {
     signer
   )
 
-  const marketContractAddress = "0x0D81Cd8e1c613c7A86A83C7269cB26B4fC6440b7"
-  const marketContract = new ethers.Contract(
-    marketContractAddress,
-    zoombies_market_place_json.abi,
-    signer
-  )
-
   //console.log({ZoombiesContract})
   const marketIsApproved = await ZoombiesContract.isApprovedForAll(signerAddress, marketContractAddress)
   console.log("marketIsApproved", marketIsApproved);
   if(!marketIsApproved) {
-    await ZoombiesContract.setApprovalForAll("0x0D81Cd8e1c613c7A86A83C7269cB26B4fC6440b7", true)
+    await ZoombiesContract.setApprovalForAll(marketContractAddress, true)
   }
 
   //Get a list itemCount
   const itemCount = await marketContract.itemCount();
   console.log('market items:' , itemCount.toString());
 
-  //get listItem
-  const item = await marketContract.Items(2);
-  console.log('Item2:',
+  //get listItem - tokenIds are the nftIds - https://zoombies.world/nft/19205
+  const item = await marketContract.getListItem(0);
+  console.log('Item4:',
    item,
    item.auctionEnd.toString(),
    item.minPrice.toString(),
    item.saleToken,
    item.seller,
-   item.tokenIds,
    item.highestBidder,
-   item.highestBid.toString()
+   item.highestBid.toString(),
+   item.tokenIds
   );
+
+
+
 }
 const App = () => {
   useEffect(() => {

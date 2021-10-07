@@ -1,7 +1,7 @@
 # nft-market
 Dapp for custom Cryptoz platform NFT market
 
-Moonbase NFT market 0x0D81Cd8e1c613c7A86A83C7269cB26B4fC6440b7 - https://moonbase-blockscout.testnet.moonbeam.network/address/0x0D81Cd8e1c613c7A86A83C7269cB26B4fC6440b7/transactions
+Moonbase NFT market - this may change.
 
 WMOVR ( wrapped movr) contract - 0x372d0695E75563D9180F8CE31c9924D7e8aaac47
 
@@ -32,6 +32,7 @@ marketInstance.listItem(
 )
 
 payable matching the list saleToken
+bidder must token.approve(market,amount)
 marketInstance.bid(
     itemNumber,
     bidAmount
