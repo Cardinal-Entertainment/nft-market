@@ -84,10 +84,7 @@ const useBlockchain = () => {
 
     if (!marketIsApproved) {
       setIsApprovalModalOpen(true);
-      await ZoombiesContract.setApprovalForAll(
-        "0x0D81Cd8e1c613c7A86A83C7269cB26B4fC6440b7",
-        true
-      );
+      await ZoombiesContract.setApprovalForAll(marketContractAddress, true);
       setIsApprovalModalOpen(false);
     }
   };
@@ -116,22 +113,21 @@ const useBlockchain = () => {
 
     approveContract(signerAddress, ZoombiesContract);
 
-    //Get a list itemCount
+    // // Get a list itemCount
     // const itemCount = await MarketContract.itemCount();
     // console.log("market items:", itemCount.toString());
 
-    // //get listItem
-    // const item = await MarketContract.Items(2);
+    // // Get listItem - tokenIds are the nftIds - https://zoombies.world/nft/19205
+    // const item = await MarketContract.getListItem(0);
     // console.log(
-    //   "Item2:",
     //   item,
     //   item.auctionEnd.toString(),
     //   item.minPrice.toString(),
     //   item.saleToken,
     //   item.seller,
-    //   item.tokenIds,
     //   item.highestBidder,
-    //   item.highestBid.toString()
+    //   item.highestBid.toString(),
+    //   item.tokenIds
     // );
   };
 

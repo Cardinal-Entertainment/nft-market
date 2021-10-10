@@ -11,7 +11,7 @@ To run the app locally: `yarn start`
 
 Dapp for custom Cryptoz platform NFT market
 
-Moonbase NFT market 0x0D81Cd8e1c613c7A86A83C7269cB26B4fC6440b7 - https://moonbase-blockscout.testnet.moonbeam.network/address/0x0D81Cd8e1c613c7A86A83C7269cB26B4fC6440b7/transactions
+Moonbase NFT market - this may change.
 
 WMOVR ( wrapped movr) contract - 0x372d0695E75563D9180F8CE31c9924D7e8aaac47
 
@@ -42,6 +42,7 @@ marketInstance.listItem(
 )
 
 payable matching the list saleToken
+bidder must token.approve(market,amount)
 marketInstance.bid(
     itemNumber,
     bidAmount
@@ -54,11 +55,11 @@ marketInstance.settle {
 
 --
 READ-ONLY:
-
+--
 marketInstance.itemCount();
 RETURNS uint256
 
-marketInstance.Items(itemNumber);
+marketInstance.getListItem(itemNumber);
 RETURNS
 struct Item {
         uint256 auctionEnd;
@@ -66,6 +67,32 @@ struct Item {
         address saleToken;
         address seller;
         address highestBidder;
-        uint256[] tokenIds;
         uint256 highestBid;
+        uint256[] tokenIds;
     }
+
+--
+EVENTS    
+--
+
+event ItemListed(
+    address indexed lister,
+    uint256[] indexed tokenIds,
+    address indexed saleToken,
+    uint256 minPrice
+);
+
+event Bid(
+    uint256 itemNumber,
+    uint256 bidAmount,
+    address indexed bidder,
+    uint256[] indexed tokenIds
+);
+
+event Settled(
+    uint256 itemNumber,
+    uint256 bidAmount,
+    address indexed winner,
+    address indexed seller,
+    uint256[] indexed tokenIds
+);
