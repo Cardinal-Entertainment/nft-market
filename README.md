@@ -1,4 +1,14 @@
 # nft-market
+
+## Dev
+
+To enable hot reload: Create a .env file at the root of the project and paste the following: `FAST_REFRESH=false`
+
+To install packages: `yarn`
+To run the app locally: `yarn start`
+
+## About
+
 Dapp for custom Cryptoz platform NFT market
 
 Moonbase NFT market - this may change.
