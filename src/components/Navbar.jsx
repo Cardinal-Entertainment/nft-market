@@ -79,22 +79,22 @@ const Navbar = () => {
     : "";
 
   const getZoomBalance = async () => {
-    const balance = await contracts.ZoomContract.balanceOf(state.wallet);
+    const balance = await contracts.ZoomContract.balanceOf(wallet);
     setZoomBalance(balance / 1000000000000000000);
   };
   const getWMOVRBalance = async () => {
-    const balance = await contracts.WMOVRContract.balanceOf(state.wallet);
+    const balance = await contracts.WMOVRContract.balanceOf(wallet);
     setMOVRBalance(balance / 1000000000000000000);
   };
 
   useEffect(() => {
-    if (contracts.ZoomContract && state.wallet) {
+    if (contracts.ZoomContract && wallet) {
       getZoomBalance();
     }
-    if (contracts.WMOVRContract && state.wallet) {
+    if (contracts.WMOVRContract && wallet) {
       getWMOVRBalance();
     }
-  }, [contracts, state.wallet]);
+  }, [contracts, wallet]);
 
   return (
     <Container>
