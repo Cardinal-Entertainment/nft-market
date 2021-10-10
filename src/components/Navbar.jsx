@@ -70,6 +70,7 @@ const TooltipContent = styled.span`
 const Navbar = () => {
   const theme = useTheme();
   const [zoomBalance, setZoomBalance] = useState(0);
+  const [MOVRBalance, setMOVRBalance] = useState(0);
 
   const { state } = useContext(store);
   const { wallet, contracts } = state;
@@ -78,15 +79,22 @@ const Navbar = () => {
     : "";
 
   const getZoomBalance = async () => {
-    const balance = await contracts.ZoomContract.balanceOf(state.wallet);
+    const balance = await contracts.ZoomContract.balanceOf(wallet);
     setZoomBalance(balance / 1000000000000000000);
+  };
+  const getWMOVRBalance = async () => {
+    const balance = await contracts.WMOVRContract.balanceOf(wallet);
+    setMOVRBalance(balance / 1000000000000000000);
   };
 
   useEffect(() => {
-    if (contracts.ZoomContract && state.wallet) {
+    if (contracts.ZoomContract && wallet) {
       getZoomBalance();
     }
-  }, [contracts.ZoomContract, state.wallet]);
+    if (contracts.WMOVRContract && wallet) {
+      getWMOVRBalance();
+    }
+  }, [contracts, wallet]);
 
   return (
     <Container>
@@ -111,13 +119,13 @@ const Navbar = () => {
         </NavItem>
         <NavItem color="white">
           <Tooltip
-            title={<TooltipContent>Unknown</TooltipContent>}
+            title={<TooltipContent>{MOVRBalance}</TooltipContent>}
             arrow
             placement="right"
           >
             <span>
               <img src={movrLogo} />
-              Unknown
+              {MOVRBalance}
             </span>
           </Tooltip>
         </NavItem>
