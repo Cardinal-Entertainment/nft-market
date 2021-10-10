@@ -72,21 +72,21 @@ const Navbar = () => {
   const [zoomBalance, setZoomBalance] = useState(0);
 
   const { state } = useContext(store);
-  const { wallet } = state;
+  const { wallet, contracts } = state;
   const shortWallet = wallet
     ? `${wallet.substr(0, 10)}...${wallet.substr(34)}`
     : "";
 
   const getZoomBalance = async () => {
-    const balance = await state.contracts.ZoomContract.balanceOf(state.wallet);
+    const balance = await contracts.ZoomContract.balanceOf(state.wallet);
     setZoomBalance(balance / 1000000000000000000);
   };
 
   useEffect(() => {
-    if (state.contracts.ZoomContract && state.wallet) {
+    if (contracts.ZoomContract && state.wallet) {
       getZoomBalance();
     }
-  }, [state.contracts.ZoomContract, state.wallet]);
+  }, [contracts.ZoomContract, state.wallet]);
 
   return (
     <Container>

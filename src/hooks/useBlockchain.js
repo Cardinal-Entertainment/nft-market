@@ -82,7 +82,6 @@ const useBlockchain = () => {
       marketContractAddress
     );
 
-    console.log("marketIsApproved", marketIsApproved);
     if (!marketIsApproved) {
       setIsApprovalModalOpen(true);
       await ZoombiesContract.setApprovalForAll(
