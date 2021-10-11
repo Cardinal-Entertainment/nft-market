@@ -4,14 +4,14 @@
 import { ethers } from "ethers";
 import { bigNumberToString } from "./BigNumbers";
 
-export const getBalance = async (signer) => {
+export const getWalletBalance = async (signer) => {
   const balance = await signer.getBalance();
   const balanceString = bigNumberToString(balance);
 
   return ethers.utils.formatEther(balanceString);
 };
 
-export const getZoomBalance = async (zoomContract, address) => {
+export const getWalletZoomBalance = async (zoomContract, address) => {
   const zoomBalance = await zoomContract.balanceOf(address);
 
   return ethers.utils.formatEther(zoomBalance);

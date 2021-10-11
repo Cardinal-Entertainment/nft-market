@@ -17,6 +17,7 @@ const initialState = {
     WMOVRContract: null,
     GlobalContract: null,
   },
+  signer: null,
 };
 
 const store = createContext(initialState);
@@ -40,7 +41,8 @@ const StateProvider = ({ children }) => {
       case ActionTypes.CONTRACTS_LOADED:
         return {
           ...state,
-          contracts: payload,
+          contracts: payload.contracts,
+          signer: payload.signer
         };
       default:
         throw new Error(`Unhandled action type: ${type}`);
