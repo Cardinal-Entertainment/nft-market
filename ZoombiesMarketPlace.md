@@ -1,5 +1,5 @@
 
-# Zoombies Market Place Contract 
+# ZoombiesMarketPlace Contract 
 
 ## Functions 
 
@@ -17,6 +17,7 @@
 - creatorFee
 - dollarZoombies
 - getApproved
+- getListItem
 - getRoleAdmin
 - grantRole
 - hasRole

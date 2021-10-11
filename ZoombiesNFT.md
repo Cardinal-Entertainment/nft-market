@@ -1,5 +1,5 @@
 
-# Zoombies Market Place Contract 
+# ZoombiesNFT Contract 
 
 ## Functions 
 
