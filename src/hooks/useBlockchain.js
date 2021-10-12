@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { ethers } from "ethers";
+import detectEthereumProvider from "@metamask/detect-provider";
 
 import zoombies_market_place_json from "../contracts/ZoombiesMarketPlace.json";
 import zoombies_nft_json from "../contracts/ZoombiesNFT.json";
@@ -13,6 +14,34 @@ const marketContractAddress = "0x0D81Cd8e1c613c7A86A83C7269cB26B4fC6440b7";
 const zoomContractAddress = "0x8e21404bAd3A1d2327cc6D2B2118f47911a1f316";
 const zoombiesContractAddress = "0x3E7997B8D30AA6216102fb2e9206246e478d57d3";
 const wmovrContractAddress = "0x372d0695E75563D9180F8CE31c9924D7e8aaac47";
+
+const isLocal = process.env.NODE_ENV === "development";
+
+const ethChainParam = isLocal
+  ? {
+      chainId: "0x507", // Moonbase Alpha's chainId is 1287, which is 0x507 in hex
+      chainName: "Moonbase Alpha",
+      nativeCurrency: {
+        name: "DEV",
+        symbol: "DEV",
+        decimals: 18,
+      },
+      rpcUrls: ["https://rpc.testnet.moonbeam.network"],
+      blockExplorerUrls: [
+        "https://moonbase-blockscout.testnet.moonbeam.network/",
+      ],
+    }
+  : {
+      chainId: "0x505", // Moonbase Alpha's chainId is 1287, which is 0x507 in hex
+      chainName: "Moonriver",
+      nativeCurrency: {
+        name: "MOVR",
+        symbol: "MOVR",
+        decimals: 18,
+      },
+      rpcUrls: ["https://rpc.moonriver.moonbeam.network"],
+      blockExplorerUrls: ["https://blockscout.moonriver.moonbeam.network/"],
+    };
 
 const useBlockchain = () => {
   const [isApprovalModalOpen, setIsApprovalModalOpen] = useState(false);
@@ -68,7 +97,7 @@ const useBlockchain = () => {
           WMOVRContract,
           GlobalContract: null,
         },
-        signer: signer
+        signer: signer,
       })
     );
 
@@ -93,28 +122,42 @@ const useBlockchain = () => {
   };
 
   const setupEthers = async () => {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const metamaskProvider = await detectEthereumProvider({
+      mustBeMetaMask: true,
+    });
 
-    if (!window.ethereum) {
+    if (metamaskProvider) {
+      await metamaskProvider.request({
+        method: "wallet_addEthereumChain",
+        params: [ethChainParam],
+      });
+
+      const provider = new ethers.providers.Web3Provider(metamaskProvider);
+
+      window.ethereum.on("connected", handleConnect);
+      window.ethereum.on("disconnect", handleDisconnect);
+      window.ethereum.on("accountsChanged", handleAccountsChanged);
+      window.ethereum.on("chainChanged", handleChainChanged);
+
+      dispatch(Actions.dAppStateChanged(DAPP_STATES.CONNECTED));
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
+      const signerAddress = await signer.getAddress();
+      dispatch(Actions.walletChanged(signerAddress));
+      dispatch(Actions.dAppStateChanged(DAPP_STATES.WALLET_CONNECTED));
+
+      const { ZoomContract, ZoombiesContract, MarketContract } =
+        loadContracts(signer);
+
+      approveContract(signerAddress, ZoombiesContract);
+    } else {
+      // No metamask detected.
       return;
     }
 
-    window.ethereum.on("connected", handleConnect);
-    window.ethereum.on("disconnect", handleDisconnect);
-    window.ethereum.on("accountsChanged", handleAccountsChanged);
-    window.ethereum.on("chainChanged", handleChainChanged);
-
-    dispatch(Actions.dAppStateChanged(DAPP_STATES.CONNECTED));
-    await provider.send("eth_requestAccounts", []);
-    const signer = provider.getSigner();
-    const signerAddress = await signer.getAddress();
-    dispatch(Actions.walletChanged(signerAddress));
-    dispatch(Actions.dAppStateChanged(DAPP_STATES.WALLET_CONNECTED));
-
-    const { ZoomContract, ZoombiesContract, MarketContract } =
-      loadContracts(signer);
-
-    approveContract(signerAddress, ZoombiesContract);
+    // if (!window.ethereum) {
+    //   return;
+    // }
 
     // // Get a list itemCount
     // const itemCount = await MarketContract.itemCount();
