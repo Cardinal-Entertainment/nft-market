@@ -7,6 +7,8 @@ import marketplaceIcon from "../assets/marketplace-icon.svg";
 import Tooltip from "@mui/material/Tooltip";
 import { store } from "store/store";
 
+import { getWalletBalance, getWalletZoomBalance } from '../utils/wallet'
+
 const Container = styled.div`
   width: 300px;
   background: rgba(11, 11, 11, 0.87);
@@ -73,18 +75,19 @@ const Navbar = () => {
   const [MOVRBalance, setMOVRBalance] = useState(0);
 
   const { state } = useContext(store);
-  const { wallet, contracts } = state;
+  const { wallet, contracts, signer } = state;
   const shortWallet = wallet
     ? `${wallet.substr(0, 10)}...${wallet.substr(34)}`
     : "";
 
   const getZoomBalance = async () => {
-    const balance = await contracts.ZoomContract.balanceOf(wallet);
-    setZoomBalance(balance / 1000000000000000000);
+    const balance = await getWalletZoomBalance(contracts.ZoomContract, wallet);
+    setZoomBalance(balance);
   };
+
   const getWMOVRBalance = async () => {
-    const balance = await contracts.WMOVRContract.balanceOf(wallet);
-    setMOVRBalance(balance / 1000000000000000000);
+    const balance = await getWalletBalance(signer);
+    setMOVRBalance(balance);
   };
 
   useEffect(() => {

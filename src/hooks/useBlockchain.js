@@ -61,11 +61,14 @@ const useBlockchain = () => {
 
     dispatch(
       Actions.contractsLoaded({
-        ZoomContract,
-        ZoombiesContract,
-        MarketContract,
-        WMOVRContract,
-        GlobalContract: null,
+        contracts: {
+          ZoomContract,
+          ZoombiesContract,
+          MarketContract,
+          WMOVRContract,
+          GlobalContract: null,
+        },
+        signer: signer
       })
     );
 
