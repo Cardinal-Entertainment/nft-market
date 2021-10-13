@@ -10,10 +10,15 @@ import { DAPP_STATES, store } from "store/store";
 import Actions from "store/actions";
 // import global_json from "../contracts/Global.json";
 
-const marketContractAddress = "0x0D81Cd8e1c613c7A86A83C7269cB26B4fC6440b7";
-const zoomContractAddress = "0x8e21404bAd3A1d2327cc6D2B2118f47911a1f316";
-const zoombiesContractAddress = "0x3E7997B8D30AA6216102fb2e9206246e478d57d3";
-const wmovrContractAddress = "0x372d0695E75563D9180F8CE31c9924D7e8aaac47";
+import { getAuctionItems, getAuctionListings } from '../utils/auction'
+import {
+  zoombiesContractAddress,
+  zoomContractAddress,
+  marketContractAddress,
+  wmovrContractAddress
+} from '../constants'
+
+
 
 const isLocal = process.env.NODE_ENV === "development";
 
@@ -150,6 +155,9 @@ const useBlockchain = () => {
         loadContracts(signer);
 
       approveContract(signerAddress, ZoombiesContract);
+
+      // getAuctionItems(0, MarketContract, ZoombiesContract);
+      // getAuctionListings(MarketContract, ZoombiesContract)
     } else {
       // No metamask detected.
       return;
@@ -164,7 +172,6 @@ const useBlockchain = () => {
     // console.log("market items:", itemCount.toString());
 
     // // Get listItem - tokenIds are the nftIds - https://zoombies.world/nft/19205
-    // const item = await MarketContract.getListItem(0);
     // console.log(
     //   item,
     //   item.auctionEnd.toString(),
