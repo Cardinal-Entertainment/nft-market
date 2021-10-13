@@ -31,7 +31,10 @@ const StateProvider = ({ children }) => {
       case ActionTypes.WALLET_CHANGED:
         return {
           ...state,
-          wallet: payload,
+          wallet: {
+            ...state.wallet,
+            ...payload,
+          },
         };
       case ActionTypes.DAPP_STATE_CHANGED:
         return {

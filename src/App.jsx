@@ -6,9 +6,10 @@ import React from "react";
 import Navbar from "components/Navbar";
 
 const Container = styled.div`
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 `;
 
 const Dialog = styled(DialogSource)`
@@ -46,11 +47,13 @@ const Footer = styled.div`
 const Body = styled.div`
   flex: 1;
   display: flex;
+  min-height: 0;
 `;
 
 const Content = styled.div`
   flex: 1;
   background: linear-gradient(180deg, #f566e2 0%, #b131fe 100%);
+  padding: 20px;
 `;
 
 const App = () => {
