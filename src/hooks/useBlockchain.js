@@ -10,15 +10,13 @@ import { DAPP_STATES, store } from "store/store";
 import Actions from "store/actions";
 // import global_json from "../contracts/Global.json";
 
-import { getAuctionItems, getAuctionListings } from '../utils/auction'
+import { getAuctionItems, getAuctionListings } from "../utils/auction";
 import {
   zoombiesContractAddress,
   zoomContractAddress,
   marketContractAddress,
-  wmovrContractAddress
-} from '../constants'
-
-
+  wmovrContractAddress,
+} from "../constants";
 
 const isLocal = process.env.NODE_ENV === "development";
 
@@ -154,6 +152,7 @@ const useBlockchain = () => {
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
       const address = await signer.getAddress();
+      console.log({ address });
       const [balance, networkId] = await Promise.all([
         provider.getBalance(address),
         provider.getNetwork(),

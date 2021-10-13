@@ -171,7 +171,7 @@ const Navbar = () => {
           <Tooltip
             title={
               <TooltipContent>
-                {zoomBalance.toLocaleString()} Zoom Tokens
+                {zoomBalance.toLocaleString()} ZOOM Tokens
               </TooltipContent>
             }
             arrow

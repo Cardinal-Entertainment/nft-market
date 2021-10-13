@@ -19,8 +19,10 @@ export const RARITY_CLASSES = {
   Diamond: "card-bg card-bg-1",
 };
 
-const getCardData = async (tokenId, nftContract) => {
-  const [cardTypeId, editionNumber] = await nftContract.getNFTData(tokenId);
+const getCardData = async (tokenId, zoombiesContract) => {
+  const [cardTypeId, editionNumber] = await zoombiesContract.getNFTData(
+    tokenId
+  );
   const cardData = await getCardType(cardTypeId);
 
   cardData.id = tokenId;

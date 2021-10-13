@@ -87,6 +87,7 @@ const CurrencyInput = styled.input`
 
 const Select = styled(SelectSource)`
   div {
+    min-width: 0;
     padding: 10px;
   }
 `;
