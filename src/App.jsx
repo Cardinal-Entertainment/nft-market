@@ -4,6 +4,9 @@ import useBlockchain from "./hooks/useBlockchain";
 import zoombiesLogo from "./assets/zoombies_head.svg";
 import React from "react";
 import Navbar from "components/Navbar";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import Home from "pages/Home";
+import NewListing from "pages/NewListing";
 
 const Container = styled.div`
   height: 100vh;
@@ -64,23 +67,34 @@ const App = () => {
 
   return (
     <Container>
-      <Header>
-        <img src={zoombiesLogo} />
-        <h1>ZOOMBIES Auction</h1>
-      </Header>
-      <Body>
-        <Navbar />
-        <Content />
-      </Body>
-      <Footer />
-      <Dialog
-        open={isApprovalModalOpen}
-        onClose={() => setIsApprovalModalOpen(false)}
-      >
-        <Logo
-          src={"https://cryptoz.cards/assets/cryptokeeper_logo_binance.png"}
-        />
-      </Dialog>
+      <Router>
+        <Header>
+          <img src={zoombiesLogo} />
+          <h1>ZOOMBIES Auction</h1>
+        </Header>
+        <Body>
+          <Navbar />
+          <Content>
+            <Switch>
+              <Route path="/new">
+                <NewListing />
+              </Route>
+              <Route path="/">
+                <Home />
+              </Route>
+            </Switch>
+          </Content>
+        </Body>
+        <Footer />
+        <Dialog
+          open={isApprovalModalOpen}
+          onClose={() => setIsApprovalModalOpen(false)}
+        >
+          <Logo
+            src={"https://cryptoz.cards/assets/cryptokeeper_logo_binance.png"}
+          />
+        </Dialog>
+      </Router>
     </Container>
   );
 };

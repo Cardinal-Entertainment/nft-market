@@ -9,7 +9,11 @@ export const DAPP_STATES = {
 
 const initialState = {
   dAppState: DAPP_STATES.NOT_CONNECTED,
-  wallet: null,
+  wallet: {
+    address: null,
+    balance: null,
+    chainId: null,
+  },
   contracts: {
     ZoomContract: null,
     ZoombiesContract: null,
@@ -45,7 +49,7 @@ const StateProvider = ({ children }) => {
         return {
           ...state,
           contracts: payload.contracts,
-          signer: payload.signer
+          signer: payload.signer,
         };
       default:
         throw new Error(`Unhandled action type: ${type}`);
