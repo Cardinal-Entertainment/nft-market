@@ -3,11 +3,10 @@ import styled, { useTheme } from "styled-components";
 import metamaskLogo from "../assets/metamask-face.png";
 import movrLogo from "../assets/movr_logo.png";
 import zoomLogo from "../assets/zoombies_logo_round_plaque.svg";
-import marketplaceIcon from "../assets/marketplace-icon.svg";
 import Tooltip from "@mui/material/Tooltip";
 import { store } from "store/store";
 import { Link } from "react-router-dom";
-import { faEdit } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faShoppingBag } from "@fortawesome/free-solid-svg-icons";
 
 import { getWalletWMOVRBalance, getWalletZoomBalance } from "../utils/wallet";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -37,18 +36,17 @@ const NavItem = styled.div`
     margin-right: 15px;
   }
 
-  img.marketplace {
-    width: 30px;
-    padding: 0 5px;
-  }
-
   img.zoom {
     width: 40px;
     padding: 0 5px;
   }
 
   svg {
-    padding: 0 17px 0 7px;
+    padding: 0 15px 0 5px;
+
+    &.marketplace {
+      padding-right: 22px;
+    }
   }
 `;
 
@@ -115,17 +113,17 @@ const Navbar = () => {
       <NavigationSection>
         <Link to="/">
           <NavItem color="white">
-            <img src={marketplaceIcon} className="marketplace" />
+            <FontAwesomeIcon
+              icon={faShoppingBag}
+              size="lg"
+              className="marketplace"
+            />
             Live Auctions
           </NavItem>
         </Link>
         <Link to="/new">
           <NavItem color="white">
-            <FontAwesomeIcon
-              icon={faEdit}
-              size="lg"
-              className="card-booster-shop-icon"
-            />
+            <FontAwesomeIcon icon={faEdit} size="lg" />
             New Listing
           </NavItem>
         </Link>

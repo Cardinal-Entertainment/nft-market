@@ -232,10 +232,11 @@ const NewListing = () => {
               onChange={(e) => setSelectedCurrency(e.target.value)}
             >
               {Object.keys(CURRENCY_TYPES).map((value) => (
-                <MenuItem value={value}>{CURRENCY_TYPES[value]}</MenuItem>
+                <MenuItem value={value} key={value}>
+                  {CURRENCY_TYPES[value]}
+                </MenuItem>
               ))}
             </Select>
-            {}
           </InputContainer>
         </FlexRow>
         <FlexRow>
@@ -253,10 +254,12 @@ const NewListing = () => {
           <span>Select NFTs below from your Crypt to add to the listing:</span>
         </FlexRow>
         <NFTContainer>
-          {userNFTs.map((card, index) => (
-            <CardWrapper onClick={() => handleCardClicked(card.id)}>
+          {userNFTs.map((card) => (
+            <CardWrapper
+              onClick={() => handleCardClicked(card.id)}
+              key={card.id}
+            >
               <Card
-                key={card.id}
                 cardClass={card.rarity}
                 image={card.image}
                 editionCurrent={card.edition_current}
@@ -267,7 +270,11 @@ const NewListing = () => {
                 origin={card.in_store}
                 unlockCzxp={card.unlock_czxp}
               />
-              <input type="checkbox" checked={!!selectedCards[card.id]} />
+              <input
+                type="checkbox"
+                checked={!!selectedCards[card.id]}
+                readOnly
+              />
             </CardWrapper>
           ))}
         </NFTContainer>

@@ -70,7 +70,7 @@ const App = () => {
       <Router>
         <Header>
           <img src={zoombiesLogo} />
-          <h1>ZOOMBIES Auction</h1>
+          <h1>Zoombies Market</h1>
         </Header>
         <Body>
           <Navbar />
