@@ -3,16 +3,16 @@ import { ethers } from "ethers";
 import detectEthereumProvider from "@metamask/detect-provider";
 
 import zoombies_market_place_json from "../contracts/ZoombiesMarketPlace.json";
-import zoombies_nft_json from "../contracts/ZoombiesNFT.json";
+import zoombies_json from "../contracts/Zoombies.json";
 import zoom_token_json from "../contracts/ZoomToken.json";
 import wrapped_movr_json from "../contracts/WrappedMovr.json";
 import { DAPP_STATES, store } from "store/store";
 import Actions from "store/actions";
 // import global_json from "../contracts/Global.json";
 
+const zoombiesContractAddress = "0x3E7997B8D30AA6216102fb2e9206246e478d57d3";
 const marketContractAddress = "0x0D81Cd8e1c613c7A86A83C7269cB26B4fC6440b7";
 const zoomContractAddress = "0x8e21404bAd3A1d2327cc6D2B2118f47911a1f316";
-const zoombiesContractAddress = "0x3E7997B8D30AA6216102fb2e9206246e478d57d3";
 const wmovrContractAddress = "0x372d0695E75563D9180F8CE31c9924D7e8aaac47";
 
 const isLocal = process.env.NODE_ENV === "development";
@@ -63,10 +63,10 @@ const useBlockchain = () => {
 
   const handleChainChanged = (chainId) => {};
 
-  const loadContracts = (signer) => {
+  const loadContracts = (signer, chainId) => {
     const ZoombiesContract = new ethers.Contract(
-      zoombiesContractAddress,
-      zoombies_nft_json.abi,
+      zoombies_json.networks[chainId].address,
+      zoombies_json.abi,
       signer
     );
 
@@ -101,6 +101,12 @@ const useBlockchain = () => {
       })
     );
 
+    dispatch(
+      Actions.walletChanged({
+        chainId,
+      })
+    );
+
     return {
       ZoomContract,
       ZoombiesContract,
@@ -108,9 +114,9 @@ const useBlockchain = () => {
     };
   };
 
-  const approveContract = async (signerAddress, ZoombiesContract) => {
+  const approveContract = async (address, ZoombiesContract) => {
     const marketIsApproved = await ZoombiesContract.isApprovedForAll(
-      signerAddress,
+      address,
       marketContractAddress
     );
 
@@ -142,22 +148,27 @@ const useBlockchain = () => {
       dispatch(Actions.dAppStateChanged(DAPP_STATES.CONNECTED));
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
-      const signerAddress = await signer.getAddress();
-      dispatch(Actions.walletChanged(signerAddress));
+      const address = await signer.getAddress();
+      const [balance, networkId] = await Promise.all([
+        provider.getBalance(address),
+        provider.getNetwork(),
+      ]);
+
+      dispatch(
+        Actions.walletChanged({
+          address,
+          balance: balance / 1000000000000000000,
+          chainId: networkId.chainId,
+        })
+      );
       dispatch(Actions.dAppStateChanged(DAPP_STATES.WALLET_CONNECTED));
+      const { ZoombiesContract } = loadContracts(signer, networkId.chainId);
 
-      const { ZoomContract, ZoombiesContract, MarketContract } =
-        loadContracts(signer);
-
-      approveContract(signerAddress, ZoombiesContract);
+      approveContract(address, ZoombiesContract);
     } else {
       // No metamask detected.
       return;
     }
-
-    // if (!window.ethereum) {
-    //   return;
-    // }
 
     // // Get a list itemCount
     // const itemCount = await MarketContract.itemCount();
