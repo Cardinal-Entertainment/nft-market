@@ -43,7 +43,7 @@ export const getAuctionItems = async (auctionId, marketContract, zoombieContract
 
         return {
             cards,
-            acutionEnd: auctionEndDate,
+            auctionEnd: auctionEndDate,
             currency: currency,
             minPrice,
             highestBid
