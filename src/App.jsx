@@ -4,11 +4,15 @@ import useBlockchain from "./hooks/useBlockchain";
 import zoombiesLogo from "./assets/zoombies_head.svg";
 import React from "react";
 import Navbar from "components/Navbar";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import Home from "pages/Home";
+import NewListing from "pages/NewListing";
 
 const Container = styled.div`
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 `;
 
 const Dialog = styled(DialogSource)`
@@ -46,11 +50,13 @@ const Footer = styled.div`
 const Body = styled.div`
   flex: 1;
   display: flex;
+  min-height: 0;
 `;
 
 const Content = styled.div`
   flex: 1;
   background: linear-gradient(180deg, #f566e2 0%, #b131fe 100%);
+  padding: 20px;
 `;
 
 const App = () => {
@@ -61,23 +67,34 @@ const App = () => {
 
   return (
     <Container>
-      <Header>
-        <img src={zoombiesLogo} />
-        <h1>ZOOMBIES Auction</h1>
-      </Header>
-      <Body>
-        <Navbar />
-        <Content />
-      </Body>
-      <Footer />
-      <Dialog
-        open={isApprovalModalOpen}
-        onClose={() => setIsApprovalModalOpen(false)}
-      >
-        <Logo
-          src={"https://cryptoz.cards/assets/cryptokeeper_logo_binance.png"}
-        />
-      </Dialog>
+      <Router>
+        <Header>
+          <img src={zoombiesLogo} />
+          <h1>ZOOMBIES Auction</h1>
+        </Header>
+        <Body>
+          <Navbar />
+          <Content>
+            <Switch>
+              <Route path="/new">
+                <NewListing />
+              </Route>
+              <Route path="/">
+                <Home />
+              </Route>
+            </Switch>
+          </Content>
+        </Body>
+        <Footer />
+        <Dialog
+          open={isApprovalModalOpen}
+          onClose={() => setIsApprovalModalOpen(false)}
+        >
+          <Logo
+            src={"https://cryptoz.cards/assets/cryptokeeper_logo_binance.png"}
+          />
+        </Dialog>
+      </Router>
     </Container>
   );
 };

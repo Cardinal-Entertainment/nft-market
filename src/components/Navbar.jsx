@@ -6,8 +6,11 @@ import zoomLogo from "../assets/zoombies_logo_round_plaque.svg";
 import marketplaceIcon from "../assets/marketplace-icon.svg";
 import Tooltip from "@mui/material/Tooltip";
 import { store } from "store/store";
+import { Link } from "react-router-dom";
+import { faEdit } from "@fortawesome/free-solid-svg-icons";
 
-import { getWalletBalance, getWalletZoomBalance } from '../utils/wallet'
+import { getWalletWMOVRBalance, getWalletZoomBalance } from "../utils/wallet";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const Container = styled.div`
   width: 300px;
@@ -43,6 +46,10 @@ const NavItem = styled.div`
     width: 40px;
     padding: 0 5px;
   }
+
+  svg {
+    padding: 0 17px 0 7px;
+  }
 `;
 
 const NavigationSection = styled.div`
@@ -71,46 +78,62 @@ const TooltipContent = styled.span`
 
 const Navbar = () => {
   const theme = useTheme();
-  const [zoomBalance, setZoomBalance] = useState(0);
-  const [MOVRBalance, setMOVRBalance] = useState(0);
+  const [zoomBalance, setZoomBalance] = useState("");
+  const [WMOVRBalance, setWMOVRBalance] = useState("");
 
   const { state } = useContext(store);
-  const { wallet, contracts, signer } = state;
-  const shortWallet = wallet
-    ? `${wallet.substr(0, 10)}...${wallet.substr(34)}`
+  const {
+    wallet: { address, balance },
+    contracts,
+  } = state;
+
+  const shortWallet = address
+    ? `${address.substr(0, 10)}...${address.substr(34)}`
     : "";
 
   const getZoomBalance = async () => {
-    const balance = await getWalletZoomBalance(contracts.ZoomContract, wallet);
-    setZoomBalance(balance);
+    const bal = await getWalletZoomBalance(contracts.ZoomContract, address);
+    setZoomBalance(bal);
   };
 
   const getWMOVRBalance = async () => {
-    const balance = await getWalletBalance(signer);
-    setMOVRBalance(balance);
+    const bal = await getWalletWMOVRBalance(contracts.WMOVRContract, address);
+    setWMOVRBalance(bal);
   };
 
   useEffect(() => {
-    if (contracts.ZoomContract && wallet) {
+    if (contracts.ZoomContract && address) {
       getZoomBalance();
     }
-    if (contracts.WMOVRContract && wallet) {
+    if (contracts.WMOVRContract && address) {
       getWMOVRBalance();
     }
-  }, [contracts, wallet]);
+  }, [contracts, address]);
 
   return (
     <Container>
       <NavigationSection>
-        <NavItem color="white">
-          <img src={marketplaceIcon} className="marketplace" />
-          Live Auctions
-        </NavItem>
+        <Link to="/">
+          <NavItem color="white">
+            <img src={marketplaceIcon} className="marketplace" />
+            Live Auctions
+          </NavItem>
+        </Link>
+        <Link to="/new">
+          <NavItem color="white">
+            <FontAwesomeIcon
+              icon={faEdit}
+              size="lg"
+              className="card-booster-shop-icon"
+            />
+            New Listing
+          </NavItem>
+        </Link>
       </NavigationSection>
       <UserBalances>
         <NavItem color={theme.colors.metamaskOrange}>
           <Tooltip
-            title={<TooltipContent>{wallet}</TooltipContent>}
+            title={<TooltipContent>{address}</TooltipContent>}
             arrow
             placement="right"
           >
@@ -122,13 +145,27 @@ const Navbar = () => {
         </NavItem>
         <NavItem color="white">
           <Tooltip
-            title={<TooltipContent>{MOVRBalance}</TooltipContent>}
+            title={
+              <TooltipContent>{Number(WMOVRBalance) / 1} WMOVR</TooltipContent>
+            }
             arrow
             placement="right"
           >
             <span>
               <img src={movrLogo} />
-              {MOVRBalance}
+              {Number(WMOVRBalance).toFixed(4)} WMOVR
+            </span>
+          </Tooltip>
+        </NavItem>
+        <NavItem color="white">
+          <Tooltip
+            title={<TooltipContent>{balance} MOVR</TooltipContent>}
+            arrow
+            placement="right"
+          >
+            <span>
+              <img src={movrLogo} />
+              {Number(balance).toFixed(4)} MOVR
             </span>
           </Tooltip>
         </NavItem>
