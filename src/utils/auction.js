@@ -1,4 +1,5 @@
 import axios from "axios";
+import { ethers } from "ethers";
 import moment from "moment";
 
 import { zoomContractAddress, wmovrContractAddress } from "../constants";
@@ -12,7 +13,7 @@ import getCardData from "./getCardData";
  *
  * @returns Array of cards for an auction listing.
  */
-export const getAuctionItems = async (
+export const getAuctionItem = async (
   auctionId,
   marketContract,
   zoombiesContract
@@ -20,10 +21,9 @@ export const getAuctionItems = async (
   try {
     const item = await marketContract.getListItem(auctionId);
     console.log({ item });
-    const tokenIds = item.tokenIds;
-    const salesToken = item.saleToken;
-    const minPrice = item.minPrice.toString();
-    const highestBid = item.highestBid.toString();
+    const { tokenIds, saleToken, highestBidder, seller } = item;
+    const minPrice = ethers.utils.formatEther(item.minPrice);
+    const highestBid = ethers.utils.formatEther(item.highestBid);
 
     const getCardPromise = tokenIds.map(async (token) => {
       const tokenId = token.toNumber();
@@ -37,19 +37,21 @@ export const getAuctionItems = async (
     const auctionEndDate = moment.unix(auctionEnd);
 
     let currency;
-    if (salesToken === zoomContractAddress) {
+    if (saleToken === zoomContractAddress) {
       currency = "ZOOM";
-    } else if (salesToken === wmovrContractAddress) {
-      currency = "MOVR";
+    } else if (saleToken === wmovrContractAddress) {
+      currency = "WMOVR";
     }
 
     return {
+      id: auctionId,
       cards,
       auctionEnd: auctionEndDate,
       currency,
       minPrice,
       highestBid,
-      id: auctionId,
+      highestBidder,
+      seller,
     };
   } catch (err) {
     console.error(err);
@@ -63,12 +65,15 @@ export const getAuctionListings = async (marketContract, zoombiesContract) => {
   const listings = [];
 
   for (let i = 0; i < itemCount; i++) {
-    const auctionItem = await getAuctionItems(
+    const auctionItem = await getAuctionItem(
       i,
       marketContract,
       zoombiesContract
     );
-    listings.push(auctionItem);
+    // filter out the settled auctions
+    if (auctionItem.cards.length) {
+      listings.push(auctionItem);
+    }
   }
 
   return listings;

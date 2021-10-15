@@ -1,5 +1,6 @@
 import React, { createContext, useReducer } from "react";
 import { ActionTypes } from "./actions";
+import logger from "./logger";
 
 export const DAPP_STATES = {
   NOT_CONNECTED: "NOT_CONNECTED",
@@ -29,8 +30,9 @@ const { Provider } = store;
 
 const StateProvider = ({ children }) => {
   const [state, dispatch] = useReducer((state, action) => {
+    logger(action);
     const { type, payload } = action;
-    console.log({ type, payload });
+
     switch (type) {
       case ActionTypes.WALLET_CHANGED:
         return {

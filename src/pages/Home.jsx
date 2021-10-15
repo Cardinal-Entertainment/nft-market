@@ -5,6 +5,7 @@ import { getAuctionListings } from "utils/auction";
 import { DataGrid } from "@mui/x-data-grid";
 import Chip from "@mui/material/Chip";
 import moment from "moment";
+import { useHistory } from "react-router-dom";
 
 const Container = styled.div`
   flex: 1;
@@ -15,6 +16,18 @@ const Container = styled.div`
 
   .table {
     background: white;
+
+    .MuiDataGrid-row {
+      cursor: pointer;
+    }
+
+    .MuiDataGrid-footerContainer {
+      justify-content: flex-end;
+
+      .MuiDataGrid-selectedRowCount {
+        display: none;
+      }
+    }
   }
 `;
 
@@ -28,16 +41,24 @@ const Listing = styled.div`
 `;
 
 const Home = () => {
+  const history = useHistory();
   const [listings, setListings] = useState([]);
   const {
-    state: { contracts },
+    state: { wallet, contracts },
   } = useContext(store);
 
-  const getStatus = (endTime) => {
+  const getStatus = (endTime, highestBidder) => {
+    console.log({ highestBidder });
     const now = moment().unix();
     const end = moment(endTime).unix();
 
     if (end < now) {
+      if (highestBidder === wallet.address) {
+        return {
+          label: "You Won!",
+          color: "success",
+        };
+      }
       return {
         label: "Completed",
         color: "success",
@@ -51,16 +72,16 @@ const Home = () => {
     }
     return {
       label: "Ongoing",
-      color: "primary",
+      color: "secondary",
     };
   };
 
   const columns = [
-    { field: "id", headerName: "ID", width: 100 },
+    { field: "id", headerName: "ID", width: 50 },
     {
       field: "summary",
       headerName: "Summary",
-      minWidth: 150,
+      minWidth: 200,
       flex: 2,
       valueGetter: (params) =>
         getCardSummary(params.getValue(params.id, "cards")),
@@ -68,7 +89,7 @@ const Home = () => {
     {
       field: "amount",
       headerName: "Amount",
-      type: "number",
+      sortable: false,
       minWidth: 130,
       flex: 1,
       valueGetter: (params) => {
@@ -82,7 +103,7 @@ const Home = () => {
     {
       field: "auctionEnd",
       headerName: "End Time",
-      valueFormatter: (params) => params.value.format("MM/DD/YYYY, HH:mm:ss A"),
+      valueFormatter: (params) => params.value.format("MM/DD/YYYY, h:mm:ss A"),
       minWidth: 230,
     },
     {
@@ -91,8 +112,18 @@ const Home = () => {
       minWidth: 160,
       renderCell: (params) => (
         <Chip
-          label={getStatus(params.getValue(params.id, "auctionEnd")).label}
-          color={getStatus(params.getValue(params.id, "auctionEnd")).color}
+          label={
+            getStatus(
+              params.getValue(params.id, "auctionEnd"),
+              params.getValue(params.id, "highestBidder")
+            ).label
+          }
+          color={
+            getStatus(
+              params.getValue(params.id, "auctionEnd"),
+              params.getValue(params.id, "highestBidder")
+            ).color
+          }
         />
       ),
     },
@@ -117,11 +148,13 @@ const Home = () => {
       return summary;
     }, {});
 
-    const strSummary = Object.keys(countByRarity)
+    return Object.keys(countByRarity)
       .map((rarity) => `${countByRarity[rarity]} ${rarity}`)
       .join(", ");
+  };
 
-    return strSummary;
+  const handleRowClick = (row) => {
+    history.push(`/listing/${row.id}`);
   };
 
   useEffect(() => {
@@ -138,13 +171,8 @@ const Home = () => {
         columns={columns}
         pageSize={20}
         rowsPerPageOptions={[10, 20, 50, 100]}
+        onRowClick={handleRowClick}
       />
-      {/* {listings.map((listing) => (
-        <Listing>
-          <div>Auction #{listing.auctionId}</div>
-          <div>{getCardSummary(listing.cards)}</div>
-        </Listing>
-      ))} */}
     </Container>
   );
 };

@@ -15,7 +15,13 @@ const Container = styled.div`
   flex: 1;
   height: 100%;
   display: flex;
+  flex-direction: column;
   justify-content: center;
+
+  h1 {
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
 `;
 
 const FlexRow = styled.div`
@@ -51,15 +57,11 @@ const CardWrapper = styled.div`
 
 const Form = styled.div`
   background: white;
+  flex: 1;
   padding: 20px;
-  width: 100%;
   border-radius: 4px;
   display: flex;
   flex-direction: column;
-
-  h1 {
-    margin: 10px 0;
-  }
 `;
 
 const InputContainer = styled.div`
@@ -217,8 +219,8 @@ const NewListing = () => {
 
   return (
     <Container>
+      <h1>New Listing</h1>
       <Form>
-        <h1>New Listing</h1>
         <FlexRow>
           <span>Listing Price:</span>
           <InputContainer>

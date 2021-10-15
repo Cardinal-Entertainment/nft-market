@@ -179,7 +179,7 @@ const Navbar = () => {
           >
             <span>
               <img className="zoom" src={zoomLogo} />
-              {zoomBalance.toLocaleString()} ZOOM
+              {Number(Number(zoomBalance).toFixed(4)).toLocaleString()} ZOOM
             </span>
           </Tooltip>
         </NavItem>

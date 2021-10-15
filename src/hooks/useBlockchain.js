@@ -10,7 +10,6 @@ import { DAPP_STATES, store } from "store/store";
 import Actions from "store/actions";
 // import global_json from "../contracts/Global.json";
 
-import { getAuctionItems, getAuctionListings } from "../utils/auction";
 import {
   zoombiesContractAddress,
   zoomContractAddress,
@@ -152,8 +151,7 @@ const useBlockchain = () => {
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
       const address = await signer.getAddress();
-      console.log({ address });
-      const [balance, networkId] = await Promise.all([
+      const [balance, network] = await Promise.all([
         provider.getBalance(address),
         provider.getNetwork(),
       ]);
@@ -162,33 +160,17 @@ const useBlockchain = () => {
         Actions.walletChanged({
           address,
           balance: balance / 1000000000000000000,
-          chainId: networkId.chainId,
+          chainId: network.chainId,
         })
       );
       dispatch(Actions.dAppStateChanged(DAPP_STATES.WALLET_CONNECTED));
-      const { ZoombiesContract } = loadContracts(signer, networkId.chainId);
+      const { ZoombiesContract } = loadContracts(signer, network.chainId);
 
       approveContract(address, ZoombiesContract);
     } else {
       // No metamask detected.
       return;
     }
-
-    // // Get a list itemCount
-    // const itemCount = await MarketContract.itemCount();
-    // console.log("market items:", itemCount.toString());
-
-    // // Get listItem - tokenIds are the nftIds - https://zoombies.world/nft/19205
-    // console.log(
-    //   item,
-    //   item.auctionEnd.toString(),
-    //   item.minPrice.toString(),
-    //   item.saleToken,
-    //   item.seller,
-    //   item.highestBidder,
-    //   item.highestBid.toString(),
-    //   item.tokenIds
-    // );
   };
 
   useEffect(() => {

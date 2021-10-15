@@ -9,7 +9,7 @@ const Container = styled.div`
   margin: 0;
   perspective: 600px;
   height: calc(0.55 * 410px);
-  width: calc(0.55 * 260px);
+  min-width: calc(0.55 * 260px);
   font-size: 10px;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
     Helvetica Neue, Arial, Noto Sans, Liberation Sans, sans-serif,
@@ -213,6 +213,7 @@ const Card = ({
   level,
   origin,
   unlockCzxp,
+  className = null,
 }) => {
   const getEditionLabel = () => {
     if (editionTotal === 0) {
@@ -230,7 +231,7 @@ const Card = ({
   };
 
   return (
-    <Container originColor={getOriginColor()}>
+    <Container originColor={getOriginColor()} className={className}>
       <div id="flip-container">
         <div className={classnames({ [cardClass]: true, front: true })}>
           <div id="image-container">
