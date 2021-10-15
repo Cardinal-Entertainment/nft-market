@@ -175,7 +175,6 @@ const useBlockchain = () => {
     // console.log("market items:", itemCount.toString());
 
     // // Get listItem - tokenIds are the nftIds - https://zoombies.world/nft/19205
-    // const item = await MarketContract.getListItem(0);
     // console.log(
     //   item,
     //   item.auctionEnd.toString(),
