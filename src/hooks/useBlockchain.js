@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { ethers } from "ethers";
 import detectEthereumProvider from "@metamask/detect-provider";
+import moment from 'moment'
 
 import zoombies_market_place_json from "../contracts/ZoombiesMarketPlace.json";
 import zoombies_json from "../contracts/Zoombies.json";
@@ -9,6 +10,8 @@ import wrapped_movr_json from "../contracts/WrappedMovr.json";
 import { DAPP_STATES, store } from "store/store";
 import Actions from "store/actions";
 // import global_json from "../contracts/Global.json";
+
+import { getItemListedEventsFromDate } from '../utils/auctions'
 
 const zoombiesContractAddress = "0x3E7997B8D30AA6216102fb2e9206246e478d57d3";
 const marketContractAddress = "0x0D81Cd8e1c613c7A86A83C7269cB26B4fC6440b7";
@@ -162,9 +165,34 @@ const useBlockchain = () => {
         })
       );
       dispatch(Actions.dAppStateChanged(DAPP_STATES.WALLET_CONNECTED));
-      const { ZoombiesContract } = loadContracts(signer, networkId.chainId);
+      const { ZoombiesContract, MarketContract } = loadContracts(signer, networkId.chainId);
 
       approveContract(address, ZoombiesContract);
+
+      const twoWeeksAgo = moment().subtract(2, 'weeks')
+
+      const events = await getItemListedEventsFromDate(twoWeeksAgo, MarketContract)
+
+      console.log(events)
+      // const itemListedFilter = MarketContract.filters.ItemListed(null);
+      // const events = await MarketContract.queryFilter(itemListedFilter, -10000)
+
+      // for (const event of events) {
+      //   const block = await event.getBlock();
+      //   const twoWeeksAgo = moment().subtract(2, 'weeks');
+      //   const blockTime = moment(block.timestamp * 1000);
+
+      // }
+
+      // const event = events[1]
+      // console.log("decoded:", event.decode(event.data, event.topics))
+      // const transaction = await event.getTransaction();
+      // const transactionReceipt = await event.getTransactionReceipt();
+      // const block = await event.getBlock();
+      // console.log(new Date(block.timestamp * 1000))
+      // console.log("transaction: ", transaction)
+      // console.log("transaction receipt: ", transactionReceipt)
+
     } else {
       // No metamask detected.
       return;
