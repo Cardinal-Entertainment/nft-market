@@ -10,6 +10,7 @@ import getCardData from "utils/getCardData";
 import Card from "components/Card";
 import { omit } from "lodash";
 import { useHistory } from "react-router-dom";
+import { ethers } from "ethers";
 
 const Container = styled.div`
   flex: 1;
@@ -191,15 +192,9 @@ const NewListing = () => {
   const createListing = async () => {
     setCreateInProgress(true);
     try {
-      console.log(
-        parseInt((new Date(dateTime).getTime() / 1000).toFixed(0)),
-        parseInt(listPrice),
-        Object.keys(selectedCards).map((x) => parseInt(x)),
-        getCurrencyAddress(selectedCurrency, wallet.chainId)
-      );
       await contracts.MarketContract.listItem(
         parseInt((new Date(dateTime).getTime() / 1000).toFixed(0)),
-        parseInt(listPrice),
+        ethers.utils.parseEther(listPrice),
         Object.keys(selectedCards).map((x) => parseInt(x)),
         getCurrencyAddress(selectedCurrency, wallet.chainId)
       );
