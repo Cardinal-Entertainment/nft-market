@@ -10,12 +10,19 @@ import getCardData from "utils/getCardData";
 import Card from "components/Card";
 import { omit } from "lodash";
 import { useHistory } from "react-router-dom";
+import { ethers } from "ethers";
 
 const Container = styled.div`
   flex: 1;
   height: 100%;
   display: flex;
+  flex-direction: column;
   justify-content: center;
+
+  h1 {
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
 `;
 
 const FlexRow = styled.div`
@@ -51,15 +58,11 @@ const CardWrapper = styled.div`
 
 const Form = styled.div`
   background: white;
+  flex: 1;
   padding: 20px;
-  width: 100%;
   border-radius: 4px;
   display: flex;
   flex-direction: column;
-
-  h1 {
-    margin: 10px 0;
-  }
 `;
 
 const InputContainer = styled.div`
@@ -87,6 +90,7 @@ const CurrencyInput = styled.input`
 
 const Select = styled(SelectSource)`
   div {
+    min-width: 0;
     padding: 10px;
   }
 `;
@@ -188,15 +192,9 @@ const NewListing = () => {
   const createListing = async () => {
     setCreateInProgress(true);
     try {
-      console.log(
-        parseInt((new Date(dateTime).getTime() / 1000).toFixed(0)),
-        parseInt(listPrice),
-        Object.keys(selectedCards).map((x) => parseInt(x)),
-        getCurrencyAddress(selectedCurrency, wallet.chainId)
-      );
       await contracts.MarketContract.listItem(
         parseInt((new Date(dateTime).getTime() / 1000).toFixed(0)),
-        parseInt(listPrice),
+        ethers.utils.parseEther(listPrice),
         Object.keys(selectedCards).map((x) => parseInt(x)),
         getCurrencyAddress(selectedCurrency, wallet.chainId)
       );
@@ -216,8 +214,8 @@ const NewListing = () => {
 
   return (
     <Container>
+      <h1>New Listing</h1>
       <Form>
-        <h1>New Listing</h1>
         <FlexRow>
           <span>Listing Price:</span>
           <InputContainer>
@@ -232,10 +230,11 @@ const NewListing = () => {
               onChange={(e) => setSelectedCurrency(e.target.value)}
             >
               {Object.keys(CURRENCY_TYPES).map((value) => (
-                <MenuItem value={value}>{CURRENCY_TYPES[value]}</MenuItem>
+                <MenuItem value={value} key={value}>
+                  {CURRENCY_TYPES[value]}
+                </MenuItem>
               ))}
             </Select>
-            {}
           </InputContainer>
         </FlexRow>
         <FlexRow>
@@ -253,10 +252,12 @@ const NewListing = () => {
           <span>Select NFTs below from your Crypt to add to the listing:</span>
         </FlexRow>
         <NFTContainer>
-          {userNFTs.map((card, index) => (
-            <CardWrapper onClick={() => handleCardClicked(card.id)}>
+          {userNFTs.map((card) => (
+            <CardWrapper
+              onClick={() => handleCardClicked(card.id)}
+              key={card.id}
+            >
               <Card
-                key={card.id}
                 cardClass={card.rarity}
                 image={card.image}
                 editionCurrent={card.edition_current}
@@ -267,7 +268,11 @@ const NewListing = () => {
                 origin={card.in_store}
                 unlockCzxp={card.unlock_czxp}
               />
-              <input type="checkbox" checked={!!selectedCards[card.id]} />
+              <input
+                type="checkbox"
+                checked={!!selectedCards[card.id]}
+                readOnly
+              />
             </CardWrapper>
           ))}
         </NFTContainer>

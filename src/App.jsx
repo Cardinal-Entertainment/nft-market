@@ -7,6 +7,7 @@ import Navbar from "components/Navbar";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Home from "pages/Home";
 import NewListing from "pages/NewListing";
+import ViewListing from "pages/ViewListing";
 
 const Container = styled.div`
   height: 100vh;
@@ -55,6 +56,7 @@ const Body = styled.div`
 
 const Content = styled.div`
   flex: 1;
+  min-width: 0;
   background: linear-gradient(180deg, #f566e2 0%, #b131fe 100%);
   padding: 20px;
 `;
@@ -70,18 +72,15 @@ const App = () => {
       <Router>
         <Header>
           <img src={zoombiesLogo} />
-          <h1>ZOOMBIES Auction</h1>
+          <h1>Zoombies Market</h1>
         </Header>
         <Body>
           <Navbar />
           <Content>
             <Switch>
-              <Route path="/new">
-                <NewListing />
-              </Route>
-              <Route path="/">
-                <Home />
-              </Route>
+              <Route path="/new" component={NewListing} />
+              <Route path="/listing/:id" component={ViewListing} />
+              <Route path="/" component={Home} />
             </Switch>
           </Content>
         </Body>
