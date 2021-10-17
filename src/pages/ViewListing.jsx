@@ -52,7 +52,6 @@ const SpacedRow = styled(FlexRow)`
 
 const NFTContainer = styled.div`
   width: 100%;
-  background: white;
   display: flex;
   flex-wrap: wrap;
 
