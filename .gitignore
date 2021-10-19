@@ -24,3 +24,5 @@ yarn-error.log*
 
 .prettierignore
 .env
+
+.idea

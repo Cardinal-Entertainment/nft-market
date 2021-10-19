@@ -1,11 +1,14 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, {useCallback, useContext, useEffect, useState} from "react";
 import { store } from "store/store";
 import styled from "styled-components/macro";
 import { getAuctionListings } from "utils/auction";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import Chip from "@mui/material/Chip";
 import moment from "moment";
-import { useHistory } from "react-router-dom";
+import {useHistory, useParams} from "react-router-dom";
+import {Button, ButtonGroup, FormControl, InputLabel, Select} from "@mui/material";
+import MenuItem from "@mui/material/MenuItem";
+import Filterbar from "../components/Filterbar";
 
 const Container = styled.div`
   flex: 1;
@@ -43,6 +46,17 @@ const Listing = styled.div`
 const Home = () => {
   const history = useHistory();
   const [listings, setListings] = useState([]);
+  const [filters, setFilters] = useState({
+    cardType: '', // 'shop' or 'booster'
+    rarity: '', // 'epic', 'rare', 'uncommon', 'common'
+    token: '', // 'wmovr', 'zoom'
+  });
+  const [sortBy, setSortBy] = useState({
+    field: '', //attribute name of an auction
+    order: 1 // 1 : ascending, -1 : descending
+  })
+
+
   const {
     state: { wallet, contracts },
   } = useContext(store);
@@ -77,7 +91,12 @@ const Home = () => {
   };
 
   const columns = [
-    { field: "id", headerName: "ID", width: 50 },
+    {
+      field: "id",
+      headerName: "ID",
+      width: 50,
+      valueGetter: (params) =>
+      '#'+ params.id  },
     {
       field: "summary",
       headerName: "Summary",
@@ -157,6 +176,43 @@ const Home = () => {
     history.push(`/listing/${row.id}`);
   };
 
+  const handleFilterChanged = (params) => {
+    setFilters({ ...filters, ...params })
+  }
+
+  const handleSortByChanged = (attribute) => {
+    setSortBy({ ...sortBy, ...attribute })
+  }
+
+  const condition = (auction) => {
+
+    return auction.currency.toLowerCase().includes(filters.token)
+        && auction.cards.filter(card => card.rarityValue.includes(filters.rarity)).length > 0
+        && auction.cards.filter(card => card.in_store.toLowerCase().includes(filters.cardType)).length > 0
+  }
+
+  const compareFunc = (a, b) => {
+    let res = 0
+    if (sortBy.field === 'auctionEnd') { //case of datetime
+      res = moment(a[sortBy.field]).isAfter(b[sortBy.field]) ? 1 : (moment(a[sortBy.field]).isSame(b[sortBy.field]) ? 0 : -1)
+    } else { // min_price and highest_bid
+
+      if (sortBy.field === '') {
+        return 1
+      }
+
+      if (a.currency === 'WMOVR' && b.currency === 'ZOOM') {
+        res = 1
+      } else if (a.currency === 'ZOOM' && b.currency === 'WMOVR') {
+        res = -1
+      } else {
+        res = parseFloat(a[sortBy.field]) > parseFloat(b[sortBy.field]) ? 1 : (parseFloat(a[sortBy.field]) ===  parseFloat(b[sortBy.field]) ? 0 : -1)
+      }
+    }
+
+    return res * sortBy.order
+  }
+
   useEffect(() => {
     if (contracts.MarketContract) {
       loadListings();
@@ -165,14 +221,16 @@ const Home = () => {
 
   return (
     <Container>
+      <Filterbar onFilterChanged={handleFilterChanged} filters={filters} onSortByChanged={handleSortByChanged} sortBy={sortBy}/>
       <DataGrid
-        className="table"
-        rows={listings}
-        columns={columns}
-        pageSize={20}
-        rowsPerPageOptions={[10, 20, 50, 100]}
-        onRowClick={handleRowClick}
+          className="table"
+          rows={listings.filter(auction => condition(auction)).sort(compareFunc)}
+          columns={columns}
+          pageSize={20}
+          rowsPerPageOptions={[10, 20, 50, 100]}
+          onRowClick={handleRowClick}
       />
+
     </Container>
   );
 };
