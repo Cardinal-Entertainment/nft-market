@@ -1,15 +1,42 @@
-import React, {useCallback, useContext, useEffect, useState} from "react";
+import React, { useContext, useEffect, useState} from "react";
 import { store } from "store/store";
-import styled from "styled-components/macro";
+import styled from "styled-components";
 import { getAuctionListings } from "utils/auction";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import { DataGrid } from "@mui/x-data-grid";
 import Chip from "@mui/material/Chip";
 import moment from "moment";
-import {useHistory, useParams} from "react-router-dom";
-import {Button, ButtonGroup, FormControl, InputLabel, Select} from "@mui/material";
-import MenuItem from "@mui/material/MenuItem";
+import {useHistory} from "react-router-dom";
 import Filterbar from "../components/Filterbar";
 
+
+// const Container = styled('div')(({ theme }) => ({
+//   flex: '1',
+//   height: '100%',
+//   display: 'flex',
+//   flexDirection: 'column',
+//   overflowY: 'auto',
+//
+//   '& .MuiButtonBase-root': {
+//     display: 'flex!important'
+//   },
+//
+//   '& .table': {
+//     background: 'white',
+//     height: '100px',
+//
+//     '& .MuiDataGrid-row': {
+//       cursor: 'pointer'
+//     },
+//
+//     '& .MuiDataGrid-footerContainer': {
+//       justifyContent: 'flex-end',
+//
+//       '& .MuiDataGrid-selectedRowCount': {
+//         display: 'none'
+//       }
+//     }
+//   }
+// }));
 const Container = styled.div`
   flex: 1;
   height: 100%;
@@ -50,6 +77,7 @@ const Home = () => {
     cardType: '', // 'shop' or 'booster'
     rarity: '', // 'epic', 'rare', 'uncommon', 'common'
     token: '', // 'wmovr', 'zoom'
+    keyword: '' // search keyword
   });
   const [sortBy, setSortBy] = useState({
     field: '', //attribute name of an auction
@@ -169,7 +197,7 @@ const Home = () => {
 
     return Object.keys(countByRarity)
       .map((rarity) => `${countByRarity[rarity]} ${rarity}`)
-      .join(", ");
+      .join(", ") + ' (' + cards.map((card) => card.name).join(',') + ')';
   };
 
   const handleRowClick = (row) => {
@@ -184,11 +212,14 @@ const Home = () => {
     setSortBy({ ...sortBy, ...attribute })
   }
 
-  const condition = (auction) => {
+  const filterCondition = (auction) => {
 
     return auction.currency.toLowerCase().includes(filters.token)
         && auction.cards.filter(card => card.rarityValue.includes(filters.rarity)).length > 0
         && auction.cards.filter(card => card.in_store.toLowerCase().includes(filters.cardType)).length > 0
+        && ( auction.cards.filter(card => card.name.toLowerCase().includes(filters.keyword.toLowerCase())).length > 0
+          || auction.cards.filter(card => card.card_set.toLowerCase().includes(filters.keyword.toLowerCase())).length > 0 )
+
   }
 
   const compareFunc = (a, b) => {
@@ -224,11 +255,12 @@ const Home = () => {
       <Filterbar onFilterChanged={handleFilterChanged} filters={filters} onSortByChanged={handleSortByChanged} sortBy={sortBy}/>
       <DataGrid
           className="table"
-          rows={listings.filter(auction => condition(auction)).sort(compareFunc)}
+          rows={listings.filter(auction => filterCondition(auction)).sort(compareFunc)}
           columns={columns}
           pageSize={20}
           rowsPerPageOptions={[10, 20, 50, 100]}
           onRowClick={handleRowClick}
+          autoHeight={true}
       />
 
     </Container>
