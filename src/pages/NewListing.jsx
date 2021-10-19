@@ -11,6 +11,9 @@ import Card from "components/Card";
 import { omit } from "lodash";
 import { useHistory } from "react-router-dom";
 import { ethers } from "ethers";
+import LazyLoad from 'react-lazyload';
+import {CircularProgress} from "@mui/material";
+
 
 const Container = styled.div`
   flex: 1;
@@ -252,29 +255,33 @@ const NewListing = () => {
           <span>Select NFTs below from your Crypt to add to the listing:</span>
         </FlexRow>
         <NFTContainer>
-          {userNFTs.map((card) => (
-            <CardWrapper
-              onClick={() => handleCardClicked(card.id)}
-              key={card.id}
-            >
-              <Card
-                cardClass={card.rarity}
-                image={card.image}
-                editionCurrent={card.edition_current}
-                editionTotal={card.edition_total}
-                name={card.name}
-                cset={card.card_set}
-                level={card.card_level}
-                origin={card.in_store}
-                unlockCzxp={card.unlock_czxp}
-              />
-              <input
-                type="checkbox"
-                checked={!!selectedCards[card.id]}
-                readOnly
-              />
-            </CardWrapper>
-          ))}
+          {userNFTs.length > 0 ? userNFTs.map((card) => (
+            <LazyLoad key={card.id} once={true} resize={true}>
+              <CardWrapper
+                  onClick={() => handleCardClicked(card.id)}
+                  key={card.id}
+              >
+                <Card
+                    cardClass={card.rarity}
+                    image={card.image}
+                    editionCurrent={card.edition_current}
+                    editionTotal={card.edition_total}
+                    name={card.name}
+                    cset={card.card_set}
+                    level={card.card_level}
+                    origin={card.in_store}
+                    unlockCzxp={card.unlock_czxp}
+                />
+                <input
+                    type="checkbox"
+                    checked={!!selectedCards[card.id]}
+                    readOnly
+                />
+              </CardWrapper>
+            </LazyLoad>
+          )) :
+          <CircularProgress/>
+          }
         </NFTContainer>
         <CenteredRow>
           <Button
