@@ -11,7 +11,7 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import { CircularProgress, Modal, Paper } from "@mui/material";
+import {CircularProgress, Modal, Pagination, Paper} from "@mui/material";
 import useEventScraper from "hooks/useBidScraper";
 import OfferDialog from "components/OfferDialog";
 import { marketContractAddress } from "../constants";
@@ -19,6 +19,11 @@ import { ethers } from "ethers";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
+import LazyLoad from 'react-lazyload';
+import zoomLogo from "../assets/zoombies_logo_round_plaque.svg";
+import movrLogo from "../assets/movr_logo.png";
+import {DataGrid} from "@mui/x-data-grid";
+import Chip from "@mui/material/Chip";
 
 const Container = styled.div`
   flex: 1;
@@ -26,6 +31,10 @@ const Container = styled.div`
 
   h1 {
     margin: 0;
+  }
+
+  & .pagination-bar {
+    padding: 12px;
   }
 `;
 
@@ -84,12 +93,70 @@ const ModalContent = styled.div`
   }
 `;
 
+const StyledLogo = styled.img`
+  width: 30px;
+  padding: 0 5px;
+`
+
+const SellerDiv = styled.div`
+  padding: 12px;
+  display: flex;
+  
+  
+  & div {
+    display: flex;
+    align-items: center;
+    margin: 0 12px;
+  }
+`
+
 const ViewListing = () => {
   const history = useHistory();
   const { id: auctionId } = useParams();
   const [auctionItem, setAuctionItem] = useState({});
   const [approvalModalOpen, setApprovalModalOpen] = useState(false);
   const [bidInProgress, setBidInProgress] = useState(false);
+  const [cardPageNo, setCardPageNo] = useState(1);
+  //
+  // const columns = [
+  //
+  //   {
+  //     field: "time",
+  //     headerName: "Time",
+  //     valueFormatter: (params) => params.value.format("MM/DD/YYYY, h:mm:ss A"),
+  //     minWidth: 230,
+  //   },
+  //   {
+  //     field: "summary",
+  //     headerName: "Summary",
+  //     minWidth: 200,
+  //     flex: 2,
+  //     valueGetter: (params) =>
+  //       getCardSummary(params.getValue(params.id, "cards")),
+  //   },
+  //   {
+  //     field: "status",
+  //     headerName: "Status",
+  //     minWidth: 160,
+  //     renderCell: (params) => (
+  //       <Chip
+  //         label={
+  //           getStatus(
+  //             params.getValue(params.id, "auctionEnd"),
+  //             params.getValue(params.id, "highestBidder")
+  //           ).label
+  //         }
+  //         color={
+  //           getStatus(
+  //             params.getValue(params.id, "auctionEnd"),
+  //             params.getValue(params.id, "highestBidder")
+  //           ).color
+  //         }
+  //       />
+  //     ),
+  //   },
+  // ];
+
   const {
     state: { contracts, wallet },
   } = useContext(store);
@@ -106,13 +173,16 @@ const ViewListing = () => {
       contracts.MarketContract,
       contracts.ZoombiesContract
     );
-    console.log({ auctionItem });
     setAuctionItem(auctionItem);
   };
 
   const handleConfirmBid = async (amount) => {
     const { currency } = auctionItem;
     let currencyContract;
+
+    if (parseFloat(amount) <= auctionItem?.highestBid || parseFloat(amount) <= auctionItem?.minPrice) {
+      throw new Error(`Invalid amount valid : ${amount}`);
+    }
 
     switch (currency) {
       case "ZOOM":
@@ -150,11 +220,16 @@ const ViewListing = () => {
     history.push("/");
   };
 
+  const handleCardsTablePageChanged = (event, value) => {
+    setCardPageNo(value)
+  }
+
   useEffect(() => {
     if (contracts.MarketContract && contracts.ZoombiesContract) {
       getListingInfo();
     }
   }, [contracts.MarketContract, contracts.ZoombiesContract]);
+
 
   const now = moment().unix();
   const end = moment(auctionItem?.auctionEnd).unix();
@@ -180,28 +255,47 @@ const ViewListing = () => {
           </Button>
         )}
       </SpacedRow>
+      <SellerDiv>
+        <div>
+          {'Amount: ' + (auctionItem.minPrice ? auctionItem.minPrice : 0) + ' ' + (auctionItem.currency ? auctionItem.currency : '')}
+          {auctionItem.currency === 'ZOOM' ?  <StyledLogo src={zoomLogo}/> : <StyledLogo src={movrLogo} />}
+        </div>
+        <div>
+          {'Seller Wallet: ' + (auctionItem.seller ? auctionItem.seller : '')}
+        </div>
+        <div>
+          {'Date Listed: ' + (auctionItem.created ? auctionItem.created : '')}
+        </div>
+      </SellerDiv>
+
       <NFTContainer>
-        {auctionItem?.cards &&
-          auctionItem.cards.map((card) => (
-            <Card
-              key={card.id}
-              cardClass={card.rarity}
-              image={card.image}
-              editionCurrent={card.edition_current}
-              editionTotal={card.edition_total}
-              name={card.name}
-              cset={card.card_set}
-              level={card.card_level}
-              origin={card.in_store}
-              unlockCzxp={card.unlock_czxp}
-            />
-          ))}
+        {auctionItem?.cards ?
+          auctionItem.cards.slice((cardPageNo - 1) * 20, cardPageNo * 20).map((card) => (
+            <LazyLoad key={card.id} once={true} resize={true}>
+              <Card
+                key={card.id}
+                cardClass={card.rarity}
+                image={card.image}
+                editionCurrent={card.edition_current}
+                editionTotal={card.edition_total}
+                name={card.name}
+                cset={card.card_set}
+                level={card.card_level}
+                origin={card.in_store}
+                unlockCzxp={card.unlock_czxp}
+              />
+            </LazyLoad>
+          )) : <CircularProgress/>}
       </NFTContainer>
+      {auctionItem.cards && <Pagination count={Math.ceil(auctionItem.cards.length / 20)} className={"pagination-bar"} variant="outlined" shape="rounded" onChange={handleCardsTablePageChanged}/>}
+
+
       <SpacedRow>
         <h3>Offers</h3>
         {!isOver && (
           <OfferDialog
             currency={auctionItem?.currency}
+            minAmount={parseFloat(auctionItem?.highestBid) > parseFloat(auctionItem?.minPrice) ? auctionItem?.highestBid : auctionItem?.minPrice}
             onConfirm={handleConfirmBid}
             disabled={bidInProgress}
           />
