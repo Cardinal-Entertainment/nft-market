@@ -10,11 +10,11 @@ import styled from "styled-components/macro";
 
 const FlexRow = styled.div`
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
 
   span {
+    margin-top: 24px;
     margin-left: 10px;
-    margin-bottom: 5px;
     font-size: 18px;
   }
 `;
