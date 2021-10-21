@@ -117,45 +117,6 @@ const ViewListing = () => {
   const [approvalModalOpen, setApprovalModalOpen] = useState(false);
   const [bidInProgress, setBidInProgress] = useState(false);
   const [cardPageNo, setCardPageNo] = useState(1);
-  //
-  // const columns = [
-  //
-  //   {
-  //     field: "time",
-  //     headerName: "Time",
-  //     valueFormatter: (params) => params.value.format("MM/DD/YYYY, h:mm:ss A"),
-  //     minWidth: 230,
-  //   },
-  //   {
-  //     field: "summary",
-  //     headerName: "Summary",
-  //     minWidth: 200,
-  //     flex: 2,
-  //     valueGetter: (params) =>
-  //       getCardSummary(params.getValue(params.id, "cards")),
-  //   },
-  //   {
-  //     field: "status",
-  //     headerName: "Status",
-  //     minWidth: 160,
-  //     renderCell: (params) => (
-  //       <Chip
-  //         label={
-  //           getStatus(
-  //             params.getValue(params.id, "auctionEnd"),
-  //             params.getValue(params.id, "highestBidder")
-  //           ).label
-  //         }
-  //         color={
-  //           getStatus(
-  //             params.getValue(params.id, "auctionEnd"),
-  //             params.getValue(params.id, "highestBidder")
-  //           ).color
-  //         }
-  //       />
-  //     ),
-  //   },
-  // ];
 
   const {
     state: { contracts, wallet },
