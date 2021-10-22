@@ -5,23 +5,28 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import styled from "styled-components/macro";
 
 const FlexRow = styled.div`
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
 
   span {
+    margin-top: 24px;
     margin-left: 10px;
-    margin-bottom: 5px;
     font-size: 18px;
   }
 `;
 
-const OfferDialog = ({ currency, onConfirm, disabled }) => {
+const OfferDialog = ({ currency, minAmount, onConfirm, disabled }) => {
   const [open, setOpen] = useState(false);
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState(minAmount);
+  const [inputInvalid, setInputInvalid] = useState(false);
+
+  useEffect(() => {
+    setInput(minAmount);
+  }, [minAmount]);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -30,6 +35,42 @@ const OfferDialog = ({ currency, onConfirm, disabled }) => {
   const handleClose = () => {
     setOpen(false);
   };
+
+  const onKeyDown = (e) => {
+    if (currency === 'ZOOM') {
+      if(e.keyCode === 69 || e.keyCode === 190 || e.keyCode === 188){ // 'e', '.', ',' charaters
+        e.preventDefault();
+      }
+    }
+  }
+
+  const handleAmountChanged = (e) => {
+    const value = e.target.value
+
+    let isDecimalOverflow = false
+    if (currency === 'WMOVR' && value.toString().includes('.')) {
+      if (value.toString().split(".")[1].length > 3) {
+        isDecimalOverflow = true
+      }
+    }
+
+    if (isDecimalOverflow) {
+      setInput(parseFloat(value).toFixed(3).toString())
+    } else {
+      setInput(value)
+    }
+  }
+
+  const handleConfirm = () => {
+    if (parseFloat(input) <= minAmount) {
+      setInputInvalid(true)
+
+    } else {
+      setInputInvalid(false)
+      onConfirm(input)
+      setOpen(false);
+    }
+  }
 
   return (
     <div>
@@ -46,12 +87,15 @@ const OfferDialog = ({ currency, onConfirm, disabled }) => {
             <TextField
               autoFocus
               margin="dense"
-              id="name"
+              id="amount"
               label="Offer Amount"
               type="number"
               variant="standard"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
+              value={currency === 'ZOOM' ? parseInt(input).toString() : input}
+              onChange={handleAmountChanged}
+              onKeyDown={onKeyDown}
+              error={inputInvalid}
+              helperText={inputInvalid && 'Set bigger amount'}
             />
             <span>{currency}</span>
           </FlexRow>
@@ -61,8 +105,7 @@ const OfferDialog = ({ currency, onConfirm, disabled }) => {
           <Button
             variant="contained"
             onClick={() => {
-              setOpen(false);
-              onConfirm(input);
+              handleConfirm(input);
             }}
           >
             Confirm
