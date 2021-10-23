@@ -22,8 +22,6 @@ import moment from "moment";
 import LazyLoad from 'react-lazyload';
 import zoomLogo from "../assets/zoombies_logo_round_plaque.svg";
 import movrLogo from "../assets/movr_logo.png";
-import {DataGrid} from "@mui/x-data-grid";
-import Chip from "@mui/material/Chip";
 
 const Container = styled.div`
   flex: 1;

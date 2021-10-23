@@ -253,15 +253,15 @@ const Home = () => {
   return (
     <Container>
       <Filterbar onFilterChanged={handleFilterChanged} filters={filters} onSortByChanged={handleSortByChanged} sortBy={sortBy}/>
-      <DataGrid
-          className="table"
-          rows={listings.filter(auction => filterCondition(auction)).sort(compareFunc)}
-          columns={columns}
-          pageSize={20}
-          rowsPerPageOptions={[10, 20, 50, 100]}
-          onRowClick={handleRowClick}
-          autoHeight={true}
-      />
+      {/*<DataGrid*/}
+      {/*    className="table"*/}
+      {/*    rows={listings.filter(auction => filterCondition(auction)).sort(compareFunc)}*/}
+      {/*    columns={columns}*/}
+      {/*    pageSize={20}*/}
+      {/*    rowsPerPageOptions={[10, 20, 50, 100]}*/}
+      {/*    onRowClick={handleRowClick}*/}
+      {/*    autoHeight={true}*/}
+      {/*/>*/}
 
     </Container>
   );
