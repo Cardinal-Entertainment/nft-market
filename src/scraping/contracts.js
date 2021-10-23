@@ -6,7 +6,7 @@ const rpcProvider = new ethers.providers.JsonRpcProvider(
 );
 
 const marketContractJSON = require("../contracts/ZoombiesMarketPlace.json");
-const marketContractAddress = "0x4155b3752fb7AD9237Cc6c82532E4fdE84292EFC";
+const marketContractAddress = "0x22d4647013345cB0311c1D566558Df9f01c14b1b";
 
 const zoomContractAddress = '0x8e21404bAd3A1d2327cc6D2B2118f47911a1f316';
 
@@ -25,11 +25,17 @@ const zoombiesContract = new ethers.Contract(
   rpcProvider
 )
 
+const EVENT_TYPES = {
+  Bid: "Bid",
+  ItemListed: "ItemListed",
+};
+
 module.exports = {
   marketContract,
   marketContractJSON,
   marketContractAddress,
   zoomContractAddress,
   zoombiesContract,
-  zoombiesContractAddress
+  zoombiesContractAddress,
+  EVENT_TYPES
 };

@@ -29,8 +29,6 @@ async function getCardData(tokenId) {
     );
     const cardData = await getCardType(cardTypeId);
 
-    console.log(cardData);
-
     cardData.id = tokenId;
     let newAttr = {};
 
@@ -70,23 +68,29 @@ async function getAndStoreCards(tokenIds, auctionItemNumber) {
 
   for (const tokenId of tokenIds) {
     const cardData = await getCardData(tokenId);
-
     /**
      * We should only store attributes that are needed for rendering, filtering, sorting.
      */
     const cardInfoToStore = {
+      id: cardData.id,
       name: cardData.name,
-      image: cardData.image,
-      description: cardData.description,
-      externalUrl: cardData.external_url,
-      cardSet: cardData.card_set,
+      itemNumber: auctionItemNumber,
       typeId: cardData.type_id,
-      zoombieType: cardData.zombie_type,
-      auctionItem: auctionItemNumber,
+      cardSet: cardData.card_set,
+      zombieType: cardData.zombie_type,
+      cardOrigin: cardData.in_store,
       rarity: cardData.rarityValue,
-    };
+      editionTotal: cardData.edition_total,
+      cardLevel: cardData.card_level,
+      originalCost: cardData.cost,
+      earnCZXP: cardData.buy_czxp,
+      sacrificeCZXP: cardData.sacrifice_czxp,
+      unlockCZXP: cardData.unlock_czxp,
+      releaseTime: cardData.release_time,
+    }
 
     cardInfoArray.push(cardInfoToStore);
+    // console.log(cardInfoToStore)
   }
 
   if (cardInfoArray.length > 0) {

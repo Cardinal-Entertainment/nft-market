@@ -5,13 +5,11 @@ const {
   marketContract,
   marketContractAddress,
   marketContractJSON,
-  zoomContractAddress,
 } = require("./contracts");
-const { watchEvents } = require("./scrapeUtil");
+const { watchEvents } = require("./watcherUtil");
 const moment = require('moment');
 const { getAndStoreCards } = require("./cardUtil");
 
-// const mainBSC = "0x8a0c542ba7bbbab7cf3551ffcc546cdc5362d2a1";
 const marketInterface = new ethers.utils.Interface(marketContractJSON.abi);
 
 const eventsToScrape = {
@@ -27,7 +25,7 @@ const eventsToScrape = {
       {
         collectionName: "itemListed",
         filterString:
-          "ItemListed(uint256,address,uint256[],address,address,uint256)",
+          "ItemListed(uint256,uint256,address,uint256[],address,address,uint256)",
         callbackFunc: itemListedCallback,
       },
     ],
@@ -48,8 +46,6 @@ async function bidEventCallback(eventLogs, collectionName, dbClient) {
 async function itemListedCallback(eventLogs, collectionName, dbClient) {
 
   const { args } = marketInterface.parseLog(eventLogs);
-  console.log("got item listed event!");
-  // console.log(args);
   const itemNumber = args.itemNumber.toNumber();
   const tokenIds = args.tokenIds.map((tokenId) => {
     return tokenId.toNumber();
@@ -57,19 +53,19 @@ async function itemListedCallback(eventLogs, collectionName, dbClient) {
 
   getAndStoreCards(tokenIds, itemNumber);
   const minPrice = ethers.utils.formatEther(args.minPrice);
-  const saleToken =
-    args.saleToken.toLowerCase() === zoomContractAddress.toLowerCase()
-      ? "zoom"
-      : "movr";
 
   const auctionItem = {
     itemNumber,
     tokenIds,
     minPrice,
     lister: args.lister,
-    saleToken,
-    createdAt: moment().unix()
+    saleToken: args.saleToken.toLowerCase(),
+    nftToken: args.nftToken.toLowerCase(),
+    auctionStart: moment().unix(),
+    auctionEnd: args.auctionEnd.toNumber()
   }
+
+  // console.log(args)
 
   const itemListedCollection = dbClient.getCollection(collectionName);
   itemListedCollection.insertOne(auctionItem);

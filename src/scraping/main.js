@@ -15,7 +15,7 @@ const {
         await client.connect();
 
         watchMarketEvents(client);
-        // scrapeMarketEvents()
+        scrapeMarketEvents()
     } catch (err) {
         console.error(err);
       }
