@@ -27,7 +27,14 @@ export const wrapMOVR = async (wmovrContract, amount) => {
 
 export const addAssetToMetamask = async ( tokenSymbol, address ) => {
   const tokenDecimals = 18;
-  const tokenImage = 'https://zoombies.world/images/zoombies_coin.svg';
+
+  let tokenImage = ''
+  if (tokenSymbol === 'WMOVR' ) {
+    tokenImage = 'https://zoombies.world/images/mr-icon.png';
+  } else if (tokenSymbol === 'ZOOM') {
+    tokenImage = 'https://zoombies.world/images/zoombies_coin.svg';
+  }
+
   try {
     const metamaskProvider = await detectEthereumProvider({
       mustBeMetaMask: true,
