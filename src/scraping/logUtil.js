@@ -1,4 +1,3 @@
-const MongoClient = require("./database");
 const { marketContract } = require("./contracts");
 
 const { ethers } = require("ethers");
@@ -34,9 +33,9 @@ async function decodeBidEvent(events) {
       }))
 }
 
-async function getLogsFromBlock(fromBlock, collectionName, eventName) {
+async function getLogsFromBlock(fromBlock, eventName) {
   try {
-    const collection = MongoClient.client.getCollection(collectionName);
+    // const collection = MongoClient.client.getCollection(collectionName);
 
     const eventFilter = marketContractFilters[eventName];
     const allEvents = [];
@@ -63,8 +62,8 @@ async function getLogsFromBlock(fromBlock, collectionName, eventName) {
       blockToScrape += blocksPerRequest;
     }
 
-    console.log(`Finished scraping ${allEvents.length} Events.`)
-    collection.insertMany(allEvents);
+    return allEvents;
+    
   } catch (err) {
     console.error("Scrape Log Error: ", err);
   }

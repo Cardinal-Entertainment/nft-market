@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
-// const { MongoClient } = require("mongodb");
-const MongoClient = require("./database");
 const { ethers } = require("ethers");
 const {
   marketContract,
   marketContractAddress,
   marketContractJSON,
+  zoomContractAddress,
 } = require("./contracts");
 const { watchEvents } = require("./scrapeUtil");
-const {getLogsFromBlock, EVENT_TYPES} = require('./logUtil')
+const moment = require('moment');
+const { getAndStoreCards } = require("./cardUtil");
 
 // const mainBSC = "0x8a0c542ba7bbbab7cf3551ffcc546cdc5362d2a1";
 const marketInterface = new ethers.utils.Interface(marketContractJSON.abi);
@@ -26,7 +26,8 @@ const eventsToScrape = {
       },
       {
         collectionName: "itemListed",
-        filterString: "ItemListed(address,uint256[],address,uint256)",
+        filterString:
+          "ItemListed(uint256,address,uint256[],address,address,uint256)",
         callbackFunc: itemListedCallback,
       },
     ],
@@ -44,10 +45,34 @@ async function bidEventCallback(eventLogs, collectionName, dbClient) {
   });
 }
 
-async function itemListedCallback(eventLogs) {
+async function itemListedCallback(eventLogs, collectionName, dbClient) {
+
   const { args } = marketInterface.parseLog(eventLogs);
   console.log("got item listed event!");
-  console.log(args);
+  // console.log(args);
+  const itemNumber = args.itemNumber.toNumber();
+  const tokenIds = args.tokenIds.map((tokenId) => {
+    return tokenId.toNumber();
+  });
+
+  getAndStoreCards(tokenIds, itemNumber);
+  const minPrice = ethers.utils.formatEther(args.minPrice);
+  const saleToken =
+    args.saleToken.toLowerCase() === zoomContractAddress.toLowerCase()
+      ? "zoom"
+      : "movr";
+
+  const auctionItem = {
+    itemNumber,
+    tokenIds,
+    minPrice,
+    lister: args.lister,
+    saleToken,
+    createdAt: moment().unix()
+  }
+
+  const itemListedCollection = dbClient.getCollection(collectionName);
+  itemListedCollection.insertOne(auctionItem);
 }
 
 async function watchMarketEvents(dbClient) {
@@ -65,16 +90,6 @@ async function watchMarketEvents(dbClient) {
   }
 }
 
-(async () => {
-  try {
-    const client = MongoClient.client;
-    await client.connect();
-
-    // watchEvents(eventsCol);
-    // getLogs(915142, eventsCol);
-    watchMarketEvents(client);
-    getLogsFromBlock(915142, 'testCollection', EVENT_TYPES.Bid)
-  } catch (err) {
-    console.error(err);
-  }
-})();
+module.exports = {
+  watchMarketEvents,
+};
