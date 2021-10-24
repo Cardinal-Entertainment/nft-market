@@ -5,7 +5,7 @@ import movrLogo from "../assets/movr_logo.png";
 import zoomLogo from "../assets/zoombies_logo_round_plaque.svg";
 import Tooltip from "@mui/material/Tooltip";
 import { store } from "store/store";
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 import { faEdit, faShoppingBag } from "@fortawesome/free-solid-svg-icons";
 
 import {addAssetToMetamask, getWalletWMOVRBalance, getWalletZoomBalance, unWrapMOVR, wrapMOVR} from "../utils/wallet";
@@ -165,7 +165,6 @@ const Navbar = () => {
   const handleUnwrapMOVR = async( amount )  => {
     if (amount > 0) {
       await unWrapMOVR(contracts.WMOVRContract, amount.toString())
-      await getWMOVRBalance()
     }
   }
 
@@ -183,10 +182,21 @@ const Navbar = () => {
   useEffect(() => {
     if (contracts.ZoomContract && address) {
       getZoomBalance();
+
+      contracts.ZoomContract.provider.on('block', () => {
+        console.log("zoom block")
+        getZoomBalance();
+      });
     }
     if (contracts.WMOVRContract && address) {
       getWMOVRBalance();
+
+      contracts.WMOVRContract.provider.on('block', () => {
+        console.log("wmovr block")
+        getWMOVRBalance();
+      });
     }
+
   }, [contracts, address]);
 
   return (
