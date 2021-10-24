@@ -198,7 +198,7 @@ const NewListing = () => {
       await contracts.MarketContract.listItem(
         parseInt((new Date(dateTime).getTime() / 1000).toFixed(0)),
         ethers.utils.parseEther(listPrice),
-        Object.keys(selectedCards).map((x) => parseInt(x)),
+        Object.keys(selectedCards).map(parseInt),
         getCurrencyAddress(selectedCurrency, wallet.chainId)
       );
       history.push("/");

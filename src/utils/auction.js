@@ -15,15 +15,12 @@ import getCardData from "./getCardData";
  */
 export const getAuctionItem = async (
   auctionId,
-  marketContract,
   zoombiesContract
 ) => {
   try {
-    const item = await marketContract.getListItem(auctionId);
+    const item = await axios.get(`https://cryptoz.cards:5000/item/${auctionId}`)
     console.log({ item });
-    const { tokenIds, saleToken, highestBidder, seller } = item;
-    const minPrice = ethers.utils.formatEther(item.minPrice);
-    const highestBid = ethers.utils.formatEther(item.highestBid);
+    const { tokenIds, saleToken, highestBidder, highestBid, lister: seller, minPrice, auctionStart, auctionEnd } = item.data;
 
     const getCardPromise = tokenIds.map(async (token) => {
       const tokenId = token.toNumber();
@@ -32,9 +29,6 @@ export const getAuctionItem = async (
     });
 
     const cards = await Promise.all(getCardPromise);
-
-    const auctionEnd = item.auctionEnd.toString();
-    const auctionEndDate = moment.unix(auctionEnd);
 
     let currency;
     if (saleToken === zoomContractAddress) {
@@ -46,7 +40,8 @@ export const getAuctionItem = async (
     return {
       id: auctionId,
       cards,
-      auctionEnd: auctionEndDate,
+      auctionStart,
+      auctionEnd,
       currency,
       minPrice,
       highestBid,
@@ -58,23 +53,41 @@ export const getAuctionItem = async (
   }
 };
 
-export const getAuctionListings = async (marketContract, zoombiesContract) => {
-  // TODO: filter events for all past listings
-  const itemCount = await marketContract.itemCount();
-  console.log({ itemCount });
-  const listings = [];
+export const getAuctionListings = async (marketContract, zoombiesContract, filters, sorting) => {
+  console.log({filters, sorting})
 
-  for (let i = 0; i < itemCount; i++) {
-    const auctionItem = await getAuctionItem(
-      i,
-      marketContract,
-      zoombiesContract
-    );
-    // filter out the settled auctions
-    if (auctionItem.cards.length) {
-      listings.push(auctionItem);
+  const getSortType = () => {
+    switch(sorting.field) {
+      case 'auctionEnd':
+        return 'END_TIME' 
+      case 'minPrice':
+        return 'MIN_PRICE' 
+      case 'highestBid':
+        return 'HIGHEST_BID'
+      case '':
+        return null
+      default:
+        throw new Error(`Unhandled sort type: ${sorting.field}`)
     }
   }
 
-  return listings;
+  const params = new URLSearchParams({
+    cardOrigin: filters.cardType,
+    saleToken: filters.token,
+    cardRarity: filters.rarity,
+    search: filters.keyword,
+    sortBy: getSortType(),
+    orderBy: sorting.order,
+  })
+  
+  const listings = await axios.get(`https://cryptoz.cards:5000/listings?${params.toString()}`)
+  console.log({listings})
+
+  return listings.data
 };
+
+export const getOffers = async (auctionId) => {
+  const res = await axios.get(`https://cryptoz.cards:5000/bids/${auctionId}`)
+
+  return res.data
+}

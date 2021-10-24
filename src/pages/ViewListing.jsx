@@ -3,7 +3,7 @@ import Button from "@mui/material/Button";
 import styled from "styled-components/macro";
 import { store } from "store/store";
 import { useHistory, useParams } from "react-router-dom";
-import { getAuctionItem } from "utils/auction";
+import { getAuctionItem, getOffers } from "utils/auction";
 import Card from "components/Card";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -117,16 +117,17 @@ const ViewListing = () => {
   const [approvalModalOpen, setApprovalModalOpen] = useState(false);
   const [bidInProgress, setBidInProgress] = useState(false);
   const [cardPageNo, setCardPageNo] = useState(1);
+  const [offers, setOffers] = useState(1);
 
   const {
     state: { contracts, wallet },
   } = useContext(store);
 
-  const { offers, refetchOffers } = useEventScraper({
-    auctionId,
-    currency: auctionItem?.currency,
-    MarketContract: contracts.MarketContract,
-  });
+  // const { offers, refetchOffers } = useEventScraper({
+  //   auctionId,
+  //   currency: auctionItem?.currency,
+  //   MarketContract: contracts.MarketContract,
+  // });
 
   const getListingInfo = async () => {
     const auctionItem = await getAuctionItem(
@@ -135,6 +136,13 @@ const ViewListing = () => {
       contracts.ZoombiesContract
     );
     setAuctionItem(auctionItem);
+  };
+
+  const getOffers = async () => {
+    const offers = await getOffers(
+      auctionId
+    );
+    setOffers(offers);
   };
 
   const handleConfirmBid = async (amount) => {
@@ -172,7 +180,7 @@ const ViewListing = () => {
     );
     await bidTx.wait();
     setBidInProgress(false);
-    refetchOffers();
+    getOffers();
   };
 
   const handleSettle = async () => {
@@ -190,6 +198,12 @@ const ViewListing = () => {
       getListingInfo();
     }
   }, [contracts.MarketContract, contracts.ZoombiesContract]);
+
+  useEffect(() => {
+    if (auctionId) {
+      getOffers(auctionId)
+    }
+  }, [auctionId])
 
 
   const now = moment().unix();

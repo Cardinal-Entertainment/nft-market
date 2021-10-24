@@ -8,35 +8,6 @@ import moment from "moment";
 import {useHistory} from "react-router-dom";
 import Filterbar from "../components/Filterbar";
 
-
-// const Container = styled('div')(({ theme }) => ({
-//   flex: '1',
-//   height: '100%',
-//   display: 'flex',
-//   flexDirection: 'column',
-//   overflowY: 'auto',
-//
-//   '& .MuiButtonBase-root': {
-//     display: 'flex!important'
-//   },
-//
-//   '& .table': {
-//     background: 'white',
-//     height: '100px',
-//
-//     '& .MuiDataGrid-row': {
-//       cursor: 'pointer'
-//     },
-//
-//     '& .MuiDataGrid-footerContainer': {
-//       justifyContent: 'flex-end',
-//
-//       '& .MuiDataGrid-selectedRowCount': {
-//         display: 'none'
-//       }
-//     }
-//   }
-// }));
 const Container = styled.div`
   flex: 1;
   height: 100%;
@@ -74,9 +45,9 @@ const Home = () => {
   const history = useHistory();
   const [listings, setListings] = useState([]);
   const [filters, setFilters] = useState({
-    cardType: '', // 'shop' or 'booster'
+    cardType: '', // 'SHOP' or 'BOOSTER'
     rarity: '', // 'epic', 'rare', 'uncommon', 'common'
-    token: '', // 'wmovr', 'zoom'
+    token: '', // 'WMOVR', 'ZOOM'
     keyword: '' // search keyword
   });
   const [sortBy, setSortBy] = useState({
@@ -90,7 +61,6 @@ const Home = () => {
   } = useContext(store);
 
   const getStatus = (endTime, highestBidder) => {
-    console.log({ highestBidder });
     const now = moment().unix();
     const end = moment(endTime).unix();
 
@@ -179,7 +149,9 @@ const Home = () => {
   const loadListings = async () => {
     const auctionListings = await getAuctionListings(
       contracts.MarketContract,
-      contracts.ZoombiesContract
+      contracts.ZoombiesContract,
+      filters,
+      sortBy
     );
     setListings(auctionListings);
     console.log({ auctionListings });
@@ -212,55 +184,25 @@ const Home = () => {
     setSortBy({ ...sortBy, ...attribute })
   }
 
-  const filterCondition = (auction) => {
-
-    return auction.currency.toLowerCase().includes(filters.token)
-        && auction.cards.filter(card => card.rarityValue.includes(filters.rarity)).length > 0
-        && auction.cards.filter(card => card.in_store.toLowerCase().includes(filters.cardType)).length > 0
-        && ( auction.cards.filter(card => card.name.toLowerCase().includes(filters.keyword.toLowerCase())).length > 0
-          || auction.cards.filter(card => card.card_set.toLowerCase().includes(filters.keyword.toLowerCase())).length > 0 )
-
-  }
-
-  const compareFunc = (a, b) => {
-    let res = 0
-    if (sortBy.field === 'auctionEnd') { //case of datetime
-      res = moment(a[sortBy.field]).isAfter(b[sortBy.field]) ? 1 : (moment(a[sortBy.field]).isSame(b[sortBy.field]) ? 0 : -1)
-    } else { // min_price and highest_bid
-
-      if (sortBy.field === '') {
-        return 1
-      }
-
-      if (a.currency === 'WMOVR' && b.currency === 'ZOOM') {
-        res = 1
-      } else if (a.currency === 'ZOOM' && b.currency === 'WMOVR') {
-        res = -1
-      } else {
-        res = parseFloat(a[sortBy.field]) > parseFloat(b[sortBy.field]) ? 1 : (parseFloat(a[sortBy.field]) ===  parseFloat(b[sortBy.field]) ? 0 : -1)
-      }
-    }
-
-    return res * sortBy.order
-  }
-
   useEffect(() => {
+    console.log('effect')
     if (contracts.MarketContract) {
+      console.log('with market')
       loadListings();
     }
-  }, [contracts.MarketContract]);
+  }, [contracts.MarketContract, filters, sortBy]);
 
   return (
     <Container>
       <Filterbar onFilterChanged={handleFilterChanged} filters={filters} onSortByChanged={handleSortByChanged} sortBy={sortBy}/>
       <DataGrid
-          className="table"
-          rows={listings.filter(auction => filterCondition(auction)).sort(compareFunc)}
-          columns={columns}
-          pageSize={20}
-          rowsPerPageOptions={[10, 20, 50, 100]}
-          onRowClick={handleRowClick}
-          autoHeight={true}
+        className="table"
+        rows={listings}
+        columns={columns}
+        pageSize={20}
+        rowsPerPageOptions={[10, 20, 50, 100]}
+        onRowClick={handleRowClick}
+        autoHeight={true}
       />
 
     </Container>

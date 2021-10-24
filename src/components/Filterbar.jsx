@@ -68,7 +68,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 
-const Filterbar = ( { onFilterChanged, filters, onSortByChanged, sortBy }) => {
+const Filterbar = ({ onFilterChanged, filters, onSortByChanged, sortBy }) => {
 
   const theme = useTheme();
 
@@ -80,8 +80,8 @@ const Filterbar = ( { onFilterChanged, filters, onSortByChanged, sortBy }) => {
             displayEmpty
         >
           <MenuItem value={''}>All Cards</MenuItem>
-          <MenuItem value={'store'}>Shop</MenuItem>
-          <MenuItem value={'booster'}>Booster</MenuItem>
+          <MenuItem value={'STORE'}>Shop</MenuItem>
+          <MenuItem value={'BOOSTER'}>Booster</MenuItem>
         </StyledSelect>
 
       <StyledSelect
@@ -90,8 +90,8 @@ const Filterbar = ( { onFilterChanged, filters, onSortByChanged, sortBy }) => {
           displayEmpty
       >
         <MenuItem value={''}>All Tokens</MenuItem>
-        <MenuItem value={'wmovr'}>WMOVR</MenuItem>
-        <MenuItem value={'zoom'}>ZOOM</MenuItem>
+        <MenuItem value={'WMOVR'}>WMOVR</MenuItem>
+        <MenuItem value={'ZOOM'}>ZOOM</MenuItem>
       </StyledSelect>
     
       <StyledSelect
