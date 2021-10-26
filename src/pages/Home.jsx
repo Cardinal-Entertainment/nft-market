@@ -8,35 +8,6 @@ import moment from "moment";
 import {useHistory} from "react-router-dom";
 import Filterbar from "../components/Filterbar";
 
-
-// const Container = styled('div')(({ theme }) => ({
-//   flex: '1',
-//   height: '100%',
-//   display: 'flex',
-//   flexDirection: 'column',
-//   overflowY: 'auto',
-//
-//   '& .MuiButtonBase-root': {
-//     display: 'flex!important'
-//   },
-//
-//   '& .table': {
-//     background: 'white',
-//     height: '100px',
-//
-//     '& .MuiDataGrid-row': {
-//       cursor: 'pointer'
-//     },
-//
-//     '& .MuiDataGrid-footerContainer': {
-//       justifyContent: 'flex-end',
-//
-//       '& .MuiDataGrid-selectedRowCount': {
-//         display: 'none'
-//       }
-//     }
-//   }
-// }));
 const Container = styled.div`
   flex: 1;
   height: 100%;
