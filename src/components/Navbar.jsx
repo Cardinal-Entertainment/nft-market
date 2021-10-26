@@ -126,15 +126,14 @@ const Navbar = () => {
   const options = ['UNWRAP WMOVR','WRAP MOVR', 'DISPLAY WMOVR', 'DISPLAY ZOOM'];
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
-  const [selectedButton, setSelectedButton] = React.useState('wrap-movr');
+  const [selectedIndex, setSelectedIndex] = React.useState(1);
 
-  const handleMenuItemClick = async (event, button) => {
+  const handleMenuItemClick = async (event, index) => {
+    setSelectedIndex(index);
 
-    setSelectedButton(button);
-
-    if (button === 'add-wmovr') {
+    if (index === 2) {
       await handleAddAssetToMetamask('WMOVR')
-    } else if (button === 'add-zoom') {
+    } else if (index === 3) {
       await handleAddAssetToMetamask('ZOOM')
     }
   };
@@ -190,6 +189,7 @@ const Navbar = () => {
       getWMOVRBalance();
 
       contracts.WMOVRContract.provider.on('block', () => {
+        console.log("wmovr block")
         getWMOVRBalance();
       });
     }
@@ -278,7 +278,7 @@ const Navbar = () => {
           width: '100%',
           height: '40px',
         }}>
-          <Button onClick={handleToggle} style={{flex: 'auto'}}>{options[selectedButton]}</Button>
+          <Button onClick={handleToggle} style={{flex: 'auto'}}>{options[selectedIndex]}</Button>
           <Button
             size="small"
             aria-controls={open ? 'split-button-menu' : undefined}
@@ -309,14 +309,14 @@ const Navbar = () => {
               <Paper>
                 <ClickAwayListener onClickAway={handleClose}>
                   <MenuList id="split-button-menu">
-                    <MenuItem className={"popper-menuitem"} value={'unwrap-movr'} onClick={(event) => handleMenuItemClick(event, 'unwrap-movr')}>
+                    <MenuItem className={"popper-menuitem"} value={'unwrap-movr'} onClick={(event) => handleMenuItemClick(event, 0)}>
                       <WrapDialog
                         currency={'WMOVR'}
                         maxAmount={WMOVRBalance}
                         onConfirm={handleUnwrapMOVR}
                         disabled={WMOVRBalance <= 0}/>
                     </MenuItem>
-                    <MenuItem className={"popper-menuitem"} value={'wrap-movr'} onClick={(event) => handleMenuItemClick(event, 'wrap-movr')}>
+                    <MenuItem className={"popper-menuitem"} value={'wrap-movr'} onClick={(event) => handleMenuItemClick(event, 1)}>
                       <WrapDialog
                         currency={'MOVR'}
                         maxAmount={balance}
@@ -324,10 +324,10 @@ const Navbar = () => {
                         disabled={balance <= 0}
                       />
                     </MenuItem>
-                    <MenuItem className={"popper-menuitem"} value={'add-wmovr'} onClick={(event) => handleMenuItemClick(event, 'add-wmovr')}>
+                    <MenuItem className={"popper-menuitem"} value={'add-wmovr'} onClick={(event) => handleMenuItemClick(event, 2)}>
                       Add WMOVR
                     </MenuItem>
-                    <MenuItem className={"popper-menuitem"} value={'add-zoom'} onClick={(event) => handleMenuItemClick(event,'add-zoom')}>
+                    <MenuItem className={"popper-menuitem"} value={'add-zoom'} onClick={(event) => handleMenuItemClick(event, 3)}>
                       Add ZOOM
                     </MenuItem>
                   </MenuList>
