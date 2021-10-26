@@ -324,12 +324,19 @@ const Navbar = () => {
                         disabled={balance <= 0}
                       />
                     </MenuItem>
-                    <MenuItem className={"popper-menuitem"} value={'add-wmovr'} onClick={(event) => handleMenuItemClick(event, 2)}>
-                      Add WMOVR
-                    </MenuItem>
-                    <MenuItem className={"popper-menuitem"} value={'add-zoom'} onClick={(event) => handleMenuItemClick(event, 3)}>
-                      Add ZOOM
-                    </MenuItem>
+                    {
+                      shortWallet && (
+                        <>
+                          <MenuItem className={"popper-menuitem"} value={'add-wmovr'} onClick={(event) => handleMenuItemClick(event, 2)}>
+                            Add WMOVR to Metamask
+                          </MenuItem>
+                          <MenuItem className={"popper-menuitem"} value={'add-zoom'} onClick={(event) => handleMenuItemClick(event, 3)}>
+                            Add ZOOM to Metamask
+                          </MenuItem>
+                        </>
+                      )
+                    }
+
                   </MenuList>
                 </ClickAwayListener>
               </Paper>
