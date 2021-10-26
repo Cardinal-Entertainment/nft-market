@@ -173,7 +173,12 @@ const Navbar = () => {
   }
 
   const handleAddAssetToMetamask = async (tokenSymbol) => {
-    await addAssetToMetamask(tokenSymbol, address)
+    if (tokenSymbol === 'WMOVR') {
+      await addAssetToMetamask(tokenSymbol, contracts.WMOVRContract.address)
+    } else if (tokenSymbol === 'ZOOM') {
+      await addAssetToMetamask(tokenSymbol, contracts.ZoomContract.address)
+    }
+
   }
 
 
