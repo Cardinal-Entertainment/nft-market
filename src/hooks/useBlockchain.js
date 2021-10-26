@@ -75,7 +75,7 @@ const useBlockchain = () => {
     // console.log("newBalanace", ethers.utils.formatEther(balance))
     dispatch(Actions.walletChanged({
       address: accounts[0],
-      balance: ethers.utils.formatEther(balance)
+      balance: Number(ethers.utils.formatEther(balance))
     }));
   };
 
@@ -175,7 +175,7 @@ const useBlockchain = () => {
       provider.on('block', () => {
         provider.getBalance(address).then((balance) => {
           dispatch(Actions.walletChanged({
-            balance: ethers.utils.formatEther(balance)
+            balance: Number(ethers.utils.formatEther(balance))
           }));
         })
       });
@@ -183,7 +183,7 @@ const useBlockchain = () => {
       dispatch(
         Actions.walletChanged({
           address: address,
-          balance: ethers.utils.formatEther(balance),
+          balance: Number(ethers.utils.formatEther(balance)),
           chainId: network.chainId,
         })
       );
