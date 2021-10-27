@@ -2,7 +2,9 @@ import React, { useContext, useEffect, useState } from "react";
 import styled, { useTheme } from "styled-components";
 import metamaskLogo from "../assets/metamask-face.png";
 import movrLogo from "../assets/movr_logo.png";
-import zoomLogo from "../assets/zoombies_head.svg";
+import zoomLogo from "../assets/zoombies_logo_round_plaque.svg";
+import zoomCoin from "../assets/zoombies_coin.svg";
+
 import Tooltip from "@mui/material/Tooltip";
 import { store } from "store/store";
 import {Link} from "react-router-dom";
@@ -271,7 +273,7 @@ const Navbar = () => {
             placement="right"
           >
             <span>
-              <img className="zoom" src={zoomLogo} />
+              <img className="zoom" src={zoomCoin} />
               {Number(Number(zoomBalance).toFixed(4)).toLocaleString()} ZOOM
             </span>
           </Tooltip>
