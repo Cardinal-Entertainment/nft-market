@@ -59,8 +59,24 @@ const useBlockchain = () => {
     dispatch(Actions.dAppStateChanged(DAPP_STATES.CONNECTED));
   };
 
-  const handleAccountsChanged = (accounts) => {
-    dispatch(Actions.walletChanged(accounts[0]));
+  const handleAccountsChanged = async (accounts) => {
+    const metamaskProvider = await detectEthereumProvider({
+      mustBeMetaMask: true,
+    });
+
+    const provider = new ethers.providers.Web3Provider(metamaskProvider);
+    const signer = provider.getSigner();
+    const address = await signer.getAddress();
+    const [balance, network] = await Promise.all([
+      provider.getBalance(address),
+      provider.getNetwork(),
+    ]);
+
+    // console.log("newBalanace", ethers.utils.formatEther(balance))
+    dispatch(Actions.walletChanged({
+      address: accounts[0],
+      balance: Number(ethers.utils.formatEther(balance))
+    }));
   };
 
   const handleChainChanged = (chainId) => {};
@@ -156,10 +172,18 @@ const useBlockchain = () => {
         provider.getNetwork(),
       ]);
 
+      provider.on('block', () => {
+        provider.getBalance(address).then((balance) => {
+          dispatch(Actions.walletChanged({
+            balance: Number(ethers.utils.formatEther(balance))
+          }));
+        })
+      });
+
       dispatch(
         Actions.walletChanged({
-          address,
-          balance: balance / 1000000000000000000,
+          address: address,
+          balance: Number(ethers.utils.formatEther(balance)),
           chainId: network.chainId,
         })
       );

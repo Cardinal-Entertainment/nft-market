@@ -95,7 +95,6 @@ const Filterbar = ( { onFilterChanged, filters, onSortByChanged, sortBy }) => {
       </StyledSelect>
     
       <StyledSelect
-        className={"select1"}
           value={sortBy.field}
           onChange={(e) => onSortByChanged({ field: e.target.value }) }
           displayEmpty
