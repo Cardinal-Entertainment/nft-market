@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from "react";
 import styled, { useTheme } from "styled-components";
 import metamaskLogo from "../assets/metamask-face.png";
 import movrLogo from "../assets/movr_logo.png";
-import zoomLogo from "../assets/zoombies_logo_round_plaque.svg";
 import zoomCoin from "../assets/zoombies_coin.svg";
 
 import Tooltip from "@mui/material/Tooltip";
@@ -13,7 +12,7 @@ import { faEdit, faShoppingBag } from "@fortawesome/free-solid-svg-icons";
 import {addAssetToMetamask, getWalletWMOVRBalance, getWalletZoomBalance, unWrapMOVR, wrapMOVR} from "../utils/wallet";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import WrapDialog from "./WrapDialog";
-import {ButtonGroup, FormControl, MenuItem, Select} from "@mui/material";
+import {ButtonGroup, MenuItem } from "@mui/material";
 import Button from '@mui/material/Button';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
@@ -196,7 +195,6 @@ const Navbar = () => {
       getWMOVRBalance();
 
       contracts.WMOVRContract.provider.on('block', () => {
-        console.log("wmovr block")
         getWMOVRBalance();
       });
     }

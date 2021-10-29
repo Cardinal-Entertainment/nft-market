@@ -23,6 +23,8 @@ const initialState = {
     GlobalContract: null,
   },
   signer: null,
+  events: [],
+  newEventsCount: 0
 };
 
 const store = createContext(initialState);
@@ -52,6 +54,18 @@ const StateProvider = ({ children }) => {
           ...state,
           contracts: payload.contracts,
           signer: payload.signer,
+        };
+      case ActionTypes.NEW_BID_EVENT:
+        return {
+          ...state,
+          newEventsCount:  (state.newEventsCount + 1),
+          events: [payload, ...state.events]
+        };
+      case ActionTypes.RESET_NOTIFICATIONS:
+        return {
+          ...state,
+          newEventsCount:  0,
+          events: payload ? [] : state.events
         };
       default:
         throw new Error(`Unhandled action type: ${type}`);

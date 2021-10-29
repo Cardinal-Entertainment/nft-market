@@ -61,7 +61,7 @@ const Home = () => {
   } = useContext(store);
 
   const getStatus = (endTime, highestBidder) => {
-    console.log({ highestBidder });
+    // console.log({ highestBidder });
     const now = moment().unix();
     const end = moment(endTime).unix();
 

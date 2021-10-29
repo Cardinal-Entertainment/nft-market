@@ -106,6 +106,57 @@ const useBlockchain = () => {
       signer
     );
 
+    const bidFilter = MarketContract.filters.Bid();
+    MarketContract.on(bidFilter, (  itemNumber, bidAmount, bidder, block ) => {
+      dispatch(
+        Actions.newBidEventTriggered({
+          type: 'bid',
+          timestamp: Date.now() / 1000,
+          content: {
+            blockNumber: block.blockNumber,
+            itemNumber: itemNumber.toNumber(),
+            bidAmount: ethers.utils.formatEther(bidAmount),
+            bidder: bidder
+          }
+        })
+      );
+    });
+
+    const newAuctionFilter = MarketContract.filters.ItemListed();
+    MarketContract.on(newAuctionFilter, ( lister, tokenIds, saleToken, minPrice, block ) => {
+      // console.log('New bid: ITEMNUMBER', itemNumber)
+      dispatch(
+        Actions.newBidEventTriggered({
+          type: 'new',
+          timestamp: Date.now() / 1000,
+          content: {
+            blockNumber: block.blockNumber,
+            // itemNumber: itemNumber.toNumber(),
+            itemNumber: 0,
+            minPrice: ethers.utils.formatEther(minPrice),
+            seller: lister
+          }
+        })
+      )
+    });
+
+    const settledFilter = MarketContract.filters.Settled();
+    MarketContract.on(settledFilter, ( itemNumber, bidAmount, winner, seller, tokenIds, block ) => {
+      dispatch(
+        Actions.newBidEventTriggered({
+          type: 'settled',
+          timestamp: Date.now() / 1000,
+          content: {
+            blockNumber: block.blockNumber,
+            itemNumber: itemNumber.toNumber(),
+            bidAmount: ethers.utils.formatEther(bidAmount),
+            winner: winner,
+            seller: seller
+          }
+        })
+      )
+    });
+
     dispatch(
       Actions.contractsLoaded({
         contracts: {
