@@ -55,9 +55,6 @@ const LiveFeedsSlide = (props, ref  ) => {
 
   return (
     <Container ref={ref} {...props}>
-      <ClearButton onClick={addNewElement}>
-        Add all
-      </ClearButton>
       <FlexDiv style={{display: 'flex'}}>
         <ClearButton onClick={clearAll}>
           Clear All

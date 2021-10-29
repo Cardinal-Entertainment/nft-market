@@ -123,7 +123,7 @@ const useBlockchain = () => {
     });
 
     const newAuctionFilter = MarketContract.filters.ItemListed();
-    MarketContract.on(newAuctionFilter, ( lister, tokenIds, saleToken, minPrice, block ) => {
+    MarketContract.on(newAuctionFilter, ( itemNumber, auctionEnd, seller, tokenIds, saleToken, minPrice, block ) => {
       // console.log('New bid: ITEMNUMBER', itemNumber)
       dispatch(
         Actions.newBidEventTriggered({
@@ -131,10 +131,9 @@ const useBlockchain = () => {
           timestamp: Date.now() / 1000,
           content: {
             blockNumber: block.blockNumber,
-            // itemNumber: itemNumber.toNumber(),
-            itemNumber: 0,
+            itemNumber: itemNumber.toNumber(),
             minPrice: ethers.utils.formatEther(minPrice),
-            seller: lister
+            seller: seller
           }
         })
       )
