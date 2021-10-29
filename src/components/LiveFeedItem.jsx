@@ -5,6 +5,9 @@ import { styled } from '@mui/material';
 import iconNew from '../assets/new.png'
 import iconBid from '../assets/bid.png'
 import iconSettle from '../assets/settle.png'
+import wmovrCoin from "../assets/movr_logo.png";
+import zoomCoin from "../assets/zoombies_coin.svg";
+
 import moment from "moment";
 
 const StyledDiv = styled('div')({
@@ -66,19 +69,30 @@ const ContentBody = styled('div')({
   },
 
   '& .content-amount': {
-    fontSize: '14px'
+    fontSize: '14px',
+    display: 'flex',
+    alignItems: 'center',
+
+    '& .content-coin': {
+      width: '24px',
+      height: '24px',
+      padding: '0 4px',
+    }
   },
 
   '& .span-amount': {
     fontSize: '16px',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    padding: '0 4px',
   }
+
+
 });
 
 const LiveFeedItem = ( props, ref  ) => {
 
   const { type, content, timestamp, highlight } = props
-  const { itemNumber, bidder, seller, winner, minPrice, bidAmount, auctionEnd } = content
+  const { itemNumber, bidder, seller, winner, minPrice, bidAmount, auctionEnd, currency } = content
 
   const sellerAddress = seller
     ? `${seller.substr(0, 10)}...${seller.substr(34)}` : ""
@@ -136,19 +150,22 @@ const LiveFeedItem = ( props, ref  ) => {
               type === 'new' ? (
                 <>
                   <div className={'content-wallet-address'}>{sellerAddress + ' started a new auction.'}</div>
-                  <div className={'content-amount'}>Min Price: <span className={'span-amount'}>{/*ethers.utils.formatEther(minPrice)*/ minPrice}</span></div>
-                  <div className={'content-auction-end'}>Auction Ends at: <span>{/*auctionEnd.format("MM/DD/YYYY, h:mm:ss A")*/ auctionEnd}</span></div>
+                  <div className={'content-amount'}>Min Price: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
+                    <span className={'span-amount'}>{minPrice}</span> {currency}</div>
+                  <div className={'content-auction-end'}>Auction Ends at: <span>{moment.unix(auctionEnd).format("MM/DD/YYYY, h:mm:ss A")}</span></div>
                 </>
               ) : type === 'bid' ? (
                 <>
                   <div className={'content-wallet-address'}>{bidderAddress + ' placed a new bet.'}</div>
-                  <div className={'content-amount'}>Bid Amount: <span className={'span-amount'}>{bidAmount}</span></div>
+                  <div className={'content-amount'}>Bid Amount: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
+                    <span className={'span-amount'}>{bidAmount}</span> {currency}</div>
                 </>
               ) : type === 'settled' ? (
                 <>
                   <div className={'content-wallet-address'}>Winner: {winnerAddress}</div>
                   <div>{'This auction has been settled.'}</div>
-                  <div className={'content-amount'}>Amount: <span className={'span-amount'}>{bidAmount}</span></div>
+                  <div className={'content-amount'}>Amount: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
+                    <span className={'span-amount'}>{bidAmount}</span> {currency}</div>
                 </>
               ) : (<></>)
             }

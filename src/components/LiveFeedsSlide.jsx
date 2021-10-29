@@ -36,22 +36,22 @@ const LiveFeedsSlide = (props, ref  ) => {
   const clearAll = () => {
     dispatch(Actions.resetNotifications(true))
   }
-
-  const addNewElement = () => {
-    dispatch(
-      Actions.newBidEventTriggered({
-        type: 'new',
-        timestamp: Date.now() / 1000,
-        content: {
-          blockNumber: Date.now(),
-          // itemNumber: itemNumber.toNumber(),
-          itemNumber: 10,
-          minPrice: 1.0,
-          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232'
-        }
-      })
-    )
-  }
+  //
+  // const addNewElement = () => {
+  //   dispatch(
+  //     Actions.newBidEventTriggered({
+  //       type: 'new',
+  //       timestamp: Date.now() / 1000,
+  //       content: {
+  //         blockNumber: Date.now(),
+  //         // itemNumber: itemNumber.toNumber(),
+  //         itemNumber: 10,
+  //         minPrice: 1.0,
+  //         seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232'
+  //       }
+  //     })
+  //   )
+  // }
 
   return (
     <Container ref={ref} {...props}>
@@ -65,7 +65,7 @@ const LiveFeedsSlide = (props, ref  ) => {
           <TransitionGroup>
             {
               state.events.map((event, index) => (
-                <Collapse key={event.content.blockNumber}>
+                <Collapse key={state.events.length - index}>
                   <LiveFeedItem type={event.type} content={event.content} timestamp={event.timestamp} highlight={index < state.newEventsCount ? 'true' : 'false'}/>
                 </Collapse>
               ))
