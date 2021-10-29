@@ -9,6 +9,7 @@ import wmovrCoin from "../assets/movr_logo.png";
 import zoomCoin from "../assets/zoombies_coin.svg";
 
 import moment from "moment";
+import {useHistory} from "react-router-dom";
 
 const StyledDiv = styled('div')({
   '& .container-highlight': {
@@ -50,6 +51,14 @@ const Header = styled('div')({
   '& .content-timestamp': {
     fontSize: '12px',
     fontStyle: 'italic'
+  },
+
+  '& .link-to-auction': {
+    color: '#f2b705'
+  },
+
+  '& .link-to-auction:hover': {
+    cursor: 'pointer'
   }
 });
 
@@ -91,6 +100,7 @@ const ContentBody = styled('div')({
 
 const LiveFeedItem = ( props, ref  ) => {
 
+  const history = useHistory();
   const { type, content, timestamp, highlight } = props
   const { itemNumber, bidder, seller, winner, minPrice, bidAmount, auctionEnd, currency } = content
 
@@ -102,6 +112,10 @@ const LiveFeedItem = ( props, ref  ) => {
 
   const winnerAddress = winner
     ? `${winner.substr(0, 10)}...${winner.substr(34)}` : ""
+
+  const gotoAuction = () => {
+    history.push(`/listing/${itemNumber}`);
+  }
 
   return (
     <StyledDiv>
@@ -134,13 +148,9 @@ const LiveFeedItem = ( props, ref  ) => {
         </ImgEvent>
         <Content>
           <Header>
-            <a href={'/listing/' + itemNumber} style={
-              {
-                color: 'orange'
-              }
-            }>
+            <span className={'link-to-auction'} onClick={gotoAuction}>
               Auction #{itemNumber}
-            </a>
+            </span>
             <div className={'content-timestamp'}>
               {moment.unix(timestamp).fromNow()}
             </div>

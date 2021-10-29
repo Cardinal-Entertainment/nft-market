@@ -36,7 +36,7 @@ const LiveFeedsSlide = (props, ref  ) => {
   const clearAll = () => {
     dispatch(Actions.resetNotifications(true))
   }
-  //
+
   // const addNewElement = () => {
   //   dispatch(
   //     Actions.newBidEventTriggered({
