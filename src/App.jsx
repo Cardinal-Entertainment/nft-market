@@ -80,8 +80,6 @@ const NotificationButton = styled.div`
   position: relative;
   display: flex;
   flex: auto;
-
-  
 `;
 
 const ButtonAddon = styled.div`
