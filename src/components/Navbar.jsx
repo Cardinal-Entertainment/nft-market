@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import styled, { useTheme } from "styled-components";
 import metamaskLogo from "../assets/metamask-face.png";
 import movrLogo from "../assets/movr_logo.png";
+import zoomLogo from "../assets/zoombies_logo_round_plaque.svg";
 import zoomCoin from "../assets/zoombies_coin.svg";
 
 import Tooltip from "@mui/material/Tooltip";
