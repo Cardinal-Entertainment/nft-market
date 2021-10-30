@@ -272,78 +272,6 @@ const Navbar = () => {
           </Tooltip>
         </NavItem>
       </UserBalances>
-
-      <ButtonGroupContainer>
-        <ButtonGroup variant="contained" ref={anchorRef} aria-label="split button" style={{
-          width: '100%',
-          height: '40px',
-        }}>
-          <Button onClick={handleToggle} style={{flex: 'auto'}}>{options[selectedIndex]}</Button>
-          <Button
-            size="small"
-            aria-controls={open ? 'split-button-menu' : undefined}
-            aria-expanded={open ? 'true' : undefined}
-            aria-label="select merge strategy"
-            aria-haspopup="menu"
-            onClick={handleToggle}
-          >
-            <ArrowDropDownIcon />
-          </Button>
-        </ButtonGroup>
-        <Popper
-          open={open}
-          anchorEl={anchorRef.current}
-          role={undefined}
-          transition
-          disablePortal
-          className={'popper'}
-        >
-          {({ TransitionProps, placement }) => (
-            <Grow
-              {...TransitionProps}
-              style={{
-                transformOrigin:
-                  placement === 'bottom' ? 'center top' : 'center bottom',
-              }}
-            >
-              <Paper>
-                <ClickAwayListener onClickAway={handleClose}>
-                  <MenuList id="split-button-menu">
-                    <MenuItem className={"popper-menuitem"} value={'unwrap-movr'} onClick={(event) => handleMenuItemClick(event, 0)}>
-                      <WrapDialog
-                        currency={'WMOVR'}
-                        maxAmount={WMOVRBalance}
-                        onConfirm={handleUnwrapMOVR}
-                        disabled={WMOVRBalance <= 0}/>
-                    </MenuItem>
-                    <MenuItem className={"popper-menuitem"} value={'wrap-movr'} onClick={(event) => handleMenuItemClick(event, 1)}>
-                      <WrapDialog
-                        currency={'MOVR'}
-                        maxAmount={balance}
-                        onConfirm={handleWrapMOVR}
-                        disabled={balance <= 0}
-                      />
-                    </MenuItem>
-                    {
-                      shortWallet && (
-                        <>
-                          <MenuItem className={"popper-menuitem"} value={'add-wmovr'} onClick={(event) => handleMenuItemClick(event, 2)}>
-                            Add WMOVR to Metamask
-                          </MenuItem>
-                          <MenuItem className={"popper-menuitem"} value={'add-zoom'} onClick={(event) => handleMenuItemClick(event, 3)}>
-                            Add ZOOM to Metamask
-                          </MenuItem>
-                        </>
-                      )
-                    }
-
-                  </MenuList>
-                </ClickAwayListener>
-              </Paper>
-            </Grow>
-          )}
-        </Popper>
-      </ButtonGroupContainer>
       <NavigationSection>
         <NavLink
           exact
@@ -415,6 +343,77 @@ const Navbar = () => {
           </>
         )}
       </NavigationSection>
+      <ButtonGroupContainer>
+        <ButtonGroup variant="contained" ref={anchorRef} aria-label="split button" style={{
+          width: '100%',
+          height: '40px',
+        }}>
+          <Button onClick={handleToggle} style={{flex: 'auto'}}>{options[selectedIndex]}</Button>
+          <Button
+            size="small"
+            aria-controls={open ? 'split-button-menu' : undefined}
+            aria-expanded={open ? 'true' : undefined}
+            aria-label="select merge strategy"
+            aria-haspopup="menu"
+            onClick={handleToggle}
+          >
+            <ArrowDropDownIcon />
+          </Button>
+        </ButtonGroup>
+        <Popper
+          open={open}
+          anchorEl={anchorRef.current}
+          role={undefined}
+          transition
+          disablePortal
+          className={'popper'}
+        >
+          {({ TransitionProps, placement }) => (
+            <Grow
+              {...TransitionProps}
+              style={{
+                transformOrigin:
+                  placement === 'bottom' ? 'center top' : 'center bottom',
+              }}
+            >
+              <Paper>
+                <ClickAwayListener onClickAway={handleClose}>
+                  <MenuList id="split-button-menu">
+                    <MenuItem className={"popper-menuitem"} value={'unwrap-movr'} onClick={(event) => handleMenuItemClick(event, 0)}>
+                      <WrapDialog
+                        currency={'WMOVR'}
+                        maxAmount={WMOVRBalance}
+                        onConfirm={handleUnwrapMOVR}
+                        disabled={WMOVRBalance <= 0}/>
+                    </MenuItem>
+                    <MenuItem className={"popper-menuitem"} value={'wrap-movr'} onClick={(event) => handleMenuItemClick(event, 1)}>
+                      <WrapDialog
+                        currency={'MOVR'}
+                        maxAmount={balance}
+                        onConfirm={handleWrapMOVR}
+                        disabled={balance <= 0}
+                      />
+                    </MenuItem>
+                    {
+                      shortWallet && (
+                        <>
+                          <MenuItem className={"popper-menuitem"} value={'add-wmovr'} onClick={(event) => handleMenuItemClick(event, 2)}>
+                            Add WMOVR to Metamask
+                          </MenuItem>
+                          <MenuItem className={"popper-menuitem"} value={'add-zoom'} onClick={(event) => handleMenuItemClick(event, 3)}>
+                            Add ZOOM to Metamask
+                          </MenuItem>
+                        </>
+                      )
+                    }
+
+                  </MenuList>
+                </ClickAwayListener>
+              </Paper>
+            </Grow>
+          )}
+        </Popper>
+      </ButtonGroupContainer>
     </Container>
   );
 };
