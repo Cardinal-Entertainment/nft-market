@@ -13,6 +13,7 @@ import { useHistory } from "react-router-dom";
 import { ethers } from "ethers";
 import LazyLoad from 'react-lazyload';
 import {CircularProgress} from "@mui/material";
+import { zoombiesContractAddress } from "../constants";
 
 
 const Container = styled.div`
@@ -199,6 +200,7 @@ const NewListing = () => {
         parseInt((new Date(dateTime).getTime() / 1000).toFixed(0)),
         ethers.utils.parseEther(listPrice),
         Object.keys(selectedCards).map(parseInt),
+        zoombiesContractAddress,
         getCurrencyAddress(selectedCurrency, wallet.chainId)
       );
       history.push("/");

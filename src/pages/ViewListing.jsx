@@ -137,12 +137,14 @@ const ViewListing = () => {
   };
 
   const handleConfirmBid = async (amount) => {
-    const { currency } = auctionItem;
+    const { currency, id } = auctionItem;
     let currencyContract;
 
     if (parseFloat(amount) <= auctionItem?.highestBid || parseFloat(amount) <= auctionItem?.minPrice) {
       throw new Error(`Invalid amount valid : ${amount}`);
     }
+
+    console.log({amount})
 
     switch (currency) {
       case "ZOOM":
@@ -155,7 +157,7 @@ const ViewListing = () => {
         throw new Error(`Unhandled currency type: ${currency}`);
     }
 
-    const weiAmount = ethers.utils.parseEther(`${amount}`);
+    const weiAmount = ethers.utils.parseEther(amount);
 
     const approveTx = await currencyContract.approve(
       marketContractAddress,
@@ -166,7 +168,7 @@ const ViewListing = () => {
     setApprovalModalOpen(false);
     setBidInProgress(true);
     const bidTx = await contracts.MarketContract.bid(
-      parseInt(auctionId),
+      parseInt(id),
       weiAmount
     );
     await bidTx.wait();

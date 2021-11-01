@@ -217,7 +217,6 @@ const Home = () => {
         onRowClick={handleRowClick}
         autoHeight={true}
       />
-
     </Container>
   );
 };
