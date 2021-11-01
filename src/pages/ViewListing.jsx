@@ -144,8 +144,6 @@ const ViewListing = () => {
       throw new Error(`Invalid amount valid : ${amount}`);
     }
 
-    console.log({amount})
-
     switch (currency) {
       case "ZOOM":
         currencyContract = contracts.ZoomContract;
@@ -205,8 +203,6 @@ const ViewListing = () => {
   const isOwner = wallet.address === auctionItem?.seller;
   const canSettle = isOver && (isWinner || isOwner);
   const sellerURL = `https://blockscout.moonriver.moonbeam.network/address/${auctionItem?.seller}`
-
-  console.log({auctionItem, offers})
 
   return (
     <Container>
@@ -284,7 +280,7 @@ const ViewListing = () => {
           <TableBody>
             {offers.map((row) => (
               <TableRow
-                key={row.id}
+                key={row.amount}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
                 <TableCell>{moment(row.date * 1000).format("MM/DD/YYYY, h:mm:ss A")}</TableCell>

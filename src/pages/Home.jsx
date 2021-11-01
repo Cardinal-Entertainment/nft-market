@@ -160,10 +160,6 @@ const Home = () => {
       ...listing,
       id: listing._id
     })));
-    console.log({ auctionListings: auctionListings.map((listing) => ({
-      ...listing,
-      id: listing._id
-    })) });
   };
 
   const getCardSummary = (cards) => {
@@ -185,7 +181,6 @@ const Home = () => {
   };
 
   const handleRowClick = ({row}) => {
-    console.log({row})
     history.push(`/listing/${row.itemNumber}`);
   };
 
@@ -198,9 +193,7 @@ const Home = () => {
   }
 
   useEffect(() => {
-    console.log('effect')
     if (contracts.MarketContract) {
-      console.log('with market')
       loadListings();
     }
   }, [contracts.MarketContract, filters, sortBy]);

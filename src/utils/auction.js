@@ -29,9 +29,8 @@ export const getAuctionItem = async (
   zoombiesContract
 ) => {
   try {
-    // const item = await axios.get(`https://api.zoombies.world/item/${auctionId}`)
-    const item = await axios.get(`http://localhost:3001/item/${auctionId}`)
-    console.log({ item });
+    const item = await axios.get(`https://api.zoombies.world/item/${auctionId}`)
+    // const item = await axios.get(`http://localhost:3001/item/${auctionId}`)
     const { cards, saleToken, highestBidder, highestBid, lister: seller, minPrice, auctionStart, auctionEnd } = item.data;
 
     const currency = getTokenSymbol(saleToken);
@@ -79,8 +78,8 @@ export const getAuctionListings = async (marketContract, zoombiesContract, filte
     orderBy: sorting.order,
   })
   
-  // const listings = await axios.get(`https://api.zoombies.world/listings?${params.toString()}`)
-  const listings = await axios.get(`http://localhost:3001/listings?${params.toString()}`)
+  const listings = await axios.get(`https://api.zoombies.world/listings?${params.toString()}`)
+  // const listings = await axios.get(`http://localhost:3001/listings?${params.toString()}`)
 
   return listings.data.map(listing => ({
     ...listing,
@@ -89,8 +88,8 @@ export const getAuctionListings = async (marketContract, zoombiesContract, filte
 };
 
 export const getOffers = async (auctionId) => {
-  // const res = await axios.get(`https://api.zoombies.world/bids/${auctionId}`)
-  const res = await axios.get(`http://localhost:3001/bids/${auctionId}`)
+  const res = await axios.get(`https://api.zoombies.world/bids/${auctionId}`)
+  // const res = await axios.get(`http://localhost:3001/bids/${auctionId}`)
 
   return res.data.map((offer) => ({
     date: offer.timestamp,
