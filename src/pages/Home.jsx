@@ -94,7 +94,7 @@ const Home = () => {
       headerName: "ID",
       width: 50,
       valueGetter: (params) =>
-      '#'+ params.id  },
+      '#'+ params.getValue(params.id, "itemNumber")  },
     {
       field: "summary",
       headerName: "Summary",
@@ -112,7 +112,7 @@ const Home = () => {
       valueGetter: (params) => {
         const value = Math.max(
           params.getValue(params.id, "minPrice"),
-          params.getValue(params.id, "highestBid")
+          params.getValue(params.id, "highestBid"),
         );
         return `${value} ${params.getValue(params.id, "currency")}`;
       },
@@ -120,7 +120,10 @@ const Home = () => {
     {
       field: "auctionEnd",
       headerName: "End Time",
-      valueFormatter: (params) => params.value.format("MM/DD/YYYY, h:mm:ss A"),
+      valueFormatter: (params) => {
+        const date = moment(params.value * 1000)
+        return date.format("MM/DD/YYYY, h:mm:ss A")
+      },
       minWidth: 230,
     },
     {
@@ -131,13 +134,13 @@ const Home = () => {
         <Chip
           label={
             getStatus(
-              params.getValue(params.id, "auctionEnd"),
+              params.getValue(params.id, "auctionEnd") * 1000,
               params.getValue(params.id, "highestBidder")
             ).label
           }
           color={
             getStatus(
-              params.getValue(params.id, "auctionEnd"),
+              params.getValue(params.id, "auctionEnd") * 1000,
               params.getValue(params.id, "highestBidder")
             ).color
           }
@@ -153,17 +156,26 @@ const Home = () => {
       filters,
       sortBy
     );
-    setListings(auctionListings);
-    console.log({ auctionListings });
+    setListings(auctionListings.map((listing) => ({
+      ...listing,
+      id: listing._id
+    })));
+    console.log({ auctionListings: auctionListings.map((listing) => ({
+      ...listing,
+      id: listing._id
+    })) });
   };
 
   const getCardSummary = (cards) => {
+    if (!cards) {
+      return ''
+    }
     const countByRarity = cards.reduce((summary, card) => {
-      const { rarityValue } = card;
-      if (!summary.hasOwnProperty(rarityValue)) {
-        summary[rarityValue] = 0;
+      const { rarity } = card;
+      if (!summary.hasOwnProperty(rarity)) {
+        summary[rarity] = 0;
       }
-      summary[rarityValue]++;
+      summary[rarity]++;
       return summary;
     }, {});
 
@@ -172,8 +184,9 @@ const Home = () => {
       .join(", ") + ' (' + cards.map((card) => card.name).join(',') + ')';
   };
 
-  const handleRowClick = (row) => {
-    history.push(`/listing/${row.id}`);
+  const handleRowClick = ({row}) => {
+    console.log({row})
+    history.push(`/listing/${row.itemNumber}`);
   };
 
   const handleFilterChanged = (params) => {

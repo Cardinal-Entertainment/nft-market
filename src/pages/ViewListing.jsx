@@ -3,7 +3,7 @@ import Button from "@mui/material/Button";
 import styled from "styled-components/macro";
 import { store } from "store/store";
 import { useHistory, useParams } from "react-router-dom";
-import { getAuctionItem, getOffers } from "utils/auction";
+import { getAuctionItem, getOffers as fetchOffers } from "utils/auction";
 import Card from "components/Card";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -12,7 +12,6 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import {CircularProgress, Modal, Pagination, Paper} from "@mui/material";
-import useEventScraper from "hooks/useBidScraper";
 import OfferDialog from "components/OfferDialog";
 import { marketContractAddress } from "../constants";
 import { ethers } from "ethers";
@@ -22,8 +21,7 @@ import moment from "moment";
 import LazyLoad from 'react-lazyload';
 import zoomLogo from "../assets/zoombies_logo_round_plaque.svg";
 import movrLogo from "../assets/movr_logo.png";
-import {DataGrid} from "@mui/x-data-grid";
-import Chip from "@mui/material/Chip";
+import { RARITY_CLASSES } from "../utils/getCardData"
 
 const Container = styled.div`
   flex: 1;
@@ -117,29 +115,22 @@ const ViewListing = () => {
   const [approvalModalOpen, setApprovalModalOpen] = useState(false);
   const [bidInProgress, setBidInProgress] = useState(false);
   const [cardPageNo, setCardPageNo] = useState(1);
-  const [offers, setOffers] = useState(1);
+  const [offers, setOffers] = useState([]);
 
   const {
     state: { contracts, wallet },
   } = useContext(store);
 
-  // const { offers, refetchOffers } = useEventScraper({
-  //   auctionId,
-  //   currency: auctionItem?.currency,
-  //   MarketContract: contracts.MarketContract,
-  // });
-
   const getListingInfo = async () => {
     const auctionItem = await getAuctionItem(
       auctionId,
-      contracts.MarketContract,
       contracts.ZoombiesContract
     );
     setAuctionItem(auctionItem);
   };
 
   const getOffers = async () => {
-    const offers = await getOffers(
+    const offers = await fetchOffers(
       auctionId
     );
     setOffers(offers);
@@ -205,13 +196,15 @@ const ViewListing = () => {
     }
   }, [auctionId])
 
-
   const now = moment().unix();
-  const end = moment(auctionItem?.auctionEnd).unix();
+  const end = moment(auctionItem?.auctionEnd * 1000).unix();
   const isOver = end < now;
   const isWinner = auctionItem?.highestBidder === wallet.address;
   const isOwner = wallet.address === auctionItem?.seller;
   const canSettle = isOver && (isWinner || isOwner);
+  const sellerURL = `https://blockscout.moonriver.moonbeam.network/address/${auctionItem?.seller}`
+
+  console.log({auctionItem, offers})
 
   return (
     <Container>
@@ -232,14 +225,14 @@ const ViewListing = () => {
       </SpacedRow>
       <SellerDiv>
         <div>
-          {'Amount: ' + (auctionItem.minPrice ? auctionItem.minPrice : 0) + ' ' + (auctionItem.currency ? auctionItem.currency : '')}
+          {'Amount: ' + (auctionItem?.minPrice ? auctionItem.minPrice : 0) + ' ' + (auctionItem?.currency ? auctionItem.currency : '')}
           {auctionItem.currency === 'ZOOM' ?  <StyledLogo src={zoomLogo}/> : <StyledLogo src={movrLogo} />}
         </div>
         <div>
-          {'Seller Wallet: ' + (auctionItem.seller ? auctionItem.seller : '')}
+          Seller Wallet: <a href={sellerURL} target="_blank">{auctionItem.seller ? `${auctionItem.seller.substr(0, 8)}...${auctionItem.seller.substr(36)}` : ''}</a>
         </div>
         <div>
-          {'Date Listed: ' + (auctionItem.created ? auctionItem.created : '')}
+          {'Date Listed: ' + (new Date(auctionItem.auctionStart * 1000).toLocaleString() ?? 'Unknown')}
         </div>
       </SellerDiv>
 
@@ -249,15 +242,15 @@ const ViewListing = () => {
             <LazyLoad key={card.id} once={true} resize={true}>
               <Card
                 key={card.id}
-                cardClass={card.rarity}
+                cardClass={RARITY_CLASSES[card.rarity]}
                 image={card.image}
-                editionCurrent={card.edition_current}
-                editionTotal={card.edition_total}
+                editionCurrent={card.editionCurrent}
+                editionTotal={card.editionTotal}
                 name={card.name}
-                cset={card.card_set}
-                level={card.card_level}
-                origin={card.in_store}
-                unlockCzxp={card.unlock_czxp}
+                cset={card.cardSet}
+                level={card.cardLevel}
+                origin={card.cardOrigin}
+                unlockCzxp={card.unlockCzxp}
               />
             </LazyLoad>
           )) : <CircularProgress/>}
@@ -292,8 +285,8 @@ const ViewListing = () => {
                 key={row.id}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                <TableCell>{row.date}</TableCell>
-                <TableCell>{row.from}</TableCell>
+                <TableCell>{moment(row.date * 1000).format("MM/DD/YYYY, h:mm:ss A")}</TableCell>
+                <TableCell>{row.from ? `${row.from.substr(0, 8)}...${row.from.substr(36)}` : ''}</TableCell>
                 <TableCell>{row.amount}</TableCell>
                 <TableCell>{row.status}</TableCell>
               </TableRow>

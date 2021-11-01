@@ -5,6 +5,17 @@ import moment from "moment";
 import { zoomContractAddress, wmovrContractAddress } from "../constants";
 import getCardData from "./getCardData";
 
+const getTokenSymbol = (saleToken) => {
+  switch (saleToken) {
+    case zoomContractAddress:
+      return "ZOOM"
+    case wmovrContractAddress:
+      return "WMOVR"
+    default:
+      return "Unknown"
+  }
+}
+
 /**
  *
  * @param {number} auctionId
@@ -18,25 +29,13 @@ export const getAuctionItem = async (
   zoombiesContract
 ) => {
   try {
-    const item = await axios.get(`https://cryptoz.cards:5000/item/${auctionId}`)
+    // const item = await axios.get(`https://api.zoombies.world/item/${auctionId}`)
+    const item = await axios.get(`http://localhost:3001/item/${auctionId}`)
     console.log({ item });
-    const { tokenIds, saleToken, highestBidder, highestBid, lister: seller, minPrice, auctionStart, auctionEnd } = item.data;
+    const { cards, saleToken, highestBidder, highestBid, lister: seller, minPrice, auctionStart, auctionEnd } = item.data;
 
-    const getCardPromise = tokenIds.map(async (token) => {
-      const tokenId = token.toNumber();
-      const cardData = getCardData(tokenId, zoombiesContract);
-      return cardData;
-    });
-
-    const cards = await Promise.all(getCardPromise);
-
-    let currency;
-    if (saleToken === zoomContractAddress) {
-      currency = "ZOOM";
-    } else if (saleToken === wmovrContractAddress) {
-      currency = "WMOVR";
-    }
-
+    const currency = getTokenSymbol(saleToken);
+    
     return {
       id: auctionId,
       cards,
@@ -76,18 +75,27 @@ export const getAuctionListings = async (marketContract, zoombiesContract, filte
     saleToken: filters.token,
     cardRarity: filters.rarity,
     search: filters.keyword,
-    sortBy: getSortType(),
+    sortBy: getSortType() ?? '',
     orderBy: sorting.order,
   })
   
-  const listings = await axios.get(`https://cryptoz.cards:5000/listings?${params.toString()}`)
-  console.log({listings})
+  // const listings = await axios.get(`https://api.zoombies.world/listings?${params.toString()}`)
+  const listings = await axios.get(`http://localhost:3001/listings?${params.toString()}`)
 
-  return listings.data
+  return listings.data.map(listing => ({
+    ...listing,
+    currency: getTokenSymbol(listing.saleToken)
+  }))
 };
 
 export const getOffers = async (auctionId) => {
-  const res = await axios.get(`https://cryptoz.cards:5000/bids/${auctionId}`)
+  // const res = await axios.get(`https://api.zoombies.world/bids/${auctionId}`)
+  const res = await axios.get(`http://localhost:3001/bids/${auctionId}`)
 
-  return res.data
+  return res.data.map((offer) => ({
+    date: offer.timestamp,
+    from: offer.bidder,
+    amount: offer.bidAmount,
+    status: "Bid",
+  }))
 }
