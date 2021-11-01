@@ -60,3 +60,9 @@ export const addAssetToMetamask = async ( tokenSymbol, address ) => {
     console.log('addCZXPtoMetaMask error:',error);
   }
 }
+
+export const formatAddress = ( address ) => {
+  return address
+    ? `${address.substr(0, 10)}...${address.substr(34)}`
+    : "";
+}

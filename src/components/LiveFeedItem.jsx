@@ -10,6 +10,7 @@ import zoomCoin from "../assets/zoombies_coin.svg";
 
 import moment from "moment";
 import {useHistory} from "react-router-dom";
+import {formatAddress} from "../utils/wallet";
 
 const StyledDiv = styled('div')({
   '& .container-highlight': {
@@ -104,14 +105,11 @@ const LiveFeedItem = ( props, ref  ) => {
   const { type, content, timestamp, highlight } = props
   const { itemNumber, bidder, seller, winner, minPrice, bidAmount, auctionEnd, currency } = content
 
-  const sellerAddress = seller
-    ? `${seller.substr(0, 10)}...${seller.substr(34)}` : ""
+  const sellerAddress = formatAddress(seller)
 
-  const bidderAddress = bidder
-    ? `${bidder.substr(0, 10)}...${bidder.substr(34)}` : ""
+  const bidderAddress = formatAddress(bidder)
 
-  const winnerAddress = winner
-    ? `${winner.substr(0, 10)}...${winner.substr(34)}` : ""
+  const winnerAddress = formatAddress(winner)
 
   const gotoAuction = () => {
     history.push(`/listing/${itemNumber}`);

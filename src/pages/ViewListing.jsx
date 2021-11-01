@@ -22,6 +22,7 @@ import moment from "moment";
 import LazyLoad from 'react-lazyload';
 import zoomLogo from "../assets/zoombies_logo_round_plaque.svg";
 import movrLogo from "../assets/movr_logo.png";
+import {getWalletWMOVRBalance, getWalletZoomBalance} from "../utils/wallet";
 
 const Container = styled.div`
   flex: 1;
@@ -116,9 +117,23 @@ const ViewListing = () => {
   const [bidInProgress, setBidInProgress] = useState(false);
   const [cardPageNo, setCardPageNo] = useState(1);
 
+  const [minIncrement, setMinIncrement] = useState("");
+  const [zoomBalance, setZoomBalance] = useState("");
+  const [WMOVRBalance, setWMOVRBalance] = useState("");
+
   const {
     state: { contracts, wallet },
   } = useContext(store);
+
+  const getZoomBalance = async () => {
+    const bal = await getWalletZoomBalance(contracts.ZoomContract, wallet.address);
+    setZoomBalance(bal);
+  };
+
+  const getWMOVRBalance = async () => {
+    const bal = await getWalletWMOVRBalance(contracts.WMOVRContract, wallet.address);
+    setWMOVRBalance(bal);
+  };
 
   const { offers, refetchOffers } = useEventScraper({
     auctionId,
@@ -132,7 +147,10 @@ const ViewListing = () => {
       contracts.MarketContract,
       contracts.ZoombiesContract
     );
-    setAuctionItem(auctionItem);
+
+    const minIncrement1 = await contracts.MarketContract.tokenMinIncrement(auctionItem.saleToken)
+    setMinIncrement(ethers.utils.formatEther(minIncrement1))
+    setAuctionItem(auctionItem)
   };
 
   const handleConfirmBid = async (amount) => {
@@ -187,7 +205,22 @@ const ViewListing = () => {
     if (contracts.MarketContract && contracts.ZoombiesContract) {
       getListingInfo();
     }
-  }, [contracts.MarketContract, contracts.ZoombiesContract]);
+
+    if (contracts.ZoomContract && wallet.address) {
+      getZoomBalance();
+
+      contracts.ZoomContract.provider.on('block', () => {
+        getZoomBalance();
+      });
+    }
+    if (contracts.WMOVRContract && wallet.address) {
+      getWMOVRBalance();
+
+      contracts.WMOVRContract.provider.on('block', () => {
+        getWMOVRBalance();
+      });
+    }
+  }, [contracts.MarketContract, contracts.ZoombiesContract, contracts.WMOVRContract, contracts.ZoomContract, auctionId]);
 
 
   const now = moment().unix();
@@ -254,7 +287,8 @@ const ViewListing = () => {
         {!isOver && (
           <OfferDialog
             currency={auctionItem?.currency}
-            minAmount={parseFloat(auctionItem?.highestBid) > parseFloat(auctionItem?.minPrice) ? auctionItem?.highestBid : auctionItem?.minPrice}
+            minAmount={parseFloat(auctionItem?.highestBid) > (parseFloat(auctionItem?.minPrice) + parseFloat(minIncrement)) ? parseFloat(auctionItem?.highestBid) : (parseFloat(auctionItem?.minPrice)  + parseFloat(minIncrement))}
+            maxAmount={auctionItem?.currency === 'ZOOM' ? parseFloat(zoomBalance) : parseFloat(WMOVRBalance)}
             onConfirm={handleConfirmBid}
             disabled={bidInProgress}
           />

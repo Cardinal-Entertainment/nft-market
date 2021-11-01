@@ -52,6 +52,7 @@ export const getAuctionItem = async (
       highestBid,
       highestBidder,
       seller,
+      saleToken
     };
   } catch (err) {
     console.error(err);
