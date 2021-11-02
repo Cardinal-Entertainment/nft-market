@@ -7,7 +7,7 @@ import zoomCoin from "../assets/zoombies_coin.svg";
 
 import Tooltip from "@mui/material/Tooltip";
 import { store } from "store/store";
-import {Link} from "react-router-dom";
+import { NavLink, Route } from "react-router-dom";
 import { faEdit, faShoppingBag } from "@fortawesome/free-solid-svg-icons";
 
 import {addAssetToMetamask, getWalletWMOVRBalance, getWalletZoomBalance, unWrapMOVR, wrapMOVR} from "../utils/wallet";
@@ -53,7 +53,7 @@ const NavItem = styled.div`
 
   img {
     width: 50px;
-    margin-right: 15px;
+    margin-right: 17px;
   }
 
   img.zoom {
@@ -66,6 +66,7 @@ const NavItem = styled.div`
 
     &.marketplace {
       padding-right: 22px;
+      width: 40px;
     }
   }
 `;
@@ -73,6 +74,16 @@ const NavItem = styled.div`
 const NavigationSection = styled.div`
   flex: 1;
   padding: 5px;
+  padding-top: 15px;
+
+  a {
+    text-decoration: none;
+  }
+
+  .active-link > div {
+    background-color: #4a4a4a;
+    border-radius: 5px;
+  }
 
   ${NavItem} {
     font-size: 20px;
@@ -87,11 +98,11 @@ const NavigationSection = styled.div`
 const UserBalances = styled.div`
   padding: 5px;
   padding-top: 10px;
-  border-top: 1px solid white;
 
   div {
     justify-content: space-between;
   }
+  border-bottom: 1px solid white;
 `;
 
 const TooltipContent = styled.span`
@@ -205,24 +216,6 @@ const Navbar = () => {
 
   return (
     <Container>
-      <NavigationSection>
-        <Link to="/">
-          <NavItem color="white">
-            <FontAwesomeIcon
-              icon={faShoppingBag}
-              size="lg"
-              className="marketplace"
-            />
-            Live Auctions
-          </NavItem>
-        </Link>
-        <Link to="/new">
-          <NavItem color="white">
-            <FontAwesomeIcon icon={faEdit} size="lg" />
-            New Listing
-          </NavItem>
-        </Link>
-      </NavigationSection>
       <UserBalances>
         <NavItem color={theme.colors.metamaskOrange}>
           <Tooltip
@@ -231,7 +224,7 @@ const Navbar = () => {
             placement="right"
           >
             <span>
-              <img src={metamaskLogo} />
+              <img src={metamaskLogo} alt="metamask logo" />
               {shortWallet}
             </span>
           </Tooltip>
@@ -245,7 +238,7 @@ const Navbar = () => {
             placement="right"
           >
             <span>
-              <img src={movrLogo} />
+              <img src={movrLogo} alt="movr logo" />
               {Number(WMOVRBalance).toFixed(4)} WMOVR
             </span>
           </Tooltip>
@@ -257,7 +250,7 @@ const Navbar = () => {
             placement="right"
           >
             <span>
-              <img src={movrLogo} />
+              <img src={movrLogo} alt="movr logo" />
               {Number(balance).toFixed(4)} MOVR
             </span>
           </Tooltip>
@@ -273,13 +266,83 @@ const Navbar = () => {
             placement="right"
           >
             <span>
-              <img className="zoom" src={zoomCoin} />
+              <img className="zoom" src={zoomCoin} alt="zoom coin logo" />
               {Number(Number(zoomBalance).toFixed(4)).toLocaleString()} ZOOM
             </span>
           </Tooltip>
         </NavItem>
       </UserBalances>
-
+      <NavigationSection>
+        <NavLink
+          exact
+          to="/"
+          activeClassName="active-link"
+          className="page-links"
+        >
+          <NavItem color="white">
+            <FontAwesomeIcon
+              icon={faShoppingBag}
+              size="lg"
+              className="marketplace"
+              activS
+            />
+            Live Auctions
+          </NavItem>
+        </NavLink>
+        <NavLink
+          exact
+          activeClassName="active-link"
+          className="page-links"
+          to="/new"
+        >
+          <NavItem color="white">
+            <FontAwesomeIcon className="marketplace" icon={faEdit} size="lg" />
+            New Listing
+          </NavItem>
+        </NavLink>
+        {address && (
+          <>
+            <NavLink
+              exact
+              activeClassName="active-link"
+              className="page-links"
+              to="/profile"
+            >
+              <NavItem color="white">
+                <Tooltip
+                  title={<TooltipContent>{address}</TooltipContent>}
+                  arrow
+                  placement="right"
+                >
+                  <span>
+                    <img src={metamaskLogo} alt="metamask logo" />
+                    Profile
+                  </span>
+                </Tooltip>
+              </NavItem>
+              <NavLink
+                exact
+                activeClassName="active-link"
+                className="page-links"
+                to="/archives"
+              >
+                <NavItem color="white">
+                  <Tooltip
+                    title={<TooltipContent>{address}</TooltipContent>}
+                    arrow
+                    placement="right"
+                  >
+                    <span>
+                      <img src={metamaskLogo} alt="metamask logo" />
+                      Auction Archive
+                    </span>
+                  </Tooltip>
+                </NavItem>
+              </NavLink>
+            </NavLink>
+          </>
+        )}
+      </NavigationSection>
       <ButtonGroupContainer>
         <ButtonGroup variant="contained" ref={anchorRef} aria-label="split button" style={{
           width: '100%',
