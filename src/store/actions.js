@@ -2,6 +2,8 @@ export const ActionTypes = {
   WALLET_CHANGED: "WALLET_CHANGED",
   DAPP_STATE_CHANGED: "DAPP_STATE_CHANGED",
   CONTRACTS_LOADED: "CONTRACTS_LOADED",
+  NEW_BID_EVENT: "NEW_BID_EVENT",
+  RESET_NOTIFICATIONS: "RESET_NOTIFICATIONS",
 };
 
 const Actions = {
@@ -23,6 +25,18 @@ const Actions = {
       payload,
     };
   },
+  newBidEventTriggered(payload) {
+    return {
+      type: ActionTypes.NEW_BID_EVENT,
+      payload,
+    };
+  },
+  resetNotifications( payload ) {
+    return {
+      type: ActionTypes.RESET_NOTIFICATIONS,
+      payload,
+    };
+  }
 };
 
 export default Actions;

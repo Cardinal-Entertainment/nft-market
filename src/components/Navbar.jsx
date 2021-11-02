@@ -13,7 +13,7 @@ import { faEdit, faShoppingBag } from "@fortawesome/free-solid-svg-icons";
 import {addAssetToMetamask, getWalletWMOVRBalance, getWalletZoomBalance, unWrapMOVR, wrapMOVR} from "../utils/wallet";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import WrapDialog from "./WrapDialog";
-import {ButtonGroup, FormControl, MenuItem, Select} from "@mui/material";
+import {ButtonGroup, MenuItem } from "@mui/material";
 import Button from '@mui/material/Button';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
@@ -207,7 +207,6 @@ const Navbar = () => {
       getWMOVRBalance();
 
       contracts.WMOVRContract.provider.on('block', () => {
-        console.log("wmovr block")
         getWMOVRBalance();
       });
     }
