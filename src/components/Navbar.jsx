@@ -282,8 +282,7 @@ const Navbar = () => {
             <FontAwesomeIcon
               icon={faShoppingBag}
               size="lg"
-              className="marketplace"
-              activS
+              className="marketplace"              
             />
             Live Auctions
           </NavItem>
