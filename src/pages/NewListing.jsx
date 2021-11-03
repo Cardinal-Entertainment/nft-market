@@ -146,6 +146,8 @@ const NewListing = () => {
   );
   const [userNFTs, setUserNFTs] = useState([]);
   const [selectedCards, setSelectedCards] = useState({});
+  // const [input, setInput] = useState(0);
+
   const {
     state: { contracts, wallet },
   } = useContext(store);
@@ -211,6 +213,31 @@ const NewListing = () => {
     }
   };
 
+  const onKeyDown = (e) => {
+    if (selectedCurrency === 'ZOOM') {
+      if(e.keyCode === 69 || e.keyCode === 190 || e.keyCode === 188){ // 'e', '.', ',' charaters
+        e.preventDefault();
+      }
+    }
+  }
+
+  const handleAmountChanged = (e) => {
+    const value = e.target.value
+
+    let isDecimalOverflow = false
+    if (selectedCurrency === 'WMOVR' && value.toString().includes('.')) {
+      if (value.toString().split(".")[1].length > 4) {
+        isDecimalOverflow = true
+      }
+    }
+
+    if (isDecimalOverflow) {
+      setListPrice(parseFloat(value).toFixed(4).toString())
+    } else {
+      setListPrice(value)
+    }
+  }
+
   useEffect(() => {
     if (contracts.ZoombiesContract && wallet.address) {
       getUserNFTs();
@@ -227,7 +254,9 @@ const NewListing = () => {
             <CurrencyInput
               type="number"
               value={listPrice}
-              onChange={(e) => setListPrice(e.target.value)}
+              // onChange={(e) => setListPrice(e.target.value)}
+              onChange={handleAmountChanged}
+              onKeyDown={onKeyDown}
               min={0}
             />
             <Select

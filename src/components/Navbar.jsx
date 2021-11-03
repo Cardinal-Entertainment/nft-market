@@ -10,7 +10,14 @@ import { store } from "store/store";
 import { NavLink, Route } from "react-router-dom";
 import { faEdit, faShoppingBag } from "@fortawesome/free-solid-svg-icons";
 
-import {addAssetToMetamask, getWalletWMOVRBalance, getWalletZoomBalance, unWrapMOVR, wrapMOVR} from "../utils/wallet";
+import {
+  addAssetToMetamask,
+  formatAddress,
+  getWalletWMOVRBalance,
+  getWalletZoomBalance,
+  unWrapMOVR,
+  wrapMOVR
+} from "../utils/wallet";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import WrapDialog from "./WrapDialog";
 import {ButtonGroup, MenuItem } from "@mui/material";
@@ -132,9 +139,7 @@ const Navbar = () => {
     contracts,
   } = state;
 
-  const shortWallet = address
-    ? `${address.substr(0, 10)}...${address.substr(34)}`
-    : "";
+  const shortWallet = formatAddress(address)
 
   const options = ['UNWRAP WMOVR','WRAP MOVR', 'DISPLAY WMOVR', 'DISPLAY ZOOM'];
   const [open, setOpen] = React.useState(false);
