@@ -120,6 +120,7 @@ const ViewListing = () => {
   const [minIncrement, setMinIncrement] = useState("");
   const [zoomBalance, setZoomBalance] = useState("");
   const [WMOVRBalance, setWMOVRBalance] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const {
     state: { contracts, wallet },
@@ -151,6 +152,7 @@ const ViewListing = () => {
     const minIncrement1 = await contracts.MarketContract.tokenMinIncrement(auctionItem.saleToken)
     setMinIncrement(ethers.utils.formatEther(minIncrement1))
     setAuctionItem(auctionItem)
+    setIsRefreshing(false)
   };
 
   const handleConfirmBid = async (amount) => {
@@ -202,8 +204,12 @@ const ViewListing = () => {
   }
 
   useEffect(() => {
+
+    setIsRefreshing(true)
     if (contracts.MarketContract && contracts.ZoombiesContract) {
-      getListingInfo();
+      getListingInfo().then(() => {
+        setIsRefreshing(false)
+      });
     }
 
     if (contracts.ZoomContract && wallet.address) {
@@ -325,6 +331,14 @@ const ViewListing = () => {
       >
         <ModalContent>
           <div>Please wait for the Approval to complete.</div>
+          <CircularProgress />
+        </ModalContent>
+      </Modal>
+      <Modal
+        open={isRefreshing}
+      >
+        <ModalContent>
+          <div>Loading content.</div>
           <CircularProgress />
         </ModalContent>
       </Modal>
