@@ -222,11 +222,13 @@ const useBlockchain = () => {
       dispatch(Actions.dAppStateChanged(DAPP_STATES.CONNECTED));
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
-      const address = await signer.getAddress();
-      const [balance, network] = await Promise.all([
-        provider.getBalance(address),
+      
+      const [address, balance, network] = await Promise.all([
+        signer.getAddress(),
+        signer.getBalance(),
         provider.getNetwork(),
       ]);
+
 
       provider.on('block', () => {
         provider.getBalance(address).then((balance) => {
@@ -235,6 +237,7 @@ const useBlockchain = () => {
           }));
         })
       });
+
 
       dispatch(
         Actions.walletChanged({
