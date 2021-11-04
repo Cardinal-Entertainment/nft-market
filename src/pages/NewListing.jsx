@@ -258,6 +258,7 @@ const NewListing = () => {
               onChange={handleAmountChanged}
               onKeyDown={onKeyDown}
               min={0}
+              step={selectedCurrency === 'WMOVR' ? 0.0001 : 1}
             />
             <Select
               value={selectedCurrency}

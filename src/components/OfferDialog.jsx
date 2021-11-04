@@ -90,11 +90,12 @@ const OfferDialog = ({ currency, minAmount, maxAmount, onConfirm, disabled }) =>
               label="Offer Amount"
               type="number"
               variant="standard"
-              value={currency === 'ZOOM' ? parseInt(input).toString() : input}
+              value={currency === 'ZOOM' ? parseInt(input).toString() : parseFloat(input).toFixed(4)}
               onChange={handleAmountChanged}
               onKeyDown={onKeyDown}
               error={inputInvalid}
               helperText={inputInvalid && 'Set bigger amount'}
+              inputProps={{ step: currency === 'WMOVR' ? 0.0001 : 1}}
             />
             <span>{currency}</span>
           </FlexRow>
