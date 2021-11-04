@@ -20,7 +20,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import moment from "moment";
 import LazyLoad from 'react-lazyload';
-import zoomLogo from "../assets/zoombies_logo_round_plaque.svg";
+import zoomLogo from "../assets/zoombies_coin.svg";
 import movrLogo from "../assets/movr_logo.png";
 import {getWalletWMOVRBalance, getWalletZoomBalance} from "../utils/wallet";
 
