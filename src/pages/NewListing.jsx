@@ -6,7 +6,8 @@ import MenuItem from "@mui/material/MenuItem";
 import DateTimePicker from "@mui/lab/DateTimePicker";
 import TextField from "@mui/material/TextField";
 import { store } from "store/store";
-import getCardData from "utils/getCardData";
+import { getCardData } from "utils/cardsUtil";
+import Card from "components/Card";
 import { omit } from "lodash";
 import { useHistory } from "react-router-dom";
 import { ethers } from "ethers";
@@ -25,6 +26,7 @@ const Container = styled.div`
   h1 {
     margin-top: 0;
     margin-bottom: 10px;
+    color: white;
   }
 `;
 
@@ -208,11 +210,11 @@ const NewListing = () => {
         zoombiesContractAddress,
         getCurrencyAddress(selectedCurrency, wallet.chainId)
       );
-      history.push("/");
     } catch (err) {
       console.error(err);
     } finally {
       setCreateInProgress(false);
+      history.push("/");
     }
   };
 

@@ -214,13 +214,6 @@ const useBlockchain = () => {
 
       const provider = new ethers.providers.Web3Provider(metamaskProvider);
 
-      window.ethereum.on("connected", handleConnect);
-      window.ethereum.on("disconnect", handleDisconnect);
-      window.ethereum.on("accountsChanged", handleAccountsChanged);
-      window.ethereum.on("chainChanged", handleChainChanged);
-
-      dispatch(Actions.dAppStateChanged(DAPP_STATES.CONNECTED));
-      await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
       
       const [address, balance, network] = await Promise.all([
@@ -228,6 +221,25 @@ const useBlockchain = () => {
         signer.getBalance(),
         provider.getNetwork(),
       ]);
+
+      dispatch(
+        Actions.walletChanged({
+          address: address,
+          balance: Number(ethers.utils.formatEther(balance)),
+          chainId: network.chainId,
+        })
+      );
+      dispatch(Actions.dAppStateChanged(DAPP_STATES.WALLET_CONNECTED));
+
+
+      window.ethereum.on("connected", handleConnect);
+      window.ethereum.on("disconnect", handleDisconnect);
+      window.ethereum.on("accountsChanged", handleAccountsChanged);
+      window.ethereum.on("chainChanged", handleChainChanged);
+
+      dispatch(Actions.dAppStateChanged(DAPP_STATES.CONNECTED));
+      await provider.send("eth_requestAccounts", []);
+
 
 
       provider.on('block', () => {
@@ -238,15 +250,6 @@ const useBlockchain = () => {
         })
       });
 
-
-      dispatch(
-        Actions.walletChanged({
-          address: address,
-          balance: Number(ethers.utils.formatEther(balance)),
-          chainId: network.chainId,
-        })
-      );
-      dispatch(Actions.dAppStateChanged(DAPP_STATES.WALLET_CONNECTED));
       const { ZoombiesContract } = loadContracts(signer, network.chainId);
 
       approveContract(address, ZoombiesContract);

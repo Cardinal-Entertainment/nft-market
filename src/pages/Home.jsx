@@ -7,6 +7,8 @@ import Chip from "@mui/material/Chip";
 import moment from "moment";
 import {useHistory} from "react-router-dom";
 import Filterbar from "../components/Filterbar";
+import { getCardSummary } from "utils/cardsUtil";
+import { getStatus } from "utils/listingUtil";
 
 const Container = styled.div`
   flex: 1;
@@ -14,6 +16,9 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  background: white;
+  padding: 12px;
+  border-radius: 5px;
 
   .table {
     background: white;
@@ -57,36 +62,9 @@ const Home = () => {
 
 
   const {
-    state: { wallet, contracts },
+    state: { contracts },
   } = useContext(store);
 
-  const getStatus = (endTime, highestBidder) => {
-    const now = moment().unix();
-    const end = moment(endTime).unix();
-
-    if (end < now) {
-      if (highestBidder === wallet.address) {
-        return {
-          label: "You Won!",
-          color: "success",
-        };
-      }
-      return {
-        label: "Completed",
-        color: "success",
-      };
-    }
-    if (end - now < 86400) {
-      return {
-        label: "Ending Soon",
-        color: "warning",
-      };
-    }
-    return {
-      label: "Ongoing",
-      color: "secondary",
-    };
-  };
 
   const columns = [
     {
@@ -162,23 +140,7 @@ const Home = () => {
     })));
   };
 
-  const getCardSummary = (cards) => {
-    if (!cards) {
-      return ''
-    }
-    const countByRarity = cards.reduce((summary, card) => {
-      const { rarity } = card;
-      if (!summary.hasOwnProperty(rarity)) {
-        summary[rarity] = 0;
-      }
-      summary[rarity]++;
-      return summary;
-    }, {});
 
-    return Object.keys(countByRarity)
-      .map((rarity) => `${countByRarity[rarity]} ${rarity}`)
-      .join(", ") + ' (' + cards.map((card) => card.name).join(',') + ')';
-  };
 
   const handleRowClick = ({row}) => {
     history.push(`/listing/${row.itemNumber}`);

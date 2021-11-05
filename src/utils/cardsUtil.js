@@ -19,7 +19,7 @@ export const RARITY_CLASSES = {
   Diamond: "card-bg card-bg-1",
 };
 
-const getCardData = async (tokenId, zoombiesContract) => {
+export const getCardData = async (tokenId, zoombiesContract) => {
   const [cardTypeId, editionNumber] = await zoombiesContract.getNFTData(
     tokenId
   );
@@ -55,4 +55,18 @@ const getCardData = async (tokenId, zoombiesContract) => {
   return newAttr;
 };
 
-export default getCardData;
+export const getCardSummary = (cards) => {
+  const countByRarity = cards.reduce((summary, card) => {
+    const { rarityValue } = card;
+    if (!summary.hasOwnProperty(rarityValue)) {
+      summary[rarityValue] = 0;
+    }
+    summary[rarityValue]++;
+    return summary;
+  }, {});
+
+  return Object.keys(countByRarity)
+    .map((rarity) => `${countByRarity[rarity]} ${rarity}`)
+    .join(", ") + ' (' + cards.map((card) => card.name).join(',') + ')';
+};
+
