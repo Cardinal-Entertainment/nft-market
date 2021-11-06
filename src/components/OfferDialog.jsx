@@ -19,7 +19,7 @@ const FlexRow = styled.div`
   }
 `;
 
-const OfferDialog = ({ currency, minAmount, onConfirm, disabled }) => {
+const OfferDialog = ({ currency, minAmount, maxAmount, onConfirm, disabled }) => {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState(minAmount);
   const [inputInvalid, setInputInvalid] = useState(false);
@@ -49,22 +49,21 @@ const OfferDialog = ({ currency, minAmount, onConfirm, disabled }) => {
 
     let isDecimalOverflow = false
     if (currency === 'WMOVR' && value.toString().includes('.')) {
-      if (value.toString().split(".")[1].length > 3) {
+      if (value.toString().split(".")[1].length > 4) {
         isDecimalOverflow = true
       }
     }
 
     if (isDecimalOverflow) {
-      setInput(parseFloat(value).toFixed(3).toString())
+      setInput(parseFloat(value).toFixed(4).toString())
     } else {
       setInput(value)
     }
   }
 
   const handleConfirm = () => {
-    if (parseFloat(input) <= minAmount) {
+    if (parseFloat(input) <= minAmount || parseFloat(input) > maxAmount) {
       setInputInvalid(true)
-
     } else {
       setInputInvalid(false)
       onConfirm(input)
@@ -91,11 +90,12 @@ const OfferDialog = ({ currency, minAmount, onConfirm, disabled }) => {
               label="Offer Amount"
               type="number"
               variant="standard"
-              value={currency === 'ZOOM' ? parseInt(input).toString() : input}
+              value={currency === 'ZOOM' ? parseInt(input).toString() : parseFloat(input).toFixed(4)}
               onChange={handleAmountChanged}
               onKeyDown={onKeyDown}
               error={inputInvalid}
               helperText={inputInvalid && 'Set bigger amount'}
+              inputProps={{ step: currency === 'WMOVR' ? 0.0001 : 1}}
             />
             <span>{currency}</span>
           </FlexRow>
