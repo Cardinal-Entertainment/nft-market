@@ -1,7 +1,7 @@
-import React, {useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart, faClock } from "@fortawesome/free-regular-svg-icons";
-import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { faHeart as faHeartSolid, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import movrLogo from "../assets/movr_logo.png";
 import zoomCoin from "../assets/zoombies_coin.svg";
 import {Button, CircularProgress, Pagination, styled} from "@mui/material";
@@ -10,8 +10,13 @@ import Card from "./Card";
 import metamaskLogo from "../assets/metamask-face.png";
 import {cardImageBaseURL, zoomContractAddress} from "../constants";
 import { useTheme } from "styled-components";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import moment from "moment";
+// import "slick-carousel/slick/slick.css";
+// import "slick-carousel/slick/slick-theme.css";
+import {useHistory} from "react-router-dom";
+import {store} from "../store/store";
+import { ethers } from "ethers";
+import useEventScraper from "../hooks/useBidScraper";
 
 
 const Container = styled('div')({
@@ -50,6 +55,12 @@ const Container = styled('div')({
 
         '& .meta-header-title': {
           fontSize: '24px'
+        },
+
+        '& .meta-header-title:hover': {
+          color: '#D400BD',
+          cursor: 'pointer',
+          textDecoration: 'underline'
         }
       },
       '& .meta-header-right': {
@@ -190,22 +201,71 @@ const AuctionItem = ({
   content
 }) => {
 
+  const {
+    state: { contracts  },
+  } = useContext(store);
+  const history = useHistory();
   const [cardPageNo, setCardPageNo] = useState(1);
-
+  const [minIncrement, setMinIncrement] = useState("");
+  const [favorite, setFavorite] = useState(false)
+  const [remainingTime, setRemainingTime] = useState("")
   const theme = useTheme();
 
   const auctionItem = content
-
   const { itemNumber, highestBid } = auctionItem
-
   const coinType = auctionItem.saleToken === zoomContractAddress ? 'ZOOM' : 'WMOVR'
+
+
+  useEffect( async () => {
+    getMinIncrement()
+    let interval = null
+    interval = setInterval(() => {
+      updateRemainingTime()
+    }, 1000);
+  }, [contracts.MarketContract]);
+
+  const { offers, refetchOffers } = useEventScraper({
+    itemNumber,
+    currency: coinType,
+    MarketContract: contracts.MarketContract,
+  });
+
+  const updateRemainingTime = () => {
+    const timeDiff = ((moment().diff(moment.unix(auctionItem.auctionEnd))) / 1000)
+// console.log(timeDiff)
+
+    const remainingDays = Math.floor(timeDiff / (3600 * 24))
+    const remainingHours = Math.floor((timeDiff % (3600 * 24)) / 3600)
+    const remainingMinutes = Math.floor((timeDiff % (3600)) / 60)
+    const remainingSeconds = Math.floor(timeDiff % 60)
+
+    setRemainingTime(formatTwoPlace(remainingDays) + "d " + formatTwoPlace(remainingHours) + "h " + formatTwoPlace(remainingMinutes) + "m " + formatTwoPlace(remainingSeconds) + "s ")
+  }
+
+  const formatTwoPlace = (value) => {
+    if (value > 9) {
+      return value
+    } else {
+      return '0' + value
+    }
+  }
+
+  const getMinIncrement = async  () => {
+    const increment = await contracts.MarketContract.tokenMinIncrement(auctionItem.saleToken)
+    setMinIncrement(ethers.utils.formatEther(increment))
+    console.log(ethers.utils.formatEther(increment))
+  }
 
   const onClickBid = () => {
 
   }
 
-  const onClickMoreInfo = () => {
+  const toggleFavorite = () => {
+    setFavorite(!favorite)
+  }
 
+  const gotoAuction = () => {
+    history.push(`/listing/${auctionItem.itemNumber}`);
   }
 
   const handleCardsTablePageChanged = (event, value) => {
@@ -217,27 +277,37 @@ const AuctionItem = ({
       <div className={"meta-div"}>
         <div className={"meta-header"}>
           <div className={"meta-header-left"}>
-            <div className={"meta-header-title"}>
+            <div className={"meta-header-title"} onClick={gotoAuction}>
               Auction #{itemNumber}
             </div>
-
-            <FontAwesomeIcon
-              icon={faHeart}
-              color={'rgba(0, 0, 0, 0.87)'}
-              size="lg"
-            />
-
+            {
+              favorite ? (
+                <FontAwesomeIcon
+                  icon={faHeartSolid}
+                  color={'rgba(255, 0, 0, 0.87)'}
+                  size="lg"
+                  onClick={toggleFavorite}
+                />
+              ) : (
+                <FontAwesomeIcon
+                  icon={faHeart}
+                  color={'rgba(0, 0, 0, 0.87)'}
+                  size="lg"
+                  onClick={toggleFavorite}
+                />
+              )
+            }
 
           </div>
           <div className={"meta-header-right"}>
             <div className={"meta-header-cards-tip"}>
-              <span style={{color: theme.colors.epic}}>1E</span>
-              <span style={{color: theme.colors.rare}}>5R</span>
-              <span style={{color: theme.colors.uncommon}}>3U</span>
-              <span style={{color: theme.colors.common}}>6C</span>
+              <span style={{color: theme.colors.epic}}>{auctionItem.cards.filter( card => { return card.rarity.toLowerCase() === 'epic' }).length}E</span>
+              <span style={{color: theme.colors.rare}}>{auctionItem.cards.filter( card => { return card.rarity.toLowerCase() === 'rare' }).length}R</span>
+              <span style={{color: theme.colors.uncommon}}>{auctionItem.cards.filter( card => { return card.rarity.toLowerCase() === 'uncommon' }).length}U</span>
+              <span style={{color: theme.colors.common}}>{auctionItem.cards.filter( card => { return card.rarity.toLowerCase() === 'common' }).length}C</span>
             </div>
             <div className={"meta-header-bids"}>
-              4 bids
+              {offers.length} bids
             </div>
           </div>
         </div>
@@ -257,11 +327,11 @@ const AuctionItem = ({
             <div className={"meta-content-time"}>
               <FontAwesomeIcon
                 icon={faClock}
-                size="24px"
+                size="sm"
                 className="card-booster-shop-icon"
               />
               <span className={"meta-content-remaining-time"}>
-              {"04d 03h 08m 02s"}
+              {moment().isBefore(auctionItem.auctionEnd) ? remainingTime : moment.unix(auctionItem.auctionEnd).format("MM/DD/YYYY, h:mm:ss A")}
               </span>
             </div>
             <div className={"meta-content-tip"}>
@@ -269,8 +339,8 @@ const AuctionItem = ({
             </div>
           </div>
           <div className={"meta-content-button-section"}>
-            <Button className={"button-bid"} onClick={onClickBid}>Quick Bid {"(10.3333 " + coinType + ")"}</Button>
-            <Button className={"button-more-info"} onClick={onClickMoreInfo}>More Info
+            <Button className={"button-bid"} onClick={onClickBid}>Quick Bid {"(" + (auctionItem.highestBid > 0 ? auctionItem.highestBid : parseFloat(auctionItem.minPrice) + parseFloat(minIncrement)) + " " + coinType + ")"}</Button>
+            <Button className={"button-more-info"} onClick={gotoAuction}>More Info
               <FontAwesomeIcon
                 icon={faChevronRight}
                 size="sm"
@@ -283,13 +353,10 @@ const AuctionItem = ({
       </div>
 
       <div className={"detail-cards"}>
-
         <div className={"cards-container"}>
           {auctionItem?.cards ?
             auctionItem.cards.slice((cardPageNo - 1) * 5, cardPageNo * 5).map((card) => (
-              <LazyLoad key={card.id} once={true} resize={true}>
-                {/*<img key={card.id} className={"card-image"} src={cardImageBaseURL + "/" + card.id} alt={"CARD " + card.id}/>*/}
-              </LazyLoad>
+              <img key={card.id} className={"card-image"} src={cardImageBaseURL + "/" + card.id} alt={"CARD " + card.id}/>
             )) : <CircularProgress/>}
         </div>
         {/*{auctionItem.cards && <Pagination count={Math.ceil(auctionItem.cards.length / 20)} className={"pagination-bar"} variant="outlined" shape="rounded" onChange={handleCardsTablePageChanged}/>}*/}

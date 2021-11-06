@@ -22,10 +22,10 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
-
   h1 {
     margin-top: 0;
     margin-bottom: 10px;
+    color: white;
   }
 `;
 

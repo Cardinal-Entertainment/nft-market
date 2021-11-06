@@ -18,6 +18,17 @@ const Container = styled.div`
   border: solid 1px white;
   padding: 16px;
   
+  .live-header {
+    color: white;
+    font-weight: 500;
+    font-size: 32px;
+    line-height: 47px;
+    
+    span {
+      font-weight: 300;
+    }
+  }
+  
   .table {
     background: white;
 
@@ -156,9 +167,8 @@ const Home = () => {
     //   contracts.ZoombiesContract
     // );
 
-    const auctionListings = await getAuctionListingsFromServer()
-    setListings(auctionListings.data);
-    console.log(auctionListings.data);
+    const auctionListings = await getAuctionListingsFromServer(filters)
+    setListings(auctionListings);
   };
 
   const getCardSummary = (cards) => {
@@ -226,10 +236,13 @@ const Home = () => {
     if (contracts.MarketContract) {
       loadListings();
     }
-  }, [contracts.MarketContract]);
+  }, [contracts.MarketContract, filters]);
 
   return (
     <Container>
+      <div className={'live-header'}>
+        Live Now - <span>{listings.length + " items"}</span>
+      </div>
       <Filterbar onFilterChanged={handleFilterChanged} filters={filters} onSortByChanged={handleSortByChanged} sortBy={sortBy}/>
       {/*<DataGrid*/}
       {/*    className="table"*/}

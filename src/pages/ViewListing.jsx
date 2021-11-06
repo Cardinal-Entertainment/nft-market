@@ -27,6 +27,7 @@ import {getWalletWMOVRBalance, getWalletZoomBalance} from "../utils/wallet";
 const Container = styled.div`
   flex: 1;
   height: 100%;
+  color: white;
 
   h1 {
     margin: 0;
@@ -228,13 +229,14 @@ const ViewListing = () => {
     }
   }, [contracts.MarketContract, contracts.ZoombiesContract, contracts.WMOVRContract, contracts.ZoomContract, auctionId]);
 
-
   const now = moment().unix();
   const end = moment(auctionItem?.auctionEnd).unix();
   const isOver = end < now;
   const isWinner = auctionItem?.highestBidder === wallet.address;
   const isOwner = wallet.address === auctionItem?.seller;
   const canSettle = isOver && (isWinner || isOwner);
+
+  console.log ("now = " + now + " end = " + end  + " isOver " + isOver)
 
   return (
     <Container>

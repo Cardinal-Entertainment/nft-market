@@ -80,11 +80,19 @@ export const getAuctionListingsFromChain = async (marketContract, zoombiesContra
   return listings;
 };
 
-export const getAuctionListingsFromServer = async () => {
+export const getAuctionListingsFromServer = async (filter) => {
   // TODO: filter events for all past listings
 
-  console.log("hello1")
-  const resp = await axios.get('https://api.zoombies.world/listings')
-  console.log("hello2")
-  return resp
+  const resp = await axios.get('https://api.zoombies.world/listings',
+    {
+      params: {
+        cardOrigin: filter.cardType ? (filter.cardType === '' ? null : filter.cardType) : null,
+        saleToken: filter.token === 'zoom' ? zoomContractAddress : (filter.token === 'wmovr' ? wmovrContractAddress : null),
+        cardRarity: filter.rarity ? (filter.rarity === '' ? null : filter.rarity) : null,
+        search: filter.keyword ? (filter.keyword === '' ? null : filter.keyword) : null,
+        sortBy: filter.sortBy ? (filter.sortBy.field === '' ? null : filter.sortBy.field) : null,
+        orderBy: filter.sortBy ? filter.sortBy.order : null
+      }
+    })
+  return resp.data
 };

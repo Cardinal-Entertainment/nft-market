@@ -15,7 +15,7 @@ import AuctionItem from "./AuctionItem";
 const Container = styled('div')({
   display: 'flex',
   flexDirection: 'column',
-  overflowY: 'auto'
+  overflowY: 'auto',
 });
 
 const AuctionsListView = ({
@@ -142,6 +142,7 @@ const AuctionsListView = ({
   // let auctions = []
   // auctions.push(auctionItem)
 
+  console.log(auctions)
 
   return (
     <Container>

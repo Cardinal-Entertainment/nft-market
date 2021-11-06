@@ -82,8 +82,8 @@ const Filterbar = ( { onFilterChanged, filters, onSortByChanged, sortBy }) => {
             displayEmpty
         >
           <MenuItem value={''}>All Cards</MenuItem>
-          <MenuItem value={'store'}>Shop</MenuItem>
-          <MenuItem value={'booster'}>Booster</MenuItem>
+          <MenuItem value={'Store'}>Store</MenuItem>
+          <MenuItem value={'Booster'}>Booster</MenuItem>
         </StyledSelect>
 
       <StyledSelect
