@@ -223,7 +223,7 @@ const AuctionItem = ({
   });
 
   const updateRemainingTime = () => {
-    const timeDiff = ((moment().diff(moment.unix(auctionItem.auctionEnd))) / 1000)
+    const timeDiff = ((moment.unix(auctionItem.auctionEnd).diff(moment())) / 1000)
 // console.log(timeDiff)
 
     const remainingDays = Math.floor(timeDiff / (3600 * 24))
@@ -308,7 +308,7 @@ const AuctionItem = ({
           <MetaContentRow>
             <MetaContentBidAmount>
               <img className={"meta-content-coin-icon"} src={coinType === 'ZOOM' ? zoomCoin : movrLogo} alt="WMOVR"/>
-              <span>{highestBid + " " }</span>
+              <span>{Math.round(parseFloat(highestBid) * 10000) / 10000 + " " }</span>
               <span className={"meta-content-coin-text"}>{coinType}</span>
             </MetaContentBidAmount>
             <MetaContentTip>
@@ -322,7 +322,7 @@ const AuctionItem = ({
                 size="lg"
               />
               <span className={"meta-content-remaining-time"}>
-              {moment().isBefore(auctionItem.auctionEnd) ? remainingTime : moment.unix(auctionItem.auctionEnd).format("MM/DD/YYYY, h:mm:ss A")}
+              {moment().isBefore(moment.unix(auctionItem.auctionEnd)) ? remainingTime : moment.unix(auctionItem.auctionEnd).format("MM/DD/YYYY, h:mm:ss A")}
               </span>
             </MetaContentTime>
             <MetaContentTip>
@@ -330,7 +330,10 @@ const AuctionItem = ({
             </MetaContentTip>
           </MetaContentRow>
           <MetaContentButtonSection>
-            <Button className={"button-bid"} onClick={onClickBid}>Quick Bid {"(" + (auctionItem.highestBid > 0 ? auctionItem.highestBid : parseFloat(auctionItem.minPrice) + parseFloat(minIncrement)) + " " + coinType + ")"}</Button>
+            <Button className={"button-bid"} onClick={onClickBid}>Quick Bid {"(" + (
+              auctionItem.highestBid > 0 ?
+                Math.round(parseFloat(auctionItem.highestBid) * 10000) / 10000 :
+                Math.round((parseFloat(auctionItem.minPrice) + parseFloat(minIncrement)) * 10000) / 10000) + " " + coinType + ")"}</Button>
             <Button className={"button-more-info"} onClick={gotoAuction}>More Info
               <FontAwesomeIcon
                 icon={faChevronRight}
