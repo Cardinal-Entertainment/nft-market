@@ -9,6 +9,7 @@ import {useHistory} from "react-router-dom";
 import Filterbar from "../components/Filterbar";
 import AuctionItem from "../components/AuctionItem";
 import AuctionsListView from "../components/AuctionsListView";
+import {CircularProgress, Modal} from "@mui/material";
 
 const Container = styled.div`
   flex: auto;
@@ -17,17 +18,6 @@ const Container = styled.div`
   //overflow-y: auto;
   border: solid 1px white;
   padding: 16px;
-  
-  .live-header {
-    color: white;
-    font-weight: 500;
-    font-size: 32px;
-    line-height: 47px;
-    
-    span {
-      font-weight: 300;
-    }
-  }
   
   .table {
     background: white;
@@ -43,6 +33,24 @@ const Container = styled.div`
         display: none;
       }
     }
+  }
+`;
+
+const ModalContent = styled.div`
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  & > * {
+    margin: 5px 0;
   }
 `;
 
@@ -68,6 +76,7 @@ const Home = () => {
     field: '', //attribute name of an auction
     order: 1 // 1 : ascending, -1 : descending
   })
+  const [loading, setLoading] = useState(false);
 
 
   const {
@@ -166,9 +175,10 @@ const Home = () => {
     //   contracts.MarketContract,
     //   contracts.ZoombiesContract
     // );
-
+    setLoading(true)
     const auctionListings = await getAuctionListingsFromServer(filters)
     setListings(auctionListings);
+    setLoading(false)
   };
 
   const getCardSummary = (cards) => {
@@ -200,11 +210,11 @@ const Home = () => {
 
   const filterCondition = (auction) => {
 
-    // return auction.currency.toLowerCase().includes(filters.token)
-    //     && auction.cards.filter(card => card.rarityValue.includes(filters.rarity)).length > 0
-    //     && auction.cards.filter(card => card.in_store.toLowerCase().includes(filters.cardType)).length > 0
-    //     && ( auction.cards.filter(card => card.name.toLowerCase().includes(filters.keyword.toLowerCase())).length > 0
-    //       || auction.cards.filter(card => card.card_set.toLowerCase().includes(filters.keyword.toLowerCase())).length > 0 )
+    return auction.currency.toLowerCase().includes(filters.token)
+        && auction.cards.filter(card => card.rarityValue.includes(filters.rarity)).length > 0
+        && auction.cards.filter(card => card.in_store.toLowerCase().includes(filters.cardType)).length > 0
+        && ( auction.cards.filter(card => card.name.toLowerCase().includes(filters.keyword.toLowerCase())).length > 0
+          || auction.cards.filter(card => card.card_set.toLowerCase().includes(filters.keyword.toLowerCase())).length > 0 )
 
     return true
 
@@ -240,10 +250,7 @@ const Home = () => {
 
   return (
     <Container>
-      <div className={'live-header'}>
-        Live Now - <span>{listings.length + " items"}</span>
-      </div>
-      <Filterbar onFilterChanged={handleFilterChanged} filters={filters} onSortByChanged={handleSortByChanged} sortBy={sortBy}/>
+      <Filterbar onFilterChanged={handleFilterChanged} filters={filters} onSortByChanged={handleSortByChanged} sortBy={sortBy} totalCount={listings.length}/>
       {/*<DataGrid*/}
       {/*    className="table"*/}
       {/*    rows={listings.filter(auction => filterCondition(auction)).sort(compareFunc)}*/}
@@ -254,6 +261,14 @@ const Home = () => {
       {/*    autoHeight={true}*/}
       {/*/>*/}
       <AuctionsListView auctions={listings}/>
+      <Modal
+        open={loading}
+      >
+        <ModalContent>
+          <div>Loading Auctions...</div>
+          <CircularProgress />
+        </ModalContent>
+      </Modal>
     </Container>
   );
 };

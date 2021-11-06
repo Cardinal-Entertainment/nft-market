@@ -356,7 +356,7 @@ const AuctionItem = ({
         <div className={"cards-container"}>
           {auctionItem?.cards ?
             auctionItem.cards.slice((cardPageNo - 1) * 5, cardPageNo * 5).map((card) => (
-              <img key={card.id} className={"card-image"} src={cardImageBaseURL + "/" + card.id} alt={"CARD " + card.id}/>
+              <img key={card.id} className={"card-image"} src={cardImageBaseURL + "/" + card.id} alt={"CARD " + card.id} loading="lazy"/>
             )) : <CircularProgress/>}
         </div>
         {/*{auctionItem.cards && <Pagination count={Math.ceil(auctionItem.cards.length / 20)} className={"pagination-bar"} variant="outlined" shape="rounded" onChange={handleCardsTablePageChanged}/>}*/}
