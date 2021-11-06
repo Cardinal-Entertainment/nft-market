@@ -45,9 +45,9 @@ const Home = () => {
   const history = useHistory();
   const [listings, setListings] = useState([]);
   const [filters, setFilters] = useState({
-    cardType: '', // 'SHOP' or 'BOOSTER'
+    cardType: '', // 'Shop' or 'Booster'
     rarity: '', // 'epic', 'rare', 'uncommon', 'common'
-    token: '', // 'WMOVR', 'ZOOM'
+    token: '', // the token's contract address
     keyword: '' // search keyword
   });
   const [sortBy, setSortBy] = useState({
