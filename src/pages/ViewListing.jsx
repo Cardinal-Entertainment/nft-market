@@ -4,7 +4,6 @@ import styled from "styled-components/macro";
 import { store } from "store/store";
 import { useHistory, useParams } from "react-router-dom";
 import { getAuctionItem, getOffers as fetchOffers } from "utils/auction";
-import Card from "components/Card";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -21,7 +20,6 @@ import moment from "moment";
 import LazyLoad from 'react-lazyload';
 import zoomLogo from "../assets/zoombies_coin.svg";
 import movrLogo from "../assets/movr_logo.png";
-import { RARITY_CLASSES } from "../utils/getCardData"
 import {getWalletWMOVRBalance, getWalletZoomBalance} from "../utils/wallet";
 
 const Container = styled.div`
@@ -71,6 +69,10 @@ const NFTContainer = styled.div`
   & > * {
     display: inline-block;
     margin: 0 5px;
+  }
+
+  img {
+    width: 175px;
   }
 `;
 
@@ -274,25 +276,14 @@ const ViewListing = () => {
       </SellerDiv>
 
       <NFTContainer>
-        {auctionItem?.cards ?
-          auctionItem.cards.slice((cardPageNo - 1) * 20, cardPageNo * 20).map((card) => (
-            <LazyLoad key={card.id} once={true} resize={true}>
-              <Card
-                key={card.id}
-                cardClass={RARITY_CLASSES[card.rarity]}
-                image={card.image}
-                editionCurrent={card.editionCurrent}
-                editionTotal={card.editionTotal}
-                name={card.name}
-                cset={card.cardSet}
-                level={card.cardLevel}
-                origin={card.cardOrigin}
-                unlockCzxp={card.unlockCzxp}
-              />
+        {auctionItem?.tokenIds ?
+          auctionItem.tokenIds.slice((cardPageNo - 1) * 20, cardPageNo * 20).map((tokenId) => (
+            <LazyLoad key={tokenId} once={true} resize={true}>
+              <img src={`https://moonbase.zoombies.world/nft-image/${tokenId}`} alt={`Token #${tokenId}`} />
             </LazyLoad>
           )) : <CircularProgress/>}
       </NFTContainer>
-      {auctionItem.cards && <Pagination count={Math.ceil(auctionItem.cards.length / 20)} className={"pagination-bar"} variant="outlined" shape="rounded" onChange={handleCardsTablePageChanged}/>}
+      {auctionItem.tokenIds && <Pagination count={Math.ceil(auctionItem.tokenIds.length / 20)} className={"pagination-bar"} variant="outlined" shape="rounded" onChange={handleCardsTablePageChanged}/>}
 
 
       <SpacedRow>

@@ -31,13 +31,13 @@ export const getAuctionItem = async (
   try {
     const item = await axios.get(`https://api.zoombies.world/item/${auctionId}`)
     // const item = await axios.get(`http://localhost:3001/item/${auctionId}`)
-    const { cards, saleToken, highestBidder, highestBid, lister: seller, minPrice, auctionStart, auctionEnd } = item.data;
+    const { tokenIds, saleToken, highestBidder, highestBid, lister: seller, minPrice, auctionStart, auctionEnd } = item.data;
 
     const currency = getTokenSymbol(saleToken);
     
     return {
       id: auctionId,
-      cards,
+      tokenIds,
       auctionStart,
       auctionEnd,
       currency,

@@ -7,7 +7,6 @@ import DateTimePicker from "@mui/lab/DateTimePicker";
 import TextField from "@mui/material/TextField";
 import { store } from "store/store";
 import getCardData from "utils/getCardData";
-import Card from "components/Card";
 import { omit } from "lodash";
 import { useHistory } from "react-router-dom";
 import { ethers } from "ethers";
@@ -57,6 +56,10 @@ const CardWrapper = styled.div`
     input {
       cursor: pointer;
     }
+  }
+
+  img {
+    width: 175px;
   }
 `;
 
@@ -293,17 +296,7 @@ const NewListing = () => {
                   onClick={() => handleCardClicked(card.id)}
                   key={card.id}
               >
-                <Card
-                    cardClass={card.rarity}
-                    image={card.image}
-                    editionCurrent={card.edition_current}
-                    editionTotal={card.edition_total}
-                    name={card.name}
-                    cset={card.card_set}
-                    level={card.card_level}
-                    origin={card.in_store}
-                    unlockCzxp={card.unlock_czxp}
-                />
+                <img src={`https://moonbase.zoombies.world/nft-image/${card.id}`} alt={`Token #${card.id}`} />
                 <input
                     type="checkbox"
                     checked={!!selectedCards[card.id]}
