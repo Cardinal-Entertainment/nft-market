@@ -10,6 +10,7 @@ const Container = styled('div')(({ theme }) => ({
   display: 'flex',
   flexDirection: 'row',
   marginBottom: '12px',
+  flexWrap: 'wrap',
   '& .button-sortby-addon': {
     width: '30px'
   },
@@ -19,7 +20,8 @@ const Container = styled('div')(({ theme }) => ({
 }));
 
 const StyledSelect = styled(Select)(({ theme }) => ({
-  marginRight: '12px'
+  marginRight: '12px',
+  color: 'white'
 }));
 
 const Search = styled('div')(({ theme }) => ({

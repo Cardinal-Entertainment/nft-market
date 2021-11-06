@@ -59,7 +59,7 @@ export const getAuctionItem = async (
   }
 };
 
-export const getAuctionListings = async (marketContract, zoombiesContract) => {
+export const getAuctionListingsFromChain = async (marketContract, zoombiesContract) => {
   // TODO: filter events for all past listings
   const itemCount = await marketContract.itemCount();
   console.log({ itemCount });
@@ -78,4 +78,13 @@ export const getAuctionListings = async (marketContract, zoombiesContract) => {
   }
 
   return listings;
+};
+
+export const getAuctionListingsFromServer = async () => {
+  // TODO: filter events for all past listings
+
+  console.log("hello1")
+  const resp = await axios.get('https://api.zoombies.world/listings')
+  console.log("hello2")
+  return resp
 };

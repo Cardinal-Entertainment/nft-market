@@ -1,20 +1,23 @@
 import React, { useContext, useEffect, useState} from "react";
 import { store } from "store/store";
 import styled from "styled-components";
-import { getAuctionListings } from "utils/auction";
+import {getAuctionListingsFromChain, getAuctionListingsFromServer} from "utils/auction";
 import { DataGrid } from "@mui/x-data-grid";
 import Chip from "@mui/material/Chip";
 import moment from "moment";
 import {useHistory} from "react-router-dom";
 import Filterbar from "../components/Filterbar";
+import AuctionItem from "../components/AuctionItem";
+import AuctionsListView from "../components/AuctionsListView";
 
 const Container = styled.div`
-  flex: 1;
-  height: 100%;
+  flex: auto;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-
+  //overflow-y: auto;
+  border: solid 1px white;
+  padding: 16px;
+  
   .table {
     background: white;
 
@@ -148,12 +151,14 @@ const Home = () => {
   ];
 
   const loadListings = async () => {
-    const auctionListings = await getAuctionListings(
-      contracts.MarketContract,
-      contracts.ZoombiesContract
-    );
-    setListings(auctionListings);
-    console.log({ auctionListings });
+    // const auctionListings = await getAuctionListingsFromChain(
+    //   contracts.MarketContract,
+    //   contracts.ZoombiesContract
+    // );
+
+    const auctionListings = await getAuctionListingsFromServer()
+    setListings(auctionListings.data);
+    console.log(auctionListings.data);
   };
 
   const getCardSummary = (cards) => {
@@ -185,11 +190,13 @@ const Home = () => {
 
   const filterCondition = (auction) => {
 
-    return auction.currency.toLowerCase().includes(filters.token)
-        && auction.cards.filter(card => card.rarityValue.includes(filters.rarity)).length > 0
-        && auction.cards.filter(card => card.in_store.toLowerCase().includes(filters.cardType)).length > 0
-        && ( auction.cards.filter(card => card.name.toLowerCase().includes(filters.keyword.toLowerCase())).length > 0
-          || auction.cards.filter(card => card.card_set.toLowerCase().includes(filters.keyword.toLowerCase())).length > 0 )
+    // return auction.currency.toLowerCase().includes(filters.token)
+    //     && auction.cards.filter(card => card.rarityValue.includes(filters.rarity)).length > 0
+    //     && auction.cards.filter(card => card.in_store.toLowerCase().includes(filters.cardType)).length > 0
+    //     && ( auction.cards.filter(card => card.name.toLowerCase().includes(filters.keyword.toLowerCase())).length > 0
+    //       || auction.cards.filter(card => card.card_set.toLowerCase().includes(filters.keyword.toLowerCase())).length > 0 )
+
+    return true
 
   }
 
@@ -224,15 +231,16 @@ const Home = () => {
   return (
     <Container>
       <Filterbar onFilterChanged={handleFilterChanged} filters={filters} onSortByChanged={handleSortByChanged} sortBy={sortBy}/>
-      <DataGrid
-          className="table"
-          rows={listings.filter(auction => filterCondition(auction)).sort(compareFunc)}
-          columns={columns}
-          pageSize={20}
-          rowsPerPageOptions={[10, 20, 50, 100]}
-          onRowClick={handleRowClick}
-          autoHeight={true}
-      />
+      {/*<DataGrid*/}
+      {/*    className="table"*/}
+      {/*    rows={listings.filter(auction => filterCondition(auction)).sort(compareFunc)}*/}
+      {/*    columns={columns}*/}
+      {/*    pageSize={20}*/}
+      {/*    rowsPerPageOptions={[10, 20, 50, 100]}*/}
+      {/*    onRowClick={handleRowClick}*/}
+      {/*    autoHeight={true}*/}
+      {/*/>*/}
+      <AuctionsListView auctions={listings}/>
     </Container>
   );
 };
