@@ -2,12 +2,11 @@ import React, { useContext, useEffect, useState } from "react";
 import styled, { useTheme } from "styled-components";
 import metamaskLogo from "../assets/metamask-face.png";
 import movrLogo from "../assets/movr_logo.png";
-import zoomLogo from "../assets/zoombies_logo_round_plaque.svg";
 import zoomCoin from "../assets/zoombies_coin.svg";
 
 import Tooltip from "@mui/material/Tooltip";
 import { store } from "store/store";
-import { NavLink, Route } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { faEdit, faShoppingBag } from "@fortawesome/free-solid-svg-icons";
 
 import {
@@ -216,7 +215,7 @@ const Navbar = () => {
       });
     }
 
-  }, [contracts, address]);
+  }, [contracts, address ]);
 
   return (
     <Container>

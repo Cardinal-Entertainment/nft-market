@@ -4,20 +4,14 @@ import { faHeart, faClock } from "@fortawesome/free-regular-svg-icons";
 import { faHeart as faHeartSolid, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import movrLogo from "../assets/movr_logo.png";
 import zoomCoin from "../assets/zoombies_coin.svg";
-import {Button, CircularProgress, Pagination, styled} from "@mui/material";
-import LazyLoad from "react-lazyload";
-import Card from "./Card";
-import metamaskLogo from "../assets/metamask-face.png";
+import {Button, CircularProgress, styled} from "@mui/material";
 import {cardImageBaseURL, zoomContractAddress} from "../constants";
 import { useTheme } from "styled-components";
 import moment from "moment";
-// import "slick-carousel/slick/slick.css";
-// import "slick-carousel/slick/slick-theme.css";
 import {useHistory} from "react-router-dom";
 import {store} from "../store/store";
 import { ethers } from "ethers";
 import useEventScraper from "../hooks/useBidScraper";
-
 
 const Container = styled('div')({
   display: 'flex',
@@ -34,168 +28,166 @@ const Container = styled('div')({
   margin: '12px 0px',
   // height: '296px',
 
-  '& .meta-div': {
-    backgroundColor: 'white',
-    display: 'flex',
-    flexDirection: 'column',
-    // margin: '0 2px',
-    padding: '8px',
-    height: '272px',
-
-    '& .meta-header': {
-      display: 'flex',
-      flexDirection: 'column',
-      width: '232px',
-      borderBottom: 'solid 1px #c4c4c4',
-
-      '& .meta-header-left': {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-
-        '& .meta-header-title': {
-          fontSize: '24px'
-        },
-
-        '& .meta-header-title:hover': {
-          color: '#D400BD',
-          cursor: 'pointer',
-          textDecoration: 'underline'
-        }
-      },
-      '& .meta-header-right': {
-        display: 'flex',
-        justifyContent: 'space-between',
-      },
-    },
-
-    '& .meta-content-coin-icon': {
-      width: '24px',
-      height: '24px'
-    }
-  },
-
-  '& .meta-content': {
-    display: 'flex',
-    flexDirection: 'column',
-    flex: 1
-  },
-
-  '& .card-image': {
-    width: '177px',
-    height: '270px'
-  },
-
-  '& .meta-content-bid-amount': {
-    display: 'flex',
-    alignItems: 'center',
-    fontSize: '24px',
-    lineHeight: '1rem',
-    margin: '6px 0 0 -4px',
-
-    '& .meta-content-coin-text': {
-      alignItems: 'flex-end',
-      fontSize: '18px',
-      padding: '6px 0 0 4px'
-    }
-  },
-
-  '& .meta-content-tip': {
-    fontSize: '12px',
-    lineHeight: '1rem',
-    color: '#838383',
-  },
-
   '& .meta-header-cards-tip': {
     fontSize: '14px',
     '& span': {
       padding: '0 4px 0 0 '
     }
-
   },
 
   '& .meta-header-bids': {
     color: '#838383'
   },
+});
 
-  '& .meta-content-time': {
+const MetaDiv = styled('div')({
+  backgroundColor: 'white',
+  display: 'flex',
+  flexDirection: 'column',
+  // margin: '0 2px',
+  padding: '8px',
+  height: '272px',
+
+  '& .meta-content-coin-icon': {
+    width: '24px',
+    height: '24px'
+  }
+})
+
+const MetaHeader = styled('div')({
+  display: 'flex',
+  flexDirection: 'column',
+  width: '232px',
+  borderBottom: 'solid 1px #c4c4c4',
+
+  '& .meta-header-left': {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+
+    '& .meta-header-title': {
+      fontSize: '24px'
+    },
+
+    '& .meta-header-title:hover': {
+      color: '#D400BD',
+      cursor: 'pointer',
+      textDecoration: 'underline'
+    }
+  },
+  '& .meta-header-right': {
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+})
+
+const MetaContent = styled('div')({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1
+})
+
+const CardImage = styled('img')({
+  width: '177px',
+  height: '270px'
+})
+
+const MetaContentBidAmount = styled('div')({
+  display: 'flex',
+  alignItems: 'center',
+  fontSize: '24px',
+  lineHeight: '1rem',
+  margin: '6px 0 0 -4px',
+
+  '& .meta-content-coin-text': {
+    alignItems: 'flex-end',
+    fontSize: '18px',
+    padding: '6px 0 0 4px'
+  }
+})
+
+const MetaContentRow = styled('div')({
+
+  margin: '8px 0',
+  display: 'flex',
+  flexDirection: 'column',
+
+  '& button': {
+    fontFamily: 'Oswald',
+    fontStyle: 'normal',
+    fontWeight: '600',
+    fontSize: '18px',
+    lineHeight: '27px',
+    color: 'white',
+    backgroundColor: '#D400BD',
+
+    display: 'flex',
+    alignItems: 'flex-end'
+  }
+})
+
+const MetaContentTip = styled('div')({
+  fontSize: '12px',
+  lineHeight: '1rem',
+  color: '#838383',
+})
+
+const MetaContentTime = styled('div')({
+  display: 'flex',
+  alignItems: 'center',
+  lineHeight: '1rem',
+  '& .meta-content-remaining-time': {
+    margin: '0 0 0 4px'
+  }
+})
+
+const MetaContentButtonSection = styled('div')({
+  display: 'flex',
+  flexDirection: 'column',
+
+  marginTop: 'auto',
+  marginBottom: 0,
+  justifyContent: 'end',
+
+  '& button': {
+    fontFamily: 'Oswald',
+    fontStyle: 'normal',
+    fontSize: '18px',
+    lineHeight: '27px',
+    color: 'white',
+
+    display: 'flex',
+    alignItems: 'flex-end',
+    textTransform: 'capitalize',
+    fontWeight: '400',
+    justifyContent: 'flex-start'
+  },
+
+  '& .button-bid': {
+    marginBottom: '1px',
+    backgroundColor: '#D400BD',
+  },
+
+  '& .button-more-info': {
     display: 'flex',
     alignItems: 'center',
-    lineHeight: '1rem',
-    '& .meta-content-remaining-time': {
-      margin: '0 0 0 4px'
-    }
+    justifyContent: 'space-between',
+    backgroundColor: '#474747',
   },
+})
 
-  '& .meta-content-row': {
-    margin: '8px 0',
-    display: 'flex',
-    flexDirection: 'column',
+const DetailCardsDiv = styled('div')({
+  flexGrow: 1,
+  margin: '0 12px'
+})
 
-    '& button': {
-      fontFamily: 'Oswald',
-      fontStyle: 'normal',
-      fontWeight: '600',
-      fontSize: '18px',
-      lineHeight: '27px',
-      color: 'white',
-      backgroundColor: '#D400BD',
-
-      display: 'flex',
-      alignItems: 'flex-end'
-    }
-  },
-
-  '& .meta-content-button-section': {
-    display: 'flex',
-    flexDirection: 'column',
-
-    marginTop: 'auto',
-    marginBottom: 0,
-    justifyContent: 'end',
-
-    '& button': {
-      fontFamily: 'Oswald',
-      fontStyle: 'normal',
-      fontSize: '18px',
-      lineHeight: '27px',
-      color: 'white',
-
-      display: 'flex',
-      alignItems: 'flex-end',
-      textTransform: 'capitalize',
-      fontWeight: '400',
-      justifyContent: 'flex-start'
-    },
-
-    '& .button-bid': {
-      marginBottom: '1px',
-      backgroundColor: '#D400BD',
-    },
-
-    '& .button-more-info': {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      backgroundColor: '#474747',
-    },
-
-
-  },
-
-  '& .detail-cards': {
-    flexGrow: 1,
-    '& .cards-container': {
-      flexGrow: '1',
-      overflowX: 'auto',
-      display: 'flex',
-      flexBasis: '100%',
-      width: '100%',
-
-      // flexWrap: 'wrap',
-    }
-  }
-});
+const CardsContainer = styled('div')({
+  flexGrow: '1',
+  overflowX: 'auto',
+  display: 'flex',
+  flexBasis: '100%',
+  width: '100%',
+})
 
 const AuctionItem = ({
   content
@@ -216,7 +208,7 @@ const AuctionItem = ({
   const coinType = auctionItem.saleToken === zoomContractAddress ? 'ZOOM' : 'WMOVR'
 
 
-  useEffect( async () => {
+  useEffect( () => {
     getMinIncrement()
     let interval = null
     interval = setInterval(() => {
@@ -268,14 +260,14 @@ const AuctionItem = ({
     history.push(`/listing/${auctionItem.itemNumber}`);
   }
 
-  const handleCardsTablePageChanged = (event, value) => {
-    setCardPageNo(value)
-  }
+  // const handleCardsTablePageChanged = (event, value) => {
+  //   setCardPageNo(value)
+  // }
 
   return (
     <Container className={"container"}>
-      <div className={"meta-div"}>
-        <div className={"meta-header"}>
+      <MetaDiv>
+        <MetaHeader>
           <div className={"meta-header-left"}>
             <div className={"meta-header-title"} onClick={gotoAuction}>
               Auction #{itemNumber}
@@ -310,57 +302,55 @@ const AuctionItem = ({
               {offers.length} bids
             </div>
           </div>
-        </div>
+        </MetaHeader>
 
-        <div className={"meta-content"}>
-          <div className={"meta-content-row"}>
-            <div className={"meta-content-bid-amount"}>
+        <MetaContent>
+          <MetaContentRow>
+            <MetaContentBidAmount>
               <img className={"meta-content-coin-icon"} src={coinType === 'ZOOM' ? zoomCoin : movrLogo} alt="WMOVR"/>
               <span>{highestBid + " " }</span>
               <span className={"meta-content-coin-text"}>{coinType}</span>
-            </div>
-            <div className={"meta-content-tip"}>
+            </MetaContentBidAmount>
+            <MetaContentTip>
               Highest Bid
-            </div>
-          </div>
-          <div className={"meta-content-row"}>
-            <div className={"meta-content-time"}>
+            </MetaContentTip>
+          </MetaContentRow>
+          <MetaContentRow>
+            <MetaContentTime>
               <FontAwesomeIcon
                 icon={faClock}
-                size="sm"
-                className="card-booster-shop-icon"
+                size="lg"
               />
               <span className={"meta-content-remaining-time"}>
               {moment().isBefore(auctionItem.auctionEnd) ? remainingTime : moment.unix(auctionItem.auctionEnd).format("MM/DD/YYYY, h:mm:ss A")}
               </span>
-            </div>
-            <div className={"meta-content-tip"}>
+            </MetaContentTime>
+            <MetaContentTip>
               Remaining time
-            </div>
-          </div>
-          <div className={"meta-content-button-section"}>
+            </MetaContentTip>
+          </MetaContentRow>
+          <MetaContentButtonSection>
             <Button className={"button-bid"} onClick={onClickBid}>Quick Bid {"(" + (auctionItem.highestBid > 0 ? auctionItem.highestBid : parseFloat(auctionItem.minPrice) + parseFloat(minIncrement)) + " " + coinType + ")"}</Button>
             <Button className={"button-more-info"} onClick={gotoAuction}>More Info
               <FontAwesomeIcon
                 icon={faChevronRight}
                 size="sm"
-                className="card-booster-shop-icon"
               />
             </Button>
 
-          </div>
-        </div>
-      </div>
+          </MetaContentButtonSection>
+        </MetaContent>
+      </MetaDiv>
 
-      <div className={"detail-cards"}>
-        <div className={"cards-container"}>
+      <DetailCardsDiv>
+        <CardsContainer>
           {auctionItem?.cards ?
             auctionItem.cards.slice((cardPageNo - 1) * 5, cardPageNo * 5).map((card) => (
-              <img key={card.id} className={"card-image"} src={cardImageBaseURL + "/" + card.id} alt={"CARD " + card.id} loading="lazy"/>
+              <CardImage key={card.id} src={cardImageBaseURL + "/" + card.id} alt={"CARD " + card.id} loading="lazy"/>
             )) : <CircularProgress/>}
-        </div>
+        </CardsContainer>
         {/*{auctionItem.cards && <Pagination count={Math.ceil(auctionItem.cards.length / 20)} className={"pagination-bar"} variant="outlined" shape="rounded" onChange={handleCardsTablePageChanged}/>}*/}
-      </div>
+      </DetailCardsDiv>
 
     </Container>
   );

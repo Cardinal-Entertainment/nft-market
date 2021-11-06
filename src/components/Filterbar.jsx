@@ -1,10 +1,9 @@
 import React from "react";
-import { useTheme } from "styled-components";
 import { styled } from '@mui/material/styles';
 import InputBase from '@mui/material/InputBase';
 import MenuItem from '@mui/material/MenuItem';
 import SearchIcon from '@mui/icons-material/Search';
-import {alpha, Button, ButtonGroup, FormControl, InputLabel, Select} from "@mui/material";
+import {alpha, Button,  Select} from "@mui/material";
 
 const Container = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -101,8 +100,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 
 const Filterbar = ( { onFilterChanged, filters, onSortByChanged, sortBy, totalCount }) => {
-
-  const theme = useTheme();
 
   return (
     <Container >
