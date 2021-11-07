@@ -5,6 +5,7 @@ import InputBase from '@mui/material/InputBase';
 import MenuItem from '@mui/material/MenuItem';
 import SearchIcon from '@mui/icons-material/Search';
 import {alpha, Button, ButtonGroup, Select} from "@mui/material";
+import { wmovrContractAddress, zoomContractAddress } from '../constants'
 
 const Container = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -68,7 +69,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 
-const Filterbar = ( { onFilterChanged, filters, onSortByChanged, sortBy }) => {
+const Filterbar = ({ onFilterChanged, filters, onSortByChanged, sortBy }) => {
 
   const theme = useTheme();
 
@@ -80,8 +81,8 @@ const Filterbar = ( { onFilterChanged, filters, onSortByChanged, sortBy }) => {
             displayEmpty
         >
           <MenuItem value={''}>All Cards</MenuItem>
-          <MenuItem value={'store'}>Shop</MenuItem>
-          <MenuItem value={'booster'}>Booster</MenuItem>
+          <MenuItem value={'Store'}>Shop</MenuItem>
+          <MenuItem value={'Booster'}>Booster</MenuItem>
         </StyledSelect>
 
       <StyledSelect
@@ -90,8 +91,8 @@ const Filterbar = ( { onFilterChanged, filters, onSortByChanged, sortBy }) => {
           displayEmpty
       >
         <MenuItem value={''}>All Tokens</MenuItem>
-        <MenuItem value={'wmovr'}>WMOVR</MenuItem>
-        <MenuItem value={'zoom'}>ZOOM</MenuItem>
+        <MenuItem value={wmovrContractAddress}>WMOVR</MenuItem>
+        <MenuItem value={zoomContractAddress}>ZOOM</MenuItem>
       </StyledSelect>
     
       <StyledSelect
