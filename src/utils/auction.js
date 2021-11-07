@@ -1,8 +1,5 @@
-import { ethers } from "ethers";
-import moment from "moment";
-
 import { zoomContractAddress, wmovrContractAddress } from "../constants";
-import {getCardData} from "./cardsUtil";
+import axios from 'axios'
 
 const getTokenSymbol = (saleToken) => {
   switch (saleToken) {

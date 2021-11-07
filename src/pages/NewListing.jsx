@@ -7,7 +7,6 @@ import DateTimePicker from "@mui/lab/DateTimePicker";
 import TextField from "@mui/material/TextField";
 import { store } from "store/store";
 import { getCardData } from "utils/cardsUtil";
-import Card from "components/Card";
 import { omit } from "lodash";
 import { useHistory } from "react-router-dom";
 import { ethers } from "ethers";

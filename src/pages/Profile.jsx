@@ -80,12 +80,79 @@ const UserBidsWrapper = styled.div`
 
 const UserListingsWrapper = styled.div``;
 
-const listingColumns = [
+const bidListingColumns = [
   {
     field: 'id',
     headerName: 'ID',
-    width: 50,
     valueGetter: (params) => '#' + params.id,
+    hide: true,
+  },
+  {
+    field: 'itemNumber',
+    headerName: 'Item Number',
+    valueGetter: (params) => '#' + params.value,
+    width: 120,
+  },
+  {
+    field: 'summary',
+    headerName: 'Summary',
+    minWidth: 200,
+    flex: 2,
+    valueGetter: (params) =>
+      getCardSummary(params.getValue(params.id, 'cards')),
+  },
+  {
+    field: 'userBid',
+    headerName: 'Your Bid',
+    sortable: false,
+    minWidth: 130,
+    flex: 1,
+    valueGetter: (params) => {
+      return `${params.value} ${params.getValue(params.id, 'currency')}`;
+    },
+  },
+  {
+    field: 'auctionEnd',
+    headerName: 'End Time',
+    valueFormatter: (params) => params.value.format('MM/DD/YYYY, h:mm:ss A'),
+    minWidth: 230,
+  },
+  {
+    field: 'status',
+    headerName: 'Status',
+    minWidth: 160,
+    renderCell: (params) => (
+      <Chip
+        label={
+          getStatus(
+            params.getValue(params.id, 'auctionEnd'),
+            params.getValue(params.id, 'highestBidder')
+          ).label
+        }
+        color={
+          getStatus(
+            params.getValue(params.id, 'auctionEnd'),
+            params.getValue(params.id, 'highestBidder')
+          ).color
+        }
+      />
+    ),
+  },
+];
+
+const userListingColumns = [
+  {
+    field: 'id',
+    headerName: 'ID',
+    valueGetter: (params) => '#' + params.id,
+    hide: true,
+  },
+
+  {
+    field: 'itemNumber',
+    headerName: 'Item Number',
+    valueGetter: (params) => '#' + params.value,
+    width: 120,
   },
   {
     field: 'summary',
@@ -161,7 +228,9 @@ const UserBids = ({ bidCount, bids }) => {
         highestBid: bid.bidListing.highestBid,
         minPrice: bid.bidListing.minPrice,
         currency: currency,
-        id: bid.bidListing.itemNumber,
+        id: bid._id,
+        itemNumber: bid.bidListing.itemNumber,
+        userBid: bid.bidAmount,
         cards: bid.bidListing.cards.map((card) => ({
           ...card,
           rarity: RARITY_CLASSES[card.rarity],
@@ -169,11 +238,12 @@ const UserBids = ({ bidCount, bids }) => {
         })),
       };
     });
+
     return (
       <div className="user-bids">
         <DataGrid
           className="table"
-          columns={listingColumns}
+          columns={bidListingColumns}
           rows={formattedBids}
           pageSize={20}
           rowsPerPageOptions={[10, 20, 50, 100]}
@@ -193,7 +263,7 @@ const UserListings = ({ listingCount, listings }) => {
     );
   }
 
-  const formattedListings = listings.map(listing => {
+  const formattedListings = listings.map((listing) => {
     const saleToken = listing.saleToken;
     let currency;
     if (saleToken === zoomContractAddress) {
@@ -203,25 +273,26 @@ const UserListings = ({ listingCount, listings }) => {
     }
 
     return {
-        auctionEnd: moment.unix(listing.auctionEnd),
-        highestBidder: listing.highestBidder,
-        highestBid: listing.highestBid,
-        minPrice: listing.minPrice,
-        currency: currency,
-        id: listing.itemNumber,
-        cards: listing.cards.map((card) => ({
-          ...card,
-          rarity: RARITY_CLASSES[card.rarity],
-          rarityValue: card.rarity,
-        })),
-    }
-  })
+      auctionEnd: moment.unix(listing.auctionEnd),
+      highestBidder: listing.highestBidder,
+      highestBid: listing.highestBid,
+      minPrice: listing.minPrice,
+      currency: currency,
+      id: listing._id,
+      itemNumber: listing.itemNumber,
+      cards: listing.cards.map((card) => ({
+        ...card,
+        rarity: RARITY_CLASSES[card.rarity],
+        rarityValue: card.rarity,
+      })),
+    };
+  });
 
   return (
     <div className="user-listings">
       <DataGrid
         className="table"
-        columns={listingColumns}
+        columns={userListingColumns}
         rows={formattedListings}
         pageSize={20}
         rowsPerPageOptions={[10, 20, 50, 100]}
