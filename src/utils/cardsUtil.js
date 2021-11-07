@@ -11,12 +11,12 @@ export const getCardType = async (cardId) => {
 };
 
 export const RARITY_CLASSES = {
-  Common: "card-bg card-bg-6",
-  Uncommon: "card-bg card-bg-5",
-  Rare: "card-bg card-bg-4",
-  Epic: "card-bg card-bg-3",
-  Platinum: "card-bg card-bg-2",
-  Diamond: "card-bg card-bg-1",
+  Common: 'card-bg card-bg-6',
+  Uncommon: 'card-bg card-bg-5',
+  Rare: 'card-bg card-bg-4',
+  Epic: 'card-bg card-bg-3',
+  Platinum: 'card-bg card-bg-2',
+  Diamond: 'card-bg card-bg-1',
 };
 
 export const getCardData = async (tokenId, zoombiesContract) => {
@@ -37,12 +37,12 @@ export const getCardData = async (tokenId, zoombiesContract) => {
   if (cardData.attributes.edition_total === 0) {
     //unlimited
     cardData.attributes.edition_label =
-      "#" + cardData.attributes.edition_current;
+      '#' + cardData.attributes.edition_current;
   } else {
     cardData.attributes.edition_label =
-      "#" +
+      '#' +
       cardData.attributes.edition_current +
-      " of " +
+      ' of ' +
       cardData.attributes.edition_total;
   }
 
@@ -56,17 +56,24 @@ export const getCardData = async (tokenId, zoombiesContract) => {
 };
 
 export const getCardSummary = (cards) => {
+  if (!cards) {
+    return '';
+  }
   const countByRarity = cards.reduce((summary, card) => {
-    const { rarityValue } = card;
-    if (!summary.hasOwnProperty(rarityValue)) {
-      summary[rarityValue] = 0;
+    const { rarity } = card;
+    if (!summary.hasOwnProperty(rarity)) {
+      summary[rarity] = 0;
     }
-    summary[rarityValue]++;
+    summary[rarity]++;
     return summary;
   }, {});
 
-  return Object.keys(countByRarity)
-    .map((rarity) => `${countByRarity[rarity]} ${rarity}`)
-    .join(", ") + ' (' + cards.map((card) => card.name).join(',') + ')';
+  return (
+    Object.keys(countByRarity)
+      .map((rarity) => `${countByRarity[rarity]} ${rarity}`)
+      .join(', ') +
+    ' (' +
+    cards.map((card) => card.name).join(',') +
+    ')'
+  );
 };
-

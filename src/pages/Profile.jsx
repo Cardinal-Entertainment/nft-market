@@ -231,11 +231,7 @@ const UserBids = ({ bidCount, bids }) => {
         id: bid._id,
         itemNumber: bid.bidListing.itemNumber,
         userBid: bid.bidAmount,
-        cards: bid.bidListing.cards.map((card) => ({
-          ...card,
-          rarity: RARITY_CLASSES[card.rarity],
-          rarityValue: card.rarity,
-        })),
+        cards: bid.bidListing.cards
       };
     });
 
@@ -280,11 +276,7 @@ const UserListings = ({ listingCount, listings }) => {
       currency: currency,
       id: listing._id,
       itemNumber: listing.itemNumber,
-      cards: listing.cards.map((card) => ({
-        ...card,
-        rarity: RARITY_CLASSES[card.rarity],
-        rarityValue: card.rarity,
-      })),
+      cards: listing.cards
     };
   });
 
