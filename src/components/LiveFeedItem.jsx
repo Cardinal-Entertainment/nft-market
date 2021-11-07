@@ -164,7 +164,7 @@ const LiveFeedItem = ( props, ref  ) => {
                 </>
               ) : type === 'bid' ? (
                 <>
-                  <div className={'content-wallet-address'}>{bidderAddress + ' placed a new bet.'}</div>
+                  <div className={'content-wallet-address'}>{bidderAddress + ' placed a new bid.'}</div>
                   <div className={'content-amount'}>Bid Amount: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
                     <span className={'span-amount'}>{bidAmount}</span> {currency}</div>
                 </>

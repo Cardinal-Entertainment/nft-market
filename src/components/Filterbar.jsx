@@ -3,7 +3,8 @@ import { styled } from '@mui/material/styles';
 import InputBase from '@mui/material/InputBase';
 import MenuItem from '@mui/material/MenuItem';
 import SearchIcon from '@mui/icons-material/Search';
-import {alpha, Button,  Select} from "@mui/material";
+import {alpha, Button, ButtonGroup, Select} from "@mui/material";
+import { wmovrContractAddress, zoomContractAddress } from '../constants'
 
 const Container = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -98,7 +99,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-
 const Filterbar = ( { onFilterChanged, filters, onSortByChanged, sortBy, totalCount }) => {
 
   return (
@@ -119,6 +119,7 @@ const Filterbar = ( { onFilterChanged, filters, onSortByChanged, sortBy, totalCo
         </Search>
       </SearchHeader>
 
+
       <FilterRow>
         <StyledSelect
           value={filters.token}
@@ -126,8 +127,8 @@ const Filterbar = ( { onFilterChanged, filters, onSortByChanged, sortBy, totalCo
           displayEmpty
         >
           <MenuItem value={''}>Coin Type</MenuItem>
-          <MenuItem value={'wmovr'}>WMOVR</MenuItem>
-          <MenuItem value={'zoom'}>ZOOM</MenuItem>
+          <MenuItem value={wmovrContractAddress}>WMOVR</MenuItem>
+          <MenuItem value={zoomContractAddress}>ZOOM</MenuItem>
         </StyledSelect>
 
         <StyledSelect

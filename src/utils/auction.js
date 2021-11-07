@@ -5,6 +5,17 @@ import moment from "moment";
 import { zoomContractAddress, wmovrContractAddress } from "../constants";
 import getCardData from "./getCardData";
 
+const getTokenSymbol = (saleToken) => {
+  switch (saleToken) {
+    case zoomContractAddress:
+      return "ZOOM"
+    case wmovrContractAddress:
+      return "WMOVR"
+    default:
+      return "Unknown"
+  }
+}
+
 /**
  *
  * @param {number} auctionId
@@ -15,38 +26,20 @@ import getCardData from "./getCardData";
  */
 export const getAuctionItem = async (
   auctionId,
-  marketContract,
   zoombiesContract
 ) => {
   try {
-    const item = await marketContract.getListItem(auctionId);
-    console.log({ item });
-    const { tokenIds, saleToken, highestBidder, seller } = item;
-    const minPrice = ethers.utils.formatEther(item.minPrice);
-    const highestBid = ethers.utils.formatEther(item.highestBid);
+    const item = await axios.get(`https://api.zoombies.world/item/${auctionId}`)
+    // const item = await axios.get(`http://localhost:3001/item/${auctionId}`)
+    const { tokenIds, saleToken, highestBidder, highestBid, lister: seller, minPrice, auctionStart, auctionEnd } = item.data;
 
-    const getCardPromise = tokenIds.map(async (token) => {
-      const tokenId = token.toNumber();
-      const cardData = getCardData(tokenId, zoombiesContract);
-      return cardData;
-    });
-
-    const cards = await Promise.all(getCardPromise);
-
-    const auctionEnd = item.auctionEnd.toString();
-    const auctionEndDate = moment.unix(auctionEnd);
-
-    let currency;
-    if (saleToken === zoomContractAddress) {
-      currency = "ZOOM";
-    } else if (saleToken === wmovrContractAddress) {
-      currency = "WMOVR";
-    }
-
+    const currency = getTokenSymbol(saleToken);
+    
     return {
       id: auctionId,
-      cards,
-      auctionEnd: auctionEndDate,
+      tokenIds,
+      auctionStart,
+      auctionEnd,
       currency,
       minPrice,
       highestBid,
@@ -59,40 +52,51 @@ export const getAuctionItem = async (
   }
 };
 
-export const getAuctionListingsFromChain = async (marketContract, zoombiesContract) => {
-  // TODO: filter events for all past listings
-  const itemCount = await marketContract.itemCount();
-  console.log({ itemCount });
-  const listings = [];
+export const getAuctionListings = async (marketContract, zoombiesContract, filters, sorting) => {
+  // console.log({filters, sorting})
 
-  for (let i = 0; i < itemCount; i++) {
-    const auctionItem = await getAuctionItem(
-      i,
-      marketContract,
-      zoombiesContract
-    );
-    // filter out the settled auctions
-    if (auctionItem.cards.length) {
-      listings.push(auctionItem);
+  const getSortType = () => {
+    switch(sorting.field) {
+      case 'auctionEnd':
+        return 'END_TIME' 
+      case 'minPrice':
+        return 'MIN_PRICE' 
+      case 'highestBid':
+        return 'HIGHEST_BID'
+      case '':
+        return null
+      default:
+        throw new Error(`Unhandled sort type: ${sorting.field}`)
     }
   }
 
-  return listings;
+  const params = new URLSearchParams({
+    cardOrigin: filters.cardType,
+    saleToken: filters.token,
+    cardRarity: filters.rarity,
+    search: filters.keyword,
+    sortBy: getSortType() ?? '',
+    orderBy: sorting.order,
+  })
+  
+  const listings = await axios.get(`https://api.zoombies.world/listings?${params.toString()}`)
+  // const listings = await axios.get(`http://localhost:3001/listings?${params.toString()}`)
+
+  return listings.data.map(listing => ({
+    ...listing,
+    currency: getTokenSymbol(listing.saleToken)
+  }))
 };
 
-export const getAuctionListingsFromServer = async (filter) => {
-  // TODO: filter events for all past listings
 
-  const resp = await axios.get('https://api.zoombies.world/listings',
-    {
-      params: {
-        cardOrigin: filter.cardType ? (filter.cardType === '' ? null : filter.cardType) : null,
-        saleToken: filter.token === 'zoom' ? zoomContractAddress : (filter.token === 'wmovr' ? wmovrContractAddress : null),
-        cardRarity: filter.rarity ? (filter.rarity === '' ? null : filter.rarity) : null,
-        search: filter.keyword ? (filter.keyword === '' ? null : filter.keyword) : null,
-        sortBy: filter.sortBy ? (filter.sortBy.field === '' ? null : filter.sortBy.field) : null,
-        orderBy: filter.sortBy ? filter.sortBy.order : null
-      }
-    })
-  return resp.data
-};
+export const getOffers = async (auctionId) => {
+  const res = await axios.get(`https://api.zoombies.world/bids/${auctionId}`)
+  // const res = await axios.get(`http://localhost:3001/bids/${auctionId}`)
+
+  return res.data.map((offer) => ({
+    date: offer.timestamp,
+    from: offer.bidder,
+    amount: offer.bidAmount,
+    status: "Bid",
+  }))
+}

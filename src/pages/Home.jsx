@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState} from "react";
 import { store } from "store/store";
 import styled from "styled-components";
-import {getAuctionListingsFromChain, getAuctionListingsFromServer} from "utils/auction";
+import {getAuctionListings} from "utils/auction";
 import { DataGrid } from "@mui/x-data-grid";
 import Chip from "@mui/material/Chip";
 import moment from "moment";
@@ -67,9 +67,9 @@ const Home = () => {
   const history = useHistory();
   const [listings, setListings] = useState([]);
   const [filters, setFilters] = useState({
-    cardType: '', // 'shop' or 'booster'
+    cardType: '', // 'Shop' or 'Booster'
     rarity: '', // 'epic', 'rare', 'uncommon', 'common'
-    token: '', // 'wmovr', 'zoom'
+    token: '', // the token's contract address
     keyword: '' // search keyword
   });
   const [sortBy, setSortBy] = useState({
@@ -84,7 +84,6 @@ const Home = () => {
   } = useContext(store);
 
   const getStatus = (endTime, highestBidder) => {
-    // console.log({ highestBidder });
     const now = moment().unix();
     const end = moment(endTime).unix();
 
@@ -118,7 +117,7 @@ const Home = () => {
       headerName: "ID",
       width: 50,
       valueGetter: (params) =>
-      '#'+ params.id  },
+      '#'+ params.getValue(params.id, "itemNumber")  },
     {
       field: "summary",
       headerName: "Summary",
@@ -136,7 +135,7 @@ const Home = () => {
       valueGetter: (params) => {
         const value = Math.max(
           params.getValue(params.id, "minPrice"),
-          params.getValue(params.id, "highestBid")
+          params.getValue(params.id, "highestBid"),
         );
         return `${value} ${params.getValue(params.id, "currency")}`;
       },
@@ -144,7 +143,10 @@ const Home = () => {
     {
       field: "auctionEnd",
       headerName: "End Time",
-      valueFormatter: (params) => params.value.format("MM/DD/YYYY, h:mm:ss A"),
+      valueFormatter: (params) => {
+        const date = moment(params.value * 1000)
+        return date.format("MM/DD/YYYY, h:mm:ss A")
+      },
       minWidth: 230,
     },
     {
@@ -155,13 +157,13 @@ const Home = () => {
         <Chip
           label={
             getStatus(
-              params.getValue(params.id, "auctionEnd"),
+              params.getValue(params.id, "auctionEnd") * 1000,
               params.getValue(params.id, "highestBidder")
             ).label
           }
           color={
             getStatus(
-              params.getValue(params.id, "auctionEnd"),
+              params.getValue(params.id, "auctionEnd") * 1000,
               params.getValue(params.id, "highestBidder")
             ).color
           }
@@ -171,23 +173,31 @@ const Home = () => {
   ];
 
   const loadListings = async () => {
-    // const auctionListings = await getAuctionListingsFromChain(
-    //   contracts.MarketContract,
-    //   contracts.ZoombiesContract
-    // );
+
     setLoading(true)
-    const auctionListings = await getAuctionListingsFromServer(filters)
-    setListings(auctionListings);
+    const auctionListings = await getAuctionListings(
+      contracts.MarketContract,
+      contracts.ZoombiesContract,
+      filters,
+      sortBy
+    );
+    setListings(auctionListings.map((listing) => ({
+      ...listing,
+      id: listing._id
+    })));
     setLoading(false)
   };
 
   const getCardSummary = (cards) => {
+    if (!cards) {
+      return ''
+    }
     const countByRarity = cards.reduce((summary, card) => {
-      const { rarityValue } = card;
-      if (!summary.hasOwnProperty(rarityValue)) {
-        summary[rarityValue] = 0;
+      const { rarity } = card;
+      if (!summary.hasOwnProperty(rarity)) {
+        summary[rarity] = 0;
       }
-      summary[rarityValue]++;
+      summary[rarity]++;
       return summary;
     }, {});
 
@@ -196,8 +206,8 @@ const Home = () => {
       .join(", ") + ' (' + cards.map((card) => card.name).join(',') + ')';
   };
 
-  const handleRowClick = (row) => {
-    history.push(`/listing/${row.id}`);
+  const handleRowClick = ({row}) => {
+    history.push(`/listing/${row.itemNumber}`);
   };
 
   const handleFilterChanged = (params) => {
@@ -206,40 +216,6 @@ const Home = () => {
 
   const handleSortByChanged = (attribute) => {
     setSortBy({ ...sortBy, ...attribute })
-  }
-
-  const filterCondition = (auction) => {
-
-    return auction.currency.toLowerCase().includes(filters.token)
-        && auction.cards.filter(card => card.rarityValue.includes(filters.rarity)).length > 0
-        && auction.cards.filter(card => card.in_store.toLowerCase().includes(filters.cardType)).length > 0
-        && ( auction.cards.filter(card => card.name.toLowerCase().includes(filters.keyword.toLowerCase())).length > 0
-          || auction.cards.filter(card => card.card_set.toLowerCase().includes(filters.keyword.toLowerCase())).length > 0 )
-
-    return true
-
-  }
-
-  const compareFunc = (a, b) => {
-    let res = 0
-    if (sortBy.field === 'auctionEnd') { //case of datetime
-      res = moment(a[sortBy.field]).isAfter(b[sortBy.field]) ? 1 : (moment(a[sortBy.field]).isSame(b[sortBy.field]) ? 0 : -1)
-    } else { // min_price and highest_bid
-
-      if (sortBy.field === '') {
-        return 1
-      }
-
-      if (a.currency === 'WMOVR' && b.currency === 'ZOOM') {
-        res = 1
-      } else if (a.currency === 'ZOOM' && b.currency === 'WMOVR') {
-        res = -1
-      } else {
-        res = parseFloat(a[sortBy.field]) > parseFloat(b[sortBy.field]) ? 1 : (parseFloat(a[sortBy.field]) ===  parseFloat(b[sortBy.field]) ? 0 : -1)
-      }
-    }
-
-    return res * sortBy.order
   }
 
   useEffect(() => {
