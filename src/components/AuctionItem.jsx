@@ -11,7 +11,7 @@ import moment from "moment";
 import {useHistory} from "react-router-dom";
 import {store} from "../store/store";
 import { ethers } from "ethers";
-import useEventScraper from "../hooks/useBidScraper";
+import {getOffers as fetchOffers} from "../utils/auction";
 
 const Container = styled('div')({
   display: 'flex',
@@ -201,26 +201,29 @@ const AuctionItem = ({
   const [minIncrement, setMinIncrement] = useState("");
   const [favorite, setFavorite] = useState(false)
   const [remainingTime, setRemainingTime] = useState("")
+  const [offers, setOffers] = useState([]);
+
   const theme = useTheme();
 
   const auctionItem = content
   const { itemNumber, highestBid } = auctionItem
   const coinType = auctionItem.saleToken === zoomContractAddress ? 'ZOOM' : 'WMOVR'
 
+  const getOffers = async () => {
+    const offers = await fetchOffers(
+      content.itemNumber
+    );
+    setOffers(offers);
+  };
 
   useEffect( () => {
+    getOffers(content.itemNumber)
     getMinIncrement()
     let interval = null
     interval = setInterval(() => {
       updateRemainingTime()
     }, 1000);
-  }, [contracts.MarketContract]);
-
-  const { offers, refetchOffers } = useEventScraper({
-    itemNumber,
-    currency: coinType,
-    MarketContract: contracts.MarketContract,
-  });
+  }, [content.itemNumber]);
 
   const updateRemainingTime = () => {
     const timeDiff = ((moment.unix(auctionItem.auctionEnd).diff(moment())) / 1000)
@@ -299,7 +302,7 @@ const AuctionItem = ({
               <span style={{color: theme.colors.common}}>{auctionItem.cards.filter( card => { return card.rarity.toLowerCase() === 'common' }).length}C</span>
             </div>
             <div className={"meta-header-bids"}>
-              {offers.length} bids
+              {offers.length > 0 ? offers.length : 'No'} bids
             </div>
           </div>
         </MetaHeader>
@@ -307,7 +310,7 @@ const AuctionItem = ({
         <MetaContent>
           <MetaContentRow>
             <MetaContentBidAmount>
-              <img className={"meta-content-coin-icon"} src={coinType === 'ZOOM' ? zoomCoin : movrLogo} alt="WMOVR"/>
+              <img className={"meta-content-coin-icon"} src={coinType === 'ZOOM' ? zoomCoin : movrLogo} alt="WMOVR" loading="lazy"/>
               <span>{Math.round(parseFloat(highestBid) * 10000) / 10000 + " " }</span>
               <span className={"meta-content-coin-text"}>{coinType}</span>
             </MetaContentBidAmount>

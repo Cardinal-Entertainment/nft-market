@@ -282,7 +282,7 @@ const ViewListing = () => {
         {auctionItem?.tokenIds ?
           auctionItem.tokenIds.slice((cardPageNo - 1) * 20, cardPageNo * 20).map((tokenId) => (
             <LazyLoad key={tokenId} once={true} resize={true}>
-              <img src={`https://moonbase.zoombies.world/nft-image/${tokenId}`} alt={`Token #${tokenId}`} />
+              <img src={`https://moonbase.zoombies.world/nft-image/${tokenId}`} alt={`Token #${tokenId}`} loading="lazy"/>
             </LazyLoad>
           )) : <CircularProgress/>}
       </NFTContainer>
