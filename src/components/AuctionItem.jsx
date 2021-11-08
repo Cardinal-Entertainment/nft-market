@@ -5,13 +5,14 @@ import { faHeart as faHeartSolid, faChevronRight } from "@fortawesome/free-solid
 import movrLogo from "../assets/movr_logo.png";
 import zoomCoin from "../assets/zoombies_coin.svg";
 import {Button, CircularProgress, styled} from "@mui/material";
-import {cardImageBaseURL, zoomContractAddress} from "../constants";
+import {cardImageBaseURL, marketContractAddress, wmovrContractAddress, zoomContractAddress} from "../constants";
 import { useTheme } from "styled-components";
 import moment from "moment";
 import {useHistory} from "react-router-dom";
 import {store} from "../store/store";
 import { ethers } from "ethers";
 import {getOffers as fetchOffers} from "../utils/auction";
+import OfferDialog from "./OfferDialog";
 
 const Container = styled('div')({
   display: 'flex',
@@ -166,6 +167,7 @@ const MetaContentButtonSection = styled('div')({
   '& .button-bid': {
     marginBottom: '1px',
     backgroundColor: '#D400BD',
+    width: '100%'
   },
 
   '& .button-more-info': {
@@ -194,7 +196,7 @@ const AuctionItem = ({
 }) => {
 
   const {
-    state: { contracts  },
+    state: { contracts, wallet  },
   } = useContext(store);
   const history = useHistory();
   const [cardPageNo, setCardPageNo] = useState(1);
@@ -202,12 +204,14 @@ const AuctionItem = ({
   const [favorite, setFavorite] = useState(false)
   const [remainingTime, setRemainingTime] = useState("")
   const [offers, setOffers] = useState([]);
+  const [bidInProgress, setBidInProgress] = useState(false);
+  const [approvalModalOpen, setApprovalModalOpen] = useState(false);
 
   const theme = useTheme();
 
   const auctionItem = content
   const { itemNumber, highestBid } = auctionItem
-  const coinType = auctionItem.saleToken === zoomContractAddress ? 'ZOOM' : 'WMOVR'
+  const coinType = auctionItem.saleToken === zoomContractAddress ? 'ZOOM' : (auctionItem.saleToken === wmovrContractAddress ?'WMOVR' : '' )
 
   const getOffers = async () => {
     const offers = await fetchOffers(
@@ -254,6 +258,44 @@ const AuctionItem = ({
   const onClickBid = () => {
 
   }
+
+  const handleConfirmBid = async (amount) => {
+    const { currency, id } = auctionItem;
+    let currencyContract;
+
+    if (parseFloat(amount) <= auctionItem?.highestBid || parseFloat(amount) <= auctionItem?.minPrice) {
+      throw new Error(`Invalid amount valid : ${amount}`);
+    }
+
+    switch (currency) {
+      case "ZOOM":
+        currencyContract = contracts.ZoomContract;
+        break;
+      case "WMOVR":
+        currencyContract = contracts.WMOVRContract;
+        break;
+      default:
+        throw new Error(`Unhandled currency type: ${currency}`);
+    }
+
+    const weiAmount = ethers.utils.parseEther(amount);
+
+    const approveTx = await currencyContract.approve(
+      marketContractAddress,
+      weiAmount
+    );
+    setApprovalModalOpen(true);
+    await approveTx.wait();
+    setApprovalModalOpen(false);
+    setBidInProgress(true);
+    const bidTx = await contracts.MarketContract.bid(
+      parseInt(id),
+      weiAmount
+    );
+    await bidTx.wait();
+    setBidInProgress(false);
+    getOffers();
+  };
 
   const toggleFavorite = () => {
     setFavorite(!favorite)
@@ -333,10 +375,18 @@ const AuctionItem = ({
             </MetaContentTip>
           </MetaContentRow>
           <MetaContentButtonSection>
-            <Button className={"button-bid"} onClick={onClickBid}>Quick Bid {"(" + (
-              auctionItem.highestBid > 0 ?
-                Math.round(parseFloat(auctionItem.highestBid) * 10000) / 10000 :
-                Math.round((parseFloat(auctionItem.minPrice) + parseFloat(minIncrement)) * 10000) / 10000) + " " + coinType + ")"}</Button>
+            {/*<Button className={"button-bid"} onClick={onClickBid}>Quick Bid {"(" + (*/}
+            {/*  auctionItem.highestBid > 0 ?*/}
+            {/*    Math.round(parseFloat(auctionItem.highestBid) * 10000) / 10000 :*/}
+            {/*    Math.round((parseFloat(auctionItem.minPrice) + parseFloat(minIncrement)) * 10000) / 10000) + " " + coinType + ")"}</Button>*/}
+            <OfferDialog
+              currency={coinType}
+              minAmount={parseFloat(auctionItem.highestBid) > (parseFloat(auctionItem.minPrice) + parseFloat(minIncrement)) ? parseFloat(auctionItem.highestBid) : (parseFloat(auctionItem.minPrice)  + parseFloat(minIncrement))}
+              maxAmount={coinType === 'ZOOM' ? parseFloat(wallet.zoomBalance) : parseFloat(wallet.wmovrBalance)}
+              onConfirm={handleConfirmBid}
+              disabled={bidInProgress}
+              quickBid
+            />
             <Button className={"button-more-info"} onClick={gotoAuction}>More Info
               <FontAwesomeIcon
                 icon={faChevronRight}
