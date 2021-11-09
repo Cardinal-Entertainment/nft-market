@@ -110,9 +110,9 @@ const useBlockchain = () => {
 
     ZoomContract.provider.on('block', async () => {
       const address = await signer.getAddress();
-      const bal = await getWalletZoomBalance(ZoomContract, '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232');
+      const bal = await getWalletZoomBalance(ZoomContract, address);
 
-      console.log("zoomBalanace", bal)
+      // console.log("zoomBalanace", bal)
       dispatch(Actions.walletChanged({
         zoomBalance: bal
       }));
@@ -120,9 +120,9 @@ const useBlockchain = () => {
 
     WMOVRContract.provider.on('block', async () => {
       const address = await signer.getAddress();
-      const bal = await getWalletWMOVRBalance(WMOVRContract, '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232');
+      const bal = await getWalletWMOVRBalance(WMOVRContract, address);
 
-      console.log("wmovrBalanace", bal)
+      // console.log("wmovrBalanace", bal)
       dispatch(Actions.walletChanged({
         wmovrBalance: bal
       }));

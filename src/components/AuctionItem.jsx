@@ -165,7 +165,7 @@ const MetaContentButtonSection = styled('div')({
   },
 
   '& .button-bid': {
-    marginBottom: '1px',
+    marginBottom: '2px',
     backgroundColor: '#D400BD',
     width: '100%'
   },
@@ -384,7 +384,7 @@ const AuctionItem = ({
               minAmount={parseFloat(auctionItem.highestBid) > (parseFloat(auctionItem.minPrice) + parseFloat(minIncrement)) ? parseFloat(auctionItem.highestBid) : (parseFloat(auctionItem.minPrice)  + parseFloat(minIncrement))}
               maxAmount={coinType === 'ZOOM' ? parseFloat(wallet.zoomBalance) : parseFloat(wallet.wmovrBalance)}
               onConfirm={handleConfirmBid}
-              disabled={bidInProgress}
+              disabled={moment().isAfter(moment.unix(auctionItem.auctionEnd))}
               quickBid
             />
             <Button className={"button-more-info"} onClick={gotoAuction}>More Info
