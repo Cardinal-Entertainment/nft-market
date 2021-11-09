@@ -29,7 +29,7 @@ const ethChainParam = isLocal
         symbol: "DEV",
         decimals: 18,
       },
-      rpcUrls: ["https://rpc.testnet.moonbeam.network"],
+      rpcUrls: ["https://moonbase-alpha-api.bwarelabs.com/d6e703e6-a9d9-41bd-ab0a-5b96fae88395"],
       blockExplorerUrls: [
         "https://moonbase-blockscout.testnet.moonbeam.network/",
       ],

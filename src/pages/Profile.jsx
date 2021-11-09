@@ -19,7 +19,7 @@ import moment from 'moment';
 
 import { zoomContractAddress, wmovrContractAddress } from '../constants';
 
-import { RARITY_CLASSES } from 'utils/cardsUtil';
+import { useHistory } from 'react-router';
 
 const Container = styled.div`
   display: flex;
@@ -205,7 +205,18 @@ const userListingColumns = [
   },
 ];
 
+const handleRowClick = (params, history) => {
+  try {
+    const itemNumber = parseInt(params.getValue(params.id, 'itemNumber').replace('#', ''));
+    history.push(`/listing/${itemNumber}`); 
+  } catch (err) {
+    console.error(`Failed to parse itemNumber: ${params.getValue(params.id, 'itemNumber')}`)
+  }
+  
+};
+
 const UserBids = ({ bidCount, bids }) => {
+  const history = useHistory();
   if (bidCount === 0) {
     return (
       <div className="bid-empty">
@@ -244,6 +255,9 @@ const UserBids = ({ bidCount, bids }) => {
           pageSize={20}
           rowsPerPageOptions={[10, 20, 50, 100]}
           autoHeight={true}
+          onRowClick={(params, event, details) => {
+            handleRowClick(params, history)
+          }}
         ></DataGrid>
       </div>
     );
@@ -251,6 +265,7 @@ const UserBids = ({ bidCount, bids }) => {
 };
 
 const UserListings = ({ listingCount, listings }) => {
+  const history = useHistory();
   if (listingCount === 0) {
     return (
       <div className="listing-empty">
@@ -289,6 +304,9 @@ const UserListings = ({ listingCount, listings }) => {
         pageSize={20}
         rowsPerPageOptions={[10, 20, 50, 100]}
         autoHeight={true}
+        onRowClick={(params, event, details) => {
+          handleRowClick(params, history)
+        }}
       ></DataGrid>
     </div>
   );
