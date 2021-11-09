@@ -8,7 +8,7 @@ import zoomCoin from "../assets/zoombies_coin.svg";
 import Tooltip from "@mui/material/Tooltip";
 import { store } from "store/store";
 import { NavLink, Route } from "react-router-dom";
-import { faEdit, faShoppingBag } from "@fortawesome/free-solid-svg-icons";
+import {faEdit, faQuestionCircle, faShoppingBag} from "@fortawesome/free-solid-svg-icons";
 
 import {
   addAssetToMetamask,
@@ -347,6 +347,17 @@ const Navbar = () => {
         )}
       </NavigationSection>
       <ButtonGroupContainer>
+        <NavLink
+          exact
+          activeClassName="active-link"
+          className="page-links"
+          to="/help"
+        >
+          <NavItem color="white">
+            <FontAwesomeIcon className="marketplace" icon={faQuestionCircle} size="lg" />
+            Help
+          </NavItem>
+        </NavLink>
         <ButtonGroup variant="contained" ref={anchorRef} aria-label="split button" style={{
           width: '100%',
           height: '40px',

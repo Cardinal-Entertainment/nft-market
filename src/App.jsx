@@ -14,6 +14,7 @@ import Slide from "@mui/material/Slide";
 import LiveFeedsSlide from "./components/LiveFeedsSlide";
 import {store} from "./store/store";
 import Actions from "./store/actions";
+import HelpPage from "./pages/Help";
 
 const Container = styled.div`
   height: 100vh;
@@ -149,6 +150,7 @@ const App = () => {
             <Switch>
               <Route path="/new" component={NewListing} />
               <Route path="/listing/:id" component={ViewListing} />
+              <Route path="/help" component={HelpPage} />
               <Route path="/" component={Home} />
             </Switch>
           </Content>
