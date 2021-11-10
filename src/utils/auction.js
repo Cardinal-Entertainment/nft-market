@@ -49,7 +49,7 @@ export const getAuctionItem = async (
 };
 
 export const getAuctionListings = async (marketContract, zoombiesContract, filters, sorting) => {
-  console.log({filters, sorting})
+  // console.log({filters, sorting})
 
   const getSortType = () => {
     switch(sorting.field) {
@@ -83,6 +83,7 @@ export const getAuctionListings = async (marketContract, zoombiesContract, filte
     currency: getTokenSymbol(listing.saleToken)
   }))
 };
+
 
 export const getOffers = async (auctionId) => {
   const res = await axios.get(`https://api.zoombies.world/bids/${auctionId}`)

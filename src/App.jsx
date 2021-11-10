@@ -67,15 +67,16 @@ const Body = styled.div`
   flex: 1;
   display: flex;
   min-height: 0;
-  background: linear-gradient(180deg, #f566e2 0%, #b131fe 100%);
+  background: linear-gradient(110.99deg, #000033 0%, #100238 100%)
 `;
 
 const Content = styled.div`
   flex: 1;
   min-width: 0;
   
+  padding: 16px 8px 16px 16px;
+  display: flex;
   background: linear-gradient(110.99deg, #000033 0%, #100238 100%);
-  padding: 20px;
 `;
 
 const NotificationButton = styled.div`

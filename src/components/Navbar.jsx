@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react';
-import styled, { useTheme } from 'styled-components';
+import React, { useContext, useEffect, useState } from "react";
+import styled, { useTheme } from "styled-components";
 import metamaskLogo from '../assets/metamask-face.png';
 import movrLogo from '../assets/movr_logo.png';
 import zoomCoin from '../assets/zoombies_coin.svg';
@@ -217,7 +217,8 @@ const Navbar = () => {
         getWMOVRBalance();
       });
     }
-  }, [contracts, address]);
+  }, [contracts, address ]);
+
 
   return (
     <Container>
