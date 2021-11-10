@@ -2,13 +2,15 @@ import React, { useContext, useEffect, useState} from "react";
 import { store } from "store/store";
 import styled from "styled-components";
 import {getAuctionListings} from "utils/auction";
-import { DataGrid } from "@mui/x-data-grid";
 import Chip from "@mui/material/Chip";
 import moment from "moment";
 import {useHistory} from "react-router-dom";
 import Filterbar from "../components/Filterbar";
 import AuctionsListView from "../components/AuctionsListView";
 import {CircularProgress, Modal} from "@mui/material";
+import { getCardSummary } from "utils/cardsUtil";
+import { getStatus } from "utils/listingUtil";
+
 
 const Container = styled.div`
   flex: auto;
@@ -17,6 +19,9 @@ const Container = styled.div`
   //overflow-y: auto;
   border: solid 1px white;
   padding: 16px;
+  overflow-y: auto;
+  background: white;
+  border-radius: 5px;
   
   .table {
     background: white;
@@ -79,36 +84,9 @@ const Home = () => {
 
 
   const {
-    state: { wallet, contracts },
+    state: { contracts },
   } = useContext(store);
 
-  const getStatus = (endTime, highestBidder) => {
-    const now = moment().unix();
-    const end = moment(endTime).unix();
-
-    if (end < now) {
-      if (highestBidder === wallet.address) {
-        return {
-          label: "You Won!",
-          color: "success",
-        };
-      }
-      return {
-        label: "Completed",
-        color: "success",
-      };
-    }
-    if (end - now < 86400) {
-      return {
-        label: "Ending Soon",
-        color: "warning",
-      };
-    }
-    return {
-      label: "Ongoing",
-      color: "secondary",
-    };
-  };
 
   const columns = [
     {
@@ -187,23 +165,7 @@ const Home = () => {
     setLoading(false)
   };
 
-  const getCardSummary = (cards) => {
-    if (!cards) {
-      return ''
-    }
-    const countByRarity = cards.reduce((summary, card) => {
-      const { rarity } = card;
-      if (!summary.hasOwnProperty(rarity)) {
-        summary[rarity] = 0;
-      }
-      summary[rarity]++;
-      return summary;
-    }, {});
 
-    return Object.keys(countByRarity)
-      .map((rarity) => `${countByRarity[rarity]} ${rarity}`)
-      .join(", ") + ' (' + cards.map((card) => card.name).join(',') + ')';
-  };
 
   const handleRowClick = ({row}) => {
     history.push(`/listing/${row.itemNumber}`);
