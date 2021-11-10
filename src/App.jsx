@@ -14,6 +14,8 @@ import Slide from "@mui/material/Slide";
 import LiveFeedsSlide from "./components/LiveFeedsSlide";
 import {store} from "./store/store";
 import Actions from "./store/actions";
+
+import HelpPage from "./pages/Help";
 import Profile from 'pages/Profile';
 
 const Container = styled.div`
@@ -152,6 +154,7 @@ const App = () => {
             <Switch>
               <Route path="/new" component={NewListing} />
               <Route path="/listing/:id" component={ViewListing} />
+              <Route path="/help" component={HelpPage} />
               <Route path="/profile" component={Profile} />
               <Route path="/" component={Home} />
             </Switch>

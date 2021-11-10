@@ -20,7 +20,6 @@ const Container = styled.div`
   border: solid 1px white;
   padding: 16px;
   overflow-y: auto;
-  background: white;
   border-radius: 5px;
 
   .table {
