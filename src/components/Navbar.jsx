@@ -1,4 +1,3 @@
-
 import React, { useContext, useEffect, useState } from "react";
 import styled, { useTheme } from "styled-components";
 import metamaskLogo from "../assets/metamask-face.png";

@@ -22,7 +22,7 @@ const Container = styled.div`
   overflow-y: auto;
   background: white;
   border-radius: 5px;
-  
+
   .table {
     background: white;
 
