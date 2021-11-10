@@ -256,6 +256,7 @@ const ViewListing = () => {
             icon={faChevronLeft}
             size="2x"
             onClick={() => history.goBack()}
+            color="white"
           />
           <h1>Auction #{auctionId}</h1>
         </HeaderRow>
