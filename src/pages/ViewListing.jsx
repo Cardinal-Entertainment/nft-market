@@ -25,6 +25,7 @@ import {getWalletWMOVRBalance, getWalletZoomBalance} from "../utils/wallet";
 const Container = styled.div`
   flex: 1;
   height: 100%;
+  color: white;
 
   h1 {
     margin: 0;
@@ -253,6 +254,7 @@ const ViewListing = () => {
             icon={faChevronLeft}
             size="2x"
             onClick={() => history.goBack()}
+            color="white"
           />
           <h1>Auction #{auctionId}</h1>
         </HeaderRow>

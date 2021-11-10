@@ -14,6 +14,7 @@ import Slide from "@mui/material/Slide";
 import LiveFeedsSlide from "./components/LiveFeedsSlide";
 import {store} from "./store/store";
 import Actions from "./store/actions";
+import Profile from 'pages/Profile';
 
 const Container = styled.div`
   height: 100vh;
@@ -73,6 +74,7 @@ const Content = styled.div`
   flex: 1;
   min-width: 0;
   
+  background: linear-gradient(110.99deg, #000033 0%, #100238 100%);
   padding: 20px;
 `;
 
@@ -149,6 +151,7 @@ const App = () => {
             <Switch>
               <Route path="/new" component={NewListing} />
               <Route path="/listing/:id" component={ViewListing} />
+              <Route path="/profile" component={Profile} />
               <Route path="/" component={Home} />
             </Switch>
           </Content>

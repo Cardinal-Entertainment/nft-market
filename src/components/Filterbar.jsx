@@ -20,7 +20,7 @@ const Container = styled('div')(({ theme }) => ({
 }));
 
 const StyledSelect = styled(Select)(({ theme }) => ({
-  marginRight: '12px'
+  marginRight: '12px',
 }));
 
 const Search = styled('div')(({ theme }) => ({

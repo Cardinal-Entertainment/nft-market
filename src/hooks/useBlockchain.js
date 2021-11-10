@@ -29,7 +29,7 @@ const ethChainParam = isLocal
         symbol: "DEV",
         decimals: 18,
       },
-      rpcUrls: ["https://rpc.testnet.moonbeam.network"],
+      rpcUrls: ["https://moonbase-alpha-api.bwarelabs.com/d6e703e6-a9d9-41bd-ab0a-5b96fae88395"],
       blockExplorerUrls: [
         "https://moonbase-blockscout.testnet.moonbeam.network/",
       ],
@@ -214,13 +214,6 @@ const useBlockchain = () => {
 
       const provider = new ethers.providers.Web3Provider(metamaskProvider);
 
-      window.ethereum.on("connected", handleConnect);
-      window.ethereum.on("disconnect", handleDisconnect);
-      window.ethereum.on("accountsChanged", handleAccountsChanged);
-      window.ethereum.on("chainChanged", handleChainChanged);
-
-      dispatch(Actions.dAppStateChanged(DAPP_STATES.CONNECTED));
-      await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
       
       const [address, balance, network] = await Promise.all([
@@ -228,6 +221,25 @@ const useBlockchain = () => {
         signer.getBalance(),
         provider.getNetwork(),
       ]);
+
+      dispatch(
+        Actions.walletChanged({
+          address: address,
+          balance: Number(ethers.utils.formatEther(balance)),
+          chainId: network.chainId,
+        })
+      );
+      dispatch(Actions.dAppStateChanged(DAPP_STATES.WALLET_CONNECTED));
+
+
+      window.ethereum.on("connected", handleConnect);
+      window.ethereum.on("disconnect", handleDisconnect);
+      window.ethereum.on("accountsChanged", handleAccountsChanged);
+      window.ethereum.on("chainChanged", handleChainChanged);
+
+      dispatch(Actions.dAppStateChanged(DAPP_STATES.CONNECTED));
+      await provider.send("eth_requestAccounts", []);
+
 
 
       provider.on('block', () => {
@@ -238,15 +250,6 @@ const useBlockchain = () => {
         })
       });
 
-
-      dispatch(
-        Actions.walletChanged({
-          address: address,
-          balance: Number(ethers.utils.formatEther(balance)),
-          chainId: network.chainId,
-        })
-      );
-      dispatch(Actions.dAppStateChanged(DAPP_STATES.WALLET_CONNECTED));
       const { ZoombiesContract } = loadContracts(signer, network.chainId);
 
       approveContract(address, ZoombiesContract);
