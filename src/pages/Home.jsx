@@ -1,19 +1,27 @@
 import React, { useContext, useEffect, useState} from "react";
 import { store } from "store/store";
 import styled from "styled-components";
-import { getAuctionListings } from "utils/auction";
-import { DataGrid } from "@mui/x-data-grid";
+import {getAuctionListings} from "utils/auction";
 import Chip from "@mui/material/Chip";
 import moment from "moment";
 import {useHistory} from "react-router-dom";
 import Filterbar from "../components/Filterbar";
+import AuctionsListView from "../components/AuctionsListView";
+import {CircularProgress, Modal} from "@mui/material";
+import { getCardSummary } from "utils/cardsUtil";
+import { getStatus } from "utils/listingUtil";
+
 
 const Container = styled.div`
-  flex: 1;
-  height: 100%;
+  flex: auto;
   display: flex;
   flex-direction: column;
+  //overflow-y: auto;
+  border: solid 1px white;
+  padding: 16px;
   overflow-y: auto;
+  background: white;
+  border-radius: 5px;
 
   .table {
     background: white;
@@ -29,6 +37,24 @@ const Container = styled.div`
         display: none;
       }
     }
+  }
+`;
+
+const ModalContent = styled.div`
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  & > * {
+    margin: 5px 0;
   }
 `;
 
@@ -54,39 +80,13 @@ const Home = () => {
     field: '', //attribute name of an auction
     order: 1 // 1 : ascending, -1 : descending
   })
+  const [loading, setLoading] = useState(false);
 
 
   const {
-    state: { wallet, contracts },
+    state: { contracts },
   } = useContext(store);
 
-  const getStatus = (endTime, highestBidder) => {
-    const now = moment().unix();
-    const end = moment(endTime).unix();
-
-    if (end < now) {
-      if (highestBidder === wallet.address) {
-        return {
-          label: "You Won!",
-          color: "success",
-        };
-      }
-      return {
-        label: "Completed",
-        color: "success",
-      };
-    }
-    if (end - now < 86400) {
-      return {
-        label: "Ending Soon",
-        color: "warning",
-      };
-    }
-    return {
-      label: "Ongoing",
-      color: "secondary",
-    };
-  };
 
   const columns = [
     {
@@ -150,6 +150,8 @@ const Home = () => {
   ];
 
   const loadListings = async () => {
+
+    setLoading(true)
     const auctionListings = await getAuctionListings(
       contracts.MarketContract,
       contracts.ZoombiesContract,
@@ -160,25 +162,10 @@ const Home = () => {
       ...listing,
       id: listing._id
     })));
+    setLoading(false)
   };
 
-  const getCardSummary = (cards) => {
-    if (!cards) {
-      return ''
-    }
-    const countByRarity = cards.reduce((summary, card) => {
-      const { rarity } = card;
-      if (!summary.hasOwnProperty(rarity)) {
-        summary[rarity] = 0;
-      }
-      summary[rarity]++;
-      return summary;
-    }, {});
 
-    return Object.keys(countByRarity)
-      .map((rarity) => `${countByRarity[rarity]} ${rarity}`)
-      .join(", ") + ' (' + cards.map((card) => card.name).join(',') + ')';
-  };
 
   const handleRowClick = ({row}) => {
     history.push(`/listing/${row.itemNumber}`);
@@ -200,16 +187,25 @@ const Home = () => {
 
   return (
     <Container>
-      <Filterbar onFilterChanged={handleFilterChanged} filters={filters} onSortByChanged={handleSortByChanged} sortBy={sortBy}/>
-      <DataGrid
-        className="table"
-        rows={listings}
-        columns={columns}
-        pageSize={20}
-        rowsPerPageOptions={[10, 20, 50, 100]}
-        onRowClick={handleRowClick}
-        autoHeight={true}
-      />
+      <Filterbar onFilterChanged={handleFilterChanged} filters={filters} onSortByChanged={handleSortByChanged} sortBy={sortBy} totalCount={listings.length}/>
+      {/*<DataGrid*/}
+      {/*    className="table"*/}
+      {/*    rows={listings.filter(auction => filterCondition(auction)).sort(compareFunc)}*/}
+      {/*    columns={columns}*/}
+      {/*    pageSize={20}*/}
+      {/*    rowsPerPageOptions={[10, 20, 50, 100]}*/}
+      {/*    onRowClick={handleRowClick}*/}
+      {/*    autoHeight={true}*/}
+      {/*/>*/}
+      <AuctionsListView auctions={listings}/>
+      <Modal
+        open={loading}
+      >
+        <ModalContent>
+          <div>Loading Auctions...</div>
+          <CircularProgress />
+        </ModalContent>
+      </Modal>
     </Container>
   );
 };

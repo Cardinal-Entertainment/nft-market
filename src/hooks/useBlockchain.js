@@ -17,6 +17,7 @@ import {
   marketContractAddress,
   wmovrContractAddress,
 } from "../constants";
+import {getWalletWMOVRBalance, getWalletZoomBalance} from "../utils/wallet";
 
 const isLocal = process.env.NODE_ENV === "development";
 
@@ -29,7 +30,7 @@ const ethChainParam = isLocal
         symbol: "DEV",
         decimals: 18,
       },
-      rpcUrls: ["https://rpc.testnet.moonbeam.network"],
+      rpcUrls: ["https://moonbase-alpha-api.bwarelabs.com/d6e703e6-a9d9-41bd-ab0a-5b96fae88395"],
       blockExplorerUrls: [
         "https://moonbase-blockscout.testnet.moonbeam.network/",
       ],
@@ -106,6 +107,26 @@ const useBlockchain = () => {
       wrapped_movr_json.abi,
       signer
     );
+
+    ZoomContract.provider.on('block', async () => {
+      const address = await signer.getAddress();
+      const bal = await getWalletZoomBalance(ZoomContract, address);
+
+      // console.log("zoomBalanace", bal)
+      dispatch(Actions.walletChanged({
+        zoomBalance: bal
+      }));
+    });
+
+    WMOVRContract.provider.on('block', async () => {
+      const address = await signer.getAddress();
+      const bal = await getWalletWMOVRBalance(WMOVRContract, address);
+
+      // console.log("wmovrBalanace", bal)
+      dispatch(Actions.walletChanged({
+        wmovrBalance: bal
+      }));
+    });
 
     const bidFilter = MarketContract.filters.Bid();
     MarketContract.on(bidFilter, async (  itemNumber, bidAmount, bidder, block ) => {
@@ -214,13 +235,6 @@ const useBlockchain = () => {
 
       const provider = new ethers.providers.Web3Provider(metamaskProvider);
 
-      window.ethereum.on("connected", handleConnect);
-      window.ethereum.on("disconnect", handleDisconnect);
-      window.ethereum.on("accountsChanged", handleAccountsChanged);
-      window.ethereum.on("chainChanged", handleChainChanged);
-
-      dispatch(Actions.dAppStateChanged(DAPP_STATES.CONNECTED));
-      await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
       
       const [address, balance, network] = await Promise.all([
@@ -228,6 +242,25 @@ const useBlockchain = () => {
         signer.getBalance(),
         provider.getNetwork(),
       ]);
+
+      dispatch(
+        Actions.walletChanged({
+          address: address,
+          balance: Number(ethers.utils.formatEther(balance)),
+          chainId: network.chainId,
+        })
+      );
+      dispatch(Actions.dAppStateChanged(DAPP_STATES.WALLET_CONNECTED));
+
+
+      window.ethereum.on("connected", handleConnect);
+      window.ethereum.on("disconnect", handleDisconnect);
+      window.ethereum.on("accountsChanged", handleAccountsChanged);
+      window.ethereum.on("chainChanged", handleChainChanged);
+
+      dispatch(Actions.dAppStateChanged(DAPP_STATES.CONNECTED));
+      await provider.send("eth_requestAccounts", []);
+
 
 
       provider.on('block', () => {
@@ -238,15 +271,6 @@ const useBlockchain = () => {
         })
       });
 
-
-      dispatch(
-        Actions.walletChanged({
-          address: address,
-          balance: Number(ethers.utils.formatEther(balance)),
-          chainId: network.chainId,
-        })
-      );
-      dispatch(Actions.dAppStateChanged(DAPP_STATES.WALLET_CONNECTED));
       const { ZoombiesContract } = loadContracts(signer, network.chainId);
 
       approveContract(address, ZoombiesContract);

@@ -14,7 +14,9 @@ import Slide from "@mui/material/Slide";
 import LiveFeedsSlide from "./components/LiveFeedsSlide";
 import {store} from "./store/store";
 import Actions from "./store/actions";
+
 import HelpPage from "./pages/Help";
+import Profile from 'pages/Profile';
 
 const Container = styled.div`
   height: 100vh;
@@ -67,14 +69,16 @@ const Body = styled.div`
   flex: 1;
   display: flex;
   min-height: 0;
-  background: linear-gradient(180deg, #f566e2 0%, #b131fe 100%);
+  background: linear-gradient(110.99deg, #000033 0%, #100238 100%)
 `;
 
 const Content = styled.div`
   flex: 1;
   min-width: 0;
   
-  padding: 20px;
+  padding: 16px 8px 16px 16px;
+  display: flex;
+  background: linear-gradient(110.99deg, #000033 0%, #100238 100%);
 `;
 
 const NotificationButton = styled.div`
@@ -151,6 +155,7 @@ const App = () => {
               <Route path="/new" component={NewListing} />
               <Route path="/listing/:id" component={ViewListing} />
               <Route path="/help" component={HelpPage} />
+              <Route path="/profile" component={Profile} />
               <Route path="/" component={Home} />
             </Switch>
           </Content>
