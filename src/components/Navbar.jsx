@@ -1,13 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
 import styled, { useTheme } from "styled-components";
-import metamaskLogo from '../assets/metamask-face.png';
-import movrLogo from '../assets/movr_logo.png';
-import zoomCoin from '../assets/zoombies_coin.svg';
-
-import Tooltip from '@mui/material/Tooltip';
-import { store } from 'store/store';
-import { NavLink } from 'react-router-dom';
-import { faEdit, faShoppingBag } from '@fortawesome/free-solid-svg-icons';
+import metamaskLogo from "../assets/metamask-face.png";
+import movrLogo from "../assets/movr_logo.png";
+import zoomCoin from "../assets/zoombies_coin.svg";
+import Tooltip from "@mui/material/Tooltip";
+import { store } from "store/store";
+import { NavLink } from "react-router-dom";
+import { faEdit, faShoppingBag } from "@fortawesome/free-solid-svg-icons";
 
 import {
   addAssetToMetamask,
@@ -218,7 +217,6 @@ const Navbar = () => {
       });
     }
   }, [contracts, address ]);
-
 
   return (
     <Container>

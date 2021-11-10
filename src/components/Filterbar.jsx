@@ -1,9 +1,9 @@
-import React from "react";
+import React, {useState} from "react";
 import { styled } from '@mui/material/styles';
 import InputBase from '@mui/material/InputBase';
 import MenuItem from '@mui/material/MenuItem';
 import SearchIcon from '@mui/icons-material/Search';
-import {alpha, Button, ButtonGroup, Select} from "@mui/material";
+import {alpha, Select} from "@mui/material";
 import { wmovrContractAddress, zoomContractAddress } from '../constants'
 
 const Container = styled('div')(({ theme }) => ({
@@ -14,16 +14,57 @@ const Container = styled('div')(({ theme }) => ({
 const FilterRow = styled('div')(({ theme }) => ({
   display: 'flex',
   flexDirection: 'row',
-  marginBottom: '12px',
+  margin: '12px 0',
   flexWrap: 'wrap',
+  justifyContent: 'space-between',
+  color: 'white',
 
-  '& .button-sortby-addon': {
-    width: '30px'
-  },
   '& .button-rarity': {
     color: 'white'
   }
 }));
+
+const FilterControls = styled('div')(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+}))
+
+const SortControls = styled('div')(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'row',
+  margin: '0 16px',
+  flexWrap: 'wrap',
+  alignItems: 'center',
+  fontSize: '18px',
+
+  '& .button-sortby-addon': {
+    width: '30px'
+  },
+
+  '& .sort-component': {
+    borderRight: '2px solid white',
+    padding: '0 8px',
+    lineHeight: '18px',
+
+},
+
+  '& .sort-component-selected': {
+    borderRight: '2px solid white',
+    textDecoration: 'underline',
+    padding: '0px 8px',
+    lineHeight: '18px',
+  },
+
+  '& .sort-component:hover': {
+    textDecoration: 'underline',
+    cursor: 'pointer'
+  },
+
+  '& .last-column': {
+    borderRight: 'none! important'
+  },
+}))
 
 const SearchHeader = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -46,6 +87,7 @@ const StyledSelect = styled(Select)(({ theme }) => ({
   color: 'white',
   border: 'none',
   fontFamily: 'Oswald',
+  fontSize: '18px',
   '& svg': {
     fill: 'white',
   },
@@ -101,6 +143,15 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 const Filterbar = ( { onFilterChanged, filters, onSortByChanged, sortBy, totalCount }) => {
 
+  const [sortField, setSortField] = useState('');
+
+  const sortColumnSelected = ( sortField ) => {
+    setSortField(sortField)
+    onSortByChanged({
+      field: sortField
+    })
+  }
+
   return (
     <Container >
       <SearchHeader>
@@ -121,63 +172,46 @@ const Filterbar = ( { onFilterChanged, filters, onSortByChanged, sortBy, totalCo
 
 
       <FilterRow>
-        <StyledSelect
-          value={filters.token}
-          onChange={(e) => onFilterChanged({token: e.target.value}) }
-          displayEmpty
-        >
-          <MenuItem value={''}>Coin Type</MenuItem>
-          <MenuItem value={wmovrContractAddress}>WMOVR</MenuItem>
-          <MenuItem value={zoomContractAddress}>ZOOM</MenuItem>
-        </StyledSelect>
-
-        <StyledSelect
-          value={filters.rarity}
-          onChange={(e) => onFilterChanged({ rarity: e.target.value })}
-          displayEmpty
-        >
-          <MenuItem value={''}>Rarity</MenuItem>
-          <MenuItem value={'Epic'}>Epic</MenuItem>
-          <MenuItem value={'Rare'}>Rare</MenuItem>
-          <MenuItem value={'Uncommon'}>Uncommon</MenuItem>
-          <MenuItem value={'Common'}>Common</MenuItem>
-        </StyledSelect>
-
-        <StyledSelect
-            value={sortBy.field}
-            onChange={(e) => onSortByChanged({ field: e.target.value }) }
+        <FilterControls>
+          <StyledSelect
+            value={filters.token}
+            onChange={(e) => onFilterChanged({token: e.target.value}) }
             displayEmpty
-        >
-            <MenuItem value={''}>Sort By</MenuItem>
-            <MenuItem value={'auctionEnd'}>End Time</MenuItem>
-            <MenuItem value={'minPrice'}>Min Price</MenuItem>
-            <MenuItem value={'highestBid'}>Highest Bid</MenuItem>
-        </StyledSelect>
+          >
+            <MenuItem value={''}>Coin Type</MenuItem>
+            <MenuItem value={wmovrContractAddress}>WMOVR</MenuItem>
+            <MenuItem value={zoomContractAddress}>ZOOM</MenuItem>
+          </StyledSelect>
 
-        {
-          sortBy.field !== '' &&
-          <Button style={{ color: 'white' }} className={"btn btn-secondary button-sortby-addon"} onClick={() => onSortByChanged({ order: sortBy.order * -1 })}>
-            { sortBy.order === 1 ? '↓' : '↑' }
-          </Button>
-        }
+          <StyledSelect
+            value={filters.rarity}
+            onChange={(e) => onFilterChanged({ rarity: e.target.value })}
+            displayEmpty
+          >
+            <MenuItem value={''}>Rarity</MenuItem>
+            <MenuItem value={'Epic'}>Epic</MenuItem>
+            <MenuItem value={'Rare'}>Rare</MenuItem>
+            <MenuItem value={'Uncommon'}>Uncommon</MenuItem>
+            <MenuItem value={'Common'}>Common</MenuItem>
+          </StyledSelect>
 
-        <StyledSelect
-          value={filters.cardType}
-          onChange={(e) => onFilterChanged({ cardType: e.target.value })}
-          displayEmpty
-        >
-          <MenuItem value={''}>Card Type</MenuItem>
-          <MenuItem value={'Store'}>Store</MenuItem>
-          <MenuItem value={'Booster'}>Booster</MenuItem>
-        </StyledSelect>
+          <StyledSelect
+            value={filters.cardType}
+            onChange={(e) => onFilterChanged({ cardType: e.target.value })}
+            displayEmpty
+          >
+            <MenuItem value={''}>Card Type</MenuItem>
+            <MenuItem value={'Store'}>Store</MenuItem>
+            <MenuItem value={'Booster'}>Booster</MenuItem>
+          </StyledSelect>
+        </FilterControls>
 
-        {/*<ButtonGroup variant="contained" aria-label="outlined primary button group">*/}
-        {/*  <Button className={"btn-rarity-all"} onClick={() => onFilterChanged({rarity: ''})}>All</Button>*/}
-        {/*  <Button style={{background: theme.colors.epic, color: 'white'}} onClick={() => onFilterChanged({rarity: 'Epic'})}>E</Button>*/}
-        {/*  <Button style={{background: theme.colors.rare, color: 'white'}} onClick={() => onFilterChanged({rarity: 'Rare'})}>R</Button>*/}
-        {/*  <Button style={{background: theme.colors.uncommon, color: 'white'}} onClick={() => onFilterChanged({rarity: 'Uncommon'})}>U</Button>*/}
-        {/*  <Button style={{background: theme.colors.common, color: 'white'}} onClick={() => onFilterChanged({rarity: 'Common'})}>C</Button>*/}
-        {/*</ButtonGroup>*/}
+        <SortControls>
+          <div>Sort:</div>
+          <div className={ sortField === 'auctionEnd' ? 'sort-component-selected' : 'sort-component' } onClick={() => sortColumnSelected('auctionEnd')}>Ending Soon</div>
+          <div className={ sortField === 'created' ? 'sort-component-selected' : 'sort-component' } onClick={() => sortColumnSelected('created')}>Just Posted</div>
+          <div className={ sortField === 'popularity' ? 'sort-component-selected last-column' : 'sort-component last-column' } onClick={() => sortColumnSelected('popularity')}>Popular</div>
+        </SortControls>
       </FilterRow>
     </Container>
   );

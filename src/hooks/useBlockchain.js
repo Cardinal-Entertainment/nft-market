@@ -17,6 +17,7 @@ import {
   marketContractAddress,
   wmovrContractAddress,
 } from "../constants";
+import {getWalletWMOVRBalance, getWalletZoomBalance} from "../utils/wallet";
 
 const isLocal = process.env.NODE_ENV === "development";
 
@@ -106,6 +107,26 @@ const useBlockchain = () => {
       wrapped_movr_json.abi,
       signer
     );
+
+    ZoomContract.provider.on('block', async () => {
+      const address = await signer.getAddress();
+      const bal = await getWalletZoomBalance(ZoomContract, address);
+
+      // console.log("zoomBalanace", bal)
+      dispatch(Actions.walletChanged({
+        zoomBalance: bal
+      }));
+    });
+
+    WMOVRContract.provider.on('block', async () => {
+      const address = await signer.getAddress();
+      const bal = await getWalletWMOVRBalance(WMOVRContract, address);
+
+      // console.log("wmovrBalanace", bal)
+      dispatch(Actions.walletChanged({
+        wmovrBalance: bal
+      }));
+    });
 
     const bidFilter = MarketContract.filters.Bid();
     MarketContract.on(bidFilter, async (  itemNumber, bidAmount, bidder, block ) => {

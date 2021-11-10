@@ -6,7 +6,6 @@ import Chip from "@mui/material/Chip";
 import moment from "moment";
 import {useHistory} from "react-router-dom";
 import Filterbar from "../components/Filterbar";
-
 import AuctionsListView from "../components/AuctionsListView";
 import {CircularProgress, Modal} from "@mui/material";
 import { getCardSummary } from "utils/cardsUtil";
@@ -17,7 +16,6 @@ const Container = styled.div`
   flex: auto;
   display: flex;
   flex-direction: column;
-
   //overflow-y: auto;
   border: solid 1px white;
   padding: 16px;
@@ -185,7 +183,7 @@ const Home = () => {
     if (contracts.MarketContract) {
       loadListings();
     }
-  }, [contracts.MarketContract, filters]);
+  }, [contracts.MarketContract, filters, sortBy]);
 
   return (
     <Container>
