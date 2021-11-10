@@ -7,7 +7,6 @@ import Chip from "@mui/material/Chip";
 import moment from "moment";
 import {useHistory} from "react-router-dom";
 import Filterbar from "../components/Filterbar";
-import AuctionItem from "../components/AuctionItem";
 import AuctionsListView from "../components/AuctionsListView";
 import {CircularProgress, Modal} from "@mui/material";
 
@@ -222,7 +221,7 @@ const Home = () => {
     if (contracts.MarketContract) {
       loadListings();
     }
-  }, [contracts.MarketContract, filters]);
+  }, [contracts.MarketContract, filters, sortBy]);
 
   return (
     <Container>

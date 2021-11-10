@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles';
 import InputBase from '@mui/material/InputBase';
 import MenuItem from '@mui/material/MenuItem';
 import SearchIcon from '@mui/icons-material/Search';
-import {alpha, Button, ButtonGroup, Select} from "@mui/material";
+import {alpha, Select} from "@mui/material";
 import { wmovrContractAddress, zoomContractAddress } from '../constants'
 
 const Container = styled('div')(({ theme }) => ({
@@ -209,7 +209,7 @@ const Filterbar = ( { onFilterChanged, filters, onSortByChanged, sortBy, totalCo
         <SortControls>
           <div>Sort:</div>
           <div className={ sortField === 'auctionEnd' ? 'sort-component-selected' : 'sort-component' } onClick={() => sortColumnSelected('auctionEnd')}>Ending Soon</div>
-          <div className={ sortField === 'posted' ? 'sort-component-selected' : 'sort-component' } onClick={() => sortColumnSelected('posted')}>Just Posted</div>
+          <div className={ sortField === 'created' ? 'sort-component-selected' : 'sort-component' } onClick={() => sortColumnSelected('created')}>Just Posted</div>
           <div className={ sortField === 'popularity' ? 'sort-component-selected last-column' : 'sort-component last-column' } onClick={() => sortColumnSelected('popularity')}>Popular</div>
         </SortControls>
       </FilterRow>

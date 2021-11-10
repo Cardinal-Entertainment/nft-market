@@ -56,18 +56,19 @@ export const getAuctionListings = async (marketContract, zoombiesContract, filte
   // console.log({filters, sorting})
 
   const getSortType = () => {
-    switch(sorting.field) {
-      case 'auctionEnd':
-        return 'END_TIME' 
-      case 'minPrice':
-        return 'MIN_PRICE' 
-      case 'highestBid':
-        return 'HIGHEST_BID'
-      case '':
-        return null
-      default:
-        throw new Error(`Unhandled sort type: ${sorting.field}`)
-    }
+    // switch(sorting.field) {
+    //   case 'auctionEnd':
+    //     return 'END_TIME'
+    //   case 'minPrice':
+    //     return 'MIN_PRICE'
+    //   case 'highestBid':
+    //     return 'HIGHEST_BID'
+    //   case '':
+    //     return null
+    //   default:
+    //     throw new Error(`Unhandled sort type: ${sorting.field}`)
+    // }
+    return sorting.field
   }
 
   const params = new URLSearchParams({

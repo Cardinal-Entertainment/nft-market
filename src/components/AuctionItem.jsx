@@ -231,7 +231,6 @@ const AuctionItem = ({
 
   const updateRemainingTime = () => {
     const timeDiff = ((moment.unix(auctionItem.auctionEnd).diff(moment())) / 1000)
-// console.log(timeDiff)
 
     const remainingDays = Math.floor(timeDiff / (3600 * 24))
     const remainingHours = Math.floor((timeDiff % (3600 * 24)) / 3600)
@@ -252,7 +251,6 @@ const AuctionItem = ({
   const getMinIncrement = async  () => {
     const increment = await contracts.MarketContract.tokenMinIncrement(auctionItem.saleToken)
     setMinIncrement(ethers.utils.formatEther(increment))
-    console.log(ethers.utils.formatEther(increment))
   }
 
   const onClickBid = () => {
