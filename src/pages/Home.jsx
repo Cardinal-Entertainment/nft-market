@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect, useRef, useState} from "react";
 import { store } from "store/store";
 import styled from "styled-components";
 import {getAuctionListings} from "utils/auction";
@@ -10,7 +10,11 @@ import AuctionsListView from "../components/AuctionsListView";
 import {CircularProgress, Modal} from "@mui/material";
 import { getCardSummary } from "utils/cardsUtil";
 import { getStatus } from "utils/listingUtil";
-
+import { useInfiniteQuery, QueryClient } from 'react-query'
+import { useFetchListingQuery } from 'hooks/useListing'
+import {useFetchProfileQuery} from "../hooks/useProfile";
+import {marketContractAddress, zoombiesContractAddress} from "../constants";
+import useIntersectionObserver from "../hooks/useIntersectionObserver";
 
 const Container = styled.div`
   flex: auto;
@@ -66,6 +70,7 @@ const Listing = styled.div`
   border-radius: 8px;
 `;
 
+
 const Home = () => {
   const history = useHistory();
   const [listings, setListings] = useState([]);
@@ -73,18 +78,49 @@ const Home = () => {
     cardType: '', // 'Shop' or 'Booster'
     rarity: '', // 'epic', 'rare', 'uncommon', 'common'
     token: '', // the token's contract address
-    keyword: '' // search keyword
+    keyword: '', // search keyword,
+    sortField: '' //sort by key
   });
   const [sortBy, setSortBy] = useState({
     field: '', //attribute name of an auction
     order: 1 // 1 : ascending, -1 : descending
   })
   const [loading, setLoading] = useState(false);
-
+  const loadMoreButtonRef = useRef(null);
 
   const {
     state: { contracts },
   } = useContext(store);
+
+  const {
+    status,
+    data,
+    error,
+    isFetching,
+    isFetchingNextPage,
+    isFetchingPreviousPage,
+    fetchNextPage,
+    fetchPreviousPage,
+    hasNextPage,
+    hasPreviousPage,
+  } = useInfiniteQuery(
+    'listings',
+    async ({ pageParam = 0 }) => {
+      const res = getAuctionListings(marketContractAddress, zoombiesContractAddress, filters, sortBy, pageParam)
+      return res.data
+    },
+    {
+      getPreviousPageParam: firstPage => firstPage.previousId ?? false,
+      getNextPageParam: lastPage => lastPage.nextId ?? false,
+    }
+  )
+
+  useIntersectionObserver({
+    target: loadMoreButtonRef,
+    onIntersect: fetchNextPage,
+    enabled: hasNextPage,
+  })
+
 
 
   const columns = [
@@ -150,7 +186,7 @@ const Home = () => {
 
   const loadListings = async () => {
 
-    setLoading(true)
+    // setLoading(true)
     const auctionListings = await getAuctionListings(
       contracts.MarketContract,
       contracts.ZoombiesContract,
@@ -161,7 +197,7 @@ const Home = () => {
       ...listing,
       id: listing._id
     })));
-    setLoading(false)
+    // setLoading(false)
   };
 
 
@@ -175,14 +211,21 @@ const Home = () => {
   }
 
   const handleSortByChanged = (attribute) => {
-    setSortBy({ ...sortBy, ...attribute })
+    // setSortBy({ ...sortBy, ...attribute })
+    setFilters({ ...filters, ...{
+      sortField: attribute.field
+    }})
   }
 
   useEffect(() => {
     if (contracts.MarketContract) {
-      loadListings();
+      // loadListings();
+
+
     }
   }, [contracts.MarketContract, filters, sortBy]);
+
+
 
   return (
     <Container>
@@ -197,8 +240,19 @@ const Home = () => {
       {/*    autoHeight={true}*/}
       {/*/>*/}
       <AuctionsListView auctions={listings}/>
+      <button
+        ref={loadMoreButtonRef}
+        onClick={() => fetchNextPage()}
+        disabled={!hasNextPage || isFetchingNextPage}
+      >
+        {isFetchingNextPage
+          ? 'Loading more...'
+          : hasNextPage
+            ? 'Load Newer'
+            : 'Nothing more to load'}
+      </button>
       <Modal
-        open={loading}
+        open={status === 'loading'}
       >
         <ModalContent>
           <div>Loading Auctions...</div>

@@ -1,8 +1,7 @@
 import { useQuery } from 'react-query';
 import axios from 'axios';
 import { ethers } from 'ethers';
-
-const apiEndpoint = 'https://api.zoombies.world'
+import {apiEndpoint} from "../constants";
 
 const getUserProfiles = async (userAddress) => {
   if (!ethers.utils.isAddress(userAddress)) {

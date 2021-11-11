@@ -48,7 +48,7 @@ export const getAuctionItem = async (
   }
 };
 
-export const getAuctionListings = async (marketContract, zoombiesContract, filters, sorting) => {
+export const getAuctionListings = async (marketContract, zoombiesContract, filters, sorting, page) => {
   // console.log({filters, sorting})
 
   const getSortType = () => {
@@ -73,16 +73,22 @@ export const getAuctionListings = async (marketContract, zoombiesContract, filte
     cardRarity: filters.rarity,
     search: filters.keyword,
     sortBy: getSortType() ?? '',
-    orderBy: sorting.order,
+    page: page
   })
   
   const listings = await axios.get(`https://api.zoombies.world/listings?${params.toString()}`)
   // const listings = await axios.get(`http://localhost:3001/listings?${params.toString()}`)
 
-  return listings.data.map(listing => ({
-    ...listing,
-    currency: getTokenSymbol(listing.saleToken)
-  }))
+  const ar2 = listings.data.slice(page * 5, (page + 1) * 5);
+
+  return {
+    data: ar2,
+    nextId: ar2
+  }
+  // return listings.data.map(listing => ({
+  //   ...listing,
+  //   currency: getTokenSymbol(listing.saleToken)
+  // }))
 };
 
 
