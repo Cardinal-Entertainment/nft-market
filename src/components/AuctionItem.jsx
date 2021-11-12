@@ -26,7 +26,7 @@ const Container = styled('div')({
   flex: 'none',
   alignSelf: 'stretch',
   flexGrow: 0,
-  margin: '12px 0px',
+  margin: '24px 0px',
   // height: '296px',
 
   '& .meta-header-cards-tip': {

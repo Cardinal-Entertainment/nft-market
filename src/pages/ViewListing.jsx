@@ -246,8 +246,6 @@ const ViewListing = () => {
   const canSettle = isOver && (isWinner || isOwner);
   const sellerURL = `https://blockscout.moonriver.moonbeam.network/address/${auctionItem?.seller}`
 
-  console.log ("now = " + now + " end = " + end  + " isOver " + isOver)
-
   return (
     <Container>
       <SpacedRow>

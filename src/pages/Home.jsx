@@ -6,10 +6,9 @@ import Chip from "@mui/material/Chip";
 import moment from "moment";
 import {useHistory} from "react-router-dom";
 import Filterbar from "../components/Filterbar";
-import AuctionsListView from "../components/AuctionsListView";
 import { getCardSummary } from "utils/cardsUtil";
 import { getStatus } from "utils/listingUtil";
-import { useInfiniteQuery, QueryClient } from 'react-query'
+import { useInfiniteQuery } from 'react-query'
 import {marketContractAddress, zoombiesContractAddress} from "../constants";
 import InfiniteScroll from "react-infinite-scroller";
 import {CircularProgress, Modal} from "@mui/material";
@@ -102,8 +101,6 @@ const Home = () => {
   } = useInfiniteQuery(
     'listings',
     async ({ pageParam = 0 }) => {
-      console.log("pageParam", pageParam)
-
       // if (pages.length != pageParam) {
       //
       // }
