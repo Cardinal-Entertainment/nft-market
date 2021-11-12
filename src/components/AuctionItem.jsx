@@ -202,7 +202,6 @@ const AuctionItem = ({
   } = useContext(store);
   const history = useHistory();
   const [cardPageNo, setCardPageNo] = useState(1);
-  const [minIncrement, setMinIncrement] = useState("");
   const [favorite, setFavorite] = useState(false)
   const [remainingTime, setRemainingTime] = useState("")
   const [offers, setOffers] = useState([]);
@@ -214,6 +213,8 @@ const AuctionItem = ({
   const auctionItem = content
   const { itemNumber, highestBid } = auctionItem
   const coinType = auctionItem.saleToken === zoomContractAddress ? 'ZOOM' : (auctionItem.saleToken === wmovrContractAddress ?'WMOVR' : '' )
+  const minIncrement = auctionItem.saleToken === zoomContractAddress ? contracts.zoomIncrement : (auctionItem.saleToken === wmovrContractAddress ? contracts.wmovrIncrement : 0)
+
 
   const getOffers = async () => {
     const offers = await fetchOffers(
@@ -224,7 +225,6 @@ const AuctionItem = ({
 
   useEffect( () => {
     getOffers(content.itemNumber)
-    getMinIncrement()
     let interval = null
     interval = setInterval(() => {
       updateRemainingTime()
@@ -250,12 +250,6 @@ const AuctionItem = ({
     }
   }
 
-  const getMinIncrement = async  () => {
-    // const increment = await contracts.MarketContract.tokenMinIncrement(auctionItem.saleToken)
-    // if (auctionItem.saleToken === '')
-    // setMinIncrement(ethers.utils.formatEther(increment))
-    setMinIncrement('1000')
-  }
 
   const onClickBid = () => {
 
