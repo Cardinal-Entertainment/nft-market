@@ -167,7 +167,9 @@ const MetaContentButtonSection = styled('div')({
   '& .button-bid': {
     marginBottom: '2px',
     backgroundColor: '#D400BD',
-    width: '100%'
+    width: '100%',
+    padding: '6px 8px',
+
   },
 
   '& .button-more-info': {
@@ -249,8 +251,10 @@ const AuctionItem = ({
   }
 
   const getMinIncrement = async  () => {
-    const increment = await contracts.MarketContract.tokenMinIncrement(auctionItem.saleToken)
-    setMinIncrement(ethers.utils.formatEther(increment))
+    // const increment = await contracts.MarketContract.tokenMinIncrement(auctionItem.saleToken)
+    // if (auctionItem.saleToken === '')
+    // setMinIncrement(ethers.utils.formatEther(increment))
+    setMinIncrement('1000')
   }
 
   const onClickBid = () => {

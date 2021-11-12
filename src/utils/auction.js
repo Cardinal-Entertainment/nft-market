@@ -79,15 +79,21 @@ export const getAuctionListings = async (marketContract, zoombiesContract, filte
   const listings = await axios.get(`https://api.zoombies.world/listings?${params.toString()}`)
   // const listings = await axios.get(`http://localhost:3001/listings?${params.toString()}`)
 
-  const ar2 = listings.data.slice(page * 5, (page + 1) * 5);
+  const ar2 = listings.data.slice(page * 5 , (page + 1) * 5);
 
+  console.log('api-response', ar2)
   return {
-    data: ar2,
-    nextId: ar2
+    data: ar2.map((listing) => ({
+      ...listing,
+      id: listing._id,
+      currency: getTokenSymbol(listing.saleToken),
+    })),
+    nextPage: page + 1, totalPages: Math.round(listings.data.length / 5)
   }
+
   // return listings.data.map(listing => ({
   //   ...listing,
-  //   currency: getTokenSymbol(listing.saleToken)
+  //  currency: getTokenSymbol(listing.saleToken)
   // }))
 };
 

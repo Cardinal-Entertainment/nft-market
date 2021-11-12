@@ -7,14 +7,12 @@ import moment from "moment";
 import {useHistory} from "react-router-dom";
 import Filterbar from "../components/Filterbar";
 import AuctionsListView from "../components/AuctionsListView";
-import {CircularProgress, Modal} from "@mui/material";
 import { getCardSummary } from "utils/cardsUtil";
 import { getStatus } from "utils/listingUtil";
 import { useInfiniteQuery, QueryClient } from 'react-query'
-import { useFetchListingQuery } from 'hooks/useListing'
-import {useFetchProfileQuery} from "../hooks/useProfile";
 import {marketContractAddress, zoombiesContractAddress} from "../constants";
-import useIntersectionObserver from "../hooks/useIntersectionObserver";
+import InfiniteScroll from "react-infinite-scroller";
+import {CircularProgress, Modal} from "@mui/material";
 
 const Container = styled.div`
   flex: auto;
@@ -93,34 +91,29 @@ const Home = () => {
   } = useContext(store);
 
   const {
-    status,
     data,
-    error,
-    isFetching,
-    isFetchingNextPage,
-    isFetchingPreviousPage,
-    fetchNextPage,
-    fetchPreviousPage,
+    isLoading,
+    isError,
     hasNextPage,
-    hasPreviousPage,
+    fetchNextPage
   } = useInfiniteQuery(
     'listings',
     async ({ pageParam = 0 }) => {
-      const res = getAuctionListings(marketContractAddress, zoombiesContractAddress, filters, sortBy, pageParam)
-      return res.data
-    },
-    {
-      getPreviousPageParam: firstPage => firstPage.previousId ?? false,
-      getNextPageParam: lastPage => lastPage.nextId ?? false,
+      console.log("pageParam", pageParam)
+      const res = await getAuctionListings(marketContractAddress, zoombiesContractAddress, filters, sortBy, pageParam)
+
+      console.log(res)
+      return res
+
+    },{
+      getNextPageParam: (lastPage, pages) => {
+        if (lastPage.nextPage < lastPage.totalPages) return lastPage.nextPage;
+        return undefined;
+      }
     }
   )
 
-  useIntersectionObserver({
-    target: loadMoreButtonRef,
-    onIntersect: fetchNextPage,
-    enabled: hasNextPage,
-  })
-
+  console.log("hasNextPage", hasNextPage)
 
 
   const columns = [
@@ -186,7 +179,7 @@ const Home = () => {
 
   const loadListings = async () => {
 
-    // setLoading(true)
+    setLoading(true)
     const auctionListings = await getAuctionListings(
       contracts.MarketContract,
       contracts.ZoombiesContract,
@@ -197,7 +190,7 @@ const Home = () => {
       ...listing,
       id: listing._id
     })));
-    // setLoading(false)
+    setLoading(false)
   };
 
 
@@ -220,8 +213,6 @@ const Home = () => {
   useEffect(() => {
     if (contracts.MarketContract) {
       // loadListings();
-
-
     }
   }, [contracts.MarketContract, filters, sortBy]);
 
@@ -239,26 +230,27 @@ const Home = () => {
       {/*    onRowClick={handleRowClick}*/}
       {/*    autoHeight={true}*/}
       {/*/>*/}
-      <AuctionsListView auctions={listings}/>
-      <button
-        ref={loadMoreButtonRef}
-        onClick={() => fetchNextPage()}
-        disabled={!hasNextPage || isFetchingNextPage}
-      >
-        {isFetchingNextPage
-          ? 'Loading more...'
-          : hasNextPage
-            ? 'Load Newer'
-            : 'Nothing more to load'}
-      </button>
+      {/*{*/}
+
+      <div style={{display: 'flex', flexDirection:'column', overflowY: 'auto'}}>
+        {!isLoading && (
+            <InfiniteScroll hasMore={hasNextPage} loadMore={fetchNextPage} useWindow={false}>
+              {data.pages.map((page, index) =>
+                <AuctionsListView auctions={page.data} key={index}/>
+              )}
+            </InfiniteScroll>
+        )}
+
+
       <Modal
-        open={status === 'loading'}
+        open={isLoading}
       >
         <ModalContent>
           <div>Loading Auctions...</div>
           <CircularProgress />
         </ModalContent>
       </Modal>
+      </div>
     </Container>
   );
 };
