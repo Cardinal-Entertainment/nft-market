@@ -23,12 +23,12 @@ const initialState = {
     MarketContract: null,
     WMOVRContract: null,
     GlobalContract: null,
-    zoomIncrement: '0',
-    wmovrIncrement: '0',
   },
   signer: null,
   events: [],
-  newEventsCount: 0
+  newEventsCount: 0,
+  zoomIncrement: '0',
+  wmovrIncrement: '0',
 };
 
 const store = createContext(initialState);
@@ -74,7 +74,8 @@ const StateProvider = ({ children }) => {
       case ActionTypes.MIN_INCREMENT_UPDATED:
         return {
           ...state,
-          contracts:  {...state.contracts, payload},
+          zoomIncrement: payload.zoomIncrement,
+          wmovrIncrement: payload.wmovrIncrement,
         };
       default:
         throw new Error(`Unhandled action type: ${type}`);

@@ -198,7 +198,7 @@ const AuctionItem = ({
 }) => {
 
   const {
-    state: { contracts, wallet  },
+    state: { contracts, wallet, zoomIncrement, wmovrIncrement  },
   } = useContext(store);
   const history = useHistory();
   const [cardPageNo, setCardPageNo] = useState(1);
@@ -213,8 +213,7 @@ const AuctionItem = ({
   const auctionItem = content
   const { itemNumber, highestBid } = auctionItem
   const coinType = auctionItem.saleToken === zoomContractAddress ? 'ZOOM' : (auctionItem.saleToken === wmovrContractAddress ?'WMOVR' : '' )
-  const minIncrement = auctionItem.saleToken === zoomContractAddress ? contracts.zoomIncrement : (auctionItem.saleToken === wmovrContractAddress ? contracts.wmovrIncrement : 0)
-
+  const minIncrement = auctionItem.saleToken === zoomContractAddress ? zoomIncrement : (auctionItem.saleToken === wmovrContractAddress ? wmovrIncrement : 0)
 
   const getOffers = async () => {
     const offers = await fetchOffers(

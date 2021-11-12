@@ -13,6 +13,7 @@ import { useInfiniteQuery, QueryClient } from 'react-query'
 import {marketContractAddress, zoombiesContractAddress} from "../constants";
 import InfiniteScroll from "react-infinite-scroller";
 import {CircularProgress, Modal} from "@mui/material";
+import AuctionItem from "../components/AuctionItem";
 
 const Container = styled.div`
   flex: auto;
@@ -95,14 +96,21 @@ const Home = () => {
     isLoading,
     isError,
     hasNextPage,
-    fetchNextPage
+    fetchNextPage,
+    refetch,
+    remove
   } = useInfiniteQuery(
     'listings',
     async ({ pageParam = 0 }) => {
       console.log("pageParam", pageParam)
-      const res = await getAuctionListings(marketContractAddress, zoombiesContractAddress, filters, sortBy, pageParam)
 
-      console.log(res)
+      // if (pages.length != pageParam) {
+      //
+      // }
+      // setLoading(true)
+      const res = await getAuctionListings(marketContractAddress, zoombiesContractAddress, filters, sortBy, pageParam)
+      setLoading(false)
+      // console.log(res)
       return res
 
     },{
@@ -112,8 +120,6 @@ const Home = () => {
       }
     }
   )
-
-  console.log("hasNextPage", hasNextPage)
 
 
   const columns = [
@@ -199,12 +205,15 @@ const Home = () => {
     history.push(`/listing/${row.itemNumber}`);
   };
 
-  const handleFilterChanged = (params) => {
+  const handleFilterChanged = async (params) => {
+    setLoading(true)
     setFilters({ ...filters, ...params })
+    remove()
   }
 
   const handleSortByChanged = (attribute) => {
     // setSortBy({ ...sortBy, ...attribute })
+    setLoading(true)
     setFilters({ ...filters, ...{
       sortField: attribute.field
     }})
@@ -216,11 +225,13 @@ const Home = () => {
     }
   }, [contracts.MarketContract, filters, sortBy]);
 
-
+  const getSum = (total, num) => {
+    return total + Math.round(num);
+  }
 
   return (
     <Container>
-      <Filterbar onFilterChanged={handleFilterChanged} filters={filters} onSortByChanged={handleSortByChanged} sortBy={sortBy} totalCount={listings.length}/>
+      <Filterbar onFilterChanged={handleFilterChanged} filters={filters} onSortByChanged={handleSortByChanged} sortBy={sortBy} totalCount={ isLoading ? 0 : data.pages.map(page => page.data.length).reduce(getSum, 0)}/>
       {/*<DataGrid*/}
       {/*    className="table"*/}
       {/*    rows={listings.filter(auction => filterCondition(auction)).sort(compareFunc)}*/}
@@ -236,14 +247,17 @@ const Home = () => {
         {!isLoading && (
             <InfiniteScroll hasMore={hasNextPage} loadMore={fetchNextPage} useWindow={false}>
               {data.pages.map((page, index) =>
-                <AuctionsListView auctions={page.data} key={index}/>
+                page.data.map(auction =>
+                <AuctionItem content={auction} key={auction._id}/>
+                )
+                // <AuctionsListView auctions={page.data} key={index}/>
               )}
             </InfiniteScroll>
         )}
 
 
       <Modal
-        open={isLoading}
+        open={loading}
       >
         <ModalContent>
           <div>Loading Auctions...</div>

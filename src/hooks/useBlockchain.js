@@ -111,7 +111,6 @@ const useBlockchain = () => {
     const zoomIncrement = await MarketContract.tokenMinIncrement(zoomContractAddress)
     const wmovrIncrement = await MarketContract.tokenMinIncrement(wmovrContractAddress)
 
-    // dispatch(ethers.utils.formatEther(minIncrement1))
     dispatch(Actions.minIncrementUpdated({
       zoomIncrement: ethers.utils.formatEther(zoomIncrement),
       wmovrIncrement: ethers.utils.formatEther(wmovrIncrement)
@@ -280,7 +279,7 @@ const useBlockchain = () => {
         })
       });
 
-      const { ZoombiesContract } = loadContracts(signer, network.chainId);
+      const { ZoombiesContract } = await loadContracts(signer, network.chainId);
 
       await approveContract(address, ZoombiesContract);
     } else {
