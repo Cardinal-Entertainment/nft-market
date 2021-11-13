@@ -70,8 +70,8 @@ const Listing = styled.div`
 
 
 const Home = () => {
-  const history = useHistory();
-  const [listings, setListings] = useState([]);
+  const history = useHistory()
+  const [listings, setListings] = useState([])
   const [filters, setFilters] = useState({
     cardType: '', // 'Shop' or 'Booster'
     rarity: '', // 'epic', 'rare', 'uncommon', 'common'
@@ -83,8 +83,8 @@ const Home = () => {
     field: '', //attribute name of an auction
     order: 1 // 1 : ascending, -1 : descending
   })
-  const [loading, setLoading] = useState(false);
-  const loadMoreButtonRef = useRef(null);
+  const [loading, setLoading] = useState(false)
+  const [totalCount, setTotalCount] = useState(0)
 
   const {
     state: { contracts },
@@ -107,6 +107,7 @@ const Home = () => {
       // setLoading(true)
       const res = await getAuctionListings(marketContractAddress, zoombiesContractAddress, filters, sortBy, pageParam)
       setLoading(false)
+      setTotalCount(res.totalPages)
       // console.log(res)
       return res
 
@@ -228,7 +229,7 @@ const Home = () => {
 
   return (
     <Container>
-      <Filterbar onFilterChanged={handleFilterChanged} filters={filters} onSortByChanged={handleSortByChanged} sortBy={sortBy} totalCount={ isLoading ? 0 : data.pages.map(page => page.data.length).reduce(getSum, 0)}/>
+      <Filterbar onFilterChanged={handleFilterChanged} filters={filters} onSortByChanged={handleSortByChanged} sortBy={sortBy} totalCount={totalCount}/>
       {/*<DataGrid*/}
       {/*    className="table"*/}
       {/*    rows={listings.filter(auction => filterCondition(auction)).sort(compareFunc)}*/}

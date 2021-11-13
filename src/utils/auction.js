@@ -73,14 +73,14 @@ export const getAuctionListings = async (marketContract, zoombiesContract, filte
     cardRarity: filters.rarity,
     search: filters.keyword,
     sortBy: getSortType() ?? '',
-    // pageNo: page,
-    // perPage: 5
+    offset: page * 5,
+    limit: '5'
   })
   
   const listings = await axios.get(`https://api.zoombies.world/listings?${params.toString()}`)
   // const listings = await axios.get(`http://localhost:3001/listings?${params.toString()}`)
 
-  const ar2 = listings.data.slice(page * 5 , (page + 1) * 5);
+  const ar2 = listings.data.listings
   // const ar2 = listings
 
   return {
@@ -89,7 +89,7 @@ export const getAuctionListings = async (marketContract, zoombiesContract, filte
       id: listing._id,
       currency: getTokenSymbol(listing.saleToken),
     })),
-    nextPage: page + 1, totalPages: Math.round(listings.data.length / 5)
+    nextPage: page + 1, totalPages: parseInt(listings.data.count)
   }
 
   // return listings.data.map(listing => ({
