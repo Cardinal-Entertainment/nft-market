@@ -59,16 +59,6 @@ const ModalContent = styled.div`
   }
 `;
 
-const Listing = styled.div`
-  display: flex;
-  align-items: center;
-  background: white;
-  padding: 5px 10px;
-  margin: 5px 0;
-  border-radius: 8px;
-`;
-
-
 const Home = () => {
   const history = useHistory()
   const [listings, setListings] = useState([])
@@ -96,7 +86,6 @@ const Home = () => {
     isError,
     hasNextPage,
     fetchNextPage,
-    refetch,
     remove
   } = useInfiniteQuery(
     'listings',
@@ -197,12 +186,6 @@ const Home = () => {
     setLoading(false)
   };
 
-
-
-  const handleRowClick = ({row}) => {
-    history.push(`/listing/${row.itemNumber}`);
-  };
-
   const handleFilterChanged = async (params) => {
     setLoading(true)
     setFilters({ ...filters, ...params })
@@ -222,10 +205,6 @@ const Home = () => {
       // loadListings();
     }
   }, [contracts.MarketContract, filters, sortBy]);
-
-  const getSum = (total, num) => {
-    return total + Math.round(num);
-  }
 
   return (
     <Container>
@@ -248,7 +227,6 @@ const Home = () => {
                 page.data.map(auction =>
                 <AuctionItem content={auction} key={auction._id}/>
                 )
-                // <AuctionsListView auctions={page.data} key={index}/>
               )}
             </InfiniteScroll>
         )}
