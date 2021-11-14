@@ -1,18 +1,17 @@
 import React, {useContext, useEffect, useRef, useState} from "react";
 import { store } from "store/store";
 import styled from "styled-components";
-import {getAuctionListings} from "utils/auction";
 import Chip from "@mui/material/Chip";
 import moment from "moment";
 import {useHistory} from "react-router-dom";
 import Filterbar from "../components/Filterbar";
 import { getCardSummary } from "utils/cardsUtil";
 import { getStatus } from "utils/listingUtil";
-import { useInfiniteQuery } from 'react-query'
 import {marketContractAddress, zoombiesContractAddress} from "../constants";
 import InfiniteScroll from "react-infinite-scroller";
 import {CircularProgress, Modal} from "@mui/material";
 import AuctionItem from "../components/AuctionItem";
+import {useFetchListingQuery} from "../hooks/useListing";
 
 const Container = styled.div`
   flex: auto;
@@ -80,6 +79,11 @@ const Home = () => {
     state: { contracts },
   } = useContext(store);
 
+  const loadingCallback = ( totalCount ) => {
+    setLoading(false)
+    setTotalCount(totalCount)
+  }
+
   const {
     data,
     isLoading,
@@ -87,27 +91,7 @@ const Home = () => {
     hasNextPage,
     fetchNextPage,
     remove
-  } = useInfiniteQuery(
-    'listings',
-    async ({ pageParam = 0 }) => {
-      // if (pages.length != pageParam) {
-      //
-      // }
-      // setLoading(true)
-      const res = await getAuctionListings(marketContractAddress, zoombiesContractAddress, filters, sortBy, pageParam)
-      setLoading(false)
-      setTotalCount(res.totalPages)
-      // console.log(res)
-      return res
-
-    },{
-      getNextPageParam: (lastPage, pages) => {
-        if (lastPage.nextPage < lastPage.totalPages) return lastPage.nextPage;
-        return undefined;
-      }
-    }
-  )
-
+  } = useFetchListingQuery(filters, sortBy, loadingCallback)
 
   const columns = [
     {
@@ -169,22 +153,6 @@ const Home = () => {
       ),
     },
   ];
-
-  const loadListings = async () => {
-
-    setLoading(true)
-    const auctionListings = await getAuctionListings(
-      contracts.MarketContract,
-      contracts.ZoombiesContract,
-      filters,
-      sortBy
-    );
-    setListings(auctionListings.map((listing) => ({
-      ...listing,
-      id: listing._id
-    })));
-    setLoading(false)
-  };
 
   const handleFilterChanged = async (params) => {
     setLoading(true)
