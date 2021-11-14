@@ -91,7 +91,7 @@ const Home = () => {
     hasNextPage,
     fetchNextPage,
     remove
-  } = useFetchListingQuery(filters, sortBy, loadingCallback)
+  } = useFetchListingQuery(filters, loadingCallback)
 
   const columns = [
     {
@@ -166,6 +166,7 @@ const Home = () => {
     setFilters({ ...filters, ...{
       sortField: attribute.field
     }})
+    remove()
   }
 
   useEffect(() => {
