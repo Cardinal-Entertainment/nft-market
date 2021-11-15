@@ -2,13 +2,11 @@ import React, { useContext, useEffect, useState } from "react";
 import styled, { useTheme } from "styled-components";
 import metamaskLogo from "../assets/metamask-face.png";
 import movrLogo from "../assets/movr_logo.png";
-import zoomLogo from "../assets/zoombies_logo_round_plaque.svg";
 import zoomCoin from "../assets/zoombies_coin.svg";
-
 import Tooltip from "@mui/material/Tooltip";
 import { store } from "store/store";
-import { NavLink, Route } from "react-router-dom";
-import { faEdit, faShoppingBag } from "@fortawesome/free-solid-svg-icons";
+import { NavLink } from "react-router-dom";
+import {faEdit, faQuestionCircle, faShoppingBag} from "@fortawesome/free-solid-svg-icons";
 
 import {
   addAssetToMetamask,
@@ -16,11 +14,11 @@ import {
   getWalletWMOVRBalance,
   getWalletZoomBalance,
   unWrapMOVR,
-  wrapMOVR
-} from "../utils/wallet";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import WrapDialog from "./WrapDialog";
-import {ButtonGroup, MenuItem } from "@mui/material";
+  wrapMOVR,
+} from '../utils/wallet';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import WrapDialog from './WrapDialog';
+import { ButtonGroup, MenuItem } from '@mui/material';
 import Button from '@mui/material/Button';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
@@ -118,10 +116,10 @@ const TooltipContent = styled.span`
 
 const ButtonGroupContainer = styled.div`
   margin: 12px;
-  
+
   & .popper {
     width: 276px;
-    
+
     & .popper-menuitem div {
       flex: auto;
     }
@@ -130,8 +128,8 @@ const ButtonGroupContainer = styled.div`
 
 const Navbar = () => {
   const theme = useTheme();
-  const [zoomBalance, setZoomBalance] = useState("");
-  const [WMOVRBalance, setWMOVRBalance] = useState("");
+  const [zoomBalance, setZoomBalance] = useState('');
+  const [WMOVRBalance, setWMOVRBalance] = useState('');
 
   const { state } = useContext(store);
   const {
@@ -139,9 +137,14 @@ const Navbar = () => {
     contracts,
   } = state;
 
-  const shortWallet = formatAddress(address)
+  const shortWallet = formatAddress(address);
 
-  const options = ['UNWRAP WMOVR','WRAP MOVR', 'DISPLAY WMOVR', 'DISPLAY ZOOM'];
+  const options = [
+    'UNWRAP WMOVR',
+    'WRAP MOVR',
+    'DISPLAY WMOVR',
+    'DISPLAY ZOOM',
+  ];
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
   const [selectedIndex, setSelectedIndex] = React.useState(1);
@@ -150,9 +153,9 @@ const Navbar = () => {
     setSelectedIndex(index);
 
     if (index === 2) {
-      await handleAddAssetToMetamask('WMOVR')
+      await handleAddAssetToMetamask('WMOVR');
     } else if (index === 3) {
-      await handleAddAssetToMetamask('ZOOM')
+      await handleAddAssetToMetamask('ZOOM');
     }
   };
 
@@ -178,27 +181,25 @@ const Navbar = () => {
     setWMOVRBalance(bal);
   };
 
-  const handleUnwrapMOVR = async( amount )  => {
+  const handleUnwrapMOVR = async (amount) => {
     if (amount > 0) {
-      await unWrapMOVR(contracts.WMOVRContract, amount.toString())
+      await unWrapMOVR(contracts.WMOVRContract, amount.toString());
     }
-  }
+  };
 
-  const handleWrapMOVR = async( amount )  => {
+  const handleWrapMOVR = async (amount) => {
     if (amount > 0) {
-      await wrapMOVR(contracts.WMOVRContract, amount.toString())
+      await wrapMOVR(contracts.WMOVRContract, amount.toString());
     }
-  }
+  };
 
   const handleAddAssetToMetamask = async (tokenSymbol) => {
     if (tokenSymbol === 'WMOVR') {
-      await addAssetToMetamask(tokenSymbol, contracts.WMOVRContract.address)
+      await addAssetToMetamask(tokenSymbol, contracts.WMOVRContract.address);
     } else if (tokenSymbol === 'ZOOM') {
-      await addAssetToMetamask(tokenSymbol, contracts.ZoomContract.address)
+      await addAssetToMetamask(tokenSymbol, contracts.ZoomContract.address);
     }
-
-  }
-
+  };
 
   useEffect(() => {
     if (contracts.ZoomContract && address) {
@@ -215,8 +216,7 @@ const Navbar = () => {
         getWMOVRBalance();
       });
     }
-
-  }, [contracts, address]);
+  }, [contracts, address ]);
 
   return (
     <Container>
@@ -287,7 +287,7 @@ const Navbar = () => {
             <FontAwesomeIcon
               icon={faShoppingBag}
               size="lg"
-              className="marketplace"              
+              className="marketplace"
             />
             Live Auctions
           </NavItem>
@@ -323,30 +323,42 @@ const Navbar = () => {
                   </span>
                 </Tooltip>
               </NavItem>
-              <NavLink
-                exact
-                activeClassName="active-link"
-                className="page-links"
-                to="/archives"
-              >
-                <NavItem color="white">
-                  <Tooltip
-                    title={<TooltipContent>{address}</TooltipContent>}
-                    arrow
-                    placement="right"
-                  >
-                    <span>
-                      <img src={metamaskLogo} alt="metamask logo" />
-                      Auction Archive
-                    </span>
-                  </Tooltip>
-                </NavItem>
-              </NavLink>
+            </NavLink>
+            <NavLink
+              exact
+              activeClassName="active-link"
+              className="page-links"
+              to="/archives"
+            >
+              <NavItem color="white">
+                <Tooltip
+                  title={<TooltipContent>{address}</TooltipContent>}
+                  arrow
+                  placement="right"
+                >
+                  <span>
+                    <img src={metamaskLogo} alt="metamask logo" />
+                    Auction Archive
+                  </span>
+                </Tooltip>
+              </NavItem>
             </NavLink>
           </>
         )}
       </NavigationSection>
       <ButtonGroupContainer>
+
+        <NavLink
+          exact
+          activeClassName="active-link"
+          className="page-links"
+          to="/help"
+        >
+          <NavItem color="white">
+            <FontAwesomeIcon className="marketplace" icon={faQuestionCircle} size="lg" />
+            Help
+          </NavItem>
+        </NavLink>
         <ButtonGroup variant="contained" ref={anchorRef} aria-label="split button" style={{
           width: '100%',
           height: '40px',
@@ -382,14 +394,23 @@ const Navbar = () => {
               <Paper>
                 <ClickAwayListener onClickAway={handleClose}>
                   <MenuList id="split-button-menu">
-                    <MenuItem className={"popper-menuitem"} value={'unwrap-movr'} onClick={(event) => handleMenuItemClick(event, 0)}>
+                    <MenuItem
+                      className={'popper-menuitem'}
+                      value={'unwrap-movr'}
+                      onClick={(event) => handleMenuItemClick(event, 0)}
+                    >
                       <WrapDialog
                         currency={'WMOVR'}
                         maxAmount={WMOVRBalance}
                         onConfirm={handleUnwrapMOVR}
-                        disabled={WMOVRBalance <= 0}/>
+                        disabled={WMOVRBalance <= 0}
+                      />
                     </MenuItem>
-                    <MenuItem className={"popper-menuitem"} value={'wrap-movr'} onClick={(event) => handleMenuItemClick(event, 1)}>
+                    <MenuItem
+                      className={'popper-menuitem'}
+                      value={'wrap-movr'}
+                      onClick={(event) => handleMenuItemClick(event, 1)}
+                    >
                       <WrapDialog
                         currency={'MOVR'}
                         maxAmount={balance}
@@ -397,19 +418,24 @@ const Navbar = () => {
                         disabled={balance <= 0}
                       />
                     </MenuItem>
-                    {
-                      shortWallet && (
-                        <>
-                          <MenuItem className={"popper-menuitem"} value={'add-wmovr'} onClick={(event) => handleMenuItemClick(event, 2)}>
-                            Add WMOVR to Metamask
-                          </MenuItem>
-                          <MenuItem className={"popper-menuitem"} value={'add-zoom'} onClick={(event) => handleMenuItemClick(event, 3)}>
-                            Add ZOOM to Metamask
-                          </MenuItem>
-                        </>
-                      )
-                    }
-
+                    {shortWallet && (
+                      <>
+                        <MenuItem
+                          className={'popper-menuitem'}
+                          value={'add-wmovr'}
+                          onClick={(event) => handleMenuItemClick(event, 2)}
+                        >
+                          Add WMOVR to Metamask
+                        </MenuItem>
+                        <MenuItem
+                          className={'popper-menuitem'}
+                          value={'add-zoom'}
+                          onClick={(event) => handleMenuItemClick(event, 3)}
+                        >
+                          Add ZOOM to Metamask
+                        </MenuItem>
+                      </>
+                    )}
                   </MenuList>
                 </ClickAwayListener>
               </Paper>

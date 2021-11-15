@@ -9,12 +9,12 @@ import {store} from "../store/store";
 import Actions from "../store/actions";
 
 const Container = styled('div')({
-  margin: '16px 16px 16px 8px',
+  margin: '16px 16px 16px 0',
   padding: '16px',
   width: '392px',
   overflowY: 'auto',
   border: '1px solid #FFFFFF',
-  background: '#2e1630'
+  background: 'linear-gradient(110.99deg, #000033 100%, #100238 100%)'
 });
 
 const FlexDiv = styled('div')({

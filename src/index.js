@@ -1,11 +1,13 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import App from "./App";
-import theme from "theme";
-import { StateProvider } from "store/store";
-import { createGlobalStyle, ThemeProvider } from "styled-components";
-import AdapterDateFns from "@mui/lab/AdapterDateFns";
-import LocalizationProvider from "@mui/lab/LocalizationProvider";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { QueryClient, QueryClientProvider } from 'react-query';
+
+import App from './App';
+import theme from 'theme';
+import { StateProvider } from 'store/store';
+import { createGlobalStyle, ThemeProvider } from 'styled-components';
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
 
 // Add global styles
 const GlobalStyle = createGlobalStyle`
@@ -18,16 +20,20 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
+const queryClient = new QueryClient();
+
 ReactDOM.render(
   <React.StrictMode>
-    <ThemeProvider theme={theme}>
-      <LocalizationProvider dateAdapter={AdapterDateFns}>
-        <StateProvider>
-          <GlobalStyle />
-          <App />
-        </StateProvider>
-      </LocalizationProvider>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={theme}>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <StateProvider>
+            <GlobalStyle />
+            <App />
+          </StateProvider>
+        </LocalizationProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   </React.StrictMode>,
-  document.getElementById("root")
+  document.getElementById('root')
 );

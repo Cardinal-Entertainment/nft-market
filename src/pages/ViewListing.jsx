@@ -26,6 +26,7 @@ import {getWalletWMOVRBalance, getWalletZoomBalance} from "../utils/wallet";
 const Container = styled.div`
   flex: 1;
   height: 100%;
+  color: white;
 
   h1 {
     margin: 0;
@@ -258,6 +259,7 @@ const ViewListing = () => {
             icon={faChevronLeft}
             size="2x"
             onClick={() => history.goBack()}
+            color="white"
           />
           <h1>Auction #{auctionId}</h1>
         </HeaderRow>
@@ -284,7 +286,7 @@ const ViewListing = () => {
         {auctionItem?.tokenIds ?
           auctionItem.tokenIds.slice((cardPageNo - 1) * 20, cardPageNo * 20).map((tokenId) => (
             <LazyLoad key={tokenId} once={true} resize={true}>
-              <img src={`https://moonbase.zoombies.world/nft-image/${tokenId}`} alt={`Token #${tokenId}`} />
+              <img src={`https://moonbase.zoombies.world/nft-image/${tokenId}`} alt={`Token #${tokenId}`} loading="lazy"/>
             </LazyLoad>
           )) : <CircularProgress/>}
       </NFTContainer>

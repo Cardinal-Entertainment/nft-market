@@ -19,7 +19,7 @@ const FlexRow = styled.div`
   }
 `;
 
-const OfferDialog = ({ currency, minAmount, maxAmount, onConfirm, disabled }) => {
+const OfferDialog = ({ currency, minAmount, maxAmount, onConfirm, disabled, quickBid }) => {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState(minAmount);
   const [inputInvalid, setInputInvalid] = useState(false);
@@ -73,8 +73,8 @@ const OfferDialog = ({ currency, minAmount, maxAmount, onConfirm, disabled }) =>
 
   return (
     <div>
-      <Button variant="contained" onClick={handleClickOpen} disabled={disabled}>
-        Make Offer
+      <Button variant="contained" onClick={handleClickOpen} disabled={disabled} className={quickBid ? "button-bid" : ''}>
+        {quickBid ? 'Quick bid (' + Math.round(minAmount * 10000) / 10000.0 + ' ' + currency + ')' : 'Make Offer'}
       </Button>
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Make Offer</DialogTitle>

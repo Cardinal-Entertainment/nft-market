@@ -84,7 +84,6 @@ const WrapDialog = ({ currency, maxAmount, onConfirm, disabled }) => {
 
     } else {
       setInputInvalid(false)
-      console.log("handleCOnfirm")
       onConfirm(input)
       setOpen(false);
     }
