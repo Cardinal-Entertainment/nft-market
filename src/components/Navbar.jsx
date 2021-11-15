@@ -220,62 +220,6 @@ const Navbar = () => {
 
   return (
     <Container>
-      <UserBalances>
-        <NavItem color={theme.colors.metamaskOrange}>
-          <Tooltip
-            title={<TooltipContent>{address}</TooltipContent>}
-            arrow
-            placement="right"
-          >
-            <span>
-              <img src={metamaskLogo} alt="metamask logo" />
-              {shortWallet}
-            </span>
-          </Tooltip>
-        </NavItem>
-        <NavItem color="white">
-          <Tooltip
-            title={
-              <TooltipContent>{Number(WMOVRBalance) / 1} WMOVR</TooltipContent>
-            }
-            arrow
-            placement="right"
-          >
-            <span>
-              <img src={movrLogo} alt="movr logo" />
-              {Number(WMOVRBalance).toFixed(4)} WMOVR
-            </span>
-          </Tooltip>
-        </NavItem>
-        <NavItem color="white" onClick={handleWrapMOVR}>
-          <Tooltip
-            title={<TooltipContent>{balance} MOVR</TooltipContent>}
-            arrow
-            placement="right"
-          >
-            <span>
-              <img src={movrLogo} alt="movr logo" />
-              {Number(balance).toFixed(4)} MOVR
-            </span>
-          </Tooltip>
-        </NavItem>
-        <NavItem color="white">
-          <Tooltip
-            title={
-              <TooltipContent>
-                {zoomBalance.toLocaleString()} ZOOM Tokens
-              </TooltipContent>
-            }
-            arrow
-            placement="right"
-          >
-            <span>
-              <img className="zoom" src={zoomCoin} alt="zoom coin logo" />
-              {Number(Number(zoomBalance).toFixed(4)).toLocaleString()} ZOOM
-            </span>
-          </Tooltip>
-        </NavItem>
-      </UserBalances>
       <NavigationSection>
         <NavLink
           exact
@@ -346,6 +290,62 @@ const Navbar = () => {
           </>
         )}
       </NavigationSection>
+      <UserBalances>
+        <NavItem color={theme.colors.metamaskOrange}>
+          <Tooltip
+            title={<TooltipContent>{address}</TooltipContent>}
+            arrow
+            placement="right"
+          >
+            <span>
+              <img src={metamaskLogo} alt="metamask logo" />
+              {shortWallet}
+            </span>
+          </Tooltip>
+        </NavItem>
+        <NavItem color="white">
+          <Tooltip
+            title={
+              <TooltipContent>{Number(WMOVRBalance) / 1} WMOVR</TooltipContent>
+            }
+            arrow
+            placement="right"
+          >
+            <span>
+              <img src={movrLogo} alt="movr logo" />
+              {Number(WMOVRBalance).toFixed(4)} WMOVR
+            </span>
+          </Tooltip>
+        </NavItem>
+        <NavItem color="white" onClick={handleWrapMOVR}>
+          <Tooltip
+            title={<TooltipContent>{balance} MOVR</TooltipContent>}
+            arrow
+            placement="right"
+          >
+            <span>
+              <img src={movrLogo} alt="movr logo" />
+              {Number(balance).toFixed(4)} MOVR
+            </span>
+          </Tooltip>
+        </NavItem>
+        <NavItem color="white">
+          <Tooltip
+            title={
+              <TooltipContent>
+                {zoomBalance.toLocaleString()} ZOOM Tokens
+              </TooltipContent>
+            }
+            arrow
+            placement="right"
+          >
+            <span>
+              <img className="zoom" src={zoomCoin} alt="zoom coin logo" />
+              {Number(Number(zoomBalance).toFixed(4)).toLocaleString()} ZOOM
+            </span>
+          </Tooltip>
+        </NavItem>
+      </UserBalances>
       <ButtonGroupContainer>
 
         <NavLink
