@@ -26,7 +26,9 @@ const initialState = {
   },
   signer: null,
   events: [],
-  newEventsCount: 0
+  newEventsCount: 0,
+  zoomIncrement: '0',
+  wmovrIncrement: '0',
 };
 
 const store = createContext(initialState);
@@ -68,6 +70,12 @@ const StateProvider = ({ children }) => {
           ...state,
           newEventsCount:  0,
           events: payload ? [] : state.events
+        };
+      case ActionTypes.MIN_INCREMENT_UPDATED:
+        return {
+          ...state,
+          zoomIncrement: payload.zoomIncrement,
+          wmovrIncrement: payload.wmovrIncrement,
         };
       default:
         throw new Error(`Unhandled action type: ${type}`);

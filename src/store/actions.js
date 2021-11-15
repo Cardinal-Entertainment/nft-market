@@ -4,6 +4,7 @@ export const ActionTypes = {
   CONTRACTS_LOADED: "CONTRACTS_LOADED",
   NEW_BID_EVENT: "NEW_BID_EVENT",
   RESET_NOTIFICATIONS: "RESET_NOTIFICATIONS",
+  MIN_INCREMENT_UPDATED: "MIN_INCREMENT_UPDATED"
 };
 
 const Actions = {
@@ -34,6 +35,12 @@ const Actions = {
   resetNotifications( payload ) {
     return {
       type: ActionTypes.RESET_NOTIFICATIONS,
+      payload,
+    };
+  },
+  minIncrementUpdated( payload ) {
+    return {
+      type: ActionTypes.MIN_INCREMENT_UPDATED,
       payload,
     };
   }

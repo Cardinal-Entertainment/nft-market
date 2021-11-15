@@ -83,7 +83,7 @@ const useBlockchain = () => {
 
   const handleChainChanged = (chainId) => {};
 
-  const loadContracts = (signer, chainId) => {
+  const loadContracts = async (signer, chainId) => {
     const ZoombiesContract = new ethers.Contract(
       zoombies_json.networks[chainId].address,
       zoombies_json.abi,
@@ -107,6 +107,14 @@ const useBlockchain = () => {
       wrapped_movr_json.abi,
       signer
     );
+
+    const zoomIncrement = await MarketContract.tokenMinIncrement(zoomContractAddress)
+    const wmovrIncrement = await MarketContract.tokenMinIncrement(wmovrContractAddress)
+
+    dispatch(Actions.minIncrementUpdated({
+      zoomIncrement: ethers.utils.formatEther(zoomIncrement),
+      wmovrIncrement: ethers.utils.formatEther(wmovrIncrement)
+    }))
 
     ZoomContract.provider.on('block', async () => {
       const address = await signer.getAddress();
@@ -271,9 +279,9 @@ const useBlockchain = () => {
         })
       });
 
-      const { ZoombiesContract } = loadContracts(signer, network.chainId);
+      const { ZoombiesContract } = await loadContracts(signer, network.chainId);
 
-      approveContract(address, ZoombiesContract);
+      await approveContract(address, ZoombiesContract);
     } else {
       // No metamask detected.
       return;

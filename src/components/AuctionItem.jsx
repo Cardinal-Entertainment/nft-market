@@ -26,7 +26,7 @@ const Container = styled('div')({
   flex: 'none',
   alignSelf: 'stretch',
   flexGrow: 0,
-  margin: '12px 0px',
+  margin: '24px 0px',
   // height: '296px',
 
   '& .meta-header-cards-tip': {
@@ -167,7 +167,9 @@ const MetaContentButtonSection = styled('div')({
   '& .button-bid': {
     marginBottom: '2px',
     backgroundColor: '#D400BD',
-    width: '100%'
+    width: '100%',
+    padding: '6px 8px',
+
   },
 
   '& .button-more-info': {
@@ -196,11 +198,10 @@ const AuctionItem = ({
 }) => {
 
   const {
-    state: { contracts, wallet  },
+    state: { contracts, wallet, zoomIncrement, wmovrIncrement  },
   } = useContext(store);
   const history = useHistory();
   const [cardPageNo, setCardPageNo] = useState(1);
-  const [minIncrement, setMinIncrement] = useState("");
   const [favorite, setFavorite] = useState(false)
   const [remainingTime, setRemainingTime] = useState("")
   const [offers, setOffers] = useState([]);
@@ -212,6 +213,7 @@ const AuctionItem = ({
   const auctionItem = content
   const { itemNumber, highestBid } = auctionItem
   const coinType = auctionItem.saleToken === zoomContractAddress ? 'ZOOM' : (auctionItem.saleToken === wmovrContractAddress ?'WMOVR' : '' )
+  const minIncrement = auctionItem.saleToken === zoomContractAddress ? zoomIncrement : (auctionItem.saleToken === wmovrContractAddress ? wmovrIncrement : 0)
 
   const getOffers = async () => {
     const offers = await fetchOffers(
@@ -222,7 +224,6 @@ const AuctionItem = ({
 
   useEffect( () => {
     getOffers(content.itemNumber)
-    getMinIncrement()
     let interval = null
     interval = setInterval(() => {
       updateRemainingTime()
@@ -248,10 +249,6 @@ const AuctionItem = ({
     }
   }
 
-  const getMinIncrement = async  () => {
-    const increment = await contracts.MarketContract.tokenMinIncrement(auctionItem.saleToken)
-    setMinIncrement(ethers.utils.formatEther(increment))
-  }
 
   const onClickBid = () => {
 

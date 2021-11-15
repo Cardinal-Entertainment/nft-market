@@ -1,16 +1,17 @@
-import React, { useContext, useEffect, useState} from "react";
+import React, {useContext, useEffect, useRef, useState} from "react";
 import { store } from "store/store";
 import styled from "styled-components";
-import {getAuctionListings} from "utils/auction";
 import Chip from "@mui/material/Chip";
 import moment from "moment";
 import {useHistory} from "react-router-dom";
 import Filterbar from "../components/Filterbar";
-import AuctionsListView from "../components/AuctionsListView";
-import {CircularProgress, Modal} from "@mui/material";
 import { getCardSummary } from "utils/cardsUtil";
 import { getStatus } from "utils/listingUtil";
-
+import {marketContractAddress, zoombiesContractAddress} from "../constants";
+import InfiniteScroll from "react-infinite-scroller";
+import {CircularProgress, Modal} from "@mui/material";
+import AuctionItem from "../components/AuctionItem";
+import {useFetchListingQuery} from "../hooks/useListing";
 
 const Container = styled.div`
   flex: auto;
@@ -57,35 +58,40 @@ const ModalContent = styled.div`
   }
 `;
 
-const Listing = styled.div`
-  display: flex;
-  align-items: center;
-  background: white;
-  padding: 5px 10px;
-  margin: 5px 0;
-  border-radius: 8px;
-`;
-
 const Home = () => {
-  const history = useHistory();
-  const [listings, setListings] = useState([]);
+  const history = useHistory()
+  const [listings, setListings] = useState([])
   const [filters, setFilters] = useState({
     cardType: '', // 'Shop' or 'Booster'
     rarity: '', // 'epic', 'rare', 'uncommon', 'common'
     token: '', // the token's contract address
-    keyword: '' // search keyword
+    keyword: '', // search keyword,
+    sortField: '' //sort by key
   });
   const [sortBy, setSortBy] = useState({
     field: '', //attribute name of an auction
     order: 1 // 1 : ascending, -1 : descending
   })
-  const [loading, setLoading] = useState(false);
-
+  const [loading, setLoading] = useState(false)
+  const [totalCount, setTotalCount] = useState(0)
 
   const {
     state: { contracts },
   } = useContext(store);
 
+  const loadingCallback = ( totalCount ) => {
+    setLoading(false)
+    setTotalCount(totalCount)
+  }
+
+  const {
+    data,
+    isLoading,
+    isError,
+    hasNextPage,
+    fetchNextPage,
+    remove
+  } = useFetchListingQuery(filters, loadingCallback)
 
   const columns = [
     {
@@ -148,45 +154,30 @@ const Home = () => {
     },
   ];
 
-  const loadListings = async () => {
-
+  const handleFilterChanged = async (params) => {
     setLoading(true)
-    const auctionListings = await getAuctionListings(
-      contracts.MarketContract,
-      contracts.ZoombiesContract,
-      filters,
-      sortBy
-    );
-    setListings(auctionListings.map((listing) => ({
-      ...listing,
-      id: listing._id
-    })));
-    setLoading(false)
-  };
-
-
-
-  const handleRowClick = ({row}) => {
-    history.push(`/listing/${row.itemNumber}`);
-  };
-
-  const handleFilterChanged = (params) => {
     setFilters({ ...filters, ...params })
+    remove()
   }
 
   const handleSortByChanged = (attribute) => {
-    setSortBy({ ...sortBy, ...attribute })
+    // setSortBy({ ...sortBy, ...attribute })
+    setLoading(true)
+    setFilters({ ...filters, ...{
+      sortField: attribute.field
+    }})
+    remove()
   }
 
   useEffect(() => {
     if (contracts.MarketContract) {
-      loadListings();
+      // loadListings();
     }
   }, [contracts.MarketContract, filters, sortBy]);
 
   return (
     <Container>
-      <Filterbar onFilterChanged={handleFilterChanged} filters={filters} onSortByChanged={handleSortByChanged} sortBy={sortBy} totalCount={listings.length}/>
+      <Filterbar onFilterChanged={handleFilterChanged} filters={filters} onSortByChanged={handleSortByChanged} sortBy={sortBy} totalCount={totalCount}/>
       {/*<DataGrid*/}
       {/*    className="table"*/}
       {/*    rows={listings.filter(auction => filterCondition(auction)).sort(compareFunc)}*/}
@@ -196,7 +187,20 @@ const Home = () => {
       {/*    onRowClick={handleRowClick}*/}
       {/*    autoHeight={true}*/}
       {/*/>*/}
-      <AuctionsListView auctions={listings}/>
+      {/*{*/}
+
+      <div style={{display: 'flex', flexDirection:'column', overflowY: 'auto'}}>
+        {!isLoading && (
+            <InfiniteScroll hasMore={hasNextPage} loadMore={fetchNextPage} useWindow={false}>
+              {data.pages.map((page, index) =>
+                page.data.map(auction =>
+                <AuctionItem content={auction} key={auction._id}/>
+                )
+              )}
+            </InfiniteScroll>
+        )}
+
+
       <Modal
         open={loading}
       >
@@ -205,6 +209,7 @@ const Home = () => {
           <CircularProgress />
         </ModalContent>
       </Modal>
+      </div>
     </Container>
   );
 };
