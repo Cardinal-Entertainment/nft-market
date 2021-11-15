@@ -7,6 +7,7 @@ import Chip from "@mui/material/Chip";
 import moment from "moment";
 import {useHistory} from "react-router-dom";
 import Filterbar from "../components/Filterbar";
+import PubSub from 'pubsub-js'
 
 const Container = styled.div`
   flex: 1;
@@ -54,8 +55,6 @@ const Home = () => {
     field: '', //attribute name of an auction
     order: 1 // 1 : ascending, -1 : descending
   })
-
-
   const {
     state: { wallet, contracts },
   } = useContext(store);
@@ -161,6 +160,14 @@ const Home = () => {
       id: listing._id
     })));
   };
+
+  useEffect(() => {
+    const token = PubSub.subscribe("LISTING_EVENT", (msg, data) => {
+      loadListings()
+    })
+
+    return () => PubSub.unsubscribe(token);
+  }, [])
 
   const getCardSummary = (cards) => {
     if (!cards) {

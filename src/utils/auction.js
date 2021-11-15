@@ -82,7 +82,7 @@ export const getAuctionListings = async (marketContract, zoombiesContract, filte
   const listings = await axios.get(`https://api.zoombies.world/listings?${params.toString()}`)
   // const listings = await axios.get(`http://localhost:3001/listings?${params.toString()}`)
 
-  return listings.data.map(listing => ({
+  return listings.data.listings.map(listing => ({
     ...listing,
     currency: getTokenSymbol(listing.saleToken)
   }))
