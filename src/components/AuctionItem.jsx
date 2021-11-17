@@ -4,7 +4,7 @@ import { faHeart, faClock } from "@fortawesome/free-regular-svg-icons";
 import { faHeart as faHeartSolid, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import movrLogo from "../assets/movr_logo.png";
 import zoomCoin from "../assets/zoombies_coin.svg";
-import {Button, CircularProgress, styled} from "@mui/material";
+import {Button, CircularProgress, Modal, styled} from "@mui/material";
 import {cardImageBaseURL, marketContractAddress, wmovrContractAddress, zoomContractAddress} from "../constants";
 import { useTheme } from "styled-components";
 import moment from "moment";
@@ -41,6 +41,24 @@ const Container = styled('div')({
   },
 });
 
+const ModalContent = styled('div')({
+  position: 'absolute',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: '20px',
+  background: 'white',
+  borderRadius: '8px',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  
+  '& > *': {
+    margin: '5px 0'
+  }
+})
+ 
 const MetaDiv = styled('div')({
   backgroundColor: 'white',
   display: 'flex',
@@ -255,7 +273,7 @@ const AuctionItem = ({
   }
 
   const handleConfirmBid = async (amount) => {
-    const { currency, id } = auctionItem;
+    const { currency, itemNumber } = auctionItem;
     let currencyContract;
 
     if (parseFloat(amount) <= auctionItem?.highestBid || parseFloat(amount) <= auctionItem?.minPrice) {
@@ -284,7 +302,7 @@ const AuctionItem = ({
     setApprovalModalOpen(false);
     setBidInProgress(true);
     const bidTx = await contracts.MarketContract.bid(
-      parseInt(id),
+      parseInt(itemNumber),
       weiAmount
     );
     await bidTx.wait();
@@ -402,6 +420,16 @@ const AuctionItem = ({
         </CardsContainer>
         {/*{auctionItem.cards && <Pagination count={Math.ceil(auctionItem.cards.length / 20)} className={"pagination-bar"} variant="outlined" shape="rounded" onChange={handleCardsTablePageChanged}/>}*/}
       </DetailCardsDiv>
+
+      <Modal
+        open={approvalModalOpen}
+        onClose={() => setApprovalModalOpen(false)}
+      >
+        <ModalContent>
+          <div>Please wait for the Approval to complete.</div>
+          <CircularProgress />
+        </ModalContent>
+      </Modal>
 
     </Container>
   );
