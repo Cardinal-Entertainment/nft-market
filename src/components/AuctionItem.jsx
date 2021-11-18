@@ -276,7 +276,7 @@ const AuctionItem = ({
     const { currency, itemNumber } = auctionItem;
     let currencyContract;
 
-    if (parseFloat(amount) <= auctionItem?.highestBid || parseFloat(amount) <= auctionItem?.minPrice) {
+    if (parseFloat(amount) < Math.max(auctionItem?.highestBid + parseFloat(minIncrement), auctionItem?.minAmount + parseFloat(minIncrement))) {
       throw new Error(`Invalid amount valid : ${amount}`);
     }
 
@@ -291,7 +291,7 @@ const AuctionItem = ({
         throw new Error(`Unhandled currency type: ${currency}`);
     }
 
-    const weiAmount = ethers.utils.parseEther(amount);
+    const weiAmount = ethers.utils.parseEther(amount.toString());
 
     const approveTx = await currencyContract.approve(
       marketContractAddress,
@@ -388,13 +388,9 @@ const AuctionItem = ({
             </MetaContentTip>
           </MetaContentRow>
           <MetaContentButtonSection>
-            {/*<Button className={"button-bid"} onClick={onClickBid}>Quick Bid {"(" + (*/}
-            {/*  auctionItem.highestBid > 0 ?*/}
-            {/*    Math.round(parseFloat(auctionItem.highestBid) * 10000) / 10000 :*/}
-            {/*    Math.round((parseFloat(auctionItem.minPrice) + parseFloat(minIncrement)) * 10000) / 10000) + " " + coinType + ")"}</Button>*/}
             <OfferDialog
               currency={coinType}
-              minAmount={parseFloat(auctionItem.highestBid) > (parseFloat(auctionItem.minPrice) + parseFloat(minIncrement)) ? parseFloat(auctionItem.highestBid) : (parseFloat(auctionItem.minPrice)  + parseFloat(minIncrement))}
+              minAmount={Math.max(parseFloat(auctionItem.highestBid), parseFloat(auctionItem.minPrice)) + parseFloat(minIncrement)}
               maxAmount={coinType === 'ZOOM' ? parseFloat(wallet.zoomBalance) : parseFloat(wallet.wmovrBalance)}
               onConfirm={handleConfirmBid}
               disabled={moment().isAfter(moment.unix(auctionItem.auctionEnd))}
