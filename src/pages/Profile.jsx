@@ -47,6 +47,7 @@ const UserProfileWrapper = styled.div`
   display: flex;
   margin-top: 24px;
   flex-direction: column;
+  overflow-y: auto;
 
   .user-bid-wrapper,
   .user-listing-wrapper {
