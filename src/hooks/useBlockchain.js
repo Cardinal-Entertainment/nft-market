@@ -236,11 +236,12 @@ const useBlockchain = () => {
     });
 
     if (metamaskProvider) {
+      await metamaskProvider.enable();
+
       await metamaskProvider.request({
         method: "wallet_addEthereumChain",
         params: [ethChainParam],
       });
-      await metamaskProvider.enable();
 
       const provider = new ethers.providers.Web3Provider(metamaskProvider);
 
