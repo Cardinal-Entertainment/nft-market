@@ -1,17 +1,32 @@
-#!/usr/bin/env node
-
-const { ethers } = require("ethers")
-const {
+import PubSub from 'pubsub-js'
+import {
   marketContract,
   marketContractAddress,
   marketContractJSON,
-} = require("./utils/contracts")
-const { watchEvents } = require("./utils/watcherUtil")
-const moment = require("moment")
-const { getAndStoreCards } = require("./utils/cardUtil")
-const { persistEvent } = require('./scraper')
-
+} from "./contract"
+import { ethers } from "ethers"
+import moment from "moment"
 const marketInterface = new ethers.utils.Interface(marketContractJSON.abi)
+
+async function watchEvents(
+  filterString,
+  contractAddress,
+  contract,
+  eventCallback
+) {
+  try {
+    const eventFilter = {
+      address: contractAddress,
+      topics: [ethers.utils.id(filterString)],
+    };
+
+    contract.provider.on(eventFilter, (log) => {
+      eventCallback(log);
+    });
+  } catch (err) {
+    console.error("ERROR:", err);
+  }
+}
 
 const eventsToScrape = {
   marketEvents: {
@@ -46,10 +61,10 @@ async function bidEventCallback(
     itemNumber: args[0].toNumber(),
     bidAmount: Number(ethers.utils.formatEther(args[1].toString())),
     bidder: args[2],
-    timestamp: moment().unix(), //get block timestamp
+    timestamp: moment().unix(),
   }
 
-  // refetch List Item
+  PubSub.publish('BID_EVENT', bidEvent)
 }
 
 async function itemListedCallback(
@@ -58,7 +73,7 @@ async function itemListedCallback(
   dbClient,
   uniqueIdentifiers
 ) {
-  // refetch all listings
+  PubSub.publish('LISTING_EVENT')
 }
 
 async function watchMarketEvents(dbClient) {
@@ -81,6 +96,4 @@ async function watchMarketEvents(dbClient) {
   }
 }
 
-module.exports = {
-  watchMarketEvents,
-}
+export default watchMarketEvents

@@ -5,6 +5,7 @@ import Chip from "@mui/material/Chip";
 import moment from "moment";
 import {useHistory} from "react-router-dom";
 import Filterbar from "../components/Filterbar";
+import PubSub from 'pubsub-js'
 import { getCardSummary } from "utils/cardsUtil";
 import { getStatus } from "utils/listingUtil";
 import {marketContractAddress, zoombiesContractAddress} from "../constants";
@@ -12,6 +13,7 @@ import InfiniteScroll from "react-infinite-scroller";
 import {CircularProgress, Modal} from "@mui/material";
 import AuctionItem from "../components/AuctionItem";
 import {useFetchListingQuery} from "../hooks/useListing";
+import { useQueryClient } from 'react-query'
 
 const Container = styled.div`
   flex: auto;
@@ -92,6 +94,7 @@ const Home = () => {
     fetchNextPage,
     remove
   } = useFetchListingQuery(filters, loadingCallback)
+  const queryClient = useQueryClient()
 
   const columns = [
     {
@@ -168,26 +171,18 @@ const Home = () => {
     }})
     remove()
   }
-
+  
   useEffect(() => {
-    if (contracts.MarketContract) {
-      // loadListings();
-    }
-  }, [contracts.MarketContract, filters, sortBy]);
+    const token = PubSub.subscribe("LISTING_EVENT", (msg, data) => {
+      queryClient.invalidateQueries('listings')
+    })
+
+    return () => PubSub.unsubscribe(token);
+  }, [])
 
   return (
     <Container>
       <Filterbar onFilterChanged={handleFilterChanged} filters={filters} onSortByChanged={handleSortByChanged} sortBy={sortBy} totalCount={totalCount}/>
-      {/*<DataGrid*/}
-      {/*    className="table"*/}
-      {/*    rows={listings.filter(auction => filterCondition(auction)).sort(compareFunc)}*/}
-      {/*    columns={columns}*/}
-      {/*    pageSize={20}*/}
-      {/*    rowsPerPageOptions={[10, 20, 50, 100]}*/}
-      {/*    onRowClick={handleRowClick}*/}
-      {/*    autoHeight={true}*/}
-      {/*/>*/}
-      {/*{*/}
 
       <div style={{display: 'flex', flexDirection:'column', overflowY: 'auto'}}>
         {!isLoading && (

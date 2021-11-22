@@ -3,7 +3,7 @@ import DialogSource from "@mui/material/Dialog";
 import useBlockchain from "./hooks/useBlockchain";
 import zoombiesLogo from "./assets/zoombies_head.svg";
 import liveFeedIcon from './assets/live-feed.png';
-import React, {useContext} from "react";
+import React, { useContext, useEffect } from "react";
 import Navbar from "components/Navbar";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Home from "pages/Home";
@@ -14,6 +14,7 @@ import Slide from "@mui/material/Slide";
 import LiveFeedsSlide from "./components/LiveFeedsSlide";
 import {store} from "./store/store";
 import Actions from "./store/actions";
+import setupWatcher from './utils/setupWatcher'
 
 import HelpPage from "./pages/Help";
 import Profile from 'pages/Profile';
@@ -114,6 +115,9 @@ const App = () => {
   const [checked, setChecked] = React.useState(false);
   const { dispatch, state } = useContext(store);
 
+  useEffect(() => {
+    setupWatcher()
+  }, [])
 
   const showSlider = () => {
     if (checked) {

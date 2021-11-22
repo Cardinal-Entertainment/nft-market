@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import Button from "@mui/material/Button";
+import PubSub from 'pubsub-js'
 import styled from "styled-components/macro";
 import { store } from "store/store";
 import { useHistory, useParams } from "react-router-dom";
@@ -233,9 +234,13 @@ const ViewListing = () => {
   }, [contracts.MarketContract, contracts.ZoombiesContract, contracts.WMOVRContract, contracts.ZoomContract, auctionId]);
 
   useEffect(() => {
-    if (auctionId) {
-      getOffers(auctionId)
-    }
+    const token = PubSub.subscribe("BID_EVENT", (msg, data) => {
+      if (auctionId) {
+        getOffers(auctionId)
+      }
+    })
+
+    return () => PubSub.unsubscribe(token);
   }, [auctionId])
 
   const now = moment().unix();
