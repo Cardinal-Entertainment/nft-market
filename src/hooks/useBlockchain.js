@@ -236,6 +236,8 @@ const useBlockchain = () => {
     });
 
     if (metamaskProvider) {
+      await metamaskProvider.enable();
+
       await metamaskProvider.request({
         method: "wallet_addEthereumChain",
         params: [ethChainParam],
