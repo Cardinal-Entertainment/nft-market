@@ -140,12 +140,17 @@ const App = () => {
       dispatch (Actions.resetNotifications(false))
     }
     setChecked(!checked)
-    setShowMenu(false)
+    if (!isDesktop) {
+      setShowMenu(false)
+    }
   };
 
   const hideNavbar = () => {
-    setShowMenu(false)
-    setChecked(false)
+
+    if (!isDesktop) {
+      setShowMenu(false)
+      setChecked(false)
+    }
   }
 
   useEffect(() => {
