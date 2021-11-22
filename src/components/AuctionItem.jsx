@@ -290,8 +290,7 @@ const AuctionItem = ({
       default:
         throw new Error(`Unhandled currency type: ${currency}`);
     }
-
-    console.log("BID AMOUNT = ", amount)
+    
     const weiAmount = ethers.utils.parseEther(amount.toString());
 
     const approveTx = await currencyContract.approve(
