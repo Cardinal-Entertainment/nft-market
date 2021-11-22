@@ -140,7 +140,9 @@ const App = () => {
       dispatch (Actions.resetNotifications(false))
     }
     setChecked(!checked)
-    setShowMenu(false)
+    if (!isDesktop) {
+      setShowMenu(false)
+    }
   };
 
   const hideNavbar = () => {
