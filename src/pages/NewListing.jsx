@@ -25,7 +25,7 @@ const Container = styled.div`
     margin-top: 0;
     margin-bottom: 10px;
     color: white;
-  }
+  },
 `;
 
 const FlexRow = styled.div`
@@ -107,7 +107,7 @@ const NFTContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(calc(0.55 * 260px), 1fr));
   place-items: center;
-  min-width: 600px;
+  //min-width: 600px;
 
   max-height: 550px;
   overflow-y: auto;

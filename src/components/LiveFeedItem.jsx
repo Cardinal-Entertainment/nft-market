@@ -28,7 +28,7 @@ const Container = styled('div')({
   border: '1px solid rgb(30, 73, 118)',
   overflow: 'hidden',
   padding: '8px',
-  height: '120px',
+  minHeight: '120px',
 });
 
 const ImgEvent = styled('div')({

@@ -1,4 +1,3 @@
-import styled from "styled-components";
 import DialogSource from "@mui/material/Dialog";
 import useBlockchain from "./hooks/useBlockchain";
 import zoombiesLogo from "./assets/zoombies_head.svg";
@@ -15,96 +14,116 @@ import LiveFeedsSlide from "./components/LiveFeedsSlide";
 import {store} from "./store/store";
 import Actions from "./store/actions";
 import setupWatcher from './utils/setupWatcher'
+import { styled, useMediaQuery } from '@mui/material';
+import {faBars, faTimes} from "@fortawesome/free-solid-svg-icons";
 
 import HelpPage from "./pages/Help";
 import Profile from 'pages/Profile';
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import NotificationAddon from "./components/NotificationAddon";
 
-const Container = styled.div`
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-`;
+const Container = styled('div')({
+  height: '100vh',
+  display: 'flex',
+  flexDirection: 'column',
+  overflow: 'hidden'
+})
 
-const Dialog = styled(DialogSource)`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  max-width: 500px;
-`;
+const Dialog = styled(DialogSource)({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  maxWidth: '500px'
+})
 
-const Logo = styled.img`
-  width: 40px;
-  height: 40px;
-`;
+const Logo = styled('img')({
+  width: '40px',
+  height: '40px'
+})
 
-const Header = styled.div`
-  height: 75px;
-  background: #301748;
-  display: flex;
-  align-items: center;
+const Header = styled('div')({
+  height: '75px',
+  background: '#301748',
+  display: 'flex',
+  alignItems: 'center',
 
-  font-weight: 500;
-  font-size: 16px;
-  color: white;
+  fontWeight: '500',
+  fontSize: '16px',
+  color: 'white',
 
-  img {
-    width: 60px;
-    margin: 0 10px;
+  '& img': {
+    width: '60px',
+    margin: '0 10px'
+  },
+
+  '& .btn-livefeed': {
+    width: '48px',
+    height: '48px',
+    marginLeft: 'auto',
+    marginRight: '32px'
   }
-  
-  .btn-livefeed {
-    width: 48px;
-    height: 48px;
-    margin-left: auto;
-    margin-right: 32px;
-  }
-   
-`;
+})
 
-const Footer = styled.div`
-  height: 0px;
-`;
+const Footer = styled('div')({
+  height: '0px'
+})
 
-const Body = styled.div`
-  flex: 1;
-  display: flex;
-  min-height: 0;
-  background: linear-gradient(110.99deg, #000033 0%, #100238 100%)
-`;
+const Body = styled('div')({
+  flex: 1,
+  display: 'flex',
+  minHeight: 0,
+  background: 'linear-gradient(110.99deg, #000033 0%, #100238 100%)',
+  position: 'relative'
+})
 
-const Content = styled.div`
-  flex: 1;
-  min-width: 0;
-  
-  padding: 16px 8px 16px 16px;
-  display: flex;
-  background: linear-gradient(110.99deg, #000033 0%, #100238 100%);
-`;
+const Content = styled('div')(({ theme }) => ({
+  flex: 1,
+  minWidth: 0,
 
-const NotificationButton = styled.div`
-  position: relative;
-  display: flex;
-  flex: auto;
-`;
+  padding: '16px 8px 16px 16px',
+  display: 'flex',
+  background: 'linear-gradient(110.99deg, #000033 0%, #100238 100%)',
 
-const ButtonAddon = styled.div`
-  position: absolute;
-  top: 0;
-  right: 8px;
-  
-  padding: 0 4px;
-  height: 24px;
-  min-width: 16px;
-  color: white;
-  background-color: #f00;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-`;
+  [theme.breakpoints.down('md')]: {
+    padding: '8px',
+  },
+}))
 
+const NotificationButton = styled('div')(({ theme }) => ({
+  display: 'none',
+  [theme.breakpoints.up('lg')]: {
+    position: 'relative',
+    display: 'flex',
+    flex: 'auto'
+  },
+}))
+
+const HamburgerMenuButton = styled('div')(({ theme }) => ({
+  position: 'relative',
+  display: 'flex',
+  flex: 'auto',
+  justifyContent: 'flex-end',
+  padding: '16px',
+  [theme.breakpoints.up('lg')]: {
+    display: 'none',
+  },
+}))
+
+const NavbarContainer = styled('div')(({ theme }) => ({
+
+  position: 'absolute',
+  left: 0,
+  display: 'flex',
+  zIndex: 2,
+  height: '100%',
+
+  [theme.breakpoints.up('lg')]: {
+    display: 'flex',
+    position: 'relative',
+    left: 'unset',
+    zIndex: 1,
+  },
+}))
 
 const App = () => {
   const {
@@ -113,36 +132,59 @@ const App = () => {
   } = useBlockchain();
 
   const [checked, setChecked] = React.useState(false);
+  const [showMenu, setShowMenu] = React.useState(false);
   const { dispatch, state } = useContext(store);
 
   useEffect(() => {
     setupWatcher()
   }, [])
 
+  const isDesktop = useMediaQuery('(min-width:1024px)');
+
   const showSlider = () => {
     if (checked) {
       dispatch (Actions.resetNotifications(false))
     }
     setChecked(!checked)
+    setShowMenu(false)
   };
+
+  const hideNavbar = () => {
+    setShowMenu(false)
+    setChecked(false)
+  }
+
+  useEffect(() => {
+    setShowMenu(isDesktop)
+  }, [ isDesktop ]);
+
+  const toggleMenu = () => {
+    setShowMenu(!showMenu)
+  }
 
   const NotificationButtonComponent = () => {
     return (
       <NotificationButton>
         <Button onClick={showSlider} className={'btn-livefeed'}><img src={liveFeedIcon} alt={"Live Feed"}/>
-          {
-            state.newEventsCount > 0 && (
-              <ButtonAddon>
-                {
-                  state.newEventsCount >= 100 ? '99+' : state.newEventsCount
-                }
-              </ButtonAddon>
-            )
-          }
+        <NotificationAddon clickAction={showSlider}/>
         </Button>
       </NotificationButton>
     )
   }
+
+  const ToggleMenu = () => {
+    return (
+      <HamburgerMenuButton>
+        {
+          showMenu ?
+            <FontAwesomeIcon icon={faTimes} size="lg" onClick={toggleMenu}/> :
+            <FontAwesomeIcon icon={faBars} size="lg" onClick={toggleMenu}/>
+        }
+        <NotificationAddon clickAction={toggleMenu}/>
+      </HamburgerMenuButton>
+    )
+  }
+
   return (
     <Container>
       <Router>
@@ -150,10 +192,19 @@ const App = () => {
           <img src={zoombiesLogo} alt={"ZOOM"}/>
           <h1>Zoombies Market</h1>
           <NotificationButtonComponent/>
+          <ToggleMenu/>
         </Header>
         <Body>
+          {
+            showMenu && (
+              <Slide direction="right" in={showMenu} mountOnEnter unmountOnExit>
+                <NavbarContainer>
+                  <Navbar toggleLiveFeeds={showSlider} hideNavbar={hideNavbar}/>
+                </NavbarContainer>
+              </Slide>
+            )
+          }
 
-          <Navbar />
           <Content>
             <Switch>
               <Route path="/new" component={NewListing} />
@@ -165,7 +216,7 @@ const App = () => {
           </Content>
           { checked && (
             <Slide direction="left" in={checked} mountOnEnter unmountOnExit>
-              <LiveFeedsSlide/>
+              <LiveFeedsSlide hideLiveFeeds={() => setChecked(false)}/>
             </Slide>) }
         </Body>
         <Footer />

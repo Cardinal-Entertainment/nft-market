@@ -1,37 +1,51 @@
 import * as React from 'react';
 import {forwardRef, useContext } from "react";
 import LiveFeedItem from "./LiveFeedItem";
-import { styled} from '@mui/material';
+import { styled } from '@mui/material';
 import Button from "@mui/material/Button";
 import { TransitionGroup } from 'react-transition-group';
 import Collapse from '@mui/material/Collapse';
 import {store} from "../store/store";
 import Actions from "../store/actions";
 
-const Container = styled('div')({
+const Container = styled('div')(({ theme }) => ({
   margin: '16px 16px 16px 0',
+  zIndex: 1,
   padding: '16px',
   width: '392px',
   overflowY: 'auto',
   border: '1px solid #FFFFFF',
-  background: 'linear-gradient(110.99deg, #000033 100%, #100238 100%)'
-});
+  background: 'linear-gradient(110.99deg, #000033 100%, #100238 100%)',
+
+  [theme.breakpoints.down('md')]: {
+    margin: '0 0 0 -12px',
+  },
+}))
 
 const FlexDiv = styled('div')({
-  display: 'flex'
+  display: 'flex',
+  justifyContent: 'flex-end'
 });
 
 const ClearButton = styled(Button)({
-  marginLeft: 'auto',
-  marginRight: '0',
   fontWeight: 'bold',
   color: 'white'
 })
 
+const CloseButton = styled(Button)(({ theme }) => ({
+  display: 'none',
+  fontWeight: 'bold',
+  color: 'white',
+
+  [theme.breakpoints.down('md')]: {
+    display: 'flex'
+  },
+}))
 
 const LiveFeedsSlide = (props, ref  ) => {
 
   const { dispatch, state } = useContext(store);
+  const { hideLiveFeeds } = props
 
   const clearAll = () => {
     dispatch(Actions.resetNotifications(true))
@@ -55,10 +69,13 @@ const LiveFeedsSlide = (props, ref  ) => {
 
   return (
     <Container ref={ref} {...props}>
-      <FlexDiv style={{display: 'flex'}}>
+      <FlexDiv>
         <ClearButton onClick={clearAll}>
           Clear All
         </ClearButton>
+        <CloseButton onClick={hideLiveFeeds}>
+          Close
+        </CloseButton>
       </FlexDiv>
       {
         state.events && (
