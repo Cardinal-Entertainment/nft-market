@@ -4,7 +4,7 @@ import { faHeart, faClock } from "@fortawesome/free-regular-svg-icons";
 import { faHeart as faHeartSolid, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import movrLogo from "../assets/movr_logo.png";
 import zoomCoin from "../assets/zoombies_coin.svg";
-import {Button, CircularProgress, styled, Grid} from "@mui/material";
+import {Button, CircularProgress, Modal, styled, Grid} from "@mui/material";
 import {cardImageBaseURL, marketContractAddress, wmovrContractAddress, zoomContractAddress} from "../constants";
 import { useTheme } from "styled-components";
 import moment from "moment";
@@ -41,6 +41,24 @@ const Container = styled(Grid)({
   },
 });
 
+const ModalContent = styled('div')({
+  position: 'absolute',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: '20px',
+  background: 'white',
+  borderRadius: '8px',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  
+  '& > *': {
+    margin: '5px 0'
+  }
+})
+ 
 const MetaDiv = styled(Grid)(({ theme }) => ({
   backgroundColor: 'white',
   display: 'flex',
@@ -256,10 +274,10 @@ const AuctionItem = ({
 
 
   const handleConfirmBid = async (amount) => {
-    const { currency, id } = auctionItem;
+    const { currency, itemNumber } = auctionItem;
     let currencyContract;
 
-    if (parseFloat(amount) <= auctionItem?.highestBid || parseFloat(amount) <= auctionItem?.minPrice) {
+    if (parseFloat(amount) < Math.max(auctionItem?.highestBid + parseFloat(minIncrement), auctionItem?.minAmount + parseFloat(minIncrement))) {
       throw new Error(`Invalid amount valid : ${amount}`);
     }
 
@@ -274,7 +292,7 @@ const AuctionItem = ({
         throw new Error(`Unhandled currency type: ${currency}`);
     }
 
-    const weiAmount = ethers.utils.parseEther(amount);
+    const weiAmount = ethers.utils.parseEther(amount.toString());
 
     const approveTx = await currencyContract.approve(
       marketContractAddress,
@@ -285,7 +303,7 @@ const AuctionItem = ({
     setApprovalModalOpen(false);
     setBidInProgress(true);
     const bidTx = await contracts.MarketContract.bid(
-      parseInt(id),
+      parseInt(itemNumber),
       weiAmount
     );
     await bidTx.wait();
@@ -370,13 +388,9 @@ const AuctionItem = ({
             </MetaContentTip>
           </MetaContentRow>
           <MetaContentButtonSection>
-            {/*<Button className={"button-bid"} onClick={onClickBid}>Quick Bid {"(" + (*/}
-            {/*  auctionItem.highestBid > 0 ?*/}
-            {/*    Math.round(parseFloat(auctionItem.highestBid) * 10000) / 10000 :*/}
-            {/*    Math.round((parseFloat(auctionItem.minPrice) + parseFloat(minIncrement)) * 10000) / 10000) + " " + coinType + ")"}</Button>*/}
             <OfferDialog
               currency={coinType}
-              minAmount={parseFloat(auctionItem.highestBid) > (parseFloat(auctionItem.minPrice) + parseFloat(minIncrement)) ? parseFloat(auctionItem.highestBid) : (parseFloat(auctionItem.minPrice)  + parseFloat(minIncrement))}
+              minAmount={Math.max(parseFloat(auctionItem.highestBid), parseFloat(auctionItem.minPrice)) + parseFloat(minIncrement)}
               maxAmount={coinType === 'ZOOM' ? parseFloat(wallet.zoomBalance) : parseFloat(wallet.wmovrBalance)}
               onConfirm={handleConfirmBid}
               disabled={moment().isAfter(moment.unix(auctionItem.auctionEnd))}
@@ -405,6 +419,16 @@ const AuctionItem = ({
         </CardsContainer>
         {/*{auctionItem.cards && <Pagination count={Math.ceil(auctionItem.cards.length / 20)} className={"pagination-bar"} variant="outlined" shape="rounded" onChange={handleCardsTablePageChanged}/>}*/}
       </DetailCardsDiv>
+
+      <Modal
+        open={approvalModalOpen}
+        onClose={() => setApprovalModalOpen(false)}
+      >
+        <ModalContent>
+          <div>Please wait for the Approval to complete.</div>
+          <CircularProgress />
+        </ModalContent>
+      </Modal>
 
     </Container>
   );

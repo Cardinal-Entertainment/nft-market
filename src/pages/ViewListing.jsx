@@ -163,7 +163,7 @@ const ViewListing = () => {
     const { currency, id } = auctionItem;
     let currencyContract;
 
-    if (parseFloat(amount) <= auctionItem?.highestBid || parseFloat(amount) <= auctionItem?.minPrice) {
+    if (parseFloat(amount) < Math.max(auctionItem?.highestBid + parseFloat(minIncrement), auctionItem?.minAmount + parseFloat(minIncrement))) {
       throw new Error(`Invalid amount valid : ${amount}`);
     }
 
@@ -178,7 +178,7 @@ const ViewListing = () => {
         throw new Error(`Unhandled currency type: ${currency}`);
     }
 
-    const weiAmount = ethers.utils.parseEther(amount);
+    const weiAmount = ethers.utils.parseEther(amount.toString());
 
     const approveTx = await currencyContract.approve(
       marketContractAddress,
@@ -293,7 +293,7 @@ const ViewListing = () => {
         {!isOver && (
           <OfferDialog
             currency={auctionItem?.currency}
-            minAmount={parseFloat(auctionItem?.highestBid) > (parseFloat(auctionItem?.minPrice) + parseFloat(minIncrement)) ? parseFloat(auctionItem?.highestBid) : (parseFloat(auctionItem?.minPrice)  + parseFloat(minIncrement))}
+            minAmount={Math.max(parseFloat(auctionItem?.highestBid), parseFloat(auctionItem?.minPrice)) + parseFloat(minIncrement)}
             maxAmount={auctionItem?.currency === 'ZOOM' ? parseFloat(zoomBalance) : parseFloat(WMOVRBalance)}
             onConfirm={handleConfirmBid}
             disabled={bidInProgress}

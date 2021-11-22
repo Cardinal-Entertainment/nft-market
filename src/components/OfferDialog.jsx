@@ -22,7 +22,7 @@ const FlexRow = styled.div`
 const OfferDialog = ({ currency, minAmount, maxAmount, onConfirm, disabled, quickBid }) => {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState(minAmount);
-  const [inputInvalid, setInputInvalid] = useState(false);
+  const [inputInvalid, setInputInvalid] = useState("");
 
   useEffect(() => {
     setInput(minAmount);
@@ -62,10 +62,12 @@ const OfferDialog = ({ currency, minAmount, maxAmount, onConfirm, disabled, quic
   }
 
   const handleConfirm = () => {
-    if (parseFloat(input) <= minAmount || parseFloat(input) > maxAmount) {
-      setInputInvalid(true)
+    if (parseFloat(input) < minAmount) {
+      setInputInvalid("Set bigger amount")
+    } else if (parseFloat(input) > maxAmount) {
+      setInputInvalid("You don't have enough coin")
     } else {
-      setInputInvalid(false)
+      setInputInvalid("")
       onConfirm(input)
       setOpen(false);
     }
@@ -93,8 +95,8 @@ const OfferDialog = ({ currency, minAmount, maxAmount, onConfirm, disabled, quic
               value={currency === 'ZOOM' ? parseInt(input).toString() : parseFloat(input).toFixed(4)}
               onChange={handleAmountChanged}
               onKeyDown={onKeyDown}
-              error={inputInvalid}
-              helperText={inputInvalid && 'Set bigger amount'}
+              error={inputInvalid !== ""}
+              helperText={inputInvalid}
               inputProps={{ step: currency === 'WMOVR' ? 0.0001 : 1}}
             />
             <span>{currency}</span>
