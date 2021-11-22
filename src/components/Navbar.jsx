@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, {forwardRef, useContext, useEffect, useState} from "react";
 import styled, { useTheme } from "styled-components";
 import metamaskLogo from "../assets/metamask-face.png";
 import movrLogo from "../assets/movr_logo.png";
@@ -6,7 +6,7 @@ import zoomCoin from "../assets/zoombies_coin.svg";
 import Tooltip from "@mui/material/Tooltip";
 import { store } from "store/store";
 import { NavLink } from "react-router-dom";
-import {faEdit, faQuestionCircle, faShoppingBag} from "@fortawesome/free-solid-svg-icons";
+import {faBell, faEdit, faQuestionCircle, faShoppingBag} from "@fortawesome/free-solid-svg-icons";
 
 import {
   addAssetToMetamask,
@@ -26,111 +26,125 @@ import Grow from '@mui/material/Grow';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import MenuList from '@mui/material/MenuList';
+import {styled as styled1} from "@mui/material/styles";
+import NotificationAddon from "./NotificationAddon";
 
-const Container = styled.div`
-  width: 300px;
-  background: rgba(11, 11, 11, 0.87);
-  display: flex;
-  flex-direction: column;
-  padding: 8px;
+const Container = styled1('div')({
+  width: '300px',
+  background: 'rgba(11, 11, 11, 0.87)',
+  display: 'flex',
+  flexDirection: 'column',
+  padding: '8px',
+  zIndex: 1,
 
-  & .dropdown-buttons {
-    margin: 10px 0;
+  '& .dropdown-buttons': {
+    margin: '10px 0',
 
-    & .select {
-      color: white;
-      background-color: #1976d2;
+    '& .select': {
+      color: 'white',
+      backgroundColor: '#1976d2',
     }
   }
-`;
+})
 
-const NavItem = styled.div`
-  display: flex;
-  align-items: center;
-  color: ${({ color }) => color};
-  font-size: 18px;
-  height: 50px;
+const NavItemLiveFeeds = styled1('div')(({ theme }) => ({
+  display: 'flex',
+  flex: 'auto',
+  [theme.breakpoints.up('lg')]: {
+    display: 'none',
+  },
+}))
 
-  span {
-    display: flex;
-    align-items: center;
-  }
+const NavItem = styled1('div')(({ color }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  color: color,
 
-  img {
-    width: 50px;
-    margin-right: 17px;
-  }
+  fontSize: '18px',
+  height: '50px',
+  position: 'relative',
 
-  img.zoom {
-    width: 40px;
-    padding: 0 5px;
-  }
+  '& span': {
+    display: 'flex',
+    alignItems: 'center',
+  },
 
-  svg {
-    padding: 0 15px 0 5px;
+  '& img': {
+    width: '50px',
+    marginRight: '17px'
+  },
 
-    &.marketplace {
-      padding-right: 22px;
-      width: 40px;
+  '& img.zoom': {
+    width: '40px',
+    padding: '0 5px',
+  },
+
+  '& svg': {
+    padding: '0 15px 0 5px',
+
+    '&.marketplace': {
+      paddingRight: '22px',
+      width: '40px',
     }
   }
-`;
+}))
 
-const NavigationSection = styled.div`
-  flex: 1;
-  padding: 5px;
-  padding-top: 15px;
+const NavigationSection = styled1('div')({
+  flex: 1,
+  padding: '15px 5px 5px 5px',
 
-  a {
-    text-decoration: none;
+  '& a': {
+    textDecoration: 'none',
+  },
+
+  '& .active-link > div': {
+    backgroundColor: '#4a4a4a',
+    borderRadius: '5px',
+  },
+
+  '& NavItem': {
+    fontSize: '20px',
+  },
+
+  '& NavItem:hover': {
+    color: '#03c1e8',
+    cursor: 'pointer'
   }
+})
 
-  .active-link > div {
-    background-color: #4a4a4a;
-    border-radius: 5px;
-  }
+const UserBalances = styled1('div')({
+  padding: '5px',
+  paddingTop: '10px',
 
-  ${NavItem} {
-    font-size: 20px;
-  }
+  '& div': {
+    justifyContent: 'space-between',
+  },
 
-  ${NavItem}:hover {
-    color: #03c1e8;
-    cursor: pointer;
-  }
-`;
+  borderBottom: '1px solid white',
+})
 
-const UserBalances = styled.div`
-  padding: 5px;
-  padding-top: 10px;
+const TooltipContent = styled1('span')({
+  fontSize: '16px'
+})
 
-  div {
-    justify-content: space-between;
-  }
-  border-bottom: 1px solid white;
-`;
+const ButtonGroupContainer = styled1('div')({
+  margin: '12px',
 
-const TooltipContent = styled.span`
-  font-size: 16px;
-`;
+  '& .popper': {
+    width: '276px',
 
-const ButtonGroupContainer = styled.div`
-  margin: 12px;
-
-  & .popper {
-    width: 276px;
-
-    & .popper-menuitem div {
-      flex: auto;
+    '& .popper-menuitem div': {
+      flex: 'auto'
     }
   }
-`;
+})
 
-const Navbar = () => {
+const Navbar = (props, ref  ) => {
   const theme = useTheme();
   const [zoomBalance, setZoomBalance] = useState('');
   const [WMOVRBalance, setWMOVRBalance] = useState('');
 
+  const { toggleLiveFeeds, hideNavbar } = props
   const { state } = useContext(store);
   const {
     wallet: { address, balance },
@@ -161,6 +175,7 @@ const Navbar = () => {
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
+    hideNavbar()
   };
 
   const handleClose = (event) => {
@@ -219,7 +234,7 @@ const Navbar = () => {
   }, [contracts, address ]);
 
   return (
-    <Container>
+    <Container ref={ref} {...props}>
       <UserBalances>
         <NavItem color={theme.colors.metamaskOrange}>
           <Tooltip
@@ -283,7 +298,7 @@ const Navbar = () => {
           activeClassName="active-link"
           className="page-links"
         >
-          <NavItem color="white">
+          <NavItem color="white" onClick={hideNavbar}>
             <FontAwesomeIcon
               icon={faShoppingBag}
               size="lg"
@@ -298,7 +313,7 @@ const Navbar = () => {
           className="page-links"
           to="/new"
         >
-          <NavItem color="white">
+          <NavItem color="white" onClick={hideNavbar}>
             <FontAwesomeIcon className="marketplace" icon={faEdit} size="lg" />
             New Listing
           </NavItem>
@@ -311,7 +326,7 @@ const Navbar = () => {
               className="page-links"
               to="/profile"
             >
-              <NavItem color="white">
+              <NavItem color="white" onClick={hideNavbar}>
                 <Tooltip
                   title={<TooltipContent>{address}</TooltipContent>}
                   arrow
@@ -330,7 +345,7 @@ const Navbar = () => {
               className="page-links"
               to="/archives"
             >
-              <NavItem color="white">
+              <NavItem color="white" onClick={hideNavbar}>
                 <Tooltip
                   title={<TooltipContent>{address}</TooltipContent>}
                   arrow
@@ -348,13 +363,21 @@ const Navbar = () => {
       </NavigationSection>
       <ButtonGroupContainer>
 
+        <NavItemLiveFeeds>
+            <NavItem color="white" style={{flex: 'auto'}} onClick={toggleLiveFeeds}>
+              <FontAwesomeIcon className="marketplace" icon={faBell} size="lg" />
+              <NotificationAddon clickAction={toggleLiveFeeds}/>
+              Live Feeds
+            </NavItem>
+        </NavItemLiveFeeds>
+
         <NavLink
           exact
           activeClassName="active-link"
           className="page-links"
           to="/help"
         >
-          <NavItem color="white">
+          <NavItem color="white" onClick={hideNavbar}>
             <FontAwesomeIcon className="marketplace" icon={faQuestionCircle} size="lg" />
             Help
           </NavItem>
@@ -447,4 +470,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default forwardRef(Navbar);

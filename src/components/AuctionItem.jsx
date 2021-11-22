@@ -4,7 +4,7 @@ import { faHeart, faClock } from "@fortawesome/free-regular-svg-icons";
 import { faHeart as faHeartSolid, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import movrLogo from "../assets/movr_logo.png";
 import zoomCoin from "../assets/zoombies_coin.svg";
-import {Button, CircularProgress, Modal, styled} from "@mui/material";
+import {Button, CircularProgress, Modal, styled, Grid} from "@mui/material";
 import {cardImageBaseURL, marketContractAddress, wmovrContractAddress, zoomContractAddress} from "../constants";
 import { useTheme } from "styled-components";
 import moment from "moment";
@@ -14,7 +14,7 @@ import { ethers } from "ethers";
 import {getOffers as fetchOffers} from "../utils/auction";
 import OfferDialog from "./OfferDialog";
 
-const Container = styled('div')({
+const Container = styled(Grid)({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
@@ -59,24 +59,26 @@ const ModalContent = styled('div')({
   }
 })
  
-const MetaDiv = styled('div')({
+const MetaDiv = styled(Grid)(({ theme }) => ({
   backgroundColor: 'white',
   display: 'flex',
   flexDirection: 'column',
-  // margin: '0 2px',
   padding: '8px',
-  height: '272px',
+  minHeight: '272px',
+  width: '232px',
 
   '& .meta-content-coin-icon': {
     width: '24px',
     height: '24px'
-  }
-})
+  },
+  [theme.breakpoints.down('sm')]: {
+    width: '100%'
+  },
+}))
 
 const MetaHeader = styled('div')({
   display: 'flex',
   flexDirection: 'column',
-  width: '232px',
   borderBottom: 'solid 1px #c4c4c4',
 
   '& .meta-header-left': {
@@ -198,18 +200,21 @@ const MetaContentButtonSection = styled('div')({
   },
 })
 
-const DetailCardsDiv = styled('div')({
+const DetailCardsDiv = styled(Grid)(({ theme }) => ({
   flexGrow: 1,
-  margin: '0 12px'
-})
-
-const CardsContainer = styled('div')({
-  flexGrow: '1',
+  margin: '0 12px',
   overflowX: 'auto',
+}))
+
+const CardsContainer = styled('div')(({ theme }) => ({
+  flexGrow: '1',
+
   display: 'flex',
-  flexBasis: '100%',
+  // flexBasis: '100%',
   width: '100%',
-})
+  minWidth: '177px'
+
+}))
 
 const AuctionItem = ({
   content
@@ -268,10 +273,6 @@ const AuctionItem = ({
   }
 
 
-  const onClickBid = () => {
-
-  }
-
   const handleConfirmBid = async (amount) => {
     const { currency, itemNumber } = auctionItem;
     let currencyContract;
@@ -323,7 +324,7 @@ const AuctionItem = ({
   // }
 
   return (
-    <Container className={"container"}>
+    <Container container>
       <MetaDiv>
         <MetaHeader>
           <div className={"meta-header-left"}>
@@ -361,7 +362,6 @@ const AuctionItem = ({
             </div>
           </div>
         </MetaHeader>
-
         <MetaContent>
           <MetaContentRow>
             <MetaContentBidAmount>
@@ -411,7 +411,10 @@ const AuctionItem = ({
         <CardsContainer>
           {auctionItem?.cards ?
             auctionItem.cards.slice((cardPageNo - 1) * 5, cardPageNo * 5).map((card) => (
-              <CardImage key={card.id} src={cardImageBaseURL + "/" + card.id} alt={"CARD " + card.id} loading="lazy"/>
+              <>
+                <CardImage key={card.id} src={cardImageBaseURL + "/" + card.id} alt={"CARD " + card.id} loading="lazy"/>
+              </>
+
             )) : <CircularProgress/>}
         </CardsContainer>
         {/*{auctionItem.cards && <Pagination count={Math.ceil(auctionItem.cards.length / 20)} className={"pagination-bar"} variant="outlined" shape="rounded" onChange={handleCardsTablePageChanged}/>}*/}

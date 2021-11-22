@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles';
 import InputBase from '@mui/material/InputBase';
 import MenuItem from '@mui/material/MenuItem';
 import SearchIcon from '@mui/icons-material/Search';
-import {alpha, Select} from "@mui/material";
+import {alpha, Select, Grid} from "@mui/material";
 import { wmovrContractAddress, zoomContractAddress } from '../constants'
 
 const Container = styled('div')(({ theme }) => ({
@@ -11,7 +11,7 @@ const Container = styled('div')(({ theme }) => ({
   flexDirection: 'column'
 }))
 
-const FilterRow = styled('div')(({ theme }) => ({
+const FilterRow = styled(Grid)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'row',
   margin: '12px 0',
@@ -24,19 +24,31 @@ const FilterRow = styled('div')(({ theme }) => ({
   }
 }));
 
-const FilterControls = styled('div')(({ theme }) => ({
+const FilterControls = styled(Grid)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'row',
   flexWrap: 'wrap',
+
+  [theme.breakpoints.down('md')]: {
+    justifyContent: 'center',
+    flex: 'auto',
+  },
+
 }))
 
-const SortControls = styled('div')(({ theme }) => ({
+const SortControls = styled(Grid)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'row',
   margin: '0 16px',
   flexWrap: 'wrap',
   alignItems: 'center',
   fontSize: '18px',
+
+  [theme.breakpoints.down('md')]: {
+    margin: '0',
+    justifyContent: 'center',
+    flex: 'auto',
+  },
 
   '& .button-sortby-addon': {
     width: '30px'
@@ -66,20 +78,21 @@ const SortControls = styled('div')(({ theme }) => ({
   },
 }))
 
-const SearchHeader = styled('div')(({ theme }) => ({
+const SearchHeader = styled(Grid)(({ theme }) => ({
   display: 'flex',
   justifyContent: 'space-between',
 
-  '& .live-header': {
-    color: 'white',
-    fontWeight: 500,
-    fontSize: '32px',
-    lineHeight: '47px',
+}))
 
-    '& span': {
-      fontWeight: 300
-    }
-  },
+const SearchCountDiv = styled(Grid)(({ theme }) => ({
+  color: 'white',
+  fontWeight: 500,
+  fontSize: '32px',
+  lineHeight: '47px',
+
+  '& span': {
+    fontWeight: 300
+  }
 }))
 
 const StyledSelect = styled(Select)(({ theme }) => ({
@@ -91,9 +104,14 @@ const StyledSelect = styled(Select)(({ theme }) => ({
   '& svg': {
     fill: 'white',
   },
+
+  [theme.breakpoints.down('md')]: {
+    marginRight: '0px',
+  }
 }));
 
-const Search = styled('div')(({ theme }) => ({
+const SearchDiv = styled(Grid)(({ theme }) => ({
+  height: '47px',
   display: 'flex',
   position: 'relative',
   color: 'white',
@@ -109,6 +127,15 @@ const Search = styled('div')(({ theme }) => ({
   [theme.breakpoints.up('sm')]: {
     marginLeft: theme.spacing(3),
     width: 'auto',
+  },
+}));
+
+const SearchInputContainer = styled('div')(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  [theme.breakpoints.down('sm')]: {
+    width: '100%'
   },
 }));
 
@@ -154,20 +181,22 @@ const Filterbar = ( { onFilterChanged, filters, onSortByChanged, sortBy, totalCo
 
   return (
     <Container >
-      <SearchHeader>
-        <div className={'live-header'}>
+      <SearchHeader container>
+        <SearchCountDiv item >
           Live Now - <span>{totalCount ? totalCount + " items" : 'No auctions'}</span>
-        </div>
-        <Search>
-          <SearchIconWrapper>
-            <SearchIcon />
-          </SearchIconWrapper>
-          <StyledInputBase
-            placeholder="Search"
-            inputProps={{ 'aria-label': 'search' }}
-            onChange={(e) => onFilterChanged({ keyword: e.target.value })}
-          />
-        </Search>
+        </SearchCountDiv>
+        <SearchInputContainer item >
+          <SearchDiv>
+            <SearchIconWrapper>
+              <SearchIcon />
+            </SearchIconWrapper>
+            <StyledInputBase
+              placeholder="Search"
+              inputProps={{ 'aria-label': 'search' }}
+              onChange={(e) => onFilterChanged({ keyword: e.target.value })}
+            />
+          </SearchDiv>
+        </SearchInputContainer>
       </SearchHeader>
 
 

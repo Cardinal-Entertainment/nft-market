@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import Button from "@mui/material/Button";
-import styled from "styled-components/macro";
 import { store } from "store/store";
 import { useHistory, useParams } from "react-router-dom";
 import { getAuctionItem, getOffers as fetchOffers } from "utils/auction";
@@ -21,96 +20,97 @@ import LazyLoad from 'react-lazyload';
 import zoomLogo from "../assets/zoombies_coin.svg";
 import movrLogo from "../assets/movr_logo.png";
 import {getWalletWMOVRBalance, getWalletZoomBalance} from "../utils/wallet";
+import { styled, Grid } from '@mui/material';
 
-const Container = styled.div`
-  flex: 1;
-  height: 100%;
-  color: white;
+const Container = styled('div')({
+  flex: 1,
+  height: '100%',
+  color: 'white',
 
-  h1 {
-    margin: 0;
+  '& h1': {
+      margin: 0,
+  },
+
+  '& .pagination-bar': {
+    padding: '12px'
   }
+})
 
-  & .pagination-bar {
-    padding: 12px;
+const FlexRow = styled('div')({
+  display: 'flex',
+  alignItems: 'center'
+})
+
+const HeaderRow = styled(FlexRow)({
+  marginBottom: '10px',
+  '& svg': {
+    cursor: 'pointer',
+  },
+
+  '& h1': {
+    marginLeft: '10px',
   }
-`;
+})
 
-const FlexRow = styled.div`
-  display: flex;
-  align-items: center;
-`;
+const SpacedRow = styled(FlexRow)({
+  justifyContent: 'space-between'
+})
 
-const HeaderRow = styled(FlexRow)`
-  margin-bottom: 10px;
+const NFTContainer = styled('div')({
+  width: '100%',
+  display: 'flex',
+  flexWrap: 'wrap',
 
-  svg {
-    cursor: pointer;
+  maxHeight: '550px',
+  overflowX: 'auto',
+  borderRadius: '8px',
+  padding: '5px',
+
+  '& > *': {
+    display: 'inline-block',
+    margin: '0 5px'
+  },
+  '& img': {
+    width: '175px'
   }
+})
 
-  h1 {
-    margin-left: 10px;
+const ModalContent = styled('div')({
+  position: 'absolute',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: '20px',
+  background: 'white',
+  borderRadius: '8px',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+
+  '& > *': {
+    margin: '5px 0'
   }
-`;
+})
 
-const SpacedRow = styled(FlexRow)`
-  justify-content: space-between;
-`;
+const StyledLogo = styled('img')({
+  width: '30px',
+  padding: '0 5px',
+})
 
-const NFTContainer = styled.div`
-  width: 100%;
-  display: flex;
-  flex-wrap: wrap;
+const SellerDiv = styled(Grid)(({ theme }) => ({
+  padding: '12px',
+  display: 'flex',
 
-  max-height: 550px;
-  overflow-x: auto;
-  border-radius: 8px;
-  padding: 5px;
-
-  & > * {
-    display: inline-block;
-    margin: 0 5px;
+  '& div': {
+    display: 'flex',
+    alignItems: 'center',
+    margin: '0 12px',
+    [theme.breakpoints.down('sm')]: {
+      width: '100%'
+    },
   }
-
-  img {
-    width: 175px;
-  }
-`;
-
-const ModalContent = styled.div`
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  background: white;
-  border-radius: 8px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-  & > * {
-    margin: 5px 0;
-  }
-`;
-
-const StyledLogo = styled.img`
-  width: 30px;
-  padding: 0 5px;
-`
-
-const SellerDiv = styled.div`
-  padding: 12px;
-  display: flex;
-  
-  
-  & div {
-    display: flex;
-    align-items: center;
-    margin: 0 12px;
-  }
-`
+}))
 
 const ViewListing = () => {
   const history = useHistory();
@@ -264,17 +264,17 @@ const ViewListing = () => {
           </Button>
         )}
       </SpacedRow>
-      <SellerDiv>
-        <div>
+      <SellerDiv container>
+        <Grid item>
           {'Amount: ' + (auctionItem?.minPrice ? auctionItem.minPrice : 0) + ' ' + (auctionItem?.currency ? auctionItem.currency : '')}
           {auctionItem.currency === 'ZOOM' ?  <StyledLogo src={zoomLogo}/> : <StyledLogo src={movrLogo} />}
-        </div>
-        <div>
+        </Grid>
+        <Grid item>
           Seller Wallet: <a href={sellerURL} target="_blank">{auctionItem.seller ? `${auctionItem.seller.substr(0, 8)}...${auctionItem.seller.substr(36)}` : ''}</a>
-        </div>
-        <div>
+        </Grid>
+        <Grid item>
           {'Date Listed: ' + (new Date(auctionItem.auctionStart * 1000).toLocaleString() ?? 'Unknown')}
-        </div>
+        </Grid>
       </SellerDiv>
 
       <NFTContainer>
@@ -301,7 +301,7 @@ const ViewListing = () => {
         )}
       </SpacedRow>
       <TableContainer component={Paper} className="bid-table">
-        <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
+        <Table size="small" aria-label="a dense table">
           <TableHead>
             <TableRow>
               <TableCell>Time</TableCell>
@@ -317,7 +317,7 @@ const ViewListing = () => {
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
                 <TableCell>{moment(row.date * 1000).format("MM/DD/YYYY, h:mm:ss A")}</TableCell>
-                <TableCell>{row.from ? `${row.from.substr(0, 8)}...${row.from.substr(36)}` : ''}</TableCell>
+                <TableCell>{row.from ? `${row.from.substr(0, 8)} ... ${row.from.substr(36)}` : ''}</TableCell>
                 <TableCell>{row.amount}</TableCell>
                 <TableCell>{row.status}</TableCell>
               </TableRow>
