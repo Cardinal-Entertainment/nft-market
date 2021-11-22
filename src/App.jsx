@@ -144,8 +144,11 @@ const App = () => {
   };
 
   const hideNavbar = () => {
-    setShowMenu(false)
-    setChecked(false)
+
+    if (!isDesktop) {
+      setShowMenu(false)
+      setChecked(false)
+    }
   }
 
   useEffect(() => {
