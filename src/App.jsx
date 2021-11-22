@@ -20,6 +20,7 @@ import HelpPage from "./pages/Help";
 import Profile from 'pages/Profile';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import NotificationAddon from "./components/NotificationAddon";
+import AuctionArchive from "pages/AuctionArchive";
 
 const Container = styled('div')({
   height: '100vh',
@@ -210,6 +211,7 @@ const App = () => {
               <Route path="/listing/:id" component={ViewListing} />
               <Route path="/help" component={HelpPage} />
               <Route path="/profile" component={Profile} />
+              <Route path="/archives" component={AuctionArchive} />
               <Route path="/" component={Home} />
             </Switch>
           </Content>

@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
-import { CircularProgress } from '@mui/material';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
@@ -20,6 +19,7 @@ import moment from 'moment';
 import { zoomContractAddress, wmovrContractAddress } from '../constants';
 
 import { useHistory } from 'react-router';
+import LoadingModal from 'components/LoadingModal';
 
 const Container = styled.div`
   display: flex;
@@ -33,16 +33,6 @@ const Container = styled.div`
   }
 `;
 
-const ProfileLoadingState = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 50% auto;
-`;
-
-// const BidListings = styled.div`
-
-// `
 const UserProfileWrapper = styled.div`
   display: flex;
   margin-top: 24px;
@@ -209,12 +199,15 @@ const userListingColumns = [
 
 const handleRowClick = (params, history) => {
   try {
-    const itemNumber = parseInt(params.getValue(params.id, 'itemNumber').replace('#', ''));
-    history.push(`/listing/${itemNumber}`); 
+    const itemNumber = parseInt(
+      params.getValue(params.id, 'itemNumber').replace('#', '')
+    );
+    history.push(`/listing/${itemNumber}`);
   } catch (err) {
-    console.error(`Failed to parse itemNumber: ${params.getValue(params.id, 'itemNumber')}`)
+    console.error(
+      `Failed to parse itemNumber: ${params.getValue(params.id, 'itemNumber')}`
+    );
   }
-  
 };
 
 const UserBids = ({ bidCount, bids }) => {
@@ -244,7 +237,7 @@ const UserBids = ({ bidCount, bids }) => {
         id: bid._id,
         itemNumber: bid.bidListing.itemNumber,
         userBid: bid.bidAmount,
-        cards: bid.bidListing.cards
+        cards: bid.bidListing.cards,
       };
     });
 
@@ -258,7 +251,7 @@ const UserBids = ({ bidCount, bids }) => {
           rowsPerPageOptions={[10, 20, 50, 100]}
           autoHeight={true}
           onRowClick={(params, event, details) => {
-            handleRowClick(params, history)
+            handleRowClick(params, history);
           }}
         ></DataGrid>
       </div>
@@ -293,7 +286,7 @@ const UserListings = ({ listingCount, listings }) => {
       currency: currency,
       id: listing._id,
       itemNumber: listing.itemNumber,
-      cards: listing.cards
+      cards: listing.cards,
     };
   });
 
@@ -307,7 +300,7 @@ const UserListings = ({ listingCount, listings }) => {
         rowsPerPageOptions={[10, 20, 50, 100]}
         autoHeight={true}
         onRowClick={(params, event, details) => {
-          handleRowClick(params, history)
+          handleRowClick(params, history);
         }}
       ></DataGrid>
     </div>
@@ -363,9 +356,7 @@ const Profile = () => {
     <Container>
       <h1 className="user-profile-header">User Profile</h1>
       {isLoading || !wallet.address ? (
-        <ProfileLoadingState>
-          <CircularProgress style={{ color: 'white' }} size={80} />
-        </ProfileLoadingState>
+        <LoadingModal open={true} text="Loading Profile..." />
       ) : (
         data && <UserProfile data={data}></UserProfile>
       )}

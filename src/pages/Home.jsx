@@ -1,13 +1,8 @@
-import React, {useContext, useEffect, useRef, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import { store } from "store/store";
 import styled from "styled-components";
-import Chip from "@mui/material/Chip";
-import moment from "moment";
 import {useHistory} from "react-router-dom";
 import Filterbar from "../components/Filterbar";
-import { getCardSummary } from "utils/cardsUtil";
-import { getStatus } from "utils/listingUtil";
-import {marketContractAddress, zoombiesContractAddress} from "../constants";
 import InfiniteScroll from "react-infinite-scroller";
 import {CircularProgress, Modal} from "@mui/material";
 import AuctionItem from "../components/AuctionItem";
@@ -93,66 +88,6 @@ const Home = () => {
     remove
   } = useFetchListingQuery(filters, loadingCallback)
 
-  const columns = [
-    {
-      field: "id",
-      headerName: "ID",
-      width: 50,
-      valueGetter: (params) =>
-      '#'+ params.getValue(params.id, "itemNumber")  },
-    {
-      field: "summary",
-      headerName: "Summary",
-      minWidth: 200,
-      flex: 2,
-      valueGetter: (params) =>
-        getCardSummary(params.getValue(params.id, "cards")),
-    },
-    {
-      field: "amount",
-      headerName: "Amount",
-      sortable: false,
-      minWidth: 130,
-      flex: 1,
-      valueGetter: (params) => {
-        const value = Math.max(
-          params.getValue(params.id, "minPrice"),
-          params.getValue(params.id, "highestBid"),
-        );
-        return `${value} ${params.getValue(params.id, "currency")}`;
-      },
-    },
-    {
-      field: "auctionEnd",
-      headerName: "End Time",
-      valueFormatter: (params) => {
-        const date = moment(params.value * 1000)
-        return date.format("MM/DD/YYYY, h:mm:ss A")
-      },
-      minWidth: 230,
-    },
-    {
-      field: "status",
-      headerName: "Status",
-      minWidth: 160,
-      renderCell: (params) => (
-        <Chip
-          label={
-            getStatus(
-              params.getValue(params.id, "auctionEnd") * 1000,
-              params.getValue(params.id, "highestBidder")
-            ).label
-          }
-          color={
-            getStatus(
-              params.getValue(params.id, "auctionEnd") * 1000,
-              params.getValue(params.id, "highestBidder")
-            ).color
-          }
-        />
-      ),
-    },
-  ];
 
   const handleFilterChanged = async (params) => {
     setLoading(true)

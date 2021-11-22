@@ -1,4 +1,4 @@
-import { zoomContractAddress, wmovrContractAddress } from "../constants";
+import { zoomContractAddress, wmovrContractAddress, apiEndpoint } from "../constants";
 import axios from 'axios'
 
 export const getTokenSymbol = (saleToken) => {
@@ -25,7 +25,7 @@ export const getAuctionItem = async (
   zoombiesContract
 ) => {
   try {
-    const item = await axios.get(`https://api.zoombies.world/item/${auctionId}`)
+    const item = await axios.get(`${apiEndpoint}/item/${auctionId}`)
     // const item = await axios.get(`http://localhost:3001/item/${auctionId}`)
     const { tokenIds, saleToken, highestBidder, highestBid, lister: seller, minPrice, auctionStart, auctionEnd } = item.data;
 
@@ -49,7 +49,7 @@ export const getAuctionItem = async (
 };
 
 export const getOffers = async (auctionId) => {
-  const res = await axios.get(`https://api.zoombies.world/bids/${auctionId}`)
+  const res = await axios.get(`${apiEndpoint}/bids/${auctionId}`)
   // const res = await axios.get(`http://localhost:3001/bids/${auctionId}`)
 
   return res.data.map((offer) => ({

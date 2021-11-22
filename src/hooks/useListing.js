@@ -1,18 +1,25 @@
-import {useInfiniteQuery, useQuery} from 'react-query';
+import {useInfiniteQuery} from 'react-query';
 import axios from 'axios';
-import {apiEndpoint, marketContractAddress, zoombiesContractAddress} from "../constants";
+import {apiEndpoint} from "../constants";
 import {getTokenSymbol} from "../utils/auction";
 
-export const getAuctionListings = async (marketContract, zoombiesContract, filters, page) => {
+export const LISTING_PARAMS = {
+  status: {
+    ended: 'ENDED'
+  }
+}
+
+export const getAuctionListings = async (filters, page) => {
 
   const params = new URLSearchParams({
-    cardOrigin: filters.cardType,
-    saleToken: filters.token,
-    cardRarity: filters.rarity,
-    search: filters.keyword,
-    sortBy: filters.sortField,
+    cardOrigin: filters.cardType || '',
+    saleToken: filters.token || '',
+    cardRarity: filters.rarity || '',
+    search: filters.keyword || '',
+    sortBy: filters.sortField || '',
     offset: page * 5,
-    limit: '5'
+    limit: '5',
+    status: filters.status || ''
   })
 
   const listings = await axios.get(`${apiEndpoint}/listings?${params.toString()}`)
@@ -35,18 +42,20 @@ export const useFetchListingQuery = ( filters, callback ) => {
   return useInfiniteQuery(
     'listings',
     async ({ pageParam = 0 }) => {
-      const res = await getAuctionListings(marketContractAddress, zoombiesContractAddress, filters, pageParam)
+      const res = await getAuctionListings(filters, pageParam)
       if (callback) {
         callback(res.totalCount)
       }
       return res
 
-    },{
+    },
+    {
       getNextPageParam: (lastPage, pages) => {
-
         if (lastPage.nextOffset > 0) return lastPage.nextPage
         return undefined;
-      }
-    }
+      },
+      refetchOnWindowFocus: false
+    },
+    
   )
 }
