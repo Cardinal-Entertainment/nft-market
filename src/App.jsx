@@ -133,7 +133,7 @@ const App = () => {
 
   const [checked, setChecked] = React.useState(false);
   const [showMenu, setShowMenu] = React.useState(false);
-  const { dispatch, state } = useContext(store);
+  const { dispatch } = useContext(store);
   const isDesktop = useMediaQuery('(min-width:1024px)');
 
   const showSlider = () => {

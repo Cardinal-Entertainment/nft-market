@@ -1,12 +1,11 @@
-import React, {useContext, useEffect, useState} from "react";
-import { store } from "store/store";
-import styled from "styled-components";
-import {useHistory} from "react-router-dom";
-import Filterbar from "../components/Filterbar";
-import InfiniteScroll from "react-infinite-scroller";
-import {CircularProgress, Modal} from "@mui/material";
-import AuctionItem from "../components/AuctionItem";
-import {useFetchListingQuery} from "../hooks/useListing";
+import React, { useContext, useState } from 'react';
+import { store } from 'store/store';
+import styled from 'styled-components';
+import Filterbar from '../components/Filterbar';
+import InfiniteScroll from 'react-infinite-scroller';
+import AuctionItem from '../components/AuctionItem';
+import { useFetchListingQuery } from '../hooks/useListing';
+import LoadingModal from 'components/LoadingModal';
 
 const Container = styled.div`
   flex: auto;
@@ -35,115 +34,53 @@ const Container = styled.div`
   }
 `;
 
-const ModalContent = styled.div`
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  background: white;
-  border-radius: 8px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-  & > * {
-    margin: 5px 0;
-  }
-`;
-
 const Home = () => {
-  const history = useHistory()
-  const [listings, setListings] = useState([])
   const [filters, setFilters] = useState({
     cardType: '', // 'Shop' or 'Booster'
     rarity: '', // 'epic', 'rare', 'uncommon', 'common'
     token: '', // the token's contract address
     keyword: '', // search keyword,
-    sortField: '' //sort by key
+    sortField: '', //sort by key
   });
-  const [sortBy, setSortBy] = useState({
-    field: '', //attribute name of an auction
-    order: 1 // 1 : ascending, -1 : descending
-  })
-  const [loading, setLoading] = useState(false)
-  const [totalCount, setTotalCount] = useState(0)
-
-  const {
-    state: { contracts },
-  } = useContext(store);
-
-  const loadingCallback = ( totalCount ) => {
-    setLoading(false)
-    setTotalCount(totalCount)
-  }
-
-  const {
-    data,
-    isLoading,
-    isError,
-    hasNextPage,
-    fetchNextPage,
-    remove
-  } = useFetchListingQuery(filters, loadingCallback)
-
+  
+  const { data, isLoading, hasNextPage, fetchNextPage } =
+    useFetchListingQuery(filters);
 
   const handleFilterChanged = async (params) => {
-    setLoading(true)
-    setFilters({ ...filters, ...params })
-    remove()
-  }
+    setFilters({ ...filters, ...params });
+  };
 
-  const handleSortByChanged = (attribute) => {
-    // setSortBy({ ...sortBy, ...attribute })
-    setLoading(true)
-    setFilters({ ...filters, ...{
-      sortField: attribute.field
-    }})
-    remove()
-  }
-
-  useEffect(() => {
-    if (contracts.MarketContract) {
-      // loadListings();
-    }
-  }, [contracts.MarketContract, filters, sortBy]);
+  const totalCount =
+    data && data.pages.length > 0 ? data.pages[0].totalCount : 0;
 
   return (
     <Container>
-      <Filterbar onFilterChanged={handleFilterChanged} filters={filters} onSortByChanged={handleSortByChanged} sortBy={sortBy} totalCount={totalCount}/>
-      {/*<DataGrid*/}
-      {/*    className="table"*/}
-      {/*    rows={listings.filter(auction => filterCondition(auction)).sort(compareFunc)}*/}
-      {/*    columns={columns}*/}
-      {/*    pageSize={20}*/}
-      {/*    rowsPerPageOptions={[10, 20, 50, 100]}*/}
-      {/*    onRowClick={handleRowClick}*/}
-      {/*    autoHeight={true}*/}
-      {/*/>*/}
-      {/*{*/}
-
-      <div style={{display: 'flex', flexDirection:'column', overflowY: 'auto'}}>
-        {!isLoading && (
-            <InfiniteScroll hasMore={hasNextPage} loadMore={fetchNextPage} useWindow={false}>
-              {data.pages.map((page, index) =>
-                page.data.map(auction =>
-                <AuctionItem content={auction} key={auction._id}/>
-                )
-              )}
-            </InfiniteScroll>
-        )}
-
-
-      <Modal
-        open={loading}
+      <Filterbar
+        onFilterChanged={handleFilterChanged}
+        filters={filters}
+        totalCount={totalCount}
+      />
+      <div
+        style={{ display: 'flex', flexDirection: 'column', overflowY: 'auto' }}
       >
-        <ModalContent>
-          <div>Loading Auctions...</div>
-          <CircularProgress />
-        </ModalContent>
-      </Modal>
+        {isLoading ? (
+          <LoadingModal
+            text="Loading Live Auctions..."
+            open={isLoading}
+          ></LoadingModal>
+        ) : (
+          <InfiniteScroll
+            hasMore={hasNextPage}
+            loadMore={fetchNextPage}
+            useWindow={false}
+          >
+            {data.pages.map((page) =>
+              page.data.map((auction) => (
+                <AuctionItem content={auction} key={auction._id} />
+              ))
+            )}
+          </InfiniteScroll>
+        )}
       </div>
     </Container>
   );

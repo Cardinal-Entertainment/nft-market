@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import flatten from 'lodash/flatten';
 
 import LoadingModal from 'components/LoadingModal';
 import { LISTING_PARAMS, useFetchListingQuery } from 'hooks/useListing';
@@ -20,12 +21,15 @@ const Container = styled.div`
 `;
 
 const AuctionArchive = () => {
-  const { data, isLoading, hasNextPage, fetchNextPage } =
-    useFetchListingQuery({
-      status: LISTING_PARAMS.status.ended,
-    });
+  const { data, isLoading, hasNextPage, fetchNextPage } = useFetchListingQuery({
+    status: LISTING_PARAMS.status.ended,
+  });
 
-  const totalCount = data?.pages[0]?.totalCount;
+  const totalCount = data?.pages[0]?.totalCount || 0;
+
+  const auctionItems = data
+    ? flatten(data.pages.map((page) => page.data))
+    : null;
 
   return (
     <Container>
@@ -36,19 +40,15 @@ const AuctionArchive = () => {
       {isLoading ? (
         <LoadingModal open={true} text="Loading Profile..." />
       ) : (
-        data && (
-          <InfiniteScroll
-            hasMore={hasNextPage}
-            loadMore={fetchNextPage}
-            useWindow={false}
-          >
-            {data.pages.map((page, index) =>
-              page.data.map((auction) => (
-                <AuctionItem content={auction} key={auction._id} />
-              ))
-            )}
-          </InfiniteScroll>
-        )
+        <InfiniteScroll
+          hasMore={hasNextPage}
+          loadMore={fetchNextPage}
+          useWindow={false}
+        >
+          {auctionItems.map((auction) => (
+            <AuctionItem content={auction} key={auction._id} />
+          ))}
+        </InfiniteScroll>
       )}
     </Container>
   );

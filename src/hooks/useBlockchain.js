@@ -12,7 +12,6 @@ import Actions from "store/actions";
 // import global_json from "../contracts/Global.json";
 
 import {
-  zoombiesContractAddress,
   zoomContractAddress,
   marketContractAddress,
   wmovrContractAddress,
@@ -69,10 +68,7 @@ const useBlockchain = () => {
     const provider = new ethers.providers.Web3Provider(metamaskProvider);
     const signer = provider.getSigner();
     const address = await signer.getAddress();
-    const [balance, network] = await Promise.all([
-      provider.getBalance(address),
-      provider.getNetwork(),
-    ]);
+    const balance = await provider.getBalance(address);
 
     // console.log("newBalanace", ethers.utils.formatEther(balance))
     dispatch(Actions.walletChanged({
@@ -120,7 +116,6 @@ const useBlockchain = () => {
       const address = await signer.getAddress();
       const bal = await getWalletZoomBalance(ZoomContract, address);
 
-      // console.log("zoomBalanace", bal)
       dispatch(Actions.walletChanged({
         zoomBalance: bal
       }));
@@ -130,7 +125,6 @@ const useBlockchain = () => {
       const address = await signer.getAddress();
       const bal = await getWalletWMOVRBalance(WMOVRContract, address);
 
-      // console.log("wmovrBalanace", bal)
       dispatch(Actions.walletChanged({
         wmovrBalance: bal
       }));
