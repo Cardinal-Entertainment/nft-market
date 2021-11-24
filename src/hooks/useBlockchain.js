@@ -17,6 +17,7 @@ import {
   wmovrContractAddress,
 } from "../constants";
 import {getWalletWMOVRBalance, getWalletZoomBalance} from "../utils/wallet";
+import watchMarketEvents from "utils/setupWatcher";
 
 const isLocal = process.env.NODE_ENV === "development";
 
@@ -77,8 +78,6 @@ const useBlockchain = () => {
     }));
   };
 
-  const handleChainChanged = (chainId) => {};
-
   const loadContracts = async (signer, chainId) => {
     const ZoombiesContract = new ethers.Contract(
       zoombies_json.networks[chainId].address,
@@ -130,41 +129,7 @@ const useBlockchain = () => {
       }));
     });
 
-    const bidFilter = MarketContract.filters.Bid();
-    MarketContract.on(bidFilter, async (  itemNumber, bidAmount, bidder, block ) => {
-      const item = await MarketContract.getListItem(itemNumber);
-      dispatch(
-        Actions.newBidEventTriggered({
-          type: 'bid',
-          timestamp: Date.now() / 1000,
-          content: {
-            blockNumber: block.blockNumber,
-            itemNumber: itemNumber.toNumber(),
-            bidAmount: ethers.utils.formatEther(bidAmount),
-            bidder: bidder,
-            currency: item.saleToken === zoomContractAddress ? 'ZOOM' : item.saleToken === wmovrContractAddress ? 'WMOVR' : ''
-          }
-        })
-      );
-    });
-
-    const newAuctionFilter = MarketContract.filters.ItemListed();
-    MarketContract.on(newAuctionFilter, ( itemNumber, auctionEnd, seller, tokenIds, saleToken, nftToken, minPrice, block ) => {
-      dispatch(
-        Actions.newBidEventTriggered({
-          type: 'new',
-          timestamp: Date.now() / 1000,
-          content: {
-            blockNumber: block.blockNumber,
-            itemNumber: itemNumber.toNumber(),
-            minPrice: ethers.utils.formatEther(minPrice),
-            seller: seller,
-            auctionEnd: auctionEnd.toNumber(),
-            currency: saleToken === zoomContractAddress ? 'ZOOM' : saleToken === wmovrContractAddress ? 'WMOVR' : ''
-          }
-        })
-      )
-    });
+    watchMarketEvents(MarketContract, marketContractAddress, ZoombiesContract);
 
     const settledFilter = MarketContract.filters.Settled();
     MarketContract.on(settledFilter, async ( itemNumber, bidAmount, winner, seller, tokenIds, block ) => {
@@ -230,8 +195,9 @@ const useBlockchain = () => {
     });
 
     if (metamaskProvider) {
-      await metamaskProvider.enable();
-
+      await metamaskProvider.request({
+        method: 'eth_requestAccounts'
+      })
       await metamaskProvider.request({
         method: "wallet_addEthereumChain",
         params: [ethChainParam],
@@ -260,12 +226,9 @@ const useBlockchain = () => {
       window.ethereum.on("connected", handleConnect);
       window.ethereum.on("disconnect", handleDisconnect);
       window.ethereum.on("accountsChanged", handleAccountsChanged);
-      window.ethereum.on("chainChanged", handleChainChanged);
 
       dispatch(Actions.dAppStateChanged(DAPP_STATES.CONNECTED));
-      await provider.send("eth_requestAccounts", []);
-
-
+      // await provider.send("eth_requestAccounts", []);
 
       provider.on('block', () => {
         provider.getBalance(address).then((balance) => {

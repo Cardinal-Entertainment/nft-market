@@ -1,6 +1,6 @@
 import { useInfiniteQuery } from 'react-query';
 import axios from 'axios';
-import { apiEndpoint } from '../constants';
+import { apiEndpoint, QUERY_KEYS } from '../constants';
 import { getTokenSymbol } from '../utils/auction';
 
 export const LISTING_PARAMS = {
@@ -40,7 +40,7 @@ export const getAuctionListings = async (filters, nextOffset) => {
 
 export const useFetchListingQuery = (filters) => {
   return useInfiniteQuery(
-    ['listings', { filters }],
+    [QUERY_KEYS.listings, { filters }],
     ({ pageParam }) => getAuctionListings(filters, pageParam),
     {
       getNextPageParam: (lastPage) => {
