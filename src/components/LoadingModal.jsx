@@ -1,5 +1,5 @@
-import styled from "styled-components";
-import {CircularProgress, Modal} from "@mui/material";
+import styled from 'styled-components';
+import { CircularProgress, Modal } from '@mui/material';
 
 const ModalContent = styled.div`
   position: absolute;
@@ -20,17 +20,16 @@ const ModalContent = styled.div`
 `;
 
 const LoadingModal = (props) => {
-    const text = props.text || 'Loading...'
-    const isOpen = props.open;
-    return (
-        <Modal open={isOpen}>
-               <ModalContent>
-            <div>{text}</div>
-            <CircularProgress />
-        </ModalContent>
-        </Modal>
-     
-    )
-}
+  const text = props.text || 'Loading...';
+  const isOpen = props.open;
+  return (
+    <Modal open={isOpen}>
+      <ModalContent>
+        <div>{text}</div>
+        <CircularProgress />
+      </ModalContent>
+    </Modal>
+  );
+};
 
 export default LoadingModal;

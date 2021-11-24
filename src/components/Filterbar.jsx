@@ -1,15 +1,16 @@
-import React, {useState} from "react";
+import React from 'react';
+import debounce from 'lodash/debounce';
 import { styled } from '@mui/material/styles';
 import InputBase from '@mui/material/InputBase';
 import MenuItem from '@mui/material/MenuItem';
 import SearchIcon from '@mui/icons-material/Search';
-import {alpha, Select, Grid} from "@mui/material";
-import { wmovrContractAddress, zoomContractAddress } from '../constants'
+import { alpha, Select, Grid } from '@mui/material';
+import { wmovrContractAddress, zoomContractAddress } from '../constants';
 
 const Container = styled('div')(({ theme }) => ({
   display: 'flex',
-  flexDirection: 'column'
-}))
+  flexDirection: 'column',
+}));
 
 const FilterRow = styled(Grid)(({ theme }) => ({
   display: 'flex',
@@ -20,8 +21,8 @@ const FilterRow = styled(Grid)(({ theme }) => ({
   color: 'white',
 
   '& .button-rarity': {
-    color: 'white'
-  }
+    color: 'white',
+  },
 }));
 
 const FilterControls = styled(Grid)(({ theme }) => ({
@@ -33,8 +34,7 @@ const FilterControls = styled(Grid)(({ theme }) => ({
     justifyContent: 'center',
     flex: 'auto',
   },
-
-}))
+}));
 
 const SortControls = styled(Grid)(({ theme }) => ({
   display: 'flex',
@@ -51,15 +51,14 @@ const SortControls = styled(Grid)(({ theme }) => ({
   },
 
   '& .button-sortby-addon': {
-    width: '30px'
+    width: '30px',
   },
 
   '& .sort-component': {
     borderRight: '2px solid white',
     padding: '0 8px',
     lineHeight: '18px',
-
-},
+  },
 
   '& .sort-component-selected': {
     borderRight: '2px solid white',
@@ -70,19 +69,18 @@ const SortControls = styled(Grid)(({ theme }) => ({
 
   '& .sort-component:hover': {
     textDecoration: 'underline',
-    cursor: 'pointer'
+    cursor: 'pointer',
   },
 
   '& .last-column': {
-    borderRight: 'none! important'
+    borderRight: 'none! important',
   },
-}))
+}));
 
 const SearchHeader = styled(Grid)(({ theme }) => ({
   display: 'flex',
   justifyContent: 'space-between',
-
-}))
+}));
 
 const SearchCountDiv = styled(Grid)(({ theme }) => ({
   color: 'white',
@@ -91,9 +89,9 @@ const SearchCountDiv = styled(Grid)(({ theme }) => ({
   lineHeight: '47px',
 
   '& span': {
-    fontWeight: 300
-  }
-}))
+    fontWeight: 300,
+  },
+}));
 
 const StyledSelect = styled(Select)(({ theme }) => ({
   marginRight: '12px',
@@ -107,7 +105,7 @@ const StyledSelect = styled(Select)(({ theme }) => ({
 
   [theme.breakpoints.down('md')]: {
     marginRight: '0px',
-  }
+  },
 }));
 
 const SearchDiv = styled(Grid)(({ theme }) => ({
@@ -135,7 +133,7 @@ const SearchInputContainer = styled('div')(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'center',
   [theme.breakpoints.down('sm')]: {
-    width: '100%'
+    width: '100%',
   },
 }));
 
@@ -168,24 +166,18 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-const Filterbar = ( { onFilterChanged, filters, onSortByChanged, sortBy, totalCount }) => {
-
-  const [sortField, setSortField] = useState('');
-
-  const sortColumnSelected = ( sortField ) => {
-    setSortField(sortField)
-    onSortByChanged({
-      field: sortField
-    })
-  }
+const Filterbar = ({ onFilterChanged, filters, totalCount }) => {
+  const debouncedFilterChanged = debounce(onFilterChanged, 500);
+  const { sortField } = filters;
 
   return (
-    <Container >
+    <Container>
       <SearchHeader container>
-        <SearchCountDiv item >
-          Live Now - <span>{totalCount ? totalCount + " items" : 'No auctions'}</span>
+        <SearchCountDiv item>
+          Live Now -{' '}
+          <span>{totalCount ? totalCount + ' items' : 'No auctions'}</span>
         </SearchCountDiv>
-        <SearchInputContainer item >
+        <SearchInputContainer item>
           <SearchDiv>
             <SearchIconWrapper>
               <SearchIcon />
@@ -193,18 +185,19 @@ const Filterbar = ( { onFilterChanged, filters, onSortByChanged, sortBy, totalCo
             <StyledInputBase
               placeholder="Search"
               inputProps={{ 'aria-label': 'search' }}
-              onChange={(e) => onFilterChanged({ keyword: e.target.value })}
+              onChange={(e) =>
+                debouncedFilterChanged({ keyword: e.target.value })
+              }
             />
           </SearchDiv>
         </SearchInputContainer>
       </SearchHeader>
 
-
       <FilterRow>
         <FilterControls>
           <StyledSelect
             value={filters.token}
-            onChange={(e) => onFilterChanged({token: e.target.value}) }
+            onChange={(e) => onFilterChanged({ token: e.target.value })}
             displayEmpty
           >
             <MenuItem value={''}>Coin Type</MenuItem>
@@ -237,9 +230,36 @@ const Filterbar = ( { onFilterChanged, filters, onSortByChanged, sortBy, totalCo
 
         <SortControls>
           <div>Sort:</div>
-          <div className={ sortField === 'auctionEnd' ? 'sort-component-selected' : 'sort-component' } onClick={() => sortColumnSelected('auctionEnd')}>Ending Soon</div>
-          <div className={ sortField === 'created' ? 'sort-component-selected' : 'sort-component' } onClick={() => sortColumnSelected('created')}>Just Posted</div>
-          <div className={ sortField === 'popularity' ? 'sort-component-selected last-column' : 'sort-component last-column' } onClick={() => sortColumnSelected('popularity')}>Popular</div>
+          <div
+            className={
+              sortField === 'auctionEnd'
+                ? 'sort-component-selected'
+                : 'sort-component'
+            }
+            onClick={() => onFilterChanged({ sortField: 'auctionEnd' })}
+          >
+            Ending Soon
+          </div>
+          <div
+            className={
+              sortField === 'created'
+                ? 'sort-component-selected'
+                : 'sort-component'
+            }
+            onClick={() => onFilterChanged({ sortField: 'created' })}
+          >
+            Just Posted
+          </div>
+          <div
+            className={
+              sortField === 'popularity'
+                ? 'sort-component-selected last-column'
+                : 'sort-component last-column'
+            }
+            onClick={() => onFilterChanged({ sortField: 'popularity' })}
+          >
+            Popular
+          </div>
         </SortControls>
       </FilterRow>
     </Container>

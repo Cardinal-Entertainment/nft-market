@@ -250,7 +250,7 @@ const UserBids = ({ bidCount, bids }) => {
           pageSize={20}
           rowsPerPageOptions={[10, 20, 50, 100]}
           autoHeight={true}
-          onRowClick={(params, event, details) => {
+          onRowClick={(params) => {
             handleRowClick(params, history);
           }}
         ></DataGrid>
@@ -299,7 +299,7 @@ const UserListings = ({ listingCount, listings }) => {
         pageSize={20}
         rowsPerPageOptions={[10, 20, 50, 100]}
         autoHeight={true}
-        onRowClick={(params, event, details) => {
+        onRowClick={(params) => {
           handleRowClick(params, history);
         }}
       ></DataGrid>

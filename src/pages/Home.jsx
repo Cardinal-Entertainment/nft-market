@@ -1,12 +1,13 @@
-import React, {useContext, useEffect, useState} from "react";
-import { store } from "store/store";
-import styled from "styled-components";
-import {useHistory} from "react-router-dom";
-import Filterbar from "../components/Filterbar";
-import InfiniteScroll from "react-infinite-scroller";
-import {CircularProgress, Modal} from "@mui/material";
-import AuctionItem from "../components/AuctionItem";
-import {useFetchListingQuery} from "../hooks/useListing";
+import React, { useEffect, useState } from 'react';
+import PubSub from 'pubsub-js'
+import styled from 'styled-components';
+import Filterbar from '../components/Filterbar';
+import InfiniteScroll from 'react-infinite-scroller';
+import AuctionItem from '../components/AuctionItem';
+import { useFetchListingQuery } from '../hooks/useListing';
+import LoadingModal from 'components/LoadingModal';
+import { EVENT_TYPES, QUERY_KEYS } from '../constants';
+import { useQueryClient } from 'react-query';
 
 const Container = styled.div`
   flex: auto;
@@ -35,115 +36,86 @@ const Container = styled.div`
   }
 `;
 
-const ModalContent = styled.div`
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  background: white;
-  border-radius: 8px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-  & > * {
-    margin: 5px 0;
-  }
-`;
-
 const Home = () => {
-  const history = useHistory()
-  const [listings, setListings] = useState([])
   const [filters, setFilters] = useState({
     cardType: '', // 'Shop' or 'Booster'
     rarity: '', // 'epic', 'rare', 'uncommon', 'common'
     token: '', // the token's contract address
     keyword: '', // search keyword,
-    sortField: '' //sort by key
+    sortField: '', //sort by key
   });
-  const [sortBy, setSortBy] = useState({
-    field: '', //attribute name of an auction
-    order: 1 // 1 : ascending, -1 : descending
-  })
-  const [loading, setLoading] = useState(false)
-  const [totalCount, setTotalCount] = useState(0)
-
-  const {
-    state: { contracts },
-  } = useContext(store);
-
-  const loadingCallback = ( totalCount ) => {
-    setLoading(false)
-    setTotalCount(totalCount)
-  }
-
-  const {
-    data,
-    isLoading,
-    isError,
-    hasNextPage,
-    fetchNextPage,
-    remove
-  } = useFetchListingQuery(filters, loadingCallback)
-
+  
+  const { data, isLoading, hasNextPage, fetchNextPage } =
+    useFetchListingQuery(filters);
 
   const handleFilterChanged = async (params) => {
-    setLoading(true)
-    setFilters({ ...filters, ...params })
-    remove()
-  }
+    setFilters({ ...filters, ...params });
+  };
 
-  const handleSortByChanged = (attribute) => {
-    // setSortBy({ ...sortBy, ...attribute })
-    setLoading(true)
-    setFilters({ ...filters, ...{
-      sortField: attribute.field
-    }})
-    remove()
-  }
+  const totalCount =
+    data && data.pages.length > 0 ? data.pages[0].totalCount : 0;
+  const queryClient = useQueryClient();
 
   useEffect(() => {
-    if (contracts.MarketContract) {
-      // loadListings();
-    }
-  }, [contracts.MarketContract, filters, sortBy]);
+    const token = PubSub.subscribe(EVENT_TYPES.ItemListed, (msg, data) => {
+      /**
+       * We will only append the new listing based on the current cached data a user is viewing.
+       * Say a user clears the filter afterwards,
+       * react-query will automatically refetch since we are using filters as part of query key.
+       * 
+       * The assumption is that by the time user switches filter, the new listing should've been
+       * stored in the database and API call will fetch it.
+       * So it should be safe to have the data eventually consistent.
+       */
+      const currentData = queryClient.getQueryData([QUERY_KEYS.listings, { filters }]);
+      if (currentData) {
+        queryClient.setQueryData([QUERY_KEYS.listings, { filters }], queryData => {
+          return {
+            pageParams: queryData.pageParams,
+            pages: [
+              {
+                totalCount: queryData.pages[0].totalCount + 1,
+                nextOffset: queryData.pages[0].nextOffset,
+                data: [data]
+              },
+              ...queryData.pages
+            ]
+          }
+        })
+      }
+    })
+
+    return () => PubSub.unsubscribe(token);
+  }, [queryClient, filters]);
 
   return (
     <Container>
-      <Filterbar onFilterChanged={handleFilterChanged} filters={filters} onSortByChanged={handleSortByChanged} sortBy={sortBy} totalCount={totalCount}/>
-      {/*<DataGrid*/}
-      {/*    className="table"*/}
-      {/*    rows={listings.filter(auction => filterCondition(auction)).sort(compareFunc)}*/}
-      {/*    columns={columns}*/}
-      {/*    pageSize={20}*/}
-      {/*    rowsPerPageOptions={[10, 20, 50, 100]}*/}
-      {/*    onRowClick={handleRowClick}*/}
-      {/*    autoHeight={true}*/}
-      {/*/>*/}
-      {/*{*/}
-
-      <div style={{display: 'flex', flexDirection:'column', overflowY: 'auto'}}>
-        {!isLoading && (
-            <InfiniteScroll hasMore={hasNextPage} loadMore={fetchNextPage} useWindow={false}>
-              {data.pages.map((page, index) =>
-                page.data.map(auction =>
-                <AuctionItem content={auction} key={auction._id}/>
-                )
-              )}
-            </InfiniteScroll>
-        )}
-
-
-      <Modal
-        open={loading}
+      <Filterbar
+        onFilterChanged={handleFilterChanged}
+        filters={filters}
+        totalCount={totalCount}
+      />
+      <div
+        style={{ display: 'flex', flexDirection: 'column', overflowY: 'auto' }}
       >
-        <ModalContent>
-          <div>Loading Auctions...</div>
-          <CircularProgress />
-        </ModalContent>
-      </Modal>
+        {isLoading ? (
+          <LoadingModal
+            text="Loading Live Auctions..."
+            open={isLoading}
+          ></LoadingModal>
+        ) : (
+          <InfiniteScroll
+            hasMore={hasNextPage}
+            loadMore={fetchNextPage}
+            useWindow={false}
+          >
+            {data.pages.map((page) =>
+              page.data.map((auction) => (
+                <AuctionItem content={auction} key={`${auction.itemNumber}-${auction._id}`} />
+              ))
+            )}
+          </InfiniteScroll>
+        )}
       </div>
     </Container>
   );

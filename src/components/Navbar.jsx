@@ -1,12 +1,17 @@
-import React, {forwardRef, useContext, useEffect, useState} from "react";
-import styled, { useTheme } from "styled-components";
-import metamaskLogo from "../assets/metamask-face.png";
-import movrLogo from "../assets/movr_logo.png";
-import zoomCoin from "../assets/zoombies_coin.svg";
-import Tooltip from "@mui/material/Tooltip";
-import { store } from "store/store";
-import { NavLink } from "react-router-dom";
-import {faBell, faEdit, faQuestionCircle, faShoppingBag} from "@fortawesome/free-solid-svg-icons";
+import React, { forwardRef, useContext, useEffect, useState } from 'react';
+import styled, { useTheme } from 'styled-components';
+import metamaskLogo from '../assets/metamask-face.png';
+import movrLogo from '../assets/movr_logo.png';
+import zoomCoin from '../assets/zoombies_coin.svg';
+import Tooltip from '@mui/material/Tooltip';
+import { store } from 'store/store';
+import { NavLink } from 'react-router-dom';
+import {
+  faBell,
+  faEdit,
+  faQuestionCircle,
+  faShoppingBag,
+} from '@fortawesome/free-solid-svg-icons';
 
 import {
   addAssetToMetamask,
@@ -26,8 +31,8 @@ import Grow from '@mui/material/Grow';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import MenuList from '@mui/material/MenuList';
-import {styled as styled1} from "@mui/material/styles";
-import NotificationAddon from "./NotificationAddon";
+import { styled as styled1 } from '@mui/material/styles';
+import NotificationAddon from './NotificationAddon';
 
 const Container = styled1('div')({
   width: '300px',
@@ -43,9 +48,9 @@ const Container = styled1('div')({
     '& .select': {
       color: 'white',
       backgroundColor: '#1976d2',
-    }
-  }
-})
+    },
+  },
+});
 
 const NavItemLiveFeeds = styled1('div')(({ theme }) => ({
   display: 'flex',
@@ -53,7 +58,7 @@ const NavItemLiveFeeds = styled1('div')(({ theme }) => ({
   [theme.breakpoints.up('lg')]: {
     display: 'none',
   },
-}))
+}));
 
 const NavItem = styled1('div')(({ color }) => ({
   display: 'flex',
@@ -71,7 +76,7 @@ const NavItem = styled1('div')(({ color }) => ({
 
   '& img': {
     width: '50px',
-    marginRight: '17px'
+    marginRight: '17px',
   },
 
   '& img.zoom': {
@@ -85,9 +90,9 @@ const NavItem = styled1('div')(({ color }) => ({
     '&.marketplace': {
       paddingRight: '22px',
       width: '40px',
-    }
-  }
-}))
+    },
+  },
+}));
 
 const NavigationSection = styled1('div')({
   flex: 1,
@@ -108,9 +113,9 @@ const NavigationSection = styled1('div')({
 
   '& NavItem:hover': {
     color: '#03c1e8',
-    cursor: 'pointer'
-  }
-})
+    cursor: 'pointer',
+  },
+});
 
 const UserBalances = styled1('div')({
   padding: '5px',
@@ -121,11 +126,11 @@ const UserBalances = styled1('div')({
   },
 
   borderBottom: '1px solid white',
-})
+});
 
 const TooltipContent = styled1('span')({
-  fontSize: '16px'
-})
+  fontSize: '16px',
+});
 
 const ButtonGroupContainer = styled1('div')({
   margin: '12px',
@@ -134,17 +139,17 @@ const ButtonGroupContainer = styled1('div')({
     width: '276px',
 
     '& .popper-menuitem div': {
-      flex: 'auto'
-    }
-  }
-})
+      flex: 'auto',
+    },
+  },
+});
 
-const Navbar = (props, ref  ) => {
+const Navbar = (props, ref) => {
   const theme = useTheme();
   const [zoomBalance, setZoomBalance] = useState('');
   const [WMOVRBalance, setWMOVRBalance] = useState('');
 
-  const { toggleLiveFeeds, hideNavbar } = props
+  const { toggleLiveFeeds, hideNavbar } = props;
   const { state } = useContext(store);
   const {
     wallet: { address, balance },
@@ -175,7 +180,7 @@ const Navbar = (props, ref  ) => {
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
-    hideNavbar()
+    hideNavbar();
   };
 
   const handleClose = (event) => {
@@ -231,10 +236,80 @@ const Navbar = (props, ref  ) => {
         getWMOVRBalance();
       });
     }
-  }, [contracts, address ]);
+  }, [contracts, address]);
 
   return (
     <Container ref={ref} {...props}>
+      <NavigationSection>
+        <NavLink
+          exact
+          to="/"
+          activeClassName="active-link"
+          className="page-links"
+        >
+          <NavItem color="white" onClick={hideNavbar}>
+            <FontAwesomeIcon
+              icon={faShoppingBag}
+              size="lg"
+              className="marketplace"
+            />
+            Live Auctions
+          </NavItem>
+        </NavLink>
+        <NavLink
+          exact
+          activeClassName="active-link"
+          className="page-links"
+          to="/new"
+        >
+          <NavItem color="white" onClick={hideNavbar}>
+            <FontAwesomeIcon className="marketplace" icon={faEdit} size="lg" />
+            New Listing
+          </NavItem>
+        </NavLink>
+        {address && (
+          <>
+            <NavLink
+              exact
+              activeClassName="active-link"
+              className="page-links"
+              to="/profile"
+            >
+              <NavItem color="white" onClick={hideNavbar}>
+                <Tooltip
+                  title={<TooltipContent>User Profile</TooltipContent>}
+                  arrow
+                  placement="right"
+                >
+                  <span>
+                    <img src={metamaskLogo} alt="metamask logo" />
+                    Profile
+                  </span>
+                </Tooltip>
+              </NavItem>
+            </NavLink>
+            <NavLink
+              exact
+              activeClassName="active-link"
+              className="page-links"
+              to="/archives"
+            >
+              <NavItem color="white" onClick={hideNavbar}>
+                <Tooltip
+                  title={<TooltipContent>Auctions Archive</TooltipContent>}
+                  arrow
+                  placement="right"
+                >
+                  <span>
+                    <img src={metamaskLogo} alt="metamask logo" />
+                    Auction Archive
+                  </span>
+                </Tooltip>
+              </NavItem>
+            </NavLink>
+          </>
+        )}
+      </NavigationSection>
       <UserBalances>
         <NavItem color={theme.colors.metamaskOrange}>
           <Tooltip
@@ -291,84 +366,17 @@ const Navbar = (props, ref  ) => {
           </Tooltip>
         </NavItem>
       </UserBalances>
-      <NavigationSection>
-        <NavLink
-          exact
-          to="/"
-          activeClassName="active-link"
-          className="page-links"
-        >
-          <NavItem color="white" onClick={hideNavbar}>
-            <FontAwesomeIcon
-              icon={faShoppingBag}
-              size="lg"
-              className="marketplace"
-            />
-            Live Auctions
-          </NavItem>
-        </NavLink>
-        <NavLink
-          exact
-          activeClassName="active-link"
-          className="page-links"
-          to="/new"
-        >
-          <NavItem color="white" onClick={hideNavbar}>
-            <FontAwesomeIcon className="marketplace" icon={faEdit} size="lg" />
-            New Listing
-          </NavItem>
-        </NavLink>
-        {address && (
-          <>
-            <NavLink
-              exact
-              activeClassName="active-link"
-              className="page-links"
-              to="/profile"
-            >
-              <NavItem color="white" onClick={hideNavbar}>
-                <Tooltip
-                  title={<TooltipContent>{address}</TooltipContent>}
-                  arrow
-                  placement="right"
-                >
-                  <span>
-                    <img src={metamaskLogo} alt="metamask logo" />
-                    Profile
-                  </span>
-                </Tooltip>
-              </NavItem>
-            </NavLink>
-            <NavLink
-              exact
-              activeClassName="active-link"
-              className="page-links"
-              to="/archives"
-            >
-              <NavItem color="white" onClick={hideNavbar}>
-                <Tooltip
-                  title={<TooltipContent>{address}</TooltipContent>}
-                  arrow
-                  placement="right"
-                >
-                  <span>
-                    <img src={metamaskLogo} alt="metamask logo" />
-                    Auction Archive
-                  </span>
-                </Tooltip>
-              </NavItem>
-            </NavLink>
-          </>
-        )}
-      </NavigationSection>
       <ButtonGroupContainer>
-
         <NavItemLiveFeeds>
-            <NavItem color="white" style={{flex: 'auto'}} onClick={toggleLiveFeeds}>
-              <FontAwesomeIcon className="marketplace" icon={faBell} size="lg" />
-              <NotificationAddon clickAction={toggleLiveFeeds}/>
-              Live Feeds
-            </NavItem>
+          <NavItem
+            color="white"
+            style={{ flex: 'auto' }}
+            onClick={toggleLiveFeeds}
+          >
+            <FontAwesomeIcon className="marketplace" icon={faBell} size="lg" />
+            <NotificationAddon clickAction={toggleLiveFeeds} />
+            Live Feeds
+          </NavItem>
         </NavItemLiveFeeds>
 
         <NavLink
@@ -378,15 +386,26 @@ const Navbar = (props, ref  ) => {
           to="/help"
         >
           <NavItem color="white" onClick={hideNavbar}>
-            <FontAwesomeIcon className="marketplace" icon={faQuestionCircle} size="lg" />
+            <FontAwesomeIcon
+              className="marketplace"
+              icon={faQuestionCircle}
+              size="lg"
+            />
             Help
           </NavItem>
         </NavLink>
-        <ButtonGroup variant="contained" ref={anchorRef} aria-label="split button" style={{
-          width: '100%',
-          height: '40px',
-        }}>
-          <Button onClick={handleToggle} style={{flex: 'auto'}}>{options[selectedIndex]}</Button>
+        <ButtonGroup
+          variant="contained"
+          ref={anchorRef}
+          aria-label="split button"
+          style={{
+            width: '100%',
+            height: '40px',
+          }}
+        >
+          <Button onClick={handleToggle} style={{ flex: 'auto' }}>
+            {options[selectedIndex]}
+          </Button>
           <Button
             size="small"
             aria-controls={open ? 'split-button-menu' : undefined}
