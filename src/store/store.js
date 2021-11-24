@@ -27,6 +27,8 @@ const initialState = {
   signer: null,
   events: [],
   newEventsCount: 0,
+  myEvents: [],
+  myNewEventsCount: 0,
   zoomIncrement: '25000.0',
   wmovrIncrement: '0.0025',
 };
@@ -64,6 +66,12 @@ const StateProvider = ({ children }) => {
           ...state,
           newEventsCount:  (state.newEventsCount + 1),
           events: [payload, ...state.events]
+        };
+      case ActionTypes.MY_NEW_BID_EVENT:
+        return {
+          ...state,
+          myNewEventsCount:  (state.myNewEventsCount + 1),
+          myEvents: [payload, ...state.myEvents]
         };
       case ActionTypes.RESET_NOTIFICATIONS:
         return {

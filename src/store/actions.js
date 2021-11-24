@@ -3,6 +3,7 @@ export const ActionTypes = {
   DAPP_STATE_CHANGED: "DAPP_STATE_CHANGED",
   CONTRACTS_LOADED: "CONTRACTS_LOADED",
   NEW_BID_EVENT: "NEW_BID_EVENT",
+  MY_NEW_BID_EVENT: "MY_NEW_BID_EVENT",
   RESET_NOTIFICATIONS: "RESET_NOTIFICATIONS",
   MIN_INCREMENT_UPDATED: "MIN_INCREMENT_UPDATED"
 };
@@ -29,6 +30,12 @@ const Actions = {
   newBidEventTriggered(payload) {
     return {
       type: ActionTypes.NEW_BID_EVENT,
+      payload,
+    };
+  },
+  myNewBidEventTriggered(payload) {
+    return {
+      type: ActionTypes.MY_NEW_BID_EVENT,
       payload,
     };
   },

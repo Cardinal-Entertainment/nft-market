@@ -27,15 +27,17 @@ const FlexDiv = styled('div')({
   justifyContent: 'flex-end'
 });
 
-const ClearButton = styled(Button)({
+const StyledButton = styled(Button)({
   fontWeight: 'bold',
-  color: 'white'
+  color: 'white',
+  fontFamily: 'Oswald',
 })
 
 const CloseButton = styled(Button)(({ theme }) => ({
   display: 'none',
   fontWeight: 'bold',
   color: 'white',
+  fontFamily: 'Oswald',
 
   [theme.breakpoints.down('md')]: {
     display: 'flex'
@@ -51,32 +53,71 @@ const LiveFeedsSlide = (props, ref  ) => {
     dispatch(Actions.resetNotifications(true))
   }
 
-  // const addNewElement = () => {
-  //   dispatch(
-  //     Actions.newBidEventTriggered({
-  //       type: 'new',
-  //       timestamp: Date.now() / 1000,
-  //       content: {
-  //         blockNumber: Date.now(),
-  //         // itemNumber: itemNumber.toNumber(),
-  //         itemNumber: 10,
-  //         minPrice: 1.0,
-  //         seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232'
-  //       }
-  //     })
-  //   )
-  // }
+  const addNewElement = () => {
+    dispatch(
+      Actions.myNewBidEventTriggered({
+        type: 'outbid',
+        timestamp: Date.now() / 1000,
+        content: {
+          blockNumber: Date.now(),
+          // itemNumber: itemNumber.toNumber(),
+          itemNumber: 10,
+          minPrice: 1.0,
+          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232'
+        }
+      })
+    )
+
+    dispatch(
+      Actions.newBidEventTriggered({
+        type: 'bid',
+        timestamp: Date.now() / 1000,
+        content: {
+          blockNumber: Date.now(),
+          // itemNumber: itemNumber.toNumber(),
+          itemNumber: 10,
+          minPrice: 1.0,
+          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232'
+        }
+      })
+    )
+  }
 
   return (
     <Container ref={ref} {...props}>
       <FlexDiv>
-        <ClearButton onClick={clearAll}>
+        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flex: 'auto'}}>
+          <div style={{color: 'white'}}>
+            VIEW:
+          </div>
+          <div style={{color: 'white', padding: '0 12px'}}>
+            My Alerts
+          </div>
+          <div style={{color: 'white', padding: '0 12px'}}>
+            General Alerts
+          </div>
+        </div>
+
+        <StyledButton onClick={addNewElement}>
           Clear All
-        </ClearButton>
+        </StyledButton>
         <CloseButton onClick={hideLiveFeeds}>
           Close
         </CloseButton>
       </FlexDiv>
+      {
+        state.myEvents && (
+          <TransitionGroup>
+            {
+              state.myEvents.map((event, index) => (
+                <Collapse key={state.myEvents.length - index}>
+                  <LiveFeedItem type={event.type} content={event.content} timestamp={event.timestamp} highlight={index < state.newEventsCount ? 'true' : 'false'}/>
+                </Collapse>
+              ))
+            }
+          </TransitionGroup>
+        )
+      }
       {
         state.events && (
           <TransitionGroup>

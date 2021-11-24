@@ -13,23 +13,26 @@ import {useHistory} from "react-router-dom";
 import {formatAddress} from "../utils/wallet";
 
 const StyledDiv = styled('div')({
-  '& .container-highlight': {
-    backgroundColor: '#788ea5'
-  }
+  // '& .container-highlight': {
+  //   backgroundColor: '#788ea5'
+  // }
 });
 
-const Container = styled('div')({
+const Container = styled('div')(({ type }) => ({
   color: 'white',
   display: 'flex',
   margin: '6px 0',
   transition: 'opacity 700ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
-  backgroundColor: 'rgb(0, 30, 60)',
   borderRadius: '8px',
   border: '1px solid rgb(30, 73, 118)',
   overflow: 'hidden',
   padding: '8px',
   minHeight: '120px',
-});
+
+  // backgroundColor: type === 'highlight' ? '#788ea5' : 'rgb(0, 30, 60)'
+  backgroundColor: type === 'highlight' ? '#ff59e8' : '#41f7f8'
+
+}))
 
 const ImgEvent = styled('div')({
   display: 'flex',
@@ -117,7 +120,7 @@ const LiveFeedItem = ( props, ref  ) => {
 
   return (
     <StyledDiv>
-      <Container ref={ref} {...props} className={highlight === 'true' ? 'container-highlight' : ''}>
+      <Container ref={ref} {...props} className={highlight === 'true' ? 'container-highlight' : ''} type={type === 'outbid' ? 'highlight' : ''}>
         <ImgEvent>
           {
             type === 'new' ? (
@@ -172,6 +175,13 @@ const LiveFeedItem = ( props, ref  ) => {
                 <>
                   <div className={'content-wallet-address'}>Winner: {winnerAddress}</div>
                   <div>{'This auction has been settled.'}</div>
+                  <div className={'content-amount'}>Amount: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
+                    <span className={'span-amount'}>{bidAmount}</span> {currency}</div>
+                </>
+              ) : type === 'outbid' ? (
+                <>
+                  <div className={'content-wallet-address'}/>
+                  <div>{'You have been outbid in this auction.'}</div>
                   <div className={'content-amount'}>Amount: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
                     <span className={'span-amount'}>{bidAmount}</span> {currency}</div>
                 </>

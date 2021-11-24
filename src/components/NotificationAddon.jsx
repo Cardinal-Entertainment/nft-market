@@ -10,7 +10,7 @@ const ButtonAddon = styled('div')({
   height: '24px',
   minWidth: '16px',
   color: 'white',
-  backgroundColor: '#f00',
+  backgroundColor: '#41f7f8',
   borderRadius: '12px',
   display: 'flex',
   alignItems: 'center',
@@ -18,7 +18,21 @@ const ButtonAddon = styled('div')({
   fontWeight: 'bold',
 })
 
-
+const ButtonAddonRight = styled('div')({
+  position: 'absolute',
+  top: 0,
+  left: '8px',
+  padding: '0 4px',
+  height: '24px',
+  minWidth: '16px',
+  color: 'white',
+  backgroundColor: '#ff59e8',
+  borderRadius: '12px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontWeight: 'bold',
+})
 
 const NotificationAddon = ( props ) => {
 
@@ -27,11 +41,20 @@ const NotificationAddon = ( props ) => {
 
   return (
     state.newEventsCount > 0 && (
-      <ButtonAddon onClick={clickAction}>
-        {
-          state.newEventsCount >= 100 ? '99+' : state.newEventsCount
-        }
-      </ButtonAddon>
+      <>
+        <ButtonAddon onClick={clickAction}>
+          {
+            state.newEventsCount >= 100 ? '99+' : state.newEventsCount
+          }
+        </ButtonAddon>
+
+        <ButtonAddonRight onClick={clickAction}>
+          {
+            state.newEventsCount >= 100 ? '99+' : state.newEventsCount
+          }
+        </ButtonAddonRight>
+      </>
+
     )
   )
 };
