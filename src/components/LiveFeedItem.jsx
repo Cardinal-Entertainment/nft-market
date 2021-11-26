@@ -1,4 +1,4 @@
-import React, {useContext} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import { forwardRef }from "react";
 import { styled } from '@mui/material';
 
@@ -23,6 +23,8 @@ const StyledDiv = styled('div')({
   // '& .container-highlight': {
   //   backgroundColor: '#788ea5'
   // }
+
+  animation: 'mymove 5s infinite'
 });
 
 const Container = styled('div')(({ type }) => ({
@@ -111,19 +113,29 @@ const ContentBody = styled('div')({
 
 const LiveFeedItem = ( props, ref  ) => {
 
+  const { type, content, timestamp, highlight } = props
+  const { itemNumber, bidder, seller, winner, minPrice, bidAmount, auctionEnd, currency } = content
+
+  const sellerAddress = formatAddress(seller)
+  const bidderAddress = formatAddress(bidder)
+  const winnerAddress = formatAddress(winner)
+
+  const [elapsedTime, setElapsedTime] = useState(moment.unix(timestamp).fromNow())
   const history = useHistory();
   const {
     state: { wallet },
   } = useContext(store);
 
-  const { type, content, timestamp, highlight } = props
-  const { itemNumber, bidder, seller, winner, minPrice, bidAmount, auctionEnd, currency } = content
+  useEffect(() => {
+    let interval = null;
+    interval = setInterval(() => {
+      updateElapsedTime()
+    }, 60000); //update every minute
+  }, []);
 
-  const sellerAddress = formatAddress(seller)
-
-  const bidderAddress = formatAddress(bidder)
-
-  const winnerAddress = formatAddress(winner)
+  const updateElapsedTime = () => {
+    setElapsedTime(moment.unix(timestamp).fromNow());
+  }
 
   const gotoAuction = () => {
     history.push(`/listing/${itemNumber}`);
@@ -206,7 +218,7 @@ const LiveFeedItem = ( props, ref  ) => {
               Auction #{itemNumber}
             </span>
             <div className={'content-timestamp'}>
-              {moment.unix(timestamp).fromNow()}
+              {elapsedTime}
             </div>
           </Header>
           <ContentBody>
