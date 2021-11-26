@@ -88,40 +88,35 @@ const LiveFeedsSlide = (props, ref  ) => {
 
   const addNewElement = () => {
     dispatch(
-      Actions.myNewBidEventTriggered({
-        type: 'outbid',
+      Actions.newBidEventTriggered({
+        type: 'new',
         timestamp: Date.now() / 1000,
         content: {
           blockNumber: Date.now(),
           // itemNumber: itemNumber.toNumber(),
           itemNumber: 10,
-          minPrice: 1.0,
-          bidAmount: 1.0,
+          minPrice: 23.0,
+          bidAmount: 12032.25,
           seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-          currency: 'ZOOM'
+          currency: 'ZOOM',
+          winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
         }
       })
     )
 
     dispatch(
       Actions.myNewBidEventTriggered({
-        type: 'sold',
+        type: 'mynew',
         timestamp: Date.now() / 1000,
-        // content: {
-        //   blockNumber: Date.now(),
-        //   // itemNumber: itemNumber.toNumber(),
-        //   itemNumber: 10,
-        //   minPrice: 1.0,
-        //   seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232'
-        // },
-        //
         content: {
           blockNumber: Date.now(),
+          // itemNumber: itemNumber.toNumber(),
           itemNumber: 10,
-          bidAmount: 10323.5,
-          winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+          minPrice: 23.0,
+          bidAmount: 12032.25,
           seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-          currency: 'WMOVR'
+          currency: 'ZOOM',
+          winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
         }
       })
     )
@@ -133,14 +128,136 @@ const LiveFeedsSlide = (props, ref  ) => {
         content: {
           blockNumber: Date.now(),
           // itemNumber: itemNumber.toNumber(),
-          bidAmount: 10323.5,
           itemNumber: 10,
-          minPrice: 1.0,
-          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0231'
+          minPrice: 23.0,
+          bidAmount: 12032.25,
+          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+          currency: 'ZOOM',
+          winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+        }
+      })
+    )
+
+    dispatch(
+      Actions.myNewBidEventTriggered({
+        type: 'myoutbid',
+        timestamp: Date.now() / 1000,
+        content: {
+          blockNumber: Date.now(),
+          // itemNumber: itemNumber.toNumber(),
+          itemNumber: 10,
+          minPrice: 23.0,
+          bidAmount: 12032.25,
+          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+          currency: 'ZOOM',
+          winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+        }
+      })
+    )
+
+    dispatch(
+      Actions.myNewBidEventTriggered({
+        type: 'mybidon',
+        timestamp: Date.now() / 1000,
+        content: {
+          blockNumber: Date.now(),
+          // itemNumber: itemNumber.toNumber(),
+          itemNumber: 10,
+          minPrice: 23.0,
+          bidAmount: 12032.25,
+          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+          currency: 'ZOOM',
+          winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+        }
+      })
+    )
+
+    dispatch(
+      Actions.myNewBidEventTriggered({
+        type: 'mybid',
+        timestamp: Date.now() / 1000,
+        content: {
+          blockNumber: Date.now(),
+          // itemNumber: itemNumber.toNumber(),
+          itemNumber: 10,
+          minPrice: 23.0,
+          bidAmount: 12032.25,
+          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+          currency: 'ZOOM',
+          winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+        }
+      })
+    )
+
+    dispatch(
+      Actions.myNewBidEventTriggered({
+        type: 'sold',
+        timestamp: Date.now() / 1000,
+        content: {
+          blockNumber: Date.now(),
+          // itemNumber: itemNumber.toNumber(),
+          itemNumber: 10,
+          minPrice: 23.0,
+          bidAmount: 12032.25,
+          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+          currency: 'ZOOM',
+          winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+        }
+      })
+    )
+
+    dispatch(
+      Actions.myNewBidEventTriggered({
+        type: 'settlemybid',
+        timestamp: Date.now() / 1000,
+        content: {
+          blockNumber: Date.now(),
+          // itemNumber: itemNumber.toNumber(),
+          itemNumber: 10,
+          minPrice: 23.0,
+          bidAmount: 12032.25,
+          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+          currency: 'ZOOM',
+          winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+        }
+      })
+    )
+
+    dispatch(
+      Actions.newBidEventTriggered({
+        type: 'settled',
+        timestamp: Date.now() / 1000,
+        content: {
+          blockNumber: Date.now(),
+          // itemNumber: itemNumber.toNumber(),
+          itemNumber: 10,
+          minPrice: 23.0,
+          bidAmount: 12032.25,
+          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+          currency: 'ZOOM',
+          winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+        }
+      })
+    )
+
+    dispatch(
+      Actions.myNewBidEventTriggered({
+        type: 'win',
+        timestamp: Date.now() / 1000,
+        content: {
+          blockNumber: Date.now(),
+          // itemNumber: itemNumber.toNumber(),
+          itemNumber: 10,
+          minPrice: 23.0,
+          bidAmount: 12032.25,
+          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+          currency: 'ZOOM',
+          winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
         }
       })
     )
   }
+
 
   return (
     <Container ref={ref}>

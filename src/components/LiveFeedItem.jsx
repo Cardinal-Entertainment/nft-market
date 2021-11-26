@@ -127,7 +127,7 @@ const LiveFeedItem = ( props, ref  ) => {
 
   return (
     <StyledDiv>
-      <Container ref={ref} {...props} className={highlight === 'true' ? 'container-highlight' : ''} type={seller === wallet.address ? 'highlight' : ''}>
+      <Container ref={ref} {...props} className={highlight === 'true' ? 'container-highlight' : ''} type={!(type === 'new' || type === 'bid' || type === 'settle') ? 'highlight' : ''}>
         <ImgEvent>
           {
             type === 'new' ? (
@@ -186,10 +186,36 @@ const LiveFeedItem = ( props, ref  ) => {
                     <span className={'span-amount'}>{minPrice}</span> {currency}</div>
                   <div className={'content-auction-end'}>Auction Ends at: <span>{moment.unix(auctionEnd).format("MM/DD/YYYY, h:mm:ss A")}</span></div>
                 </>
+              ) : type === 'mynew' ? (
+                <>
+                  <div className={'content-wallet-address'}>You've created a new auction.</div>
+                  <div className={'content-amount'}>Min Price: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
+                    <span className={'span-amount'}>{minPrice}</span> {currency}</div>
+                  <div className={'content-auction-end'}>Auction Ends at: <span>{moment.unix(auctionEnd).format("MM/DD/YYYY, h:mm:ss A")}</span></div>
+                </>
               ) : type === 'bid' ? (
                 <>
                   <div className={'content-wallet-address'}>{bidderAddress + ' placed a new bid.'}</div>
                   <div className={'content-amount'}>Bid Amount: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
+                    <span className={'span-amount'}>{bidAmount}</span> {currency}</div>
+                </>
+              ) : type === 'mybid' ? (
+                <>
+                  <div className={'content-wallet-address'}>You've placed a new bid</div>
+                  <div className={'content-amount'}>Bid Amount: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
+                    <span className={'span-amount'}>{bidAmount}</span> {currency}</div>
+                </>
+              ) : type === 'mybidon' ? (
+                <>
+                  <div className={'content-wallet-address'}>{bidderAddress + ' placed a new bid on your auction.'}</div>
+                  <div className={'content-amount'}>Bid Amount: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
+                    <span className={'span-amount'}>{bidAmount}</span> {currency}</div>
+                </>
+              ) : type === 'myoutbid' ? (
+                <>
+                  <div className={'content-wallet-address'}>You've been outbid by {bidderAddress}</div>
+                  <div>Increase your bid to win this auction.</div>
+                  <div className={'content-amount'}>Amount: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
                     <span className={'span-amount'}>{bidAmount}</span> {currency}</div>
                 </>
               ) : type === 'settled' ? (
@@ -199,17 +225,23 @@ const LiveFeedItem = ( props, ref  ) => {
                   <div className={'content-amount'}>Amount: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
                     <span className={'span-amount'}>{bidAmount}</span> {currency}</div>
                 </>
-              ) : type === 'outbid' ? (
-                <>
-                  <div className={'content-wallet-address'}/>
-                  <div>{'You have been outbid in this auction.'}</div>
-                  <div className={'content-amount'}>Amount: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
-                    <span className={'span-amount'}>{bidAmount}</span> {currency}</div>
-                </>
               ) : type === 'sold' ? (
                 <>
                   <div className={'content-wallet-address'}>Winner: {winnerAddress}</div>
                   <div>{'Your auction ended and you sold your card.'}</div>
+                  <div className={'content-amount'}>Amount: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
+                    <span className={'span-amount'}>{bidAmount}</span> {currency}</div>
+                </>
+              ) : type === 'settlemybid' ? (
+                <>
+                  <div className={'content-wallet-address'}>Winner: {winnerAddress}</div>
+                  <div>You've placed a bid on this auction and it is settled.</div>
+                  <div className={'content-amount'}>Amount: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
+                    <span className={'span-amount'}>{bidAmount}</span> {currency}</div>
+                </>
+              ) : type === 'win' ? (
+                <>
+                  <div className={'content-wallet-address'}>You WIN in this auction.</div>
                   <div className={'content-amount'}>Amount: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
                     <span className={'span-amount'}>{bidAmount}</span> {currency}</div>
                 </>
