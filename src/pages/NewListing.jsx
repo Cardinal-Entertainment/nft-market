@@ -111,6 +111,7 @@ const NFTContainer = styled.div`
   //min-width: 600px;
 
   //max-height: 550px;
+  min-height: 270px;
   overflow-y: auto;
   border-radius: 4px;
   box-shadow: 0 6px 4px -4px gray;
