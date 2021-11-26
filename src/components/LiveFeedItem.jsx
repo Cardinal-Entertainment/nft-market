@@ -3,9 +3,13 @@ import { forwardRef }from "react";
 import { styled } from '@mui/material';
 
 import iconNew from '../assets/new.png'
+import iconMyNew from '../assets/mynew.png'
 import iconBid from '../assets/bid.png'
+import iconMyBid from '../assets/mybid.png'
+import iconMyBidOn from '../assets/mybidon.png'
+import iconMyOutBid from '../assets/myoutbid.png'
 import iconSettle from '../assets/settle.png'
-import iconOutbid from '../assets/outbid.png'
+import iconWin from '../assets/win.png'
 import iconSold from '../assets/sold.png'
 import wmovrCoin from "../assets/movr_logo.png";
 import zoomCoin from "../assets/zoombies_coin.svg";
@@ -127,32 +131,53 @@ const LiveFeedItem = ( props, ref  ) => {
 
   return (
     <StyledDiv>
-      <Container ref={ref} {...props} className={highlight === 'true' ? 'container-highlight' : ''} type={!(type === 'new' || type === 'bid' || type === 'settle') ? 'highlight' : ''}>
+      <Container ref={ref} {...props} className={highlight === 'true' ? 'container-highlight' : ''} type={!(type === 'new' || type === 'bid' || type === 'settled') ? 'highlight' : ''}>
         <ImgEvent>
           {
-            type === 'new' ? (
+            (type === 'new') ? (
               <img src={iconNew} alt={type} style={
                 {
                   width: '32px',
                   height: '32px',
                 }
               }/>
-            ) : type === 'bid' ? (
+            ) : (type === 'mynew') ? (
+              <img src={iconMyNew} alt={type} style={
+                {
+                  width: '32px',
+                  height: '32px',
+                }
+              }/>
+            ) : (type === 'bid') ? (
               <img src={iconBid} alt={type} style={
                 {
                   width: '32px',
                   height: '32px',
                 }
               }/>
-            ) : type === 'settled' ? (
+            ) : (type === 'mybidon') ? (
+              <img src={iconMyBidOn} alt={type} style={
+                {
+                  width: '32px',
+                  height: '32px',
+                }
+              }/>
+            ) : (type === 'mybid') ? (
+              <img src={iconMyBid} alt={type} style={
+                {
+                  width: '32px',
+                  height: '32px',
+                }
+              }/>
+            ) : (type === 'settled' || type === 'settlemybid') ? (
               <img src={iconSettle} alt={type} style={
                 {
                   width: '32px',
                   height: '32px',
                 }
               }/>
-            ) : type === 'outbid' ? (
-              <img src={iconOutbid} alt={type} style={
+            ) : type === 'myoutbid' ? (
+              <img src={iconMyOutBid} alt={type} style={
                 {
                   width: '32px',
                   height: '32px',
@@ -160,6 +185,13 @@ const LiveFeedItem = ( props, ref  ) => {
               }/>
             ) : type === 'sold' ? (
               <img src={iconSold} alt={type} style={
+                {
+                  width: '32px',
+                  height: '32px',
+                }
+              }/>
+            ) : type === 'win' ? (
+              <img src={iconWin} alt={type} style={
                 {
                   width: '32px',
                   height: '32px',

@@ -98,6 +98,7 @@ const LiveFeedsSlide = (props, ref  ) => {
           minPrice: 23.0,
           bidAmount: 12032.25,
           seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+          bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
           currency: 'ZOOM',
           winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
         }
@@ -115,6 +116,7 @@ const LiveFeedsSlide = (props, ref  ) => {
           minPrice: 23.0,
           bidAmount: 12032.25,
           seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+          bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
           currency: 'ZOOM',
           winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
         }
@@ -132,6 +134,7 @@ const LiveFeedsSlide = (props, ref  ) => {
           minPrice: 23.0,
           bidAmount: 12032.25,
           seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+          bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
           currency: 'ZOOM',
           winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
         }
@@ -149,6 +152,7 @@ const LiveFeedsSlide = (props, ref  ) => {
           minPrice: 23.0,
           bidAmount: 12032.25,
           seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+          bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
           currency: 'ZOOM',
           winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
         }
@@ -166,6 +170,7 @@ const LiveFeedsSlide = (props, ref  ) => {
           minPrice: 23.0,
           bidAmount: 12032.25,
           seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+          bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
           currency: 'ZOOM',
           winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
         }
@@ -183,6 +188,7 @@ const LiveFeedsSlide = (props, ref  ) => {
           minPrice: 23.0,
           bidAmount: 12032.25,
           seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+          bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
           currency: 'ZOOM',
           winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
         }
@@ -200,6 +206,7 @@ const LiveFeedsSlide = (props, ref  ) => {
           minPrice: 23.0,
           bidAmount: 12032.25,
           seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+          bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
           currency: 'ZOOM',
           winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
         }
@@ -217,6 +224,7 @@ const LiveFeedsSlide = (props, ref  ) => {
           minPrice: 23.0,
           bidAmount: 12032.25,
           seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+          bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
           currency: 'ZOOM',
           winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
         }
@@ -234,6 +242,7 @@ const LiveFeedsSlide = (props, ref  ) => {
           minPrice: 23.0,
           bidAmount: 12032.25,
           seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+          bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
           currency: 'ZOOM',
           winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
         }
@@ -251,6 +260,7 @@ const LiveFeedsSlide = (props, ref  ) => {
           minPrice: 23.0,
           bidAmount: 12032.25,
           seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+          bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
           currency: 'ZOOM',
           winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
         }
