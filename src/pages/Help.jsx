@@ -1,10 +1,10 @@
-import React from "react";
-import styled from "styled-components/macro";
+import React from 'react';
+import styled from 'styled-components/macro';
 
 const Container = styled.div`
   display: flex;
   color: white;
-  
+
   h1 {
     margin-top: 0;
     margin-bottom: 10px;
@@ -12,7 +12,6 @@ const Container = styled.div`
 `;
 
 const HelpPage = () => {
-
   return (
     <Container>
       <h1>Coming soon...</h1>

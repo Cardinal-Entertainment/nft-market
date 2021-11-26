@@ -1,7 +1,7 @@
 import { useQuery } from 'react-query';
 import axios from 'axios';
 import { ethers } from 'ethers';
-import {apiEndpoint} from "../constants";
+import {apiEndpoint, QUERY_KEYS} from "../constants";
 
 const getUserProfiles = async (userAddress) => {
   if (!ethers.utils.isAddress(userAddress)) {
@@ -21,7 +21,7 @@ const getUserProfiles = async (userAddress) => {
 
 export const useFetchProfileQuery = (userAddress) =>
   useQuery({
-    queryKey: ['fetchUserProfile', { userAddress }],
+    queryKey: [QUERY_KEYS.profile, { userAddress }],
     queryFn: () => getUserProfiles(userAddress),
     ...{
       refetchOnWindowFocus: false,

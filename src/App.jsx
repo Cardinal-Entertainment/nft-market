@@ -21,6 +21,7 @@ import Profile from 'pages/Profile';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import NotificationAddon from "./components/NotificationAddon";
 import AuctionArchive from "pages/AuctionArchive";
+import watchMarketEvents from "utils/setupWatcher";
 
 const Container = styled('div')({
   height: '100vh',
@@ -133,7 +134,7 @@ const App = () => {
 
   const [checked, setChecked] = React.useState(false);
   const [showMenu, setShowMenu] = React.useState(false);
-  const { dispatch, state } = useContext(store);
+  const { dispatch } = useContext(store);
   const isDesktop = useMediaQuery('(min-width:1024px)');
 
   const showSlider = () => {
@@ -158,9 +159,11 @@ const App = () => {
     setShowMenu(isDesktop)
   }, [ isDesktop ]);
 
+
   const toggleMenu = () => {
     setShowMenu(!showMenu)
   }
+  
 
   const NotificationButtonComponent = () => {
     return (
