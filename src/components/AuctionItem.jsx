@@ -1,18 +1,26 @@
-import React, {useContext, useEffect, useState} from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart, faClock } from "@fortawesome/free-regular-svg-icons";
-import { faHeart as faHeartSolid, faChevronRight } from "@fortawesome/free-solid-svg-icons";
-import movrLogo from "../assets/movr_logo.png";
-import zoomCoin from "../assets/zoombies_coin.svg";
-import {Button, CircularProgress, styled, Grid} from "@mui/material";
-import {cardImageBaseURL, marketContractAddress, wmovrContractAddress, zoomContractAddress} from "../constants";
-import { useTheme } from "styled-components";
-import moment from "moment";
-import {useHistory} from "react-router-dom";
-import {store} from "../store/store";
-import { ethers } from "ethers";
-import {getOffers as fetchOffers} from "../utils/auction";
-import OfferDialog from "./OfferDialog";
+import React, { useContext, useEffect, useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHeart, faClock } from '@fortawesome/free-regular-svg-icons';
+import {
+  faHeart as faHeartSolid,
+  faChevronRight,
+} from '@fortawesome/free-solid-svg-icons';
+import movrLogo from '../assets/movr_logo.png';
+import zoomCoin from '../assets/zoombies_coin.svg';
+import { Button, CircularProgress, Modal, styled, Grid } from '@mui/material';
+import {
+  cardImageBaseURL,
+  marketContractAddress,
+  wmovrContractAddress,
+  zoomContractAddress,
+} from '../constants';
+import { useTheme } from 'styled-components';
+import moment from 'moment';
+import { useHistory } from 'react-router-dom';
+import { store } from '../store/store';
+import { ethers } from 'ethers';
+import { getOffers as fetchOffers } from '../utils/auction';
+import OfferDialog from './OfferDialog';
 
 const Container = styled(Grid)({
   display: 'flex',
@@ -32,12 +40,30 @@ const Container = styled(Grid)({
   '& .meta-header-cards-tip': {
     fontSize: '14px',
     '& span': {
-      padding: '0 4px 0 0 '
-    }
+      padding: '0 4px 0 0 ',
+    },
   },
 
   '& .meta-header-bids': {
-    color: '#838383'
+    color: '#838383',
+  },
+});
+
+const ModalContent = styled('div')({
+  position: 'absolute',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: '20px',
+  background: 'white',
+  borderRadius: '8px',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+
+  '& > *': {
+    margin: '5px 0',
   },
 });
 
@@ -51,12 +77,12 @@ const MetaDiv = styled(Grid)(({ theme }) => ({
 
   '& .meta-content-coin-icon': {
     width: '24px',
-    height: '24px'
+    height: '24px',
   },
   [theme.breakpoints.down('sm')]: {
-    width: '100%'
+    width: '100%',
   },
-}))
+}));
 
 const MetaHeader = styled('div')({
   display: 'flex',
@@ -69,31 +95,31 @@ const MetaHeader = styled('div')({
     alignItems: 'center',
 
     '& .meta-header-title': {
-      fontSize: '24px'
+      fontSize: '24px',
     },
 
     '& .meta-header-title:hover': {
       color: '#D400BD',
       cursor: 'pointer',
-      textDecoration: 'underline'
-    }
+      textDecoration: 'underline',
+    },
   },
   '& .meta-header-right': {
     display: 'flex',
     justifyContent: 'space-between',
   },
-})
+});
 
 const MetaContent = styled('div')({
   display: 'flex',
   flexDirection: 'column',
-  flex: 1
-})
+  flex: 1,
+});
 
 const CardImage = styled('img')({
   width: '177px',
-  height: '270px'
-})
+  height: '270px',
+});
 
 const MetaContentBidAmount = styled('div')({
   display: 'flex',
@@ -105,12 +131,11 @@ const MetaContentBidAmount = styled('div')({
   '& .meta-content-coin-text': {
     alignItems: 'flex-end',
     fontSize: '18px',
-    padding: '6px 0 0 4px'
-  }
-})
+    padding: '6px 0 0 4px',
+  },
+});
 
 const MetaContentRow = styled('div')({
-
   margin: '8px 0',
   display: 'flex',
   flexDirection: 'column',
@@ -125,24 +150,24 @@ const MetaContentRow = styled('div')({
     backgroundColor: '#D400BD',
 
     display: 'flex',
-    alignItems: 'flex-end'
-  }
-})
+    alignItems: 'flex-end',
+  },
+});
 
 const MetaContentTip = styled('div')({
   fontSize: '12px',
   lineHeight: '1rem',
   color: '#838383',
-})
+});
 
 const MetaContentTime = styled('div')({
   display: 'flex',
   alignItems: 'center',
   lineHeight: '1rem',
   '& .meta-content-remaining-time': {
-    margin: '0 0 0 4px'
-  }
-})
+    margin: '0 0 0 4px',
+  },
+});
 
 const MetaContentButtonSection = styled('div')({
   display: 'flex',
@@ -163,7 +188,7 @@ const MetaContentButtonSection = styled('div')({
     alignItems: 'flex-end',
     textTransform: 'capitalize',
     fontWeight: '400',
-    justifyContent: 'flex-start'
+    justifyContent: 'flex-start',
   },
 
   '& .button-bid': {
@@ -171,7 +196,6 @@ const MetaContentButtonSection = styled('div')({
     backgroundColor: '#D400BD',
     width: '100%',
     padding: '6px 8px',
-
   },
 
   '& .button-more-info': {
@@ -180,13 +204,13 @@ const MetaContentButtonSection = styled('div')({
     justifyContent: 'space-between',
     backgroundColor: '#474747',
   },
-})
+});
 
 const DetailCardsDiv = styled(Grid)(({ theme }) => ({
   flex: 1,
   margin: '0 12px',
   overflowX: 'auto',
-}))
+}));
 
 const CardsContainer = styled('div')(({ theme }) => ({
   flexGrow: '1',
@@ -202,83 +226,102 @@ const CardsContainer = styled('div')(({ theme }) => ({
 
 }))
 
-const AuctionItem = ({
-  content
-}) => {
-
+const AuctionItem = ({ content }) => {
   const {
-    state: { contracts, wallet, zoomIncrement, wmovrIncrement  },
+    state: { contracts, wallet, zoomIncrement, wmovrIncrement },
   } = useContext(store);
   const history = useHistory();
   const [cardPageNo, setCardPageNo] = useState(1);
-  const [favorite, setFavorite] = useState(false)
-  const [remainingTime, setRemainingTime] = useState("")
+  const [favorite, setFavorite] = useState(false);
+  const [remainingTime, setRemainingTime] = useState('');
   const [offers, setOffers] = useState([]);
   const [bidInProgress, setBidInProgress] = useState(false);
   const [approvalModalOpen, setApprovalModalOpen] = useState(false);
 
   const theme = useTheme();
 
-  const auctionItem = content
-  const { itemNumber, highestBid } = auctionItem
-  const coinType = auctionItem.saleToken === zoomContractAddress ? 'ZOOM' : (auctionItem.saleToken === wmovrContractAddress ?'WMOVR' : '' )
-  const minIncrement = auctionItem.saleToken === zoomContractAddress ? zoomIncrement : (auctionItem.saleToken === wmovrContractAddress ? wmovrIncrement : 0)
+  const auctionItem = content;
+  const { itemNumber, highestBid } = auctionItem;
+  const coinType =
+    auctionItem.saleToken === zoomContractAddress
+      ? 'ZOOM'
+      : auctionItem.saleToken === wmovrContractAddress
+      ? 'WMOVR'
+      : '';
+  const minIncrement =
+    auctionItem.saleToken === zoomContractAddress
+      ? zoomIncrement
+      : auctionItem.saleToken === wmovrContractAddress
+      ? wmovrIncrement
+      : 0;
 
   const getOffers = async () => {
-    const offers = await fetchOffers(
-      content.itemNumber
-    );
+    const offers = await fetchOffers(content.itemNumber);
     setOffers(offers);
   };
 
-  useEffect( () => {
-    getOffers(content.itemNumber)
-    let interval = null
+  useEffect(() => {
+    getOffers(content.itemNumber);
+    let interval = null;
     interval = setInterval(() => {
-      updateRemainingTime()
+      updateRemainingTime();
     }, 1000);
   }, [content.itemNumber]);
 
   const updateRemainingTime = () => {
-    const timeDiff = ((moment.unix(auctionItem.auctionEnd).diff(moment())) / 1000)
+    const timeDiff = moment.unix(auctionItem.auctionEnd).diff(moment()) / 1000;
 
-    const remainingDays = Math.floor(timeDiff / (3600 * 24))
-    const remainingHours = Math.floor((timeDiff % (3600 * 24)) / 3600)
-    const remainingMinutes = Math.floor((timeDiff % (3600)) / 60)
-    const remainingSeconds = Math.floor(timeDiff % 60)
+    const remainingDays = Math.floor(timeDiff / (3600 * 24));
+    const remainingHours = Math.floor((timeDiff % (3600 * 24)) / 3600);
+    const remainingMinutes = Math.floor((timeDiff % 3600) / 60);
+    const remainingSeconds = Math.floor(timeDiff % 60);
 
-    setRemainingTime(formatTwoPlace(remainingDays) + "d " + formatTwoPlace(remainingHours) + "h " + formatTwoPlace(remainingMinutes) + "m " + formatTwoPlace(remainingSeconds) + "s ")
-  }
+    setRemainingTime(
+      formatTwoPlace(remainingDays) +
+        'd ' +
+        formatTwoPlace(remainingHours) +
+        'h ' +
+        formatTwoPlace(remainingMinutes) +
+        'm ' +
+        formatTwoPlace(remainingSeconds) +
+        's '
+    );
+  };
 
   const formatTwoPlace = (value) => {
     if (value > 9) {
-      return value
+      return value;
     } else {
-      return '0' + value
+      return '0' + value;
     }
-  }
-
+  };
 
   const handleConfirmBid = async (amount) => {
-    const { currency, id } = auctionItem;
+    const { currency, itemNumber } = auctionItem;
     let currencyContract;
 
-    if (parseFloat(amount) <= auctionItem?.highestBid || parseFloat(amount) <= auctionItem?.minPrice) {
+    if (
+      parseFloat(amount) <
+      Math.max(
+        auctionItem?.highestBid + parseFloat(minIncrement),
+        auctionItem?.minAmount + parseFloat(minIncrement)
+      )
+    ) {
       throw new Error(`Invalid amount valid : ${amount}`);
     }
 
     switch (currency) {
-      case "ZOOM":
+      case 'ZOOM':
         currencyContract = contracts.ZoomContract;
         break;
-      case "WMOVR":
+      case 'WMOVR':
         currencyContract = contracts.WMOVRContract;
         break;
       default:
         throw new Error(`Unhandled currency type: ${currency}`);
     }
 
-    const weiAmount = ethers.utils.parseEther(amount);
+    const weiAmount = ethers.utils.parseEther(amount.toString());
 
     const approveTx = await currencyContract.approve(
       marketContractAddress,
@@ -289,7 +332,7 @@ const AuctionItem = ({
     setApprovalModalOpen(false);
     setBidInProgress(true);
     const bidTx = await contracts.MarketContract.bid(
-      parseInt(id),
+      parseInt(itemNumber),
       weiAmount
     );
     await bidTx.wait();
@@ -298,52 +341,77 @@ const AuctionItem = ({
   };
 
   const toggleFavorite = () => {
-    setFavorite(!favorite)
-  }
+    setFavorite(!favorite);
+  };
 
   const gotoAuction = () => {
     history.push(`/listing/${auctionItem.itemNumber}`);
-  }
+  };
 
   // const handleCardsTablePageChanged = (event, value) => {
   //   setCardPageNo(value)
   // }
 
   return (
-    <Container container>
+    <Container key={auctionItem._id} container>
       <MetaDiv>
         <MetaHeader>
-          <div className={"meta-header-left"}>
-            <div className={"meta-header-title"} onClick={gotoAuction}>
+          <div className={'meta-header-left'}>
+            <div className={'meta-header-title'} onClick={gotoAuction}>
               Auction #{itemNumber}
             </div>
-            {
-              favorite ? (
-                <FontAwesomeIcon
-                  icon={faHeartSolid}
-                  color={'rgba(255, 0, 0, 0.87)'}
-                  size="lg"
-                  onClick={toggleFavorite}
-                />
-              ) : (
-                <FontAwesomeIcon
-                  icon={faHeart}
-                  color={'rgba(0, 0, 0, 0.87)'}
-                  size="lg"
-                  onClick={toggleFavorite}
-                />
-              )
-            }
-
+            {favorite ? (
+              <FontAwesomeIcon
+                icon={faHeartSolid}
+                color={'rgba(255, 0, 0, 0.87)'}
+                size="lg"
+                onClick={toggleFavorite}
+              />
+            ) : (
+              <FontAwesomeIcon
+                icon={faHeart}
+                color={'rgba(0, 0, 0, 0.87)'}
+                size="lg"
+                onClick={toggleFavorite}
+              />
+            )}
           </div>
-          <div className={"meta-header-right"}>
-            <div className={"meta-header-cards-tip"}>
-              <span style={{color: theme.colors.epic}}>{auctionItem.cards.filter( card => { return card.rarity.toLowerCase() === 'epic' }).length}E</span>
-              <span style={{color: theme.colors.rare}}>{auctionItem.cards.filter( card => { return card.rarity.toLowerCase() === 'rare' }).length}R</span>
-              <span style={{color: theme.colors.uncommon}}>{auctionItem.cards.filter( card => { return card.rarity.toLowerCase() === 'uncommon' }).length}U</span>
-              <span style={{color: theme.colors.common}}>{auctionItem.cards.filter( card => { return card.rarity.toLowerCase() === 'common' }).length}C</span>
+          <div className={'meta-header-right'}>
+            <div className={'meta-header-cards-tip'}>
+              <span style={{ color: theme.colors.epic }}>
+                {
+                  auctionItem.cards.filter((card) => {
+                    return card.rarity.toLowerCase() === 'epic';
+                  }).length
+                }
+                E
+              </span>
+              <span style={{ color: theme.colors.rare }}>
+                {
+                  auctionItem.cards.filter((card) => {
+                    return card.rarity.toLowerCase() === 'rare';
+                  }).length
+                }
+                R
+              </span>
+              <span style={{ color: theme.colors.uncommon }}>
+                {
+                  auctionItem.cards.filter((card) => {
+                    return card.rarity.toLowerCase() === 'uncommon';
+                  }).length
+                }
+                U
+              </span>
+              <span style={{ color: theme.colors.common }}>
+                {
+                  auctionItem.cards.filter((card) => {
+                    return card.rarity.toLowerCase() === 'common';
+                  }).length
+                }
+                C
+              </span>
             </div>
-            <div className={"meta-header-bids"}>
+            <div className={'meta-header-bids'}>
               {offers.length > 0 ? offers.length : 'No'} bids
             </div>
           </div>
@@ -351,48 +419,54 @@ const AuctionItem = ({
         <MetaContent>
           <MetaContentRow>
             <MetaContentBidAmount>
-              <img className={"meta-content-coin-icon"} src={coinType === 'ZOOM' ? zoomCoin : movrLogo} alt="WMOVR" loading="lazy"/>
-              <span>{Math.round(parseFloat(highestBid) * 10000) / 10000 + " " }</span>
-              <span className={"meta-content-coin-text"}>{coinType}</span>
+              <img
+                className={'meta-content-coin-icon'}
+                src={coinType === 'ZOOM' ? zoomCoin : movrLogo}
+                alt="WMOVR"
+                loading="lazy"
+              />
+              <span>
+                {Math.round(parseFloat(highestBid) * 10000) / 10000 + ' '}
+              </span>
+              <span className={'meta-content-coin-text'}>{coinType}</span>
             </MetaContentBidAmount>
-            <MetaContentTip>
-              Highest Bid
-            </MetaContentTip>
+            <MetaContentTip>Highest Bid</MetaContentTip>
           </MetaContentRow>
           <MetaContentRow>
             <MetaContentTime>
-              <FontAwesomeIcon
-                icon={faClock}
-                size="lg"
-              />
-              <span className={"meta-content-remaining-time"}>
-              {moment().isBefore(moment.unix(auctionItem.auctionEnd)) ? remainingTime : moment.unix(auctionItem.auctionEnd).format("MM/DD/YYYY, h:mm:ss A")}
+              <FontAwesomeIcon icon={faClock} size="lg" />
+              <span className={'meta-content-remaining-time'}>
+                {moment().isBefore(moment.unix(auctionItem.auctionEnd))
+                  ? remainingTime
+                  : moment
+                      .unix(auctionItem.auctionEnd)
+                      .format('MM/DD/YYYY, h:mm:ss A')}
               </span>
             </MetaContentTime>
-            <MetaContentTip>
-              Remaining time
-            </MetaContentTip>
+            <MetaContentTip>Remaining time</MetaContentTip>
           </MetaContentRow>
           <MetaContentButtonSection>
-            {/*<Button className={"button-bid"} onClick={onClickBid}>Quick Bid {"(" + (*/}
-            {/*  auctionItem.highestBid > 0 ?*/}
-            {/*    Math.round(parseFloat(auctionItem.highestBid) * 10000) / 10000 :*/}
-            {/*    Math.round((parseFloat(auctionItem.minPrice) + parseFloat(minIncrement)) * 10000) / 10000) + " " + coinType + ")"}</Button>*/}
             <OfferDialog
               currency={coinType}
-              minAmount={parseFloat(auctionItem.highestBid) > (parseFloat(auctionItem.minPrice) + parseFloat(minIncrement)) ? parseFloat(auctionItem.highestBid) : (parseFloat(auctionItem.minPrice)  + parseFloat(minIncrement))}
-              maxAmount={coinType === 'ZOOM' ? parseFloat(wallet.zoomBalance) : parseFloat(wallet.wmovrBalance)}
+              minAmount={
+                Math.max(
+                  parseFloat(auctionItem.highestBid),
+                  parseFloat(auctionItem.minPrice)
+                ) + parseFloat(minIncrement)
+              }
+              maxAmount={
+                coinType === 'ZOOM'
+                  ? parseFloat(wallet.zoomBalance)
+                  : parseFloat(wallet.wmovrBalance)
+              }
               onConfirm={handleConfirmBid}
               disabled={moment().isAfter(moment.unix(auctionItem.auctionEnd))}
               quickBid
             />
-            <Button className={"button-more-info"} onClick={gotoAuction}>More Info
-              <FontAwesomeIcon
-                icon={faChevronRight}
-                size="sm"
-              />
+            <Button className={'button-more-info'} onClick={gotoAuction}>
+              More Info
+              <FontAwesomeIcon icon={faChevronRight} size="sm" />
             </Button>
-
           </MetaContentButtonSection>
         </MetaContent>
       </MetaDiv>
@@ -407,6 +481,15 @@ const AuctionItem = ({
         {/*{auctionItem.cards && <Pagination count={Math.ceil(auctionItem.cards.length / 20)} className={"pagination-bar"} variant="outlined" shape="rounded" onChange={handleCardsTablePageChanged}/>}*/}
       </DetailCardsDiv>
 
+      <Modal
+        open={approvalModalOpen}
+        onClose={() => setApprovalModalOpen(false)}
+      >
+        <ModalContent>
+          <div>Please wait for the Approval to complete.</div>
+          <CircularProgress />
+        </ModalContent>
+      </Modal>
     </Container>
   );
 };
