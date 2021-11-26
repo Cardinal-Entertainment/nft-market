@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {forwardRef, useContext } from "react";
+import {forwardRef, useContext, useState} from "react";
 import LiveFeedItem from "./LiveFeedItem";
 import { styled } from '@mui/material';
 import Button from "@mui/material/Button";
@@ -27,6 +27,26 @@ const FlexDiv = styled('div')({
   justifyContent: 'flex-end'
 });
 
+const FilterBar = styled('div')({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: '18px',
+  flex: 'auto',
+})
+
+const FilterItemText = styled('div')(({ color, selected, borderRight }) => ({
+  color: color ? color : 'white',
+  textDecoration: selected ? 'underline' : '',
+  padding: '0 8px',
+  borderRight: borderRight ? '1px solid white' : '',
+  lineHeight: borderRight ? '20px' : '',
+
+  '&:hover': {
+    cursor: 'pointer'
+  }
+}))
+
 const StyledButton = styled(Button)({
   fontWeight: 'bold',
   color: 'white',
@@ -47,10 +67,21 @@ const CloseButton = styled(Button)(({ theme }) => ({
 const LiveFeedsSlide = (props, ref  ) => {
 
   const { dispatch, state } = useContext(store);
+  const [filters, setFilters] = useState({
+    my: true,
+    general: true
+  });
   const { hideLiveFeeds } = props
 
   const clearAll = () => {
     dispatch(Actions.resetNotifications(true))
+  }
+
+  const toggleFilter = (key) => {
+    setFilters({
+      ...filters,
+      [key]: !filters[key]
+    })
   }
 
   const addNewElement = () => {
@@ -86,49 +117,60 @@ const LiveFeedsSlide = (props, ref  ) => {
   return (
     <Container ref={ref} {...props}>
       <FlexDiv>
-        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flex: 'auto'}}>
-          <div style={{color: 'white'}}>
+        <FilterBar>
+          <FilterItemText>
             VIEW:
-          </div>
-          <div style={{color: 'white', padding: '0 12px'}}>
+          </FilterItemText>
+          <FilterItemText selected={filters.my} borderRight color={'#41f7f8'} onClick={() => toggleFilter('my')}>
             My Alerts
-          </div>
-          <div style={{color: 'white', padding: '0 12px'}}>
+          </FilterItemText>
+          <FilterItemText selected={filters.general} color={'#ff59e8'} onClick={() => toggleFilter('general')}>
             General Alerts
-          </div>
-        </div>
+          </FilterItemText>
+        </FilterBar>
 
         <StyledButton onClick={addNewElement}>
           Clear All
         </StyledButton>
-        <CloseButton onClick={hideLiveFeeds}>
-          Close
-        </CloseButton>
+        {
+          hideLiveFeeds && (
+            <CloseButton onClick={hideLiveFeeds}>
+              Close
+            </CloseButton>
+          )
+        }
+
       </FlexDiv>
       {
-        state.myEvents && (
-          <TransitionGroup>
-            {
-              state.myEvents.map((event, index) => (
-                <Collapse key={state.myEvents.length - index}>
-                  <LiveFeedItem type={event.type} content={event.content} timestamp={event.timestamp} highlight={index < state.newEventsCount ? 'true' : 'false'}/>
-                </Collapse>
-              ))
-            }
-          </TransitionGroup>
+        filters.my &&
+        (
+          state.myEvents && (
+            <TransitionGroup>
+              {
+                state.myEvents.map((event, index) => (
+                  <Collapse key={state.myEvents.length - index}>
+                    <LiveFeedItem type={event.type} content={event.content} timestamp={event.timestamp} highlight={index < state.newEventsCount ? 'true' : 'false'}/>
+                  </Collapse>
+                ))
+              }
+            </TransitionGroup>
+          )
         )
       }
+
       {
-        state.events && (
-          <TransitionGroup>
-            {
-              state.events.map((event, index) => (
-                <Collapse key={state.events.length - index}>
-                  <LiveFeedItem type={event.type} content={event.content} timestamp={event.timestamp} highlight={index < state.newEventsCount ? 'true' : 'false'}/>
-                </Collapse>
-              ))
-            }
-          </TransitionGroup>
+        filters.general && (
+          state.events && (
+            <TransitionGroup>
+              {
+                state.events.map((event, index) => (
+                  <Collapse key={state.events.length - index}>
+                    <LiveFeedItem type={event.type} content={event.content} timestamp={event.timestamp} highlight={index < state.newEventsCount ? 'true' : 'false'}/>
+                  </Collapse>
+                ))
+              }
+            </TransitionGroup>
+          )
         )
       }
     </Container>
