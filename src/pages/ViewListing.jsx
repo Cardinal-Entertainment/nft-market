@@ -26,6 +26,7 @@ const Container = styled('div')({
   flex: 1,
   height: '100%',
   color: 'white',
+  overflowY: 'auto',
 
   '& h1': {
       margin: 0,
@@ -33,6 +34,10 @@ const Container = styled('div')({
 
   '& .pagination-bar': {
     padding: '12px'
+  },
+
+  '& .bid-table': {
+    flex: 'auto'
   }
 })
 
