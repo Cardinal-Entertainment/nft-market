@@ -149,7 +149,7 @@ const Navbar = (props, ref) => {
   const [zoomBalance, setZoomBalance] = useState('');
   const [WMOVRBalance, setWMOVRBalance] = useState('');
 
-  const { toggleLiveFeeds, hideNavbar } = props;
+  const { togglelivefeeds, hidenavbar } = props;
   const { state } = useContext(store);
   const {
     wallet: { address, balance },
@@ -180,7 +180,7 @@ const Navbar = (props, ref) => {
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
-    hideNavbar();
+    hidenavbar();
   };
 
   const handleClose = (event) => {
@@ -239,7 +239,7 @@ const Navbar = (props, ref) => {
   }, [contracts, address]);
 
   return (
-    <Container ref={ref} {...props}>
+    <Container ref={ref}>
       <NavigationSection>
         <NavLink
           exact
@@ -247,7 +247,7 @@ const Navbar = (props, ref) => {
           activeClassName="active-link"
           className="page-links"
         >
-          <NavItem color="white" onClick={hideNavbar}>
+          <NavItem color="white" onClick={hidenavbar}>
             <FontAwesomeIcon
               icon={faShoppingBag}
               size="lg"
@@ -262,7 +262,7 @@ const Navbar = (props, ref) => {
           className="page-links"
           to="/new"
         >
-          <NavItem color="white" onClick={hideNavbar}>
+          <NavItem color="white" onClick={hidenavbar}>
             <FontAwesomeIcon className="marketplace" icon={faEdit} size="lg" />
             New Listing
           </NavItem>
@@ -275,7 +275,7 @@ const Navbar = (props, ref) => {
               className="page-links"
               to="/profile"
             >
-              <NavItem color="white" onClick={hideNavbar}>
+              <NavItem color="white" onClick={hidenavbar}>
                 <Tooltip
                   title={<TooltipContent>User Profile</TooltipContent>}
                   arrow
@@ -294,7 +294,7 @@ const Navbar = (props, ref) => {
               className="page-links"
               to="/archives"
             >
-              <NavItem color="white" onClick={hideNavbar}>
+              <NavItem color="white" onClick={hidenavbar}>
                 <Tooltip
                   title={<TooltipContent>Auctions Archive</TooltipContent>}
                   arrow
@@ -371,10 +371,10 @@ const Navbar = (props, ref) => {
           <NavItem
             color="white"
             style={{ flex: 'auto' }}
-            onClick={toggleLiveFeeds}
+            onClick={togglelivefeeds}
           >
             <FontAwesomeIcon className="marketplace" icon={faBell} size="lg" />
-            <NotificationAddon clickAction={toggleLiveFeeds} />
+            <NotificationAddon clickAction={togglelivefeeds} />
             Live Feeds
           </NavItem>
         </NavItemLiveFeeds>
@@ -385,7 +385,7 @@ const Navbar = (props, ref) => {
           className="page-links"
           to="/help"
         >
-          <NavItem color="white" onClick={hideNavbar}>
+          <NavItem color="white" onClick={hidenavbar}>
             <FontAwesomeIcon
               className="marketplace"
               icon={faQuestionCircle}

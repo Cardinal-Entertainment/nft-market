@@ -202,7 +202,7 @@ const App = () => {
             showMenu && (
               <Slide direction="right" in={showMenu} mountOnEnter unmountOnExit>
                 <NavbarContainer>
-                  <Navbar toggleLiveFeeds={showSlider} hideNavbar={hideNavbar}/>
+                  <Navbar togglelivefeeds={() => showSlider()} hidenavbar={() => hideNavbar()}/>
                 </NavbarContainer>
               </Slide>
             )
@@ -220,7 +220,7 @@ const App = () => {
           </Content>
           { checked && (
             <Slide direction="left" in={checked} mountOnEnter unmountOnExit>
-              <LiveFeedsSlide hideLiveFeeds={() => setChecked(false)}/>
+              <LiveFeedsSlide hidelivefeeds={() => setChecked(false)}/>
             </Slide>) }
         </Body>
         <Footer />

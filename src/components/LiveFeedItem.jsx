@@ -1,16 +1,19 @@
-import React from "react";
+import React, {useContext} from "react";
 import { forwardRef }from "react";
 import { styled } from '@mui/material';
 
 import iconNew from '../assets/new.png'
 import iconBid from '../assets/bid.png'
 import iconSettle from '../assets/settle.png'
+import iconOutbid from '../assets/outbid.png'
+import iconSold from '../assets/sold.png'
 import wmovrCoin from "../assets/movr_logo.png";
 import zoomCoin from "../assets/zoombies_coin.svg";
 
 import moment from "moment";
 import {useHistory} from "react-router-dom";
 import {formatAddress} from "../utils/wallet";
+import {store} from "../store/store";
 
 const StyledDiv = styled('div')({
   // '& .container-highlight': {
@@ -105,6 +108,10 @@ const ContentBody = styled('div')({
 const LiveFeedItem = ( props, ref  ) => {
 
   const history = useHistory();
+  const {
+    state: { wallet },
+  } = useContext(store);
+
   const { type, content, timestamp, highlight } = props
   const { itemNumber, bidder, seller, winner, minPrice, bidAmount, auctionEnd, currency } = content
 
@@ -120,7 +127,7 @@ const LiveFeedItem = ( props, ref  ) => {
 
   return (
     <StyledDiv>
-      <Container ref={ref} {...props} className={highlight === 'true' ? 'container-highlight' : ''} type={type === 'outbid' ? 'highlight' : ''}>
+      <Container ref={ref} {...props} className={highlight === 'true' ? 'container-highlight' : ''} type={seller === wallet.address ? 'highlight' : ''}>
         <ImgEvent>
           {
             type === 'new' ? (
@@ -139,6 +146,20 @@ const LiveFeedItem = ( props, ref  ) => {
               }/>
             ) : type === 'settled' ? (
               <img src={iconSettle} alt={type} style={
+                {
+                  width: '32px',
+                  height: '32px',
+                }
+              }/>
+            ) : type === 'outbid' ? (
+              <img src={iconOutbid} alt={type} style={
+                {
+                  width: '32px',
+                  height: '32px',
+                }
+              }/>
+            ) : type === 'sold' ? (
+              <img src={iconSold} alt={type} style={
                 {
                   width: '32px',
                   height: '32px',
@@ -182,6 +203,13 @@ const LiveFeedItem = ( props, ref  ) => {
                 <>
                   <div className={'content-wallet-address'}/>
                   <div>{'You have been outbid in this auction.'}</div>
+                  <div className={'content-amount'}>Amount: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
+                    <span className={'span-amount'}>{bidAmount}</span> {currency}</div>
+                </>
+              ) : type === 'sold' ? (
+                <>
+                  <div className={'content-wallet-address'}>Winner: {winnerAddress}</div>
+                  <div>{'Your auction ended and you sold your card.'}</div>
                   <div className={'content-amount'}>Amount: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
                     <span className={'span-amount'}>{bidAmount}</span> {currency}</div>
                 </>

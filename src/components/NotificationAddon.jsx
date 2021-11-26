@@ -40,22 +40,27 @@ const NotificationAddon = ( props ) => {
   const {  state } = useContext(store);
 
   return (
-    state.newEventsCount > 0 && (
-      <>
-        <ButtonAddon onClick={clickAction}>
-          {
-            state.newEventsCount >= 100 ? '99+' : state.newEventsCount
-          }
-        </ButtonAddon>
 
-        <ButtonAddonRight onClick={clickAction}>
-          {
-            state.newEventsCount >= 100 ? '99+' : state.newEventsCount
-          }
-        </ButtonAddonRight>
-      </>
-
-    )
+    <>
+      {
+        state.newEventsCount > 0 && (
+          <ButtonAddon onClick={clickAction}>
+            {
+              state.newEventsCount >= 100 ? '99+' : state.newEventsCount
+            }
+          </ButtonAddon>
+        )
+      }
+      {
+        state.myNewEventsCount > 0 && (
+          <ButtonAddonRight onClick={clickAction}>
+            {
+              state.myNewEventsCount >= 100 ? '99+' : state.myNewEventsCount
+            }
+          </ButtonAddonRight>
+        )
+      }
+    </>
   )
 };
 

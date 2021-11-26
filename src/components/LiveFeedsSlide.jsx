@@ -7,6 +7,8 @@ import { TransitionGroup } from 'react-transition-group';
 import Collapse from '@mui/material/Collapse';
 import {store} from "../store/store";
 import Actions from "../store/actions";
+import {ethers} from "ethers";
+import {wmovrContractAddress, zoomContractAddress} from "../constants";
 
 const Container = styled('div')(({ theme }) => ({
   margin: '16px 16px 16px 0',
@@ -35,12 +37,12 @@ const FilterBar = styled('div')({
   flex: 'auto',
 })
 
-const FilterItemText = styled('div')(({ color, selected, borderRight }) => ({
+const FilterItemText = styled('div')(({ color, selected, splitter }) => ({
   color: color ? color : 'white',
   textDecoration: selected ? 'underline' : '',
   padding: '0 8px',
-  borderRight: borderRight ? '1px solid white' : '',
-  lineHeight: borderRight ? '20px' : '',
+  borderRight: splitter === 'true' ? '1px solid white' : '',
+  lineHeight: splitter === 'true' ? '20px' : '',
 
   '&:hover': {
     cursor: 'pointer'
@@ -71,7 +73,7 @@ const LiveFeedsSlide = (props, ref  ) => {
     my: true,
     general: true
   });
-  const { hideLiveFeeds } = props
+  const { hidelivefeeds } = props
 
   const clearAll = () => {
     dispatch(Actions.resetNotifications(true))
@@ -94,7 +96,32 @@ const LiveFeedsSlide = (props, ref  ) => {
           // itemNumber: itemNumber.toNumber(),
           itemNumber: 10,
           minPrice: 1.0,
-          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232'
+          bidAmount: 1.0,
+          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+          currency: 'ZOOM'
+        }
+      })
+    )
+
+    dispatch(
+      Actions.myNewBidEventTriggered({
+        type: 'sold',
+        timestamp: Date.now() / 1000,
+        // content: {
+        //   blockNumber: Date.now(),
+        //   // itemNumber: itemNumber.toNumber(),
+        //   itemNumber: 10,
+        //   minPrice: 1.0,
+        //   seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232'
+        // },
+        //
+        content: {
+          blockNumber: Date.now(),
+          itemNumber: 10,
+          bidAmount: 10323.5,
+          winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+          currency: 'WMOVR'
         }
       })
     )
@@ -106,22 +133,23 @@ const LiveFeedsSlide = (props, ref  ) => {
         content: {
           blockNumber: Date.now(),
           // itemNumber: itemNumber.toNumber(),
+          bidAmount: 10323.5,
           itemNumber: 10,
           minPrice: 1.0,
-          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232'
+          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0231'
         }
       })
     )
   }
 
   return (
-    <Container ref={ref} {...props}>
+    <Container ref={ref}>
       <FlexDiv>
         <FilterBar>
           <FilterItemText>
             VIEW:
           </FilterItemText>
-          <FilterItemText selected={filters.my} borderRight color={'#41f7f8'} onClick={() => toggleFilter('my')}>
+          <FilterItemText selected={filters.my} splitter={"true"} color={'#41f7f8'} onClick={() => toggleFilter('my')}>
             My Alerts
           </FilterItemText>
           <FilterItemText selected={filters.general} color={'#ff59e8'} onClick={() => toggleFilter('general')}>
@@ -133,8 +161,8 @@ const LiveFeedsSlide = (props, ref  ) => {
           Clear All
         </StyledButton>
         {
-          hideLiveFeeds && (
-            <CloseButton onClick={hideLiveFeeds}>
+          hidelivefeeds && (
+            <CloseButton onClick={hidelivefeeds}>
               Close
             </CloseButton>
           )
