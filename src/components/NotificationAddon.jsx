@@ -1,6 +1,6 @@
-import React, {useContext} from "react";
+import React, { useContext } from 'react';
 import { styled } from '@mui/material';
-import {store} from "../store/store";
+import { store } from '../store/store';
 
 const ButtonAddon = styled('div')({
   position: 'absolute',
@@ -16,24 +16,19 @@ const ButtonAddon = styled('div')({
   alignItems: 'center',
   justifyContent: 'center',
   fontWeight: 'bold',
-})
+});
 
-
-
-const NotificationAddon = ( props ) => {
-
-  const { clickAction } = props
-  const {  state } = useContext(store);
+const NotificationAddon = (props) => {
+  const { clickAction } = props;
+  const { state } = useContext(store);
 
   return (
     state.newEventsCount > 0 && (
       <ButtonAddon onClick={clickAction}>
-        {
-          state.newEventsCount >= 100 ? '99+' : state.newEventsCount
-        }
+        {state.newEventsCount >= 100 ? '99+' : state.newEventsCount}
       </ButtonAddon>
     )
-  )
+  );
 };
 
 export default NotificationAddon;

@@ -173,11 +173,11 @@ const Filterbar = ({ onFilterChanged, filters, totalCount }) => {
   return (
     <Container>
       <SearchHeader container>
-        <SearchCountDiv item>
+        <SearchCountDiv>
           Live Now -{' '}
           <span>{totalCount ? totalCount + ' items' : 'No auctions'}</span>
         </SearchCountDiv>
-        <SearchInputContainer item>
+        <SearchInputContainer>
           <SearchDiv>
             <SearchIconWrapper>
               <SearchIcon />
