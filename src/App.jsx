@@ -22,6 +22,14 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import NotificationAddon from "./components/NotificationAddon";
 import AuctionArchive from "pages/AuctionArchive";
 import watchMarketEvents from "utils/setupWatcher";
+import PubSub from 'pubsub-js';
+import { useQueryClient } from 'react-query';
+import { v4 as uuidv4 } from 'uuid';
+import {EVENT_TYPES, marketContractAddress, QUERY_KEYS, wmovrContractAddress, zoomContractAddress} from './constants';
+import {ethers} from "ethers";
+import moment from "moment";
+import {useFetchLiveFeeds} from "./hooks/useLiveFeeds";
+import {useFetchProfileQuery} from "./hooks/useProfile";
 
 const Container = styled('div')({
   height: '100vh',
@@ -137,6 +145,8 @@ const App = () => {
   const { dispatch } = useContext(store);
   const isDesktop = useMediaQuery('(min-width:1024px)');
 
+  const queryClient = useQueryClient();
+
   const showSlider = () => {
     if (checked) {
       dispatch (Actions.resetNotifications(false))
@@ -155,9 +165,101 @@ const App = () => {
     }
   }
 
+  const { state } = useContext(store);
+  const {
+    wallet: { address },
+    contracts: { MarketContract }
+  } = state;
+
+
+  const { isLoading, data: myAuctions } = useFetchProfileQuery(address);
+
+  const addLiveFeedItem = ( liveFeedItem, filterKey ) => {
+    const liveFeeds = queryClient.getQueryData([QUERY_KEYS.liveFeeds, { filterKey }])
+    const uuid = uuidv4()
+
+    const newItem = {
+      _id: uuid,
+      type: liveFeedItem.type,
+      timestamp: Date.now() / 1000,
+      content: {
+        blockNumber: uuid, //should be removed when settle eventscraper is completed
+        currency: liveFeedItem.saleToken === zoomContractAddress ? 'ZOOM' : liveFeedItem.saleToken === wmovrContractAddress ? 'WMOVR' : '',
+        ...liveFeedItem,
+      }
+    }
+
+    if (liveFeeds) {
+      queryClient.setQueryData([QUERY_KEYS.liveFeeds, { filterKey }], [newItem, ...liveFeeds])
+    } else {
+      queryClient.setQueryData([QUERY_KEYS.liveFeeds, { filterKey }], [newItem])
+    }
+
+    const newCount = queryClient.getQueryData([QUERY_KEYS.liveFeeds, { filterKey: "new" + filterKey }])
+    queryClient.setQueryData([QUERY_KEYS.liveFeeds, { filterKey: "new" + filterKey }], typeof(newCount) === 'string' ? parseInt(newCount) + 1 : newCount + 1)
+  }
+
+  const getBidType = ( liveFeedItem ) => {
+
+    const condition = ( bid ) => {
+      return bid.itemNumber === liveFeedItem.itemNumber
+    }
+
+    if (myAuctions.bids.some(condition)) {
+      return "myoutbid"
+    }
+    if (myAuctions.listings.some(condition)) {
+      if (liveFeedItem.bidder === address) {
+        return "mybid"
+      } else {
+        return "mybidon"
+      }
+    }
+    return "bid"
+  }
+
   useEffect(() => {
     setShowMenu(isDesktop)
-  }, [ isDesktop ]);
+    const tokenNewAuction = PubSub.subscribe(EVENT_TYPES.ItemListed, (msg, data) => {
+      const newAuction = data
+      let filterKey = ""
+
+      if (newAuction.lister === address) {
+        filterKey = "MyAlerts"
+        newAuction["type"] = "mynew"
+      } else {
+        filterKey = "General"
+        newAuction["type"] = "new"
+      }
+
+      addLiveFeedItem(newAuction, filterKey)
+    })
+
+    const tokenBid = PubSub.subscribe(EVENT_TYPES.Bid, (msg, data) => {
+      const bid = data
+      let filterKey = ""
+
+      const bidType = getBidType(bid)
+      let listingItem = myAuctions.listings.find( ( listing ) => listing.itemNumber == bid.itemNumber)
+      if (listingItem === undefined) {
+        listingItem = MarketContract.getListItem(bid.itemNumber)
+      }
+
+      bid["type"] = bidType
+      bid["saleToken"] = listingItem.saleToken
+      if (bidType === "bid") {
+        filterKey = "General"
+      } else {
+        filterKey = "MyAlerts"
+      }
+      addLiveFeedItem(bid, filterKey)
+    })
+
+    return () => {
+      PubSub.unsubscribe(tokenNewAuction);
+      PubSub.unsubscribe(tokenBid);
+    }
+  }, [ queryClient, isDesktop, address, myAuctions, MarketContract ]);
 
 
   const toggleMenu = () => {

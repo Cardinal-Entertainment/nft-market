@@ -1,6 +1,9 @@
-import React, {useContext} from "react";
+import React, {useContext, useEffect} from "react";
 import { styled } from '@mui/material';
 import {store} from "../store/store";
+import {useQueryClient} from "react-query";
+import { EVENT_TYPES, marketContractAddress, QUERY_KEYS } from '../constants';
+import {useFetchLiveFeeds} from "../hooks/useLiveFeeds";
 
 const ButtonAddon = styled('div')({
   position: 'absolute',
@@ -18,7 +21,7 @@ const ButtonAddon = styled('div')({
   fontWeight: 'bold',
 })
 
-const ButtonAddonRight = styled('div')({
+const ButtonAddonLeft = styled('div')({
   position: 'absolute',
   top: 0,
   left: '8px',
@@ -37,28 +40,34 @@ const ButtonAddonRight = styled('div')({
 const NotificationAddon = ( props ) => {
 
   const { clickAction } = props
-  const {  state } = useContext(store);
+
+  const { data: newGeneralAlerts } = useFetchLiveFeeds("newGeneral")
+  const { data: newMyAlerts } = useFetchLiveFeeds("newMyAlerts")
 
   return (
 
     <>
       {
-        state.newEventsCount > 0 && (
-          <ButtonAddon onClick={clickAction}>
-            {
-              state.newEventsCount >= 100 ? '99+' : state.newEventsCount
-            }
-          </ButtonAddon>
-        )
+        newGeneralAlerts ? (
+          newGeneralAlerts > 0 && (
+            <ButtonAddon onClick={clickAction}>
+              {
+                newGeneralAlerts >= 100 ? '99+' : newGeneralAlerts
+              }
+            </ButtonAddon>
+          )
+        ) : <></>
       }
       {
-        state.myNewEventsCount > 0 && (
-          <ButtonAddonRight onClick={clickAction}>
-            {
-              state.myNewEventsCount >= 100 ? '99+' : state.myNewEventsCount
-            }
-          </ButtonAddonRight>
-        )
+        newMyAlerts ? (
+          newMyAlerts > 0 && (
+            <ButtonAddonLeft onClick={clickAction}>
+              {
+                newMyAlerts >= 100 ? '99+' : newMyAlerts
+              }
+            </ButtonAddonLeft>
+          )
+        ) : <></>
       }
     </>
   )

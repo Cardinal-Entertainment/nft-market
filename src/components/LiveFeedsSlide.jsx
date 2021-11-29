@@ -9,6 +9,11 @@ import {store} from "../store/store";
 import Actions from "../store/actions";
 import {ethers} from "ethers";
 import {wmovrContractAddress, zoomContractAddress} from "../constants";
+import moment from "moment";
+import PubSub from 'pubsub-js'
+import { EVENT_TYPES, QUERY_KEYS } from '../constants';
+import {useFetchLiveFeeds} from "../hooks/useLiveFeeds";
+import {useQueryClient} from "react-query";
 
 const Container = styled('div')(({ theme }) => ({
   margin: '16px 16px 16px 0',
@@ -74,9 +79,14 @@ const LiveFeedsSlide = (props, ref  ) => {
     general: true
   });
   const { hidelivefeeds } = props
+  const queryClient = useQueryClient();
 
   const clearAll = () => {
-    dispatch(Actions.resetNotifications(true))
+    // dispatch(Actions.resetNotifications(true))
+    queryClient.setQueryData([QUERY_KEYS.liveFeeds, { filterKey: "MyAlerts" }], [])
+    queryClient.setQueryData([QUERY_KEYS.liveFeeds, { filterKey: "General" }], [])
+    queryClient.setQueryData([QUERY_KEYS.liveFeeds, { filterKey: "newMyAlerts" }], 0)
+    queryClient.setQueryData([QUERY_KEYS.liveFeeds, { filterKey: "newGeneral" }], 0)
   }
 
   const toggleFilter = (key) => {
@@ -269,11 +279,50 @@ const LiveFeedsSlide = (props, ref  ) => {
   }
 
 
+  const _remoteThisFUNCTION = () => {
+    const itemListedEvent = {
+      itemNumber: 42,
+      auctionEnd: Date.now() / 1000,
+      tokenIds: [1,2,3],
+      minPrice: 10.5,
+      highestBid: 0,
+      lister: "0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232",
+      saleToken: '',
+      currency: 'ZOOM',
+      nftToken: "nfttoken",
+      auctionStart: moment().unix(),
+      highestBidder: null,
+    }
+
+    const itemListedEvent1 = {
+      itemNumber: 42,
+      auctionEnd: Date.now() / 1000,
+      tokenIds: [1,2,3],
+      minPrice: 10.5,
+      highestBid: 0,
+      lister: "0x24213bd4cEc78A8843B50b9503c1d56eEA4d0231",
+      saleToken: '',
+      currency: 'ZOOM',
+      nftToken: "nfttoken",
+      auctionStart: moment().unix(),
+      highestBidder: null,
+    }
+
+    PubSub.publish(EVENT_TYPES.ItemListed, itemListedEvent);
+    PubSub.publish(EVENT_TYPES.ItemListed, itemListedEvent1);
+  }
+
+  const { data: generalAlerts } = useFetchLiveFeeds("General")
+  const { data: myAlerts } = useFetchLiveFeeds("MyAlerts")
+
+  console.log("generalAlerts", generalAlerts)
+  console.log("myAlerts", myAlerts)
+
   return (
     <Container ref={ref}>
       <FlexDiv>
         <FilterBar>
-          <FilterItemText>
+          <FilterItemText onClick={_remoteThisFUNCTION}>
             VIEW:
           </FilterItemText>
           <FilterItemText selected={filters.my} splitter={"true"} color={'#41f7f8'} onClick={() => toggleFilter('my')}>
@@ -284,7 +333,7 @@ const LiveFeedsSlide = (props, ref  ) => {
           </FilterItemText>
         </FilterBar>
 
-        <StyledButton onClick={addNewElement}>
+        <StyledButton onClick={clearAll}>
           Clear All
         </StyledButton>
         {
@@ -299,11 +348,11 @@ const LiveFeedsSlide = (props, ref  ) => {
       {
         filters.my &&
         (
-          state.myEvents && (
+          myAlerts && (
             <TransitionGroup>
               {
-                state.myEvents.map((event, index) => (
-                  <Collapse key={state.myEvents.length - index}>
+                myAlerts.map((event, index) => (
+                  <Collapse key={myAlerts.length - index}>
                     <LiveFeedItem type={event.type} content={event.content} timestamp={event.timestamp} highlight={index < state.newEventsCount ? 'true' : 'false'}/>
                   </Collapse>
                 ))
@@ -315,11 +364,11 @@ const LiveFeedsSlide = (props, ref  ) => {
 
       {
         filters.general && (
-          state.events && (
+          generalAlerts && (
             <TransitionGroup>
               {
-                state.events.map((event, index) => (
-                  <Collapse key={state.events.length - index}>
+                generalAlerts.map((event, index) => (
+                  <Collapse key={generalAlerts.length - index}>
                     <LiveFeedItem type={event.type} content={event.content} timestamp={event.timestamp} highlight={index < state.newEventsCount ? 'true' : 'false'}/>
                   </Collapse>
                 ))

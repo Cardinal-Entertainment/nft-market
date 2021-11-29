@@ -67,22 +67,22 @@ const Home = () => {
        * stored in the database and API call will fetch it.
        * So it should be safe to have the data eventually consistent.
        */
-      const currentData = queryClient.getQueryData([QUERY_KEYS.listings, { filters }]);
-      if (currentData) {
-        queryClient.setQueryData([QUERY_KEYS.listings, { filters }], queryData => {
-          return {
-            pageParams: queryData.pageParams,
-            pages: [
-              {
-                totalCount: queryData.pages[0].totalCount + 1,
-                nextOffset: queryData.pages[0].nextOffset,
-                data: [data]
-              },
-              ...queryData.pages
-            ]
-          }
-        })
-      }
+      // const currentData = queryClient.getQueryData([QUERY_KEYS.listings, { filters }]);
+      // if (currentData) {
+      //   queryClient.setQueryData([QUERY_KEYS.listings, { filters }], queryData => {
+      //     return {
+      //       pageParams: queryData.pageParams,
+      //       pages: [
+      //         {
+      //           totalCount: queryData.pages[0].totalCount + 1,
+      //           nextOffset: queryData.pages[0].nextOffset,
+      //           data: [data]
+      //         },
+      //         ...queryData.pages
+      //       ]
+      //     }
+      //   })
+      // }
     })
 
     return () => PubSub.unsubscribe(token);

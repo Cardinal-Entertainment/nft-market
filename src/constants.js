@@ -24,4 +24,5 @@ export const QUERY_KEYS = {
   listings: "fetchListings",
   bids: "fetchBids",
   profile: "fetchUserProfile",
+  liveFeeds: "liveFeeds"
 }

@@ -114,8 +114,9 @@ const ContentBody = styled('div')({
 const LiveFeedItem = ( props, ref  ) => {
 
   const { type, content, timestamp, highlight } = props
-  const { itemNumber, bidder, seller, winner, minPrice, bidAmount, auctionEnd, currency } = content
+  const { itemNumber, lister, bidder, seller, winner, minPrice, bidAmount, auctionEnd, currency } = content
 
+  const listerAddress = formatAddress(lister)
   const sellerAddress = formatAddress(seller)
   const bidderAddress = formatAddress(bidder)
   const winnerAddress = formatAddress(winner)
@@ -225,7 +226,7 @@ const LiveFeedItem = ( props, ref  ) => {
             {
               type === 'new' ? (
                 <>
-                  <div className={'content-wallet-address'}>{sellerAddress + ' started a new auction.'}</div>
+                  <div className={'content-wallet-address'}>{listerAddress + ' started a new auction.'}</div>
                   <div className={'content-amount'}>Min Price: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
                     <span className={'span-amount'}>{minPrice}</span> {currency}</div>
                   <div className={'content-auction-end'}>Auction Ends at: <span>{moment.unix(auctionEnd).format("MM/DD/YYYY, h:mm:ss A")}</span></div>
