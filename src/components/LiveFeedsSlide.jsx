@@ -286,7 +286,7 @@ const LiveFeedsSlide = (props, ref  ) => {
       tokenIds: [1,2,3],
       minPrice: 10.5,
       highestBid: 0,
-      lister: "0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232",
+      bidder: "0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232",
       saleToken: '',
       currency: 'ZOOM',
       nftToken: "nfttoken",
@@ -300,7 +300,7 @@ const LiveFeedsSlide = (props, ref  ) => {
       tokenIds: [1,2,3],
       minPrice: 10.5,
       highestBid: 0,
-      lister: "0x24213bd4cEc78A8843B50b9503c1d56eEA4d0231",
+      bidder: "0x24213bd4cEc78A8843B50b9503c1d56eEA4d0231",
       saleToken: '',
       currency: 'ZOOM',
       nftToken: "nfttoken",
@@ -308,12 +308,14 @@ const LiveFeedsSlide = (props, ref  ) => {
       highestBidder: null,
     }
 
-    PubSub.publish(EVENT_TYPES.ItemListed, itemListedEvent);
-    PubSub.publish(EVENT_TYPES.ItemListed, itemListedEvent1);
+    PubSub.publish(EVENT_TYPES.Bid, itemListedEvent);
+    PubSub.publish(EVENT_TYPES.Bid, itemListedEvent1);
   }
 
   const { data: generalAlerts } = useFetchLiveFeeds("General")
   const { data: myAlerts } = useFetchLiveFeeds("MyAlerts")
+  const { data: newMyAlerts } = useFetchLiveFeeds("newMyAlerts")
+  const { data: newGeneral } = useFetchLiveFeeds("newGeneral")
 
   console.log("generalAlerts", generalAlerts)
   console.log("myAlerts", myAlerts)
@@ -353,7 +355,7 @@ const LiveFeedsSlide = (props, ref  ) => {
               {
                 myAlerts.map((event, index) => (
                   <Collapse key={myAlerts.length - index}>
-                    <LiveFeedItem type={event.type} content={event.content} timestamp={event.timestamp} highlight={index < state.newEventsCount ? 'true' : 'false'}/>
+                    <LiveFeedItem type={event.type} content={event.content} timestamp={event.timestamp} highlight={index < newMyAlerts ? "true" : "false"}/>
                   </Collapse>
                 ))
               }
@@ -369,7 +371,7 @@ const LiveFeedsSlide = (props, ref  ) => {
               {
                 generalAlerts.map((event, index) => (
                   <Collapse key={generalAlerts.length - index}>
-                    <LiveFeedItem type={event.type} content={event.content} timestamp={event.timestamp} highlight={index < state.newEventsCount ? 'true' : 'false'}/>
+                    <LiveFeedItem type={event.type} content={event.content} timestamp={event.timestamp} highlight={index < newGeneral ? "true" : "false"}/>
                   </Collapse>
                 ))
               }

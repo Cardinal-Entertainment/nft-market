@@ -149,7 +149,9 @@ const App = () => {
 
   const showSlider = () => {
     if (checked) {
-      dispatch (Actions.resetNotifications(false))
+      // dispatch (Actions.resetNotifications(false))
+      queryClient.setQueryData([QUERY_KEYS.liveFeeds, { filterKey: "newMyAlerts" }], 0)
+      queryClient.setQueryData([QUERY_KEYS.liveFeeds, { filterKey: "newGeneral" }], 0)
     }
     setChecked(!checked)
     if (!isDesktop) {
@@ -208,12 +210,11 @@ const App = () => {
     if (myAuctions.bids.some(condition)) {
       return "myoutbid"
     }
+    if (liveFeedItem.bidder === address) {
+      return "mybid"
+    }
     if (myAuctions.listings.some(condition)) {
-      if (liveFeedItem.bidder === address) {
-        return "mybid"
-      } else {
-        return "mybidon"
-      }
+     return "mybidon"
     }
     return "bid"
   }
@@ -240,6 +241,8 @@ const App = () => {
       let filterKey = ""
 
       const bidType = getBidType(bid)
+
+      console.log("bidType", bidType)
       let listingItem = myAuctions.listings.find( ( listing ) => listing.itemNumber == bid.itemNumber)
       if (listingItem === undefined) {
         listingItem = MarketContract.getListItem(bid.itemNumber)

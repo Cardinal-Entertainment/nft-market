@@ -24,7 +24,7 @@ const ButtonAddon = styled('div')({
 const ButtonAddonLeft = styled('div')({
   position: 'absolute',
   top: 0,
-  left: '8px',
+  right: '32px',
   padding: '0 4px',
   height: '24px',
   minWidth: '16px',

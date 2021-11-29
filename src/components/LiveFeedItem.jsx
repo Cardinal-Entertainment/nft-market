@@ -27,7 +27,7 @@ const StyledDiv = styled('div')({
   animation: 'mymove 5s infinite'
 });
 
-const Container = styled('div')(({ type }) => ({
+const Container = styled('div')(({ type, highlight }) => ({
   color: 'white',
   display: 'flex',
   margin: '6px 0',
@@ -39,7 +39,9 @@ const Container = styled('div')(({ type }) => ({
   minHeight: '120px',
 
   // backgroundColor: type === 'highlight' ? '#788ea5' : 'rgb(0, 30, 60)'
-  backgroundColor: type === 'highlight' ? '#ff59e8' : '#41f7f8'
+  backgroundColor: type === 'myalert' && highlight === "true" ? '#ff59e8aa' :
+                    (type !== 'myalert' && highlight === "true" ? '#41f7f8' :
+                      type === 'myalert' && highlight !== "true" ? '#ff59e8' : 'rgb(0, 30, 60)')
 
 }))
 
@@ -144,7 +146,7 @@ const LiveFeedItem = ( props, ref  ) => {
 
   return (
     <StyledDiv>
-      <Container ref={ref} {...props} className={highlight === 'true' ? 'container-highlight' : ''} type={!(type === 'new' || type === 'bid' || type === 'settled') ? 'highlight' : ''}>
+      <Container ref={ref} {...props} className={highlight === 'true' ? 'container-highlight' : ''} type={!(type === 'new' || type === 'bid' || type === 'settled') ? 'myalert' : ''} highlight={highlight}>
         <ImgEvent>
           {
             (type === 'new') ? (
