@@ -1,22 +1,19 @@
-import DialogSource from "@mui/material/Dialog";
-import useBlockchain from "./hooks/useBlockchain";
-import zoombiesLogo from "./assets/zoombies_head.svg";
+import DialogSource from '@mui/material/Dialog';
+import useBlockchain from './hooks/useBlockchain';
+import zoombiesLogo from './assets/zoombies_head.svg';
 import liveFeedIcon from './assets/live-feed.png';
-import React, {useContext, useEffect} from "react";
-import Navbar from "components/Navbar";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import Home from "pages/Home";
-import NewListing from "pages/NewListing";
-import ViewListing from "pages/ViewListing";
-import {Button} from "@mui/material";
-import Slide from "@mui/material/Slide";
-import LiveFeedsSlide from "./components/LiveFeedsSlide";
-import {store} from "./store/store";
-import Actions from "./store/actions";
+import React, { useContext, useEffect, useState } from 'react';
+import Navbar from 'components/Navbar';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import Home from 'pages/Home';
+import NewListing from 'pages/NewListing';
+import ViewListing from 'pages/ViewListing';
+import { Button, Drawer, Slide } from '@mui/material';
+import LiveFeedsSlide from './components/LiveFeedsSlide';
 import { styled, useMediaQuery } from '@mui/material';
-import {faBars, faTimes} from "@fortawesome/free-solid-svg-icons";
+import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 
-import HelpPage from "./pages/Help";
+import HelpPage from './pages/Help';
 import Profile from 'pages/Profile';
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import NotificationAddon from "./components/NotificationAddon";
@@ -30,25 +27,26 @@ import {ethers} from "ethers";
 import moment from "moment";
 import {useFetchLiveFeeds} from "./hooks/useLiveFeeds";
 import {useFetchProfileQuery} from "./hooks/useProfile";
+import { store } from 'store/store';
 
 const Container = styled('div')({
   height: '100vh',
   display: 'flex',
   flexDirection: 'column',
-  overflow: 'hidden'
-})
+  overflow: 'hidden',
+});
 
 const Dialog = styled(DialogSource)({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  maxWidth: '500px'
-})
+  maxWidth: '500px',
+});
 
 const Logo = styled('img')({
   width: '40px',
-  height: '40px'
-})
+  height: '40px',
+});
 
 const Header = styled('div')({
   height: '75px',
@@ -62,28 +60,32 @@ const Header = styled('div')({
 
   '& img': {
     width: '60px',
-    margin: '0 10px'
+    margin: '0 10px',
   },
 
   '& .btn-livefeed': {
     width: '48px',
     height: '48px',
     marginLeft: 'auto',
-    marginRight: '32px'
-  }
-})
+    marginRight: '32px',
+  },
+});
 
 const Footer = styled('div')({
-  height: '0px'
-})
+  height: '0px',
+});
 
 const Body = styled('div')({
   flex: 1,
   display: 'flex',
   minHeight: 0,
   background: 'linear-gradient(110.99deg, #000033 0%, #100238 100%)',
-  position: 'relative'
-})
+  position: 'relative',
+
+  '& .permanent-drawer': {
+    position: 'relative',
+  },
+});
 
 const Content = styled('div')(({ theme }) => ({
   flex: 1,
@@ -96,43 +98,20 @@ const Content = styled('div')(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
     padding: '8px',
   },
-}))
+}));
 
-const NotificationButton = styled('div')(({ theme }) => ({
-  display: 'none',
-  [theme.breakpoints.up('lg')]: {
-    position: 'relative',
-    display: 'flex',
-    flex: 'auto'
-  },
-}))
-
-const HamburgerMenuButton = styled('div')(({ theme }) => ({
+const HamburgerMenuButton = styled('div')(() => ({
   position: 'relative',
   display: 'flex',
   flex: 'auto',
   justifyContent: 'flex-end',
   padding: '16px',
-  [theme.breakpoints.up('lg')]: {
-    display: 'none',
-  },
-}))
+}));
 
 const NavbarContainer = styled('div')(({ theme }) => ({
-
-  position: 'absolute',
-  left: 0,
   display: 'flex',
-  zIndex: 2,
   height: '100%',
-
-  [theme.breakpoints.up('lg')]: {
-    display: 'flex',
-    position: 'relative',
-    left: 'unset',
-    zIndex: 1,
-  },
-}))
+}));
 
 const App = () => {
   const {
@@ -140,32 +119,31 @@ const App = () => {
     actions: { setIsApprovalModalOpen },
   } = useBlockchain();
 
-  const [checked, setChecked] = React.useState(false);
-  const [showMenu, setShowMenu] = React.useState(false);
-  const { dispatch } = useContext(store);
   const isDesktop = useMediaQuery('(min-width:1024px)');
+  const [isLiveFeedOpen, setIsLiveFeedOpen] = useState(false);
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
   const queryClient = useQueryClient();
 
-  const showSlider = () => {
-    if (checked) {
-      // dispatch (Actions.resetNotifications(false))
-      queryClient.setQueryData([QUERY_KEYS.liveFeeds, { filterKey: "newMyAlerts" }], 0)
-      queryClient.setQueryData([QUERY_KEYS.liveFeeds, { filterKey: "newGeneral" }], 0)
-    }
-    setChecked(!checked)
-    if (!isDesktop) {
-      setShowMenu(false)
-    }
-  };
+  // const showSlider = () => {
+  //   if (checked) {
+  //     // dispatch (Actions.resetNotifications(false))
+  //     queryClient.setQueryData([QUERY_KEYS.liveFeeds, { filterKey: "newMyAlerts" }], 0)
+  //     queryClient.setQueryData([QUERY_KEYS.liveFeeds, { filterKey: "newGeneral" }], 0)
+  //   }
+  //   setChecked(!checked)
+  //   if (!isDesktop) {
+  //     setShowMenu(false)
+  //   }
+  // };
 
-  const hideNavbar = () => {
+  // const hideNavbar = () => {
 
-    if (!isDesktop) {
-      setShowMenu(false)
-      setChecked(false)
-    }
-  }
+  //   if (!isDesktop) {
+  //     setShowMenu(false)
+  //     setChecked(false)
+  //   }
+  // }
 
   const { state } = useContext(store);
   const {
@@ -238,7 +216,7 @@ const App = () => {
   }
 
   useEffect(() => {
-    setShowMenu(isDesktop)
+    setIsMobileDrawerOpen(isDesktop)
     const tokenNewAuction = PubSub.subscribe(EVENT_TYPES.ItemListed, (msg, data) => {
       const newAuction = data
       let filterKey = ""
@@ -276,27 +254,27 @@ const App = () => {
       addLiveFeedItem(bid, filterKey)
     })
 
-    const tokenSettled = PubSub.subscribe(EVENT_TYPES.Settled, async (msg, data) => {
-      const settleData = data
-      let filterKey = ""
+    // const tokenSettled = PubSub.subscribe(EVENT_TYPES.Settled, async (msg, data) => {
+    //   const settleData = data
+    //   let filterKey = ""
 
-      const settleType = getSettleType(settleData)
+    //   const settleType = getSettleType(settleData)
 
-      console.log("settleType", settleType)
-      let listingItem = myAuctions.listings.find( ( listing ) => listing.itemNumber === bid.itemNumber)
-      if (listingItem === undefined) {
-        listingItem = await MarketContract.getListItem(bid.itemNumber)
-      }
+    //   console.log("settleType", settleType)
+    //   let listingItem = myAuctions.listings.find( ( listing ) => listing.itemNumber === bid.itemNumber)
+    //   if (listingItem === undefined) {
+    //     listingItem = await MarketContract.getListItem(bid.itemNumber)
+    //   }
 
-      settleData["type"] = settleType
-      settleData["saleToken"] = listingItem.saleToken
-      if (settleType === "settle") {
-        filterKey = "General"
-      } else {
-        filterKey = "MyAlerts"
-      }
-      addLiveFeedItem(settleData, filterKey)
-    })
+    //   settleData["type"] = settleType
+    //   settleData["saleToken"] = listingItem.saleToken
+    //   if (settleType === "settle") {
+    //     filterKey = "General"
+    //   } else {
+    //     filterKey = "MyAlerts"
+    //   }
+    //   addLiveFeedItem(settleData, filterKey)
+    // })
 
     return () => {
       PubSub.unsubscribe(tokenNewAuction);
@@ -305,45 +283,63 @@ const App = () => {
   }, [ queryClient, isDesktop, address, myAuctions, MarketContract ]);
 
 
-  const toggleMenu = () => {
-    setShowMenu(!showMenu)
-  }
+  // const toggleMenu = () => {
+  //   setShowMenu(!showMenu)
+  // }
   
 
-  const NotificationButtonComponent = () => {
-    return (
-      <NotificationButton>
-        <Button onClick={showSlider} className={'btn-livefeed'}><img src={liveFeedIcon} alt={"Live Feed"}/>
-        <NotificationAddon clickAction={showSlider}/>
-        </Button>
-      </NotificationButton>
-    )
-  }
+  // const NotificationButtonComponent = () => {
+  //   return (
+  //     <NotificationButton>
+  //       <Button onClick={showSlider} className={'btn-livefeed'}><img src={liveFeedIcon} alt={"Live Feed"}/>
+  //       <NotificationAddon clickAction={showSlider}/>
+  //       </Button>
+  //     </NotificationButton>
+  //   )
+  // }
 
-  const ToggleMenu = () => {
+  // const ToggleMenu = () => {
+  const LiveFeedButton = () => {
+    return (
+      <Button
+        onClick={() => setIsLiveFeedOpen(prevState => !prevState)}
+        className={'btn-livefeed'}
+      >
+        <img src={liveFeedIcon} alt={'Live Feed'} />
+      </Button>
+    );
+  };
+
+  const MobileHamburgerMenu = () => {
     return (
       <HamburgerMenuButton>
-        {
-          showMenu ?
-            <FontAwesomeIcon icon={faTimes} size="lg" onClick={toggleMenu}/> :
-            <FontAwesomeIcon icon={faBars} size="lg" onClick={toggleMenu}/>
-        }
-        <NotificationAddon clickAction={toggleMenu}/>
+        {isMobileDrawerOpen ? (
+          <FontAwesomeIcon
+            icon={faTimes}
+            size="lg"
+            onClick={() => setIsMobileDrawerOpen(false)}
+          />
+        ) : (
+          <FontAwesomeIcon
+            icon={faBars}
+            size="lg"
+            onClick={() => setIsMobileDrawerOpen(true)}
+          />
+        )}
       </HamburgerMenuButton>
-    )
-  }
+    );
+  };
 
   return (
     <Container>
       <Router>
         <Header>
-          <img src={zoombiesLogo} alt={"ZOOM"}/>
+          <img src={zoombiesLogo} alt={'ZOOM'} />
           <h1>Zoombies Market</h1>
-          <NotificationButtonComponent/>
-          <ToggleMenu/>
+          {isDesktop ? <LiveFeedButton /> : <MobileHamburgerMenu />}
         </Header>
         <Body>
-          {
+          {/* {
             showMenu && (
               <Slide direction="right" in={showMenu} mountOnEnter unmountOnExit>
                 <NavbarContainer>
@@ -351,8 +347,23 @@ const App = () => {
                 </NavbarContainer>
               </Slide>
             )
-          }
+          } */}
 
+          <Drawer
+            classes={{
+              paper: 'permanent-drawer',
+            }}
+            open={isMobileDrawerOpen}
+            variant={isDesktop ? 'permanent' : 'temporary'}
+            onClose={() => setIsMobileDrawerOpen(false)}
+          >
+            <NavbarContainer>
+              <Navbar
+                toggleLiveFeeds={() => setIsLiveFeedOpen(true)}
+                hideNavbar={() => setIsMobileDrawerOpen(false)}
+              />
+            </NavbarContainer>
+          </Drawer>
           <Content>
             <Switch>
               <Route path="/new" component={NewListing} />
@@ -363,10 +374,17 @@ const App = () => {
               <Route path="/" component={Home} />
             </Switch>
           </Content>
-          { checked && (
-            <Slide direction="left" in={checked} mountOnEnter unmountOnExit>
-              <LiveFeedsSlide hidelivefeeds={() => setChecked(false)}/>
+          { isLiveFeedOpen && (
+            <Slide direction="left" in={isLiveFeedOpen} mountOnEnter unmountOnExit>
+              <LiveFeedsSlide hidelivefeeds={() => setIsLiveFeedOpen(false)}/>
             </Slide>) }
+          {/* <Drawer
+            anchor="right"
+            open={isLiveFeedOpen}
+            onClose={() => setIsLiveFeedOpen(false)}
+          >
+            <LiveFeedsSlide hideLiveFeeds={() => setIsLiveFeedOpen(false)} />
+          </Drawer> */}
         </Body>
         <Footer />
         <Dialog
@@ -374,7 +392,7 @@ const App = () => {
           onClose={() => setIsApprovalModalOpen(false)}
         >
           <Logo
-            src={"https://cryptoz.cards/assets/cryptokeeper_logo_binance.png"}
+            src={'https://cryptoz.cards/assets/cryptokeeper_logo_binance.png'}
           />
         </Dialog>
       </Router>

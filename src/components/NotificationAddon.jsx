@@ -19,7 +19,7 @@ const ButtonAddon = styled('div')({
   alignItems: 'center',
   justifyContent: 'center',
   fontWeight: 'bold',
-})
+});
 
 const ButtonAddonLeft = styled('div')({
   position: 'absolute',
