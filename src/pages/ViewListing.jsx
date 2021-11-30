@@ -3,7 +3,7 @@ import PubSub from 'pubsub-js';
 import Button from '@mui/material/Button';
 import { store } from 'store/store';
 import { useHistory, useParams } from 'react-router-dom';
-import { getAuctionItem, getOffers as fetchOffers } from 'utils/auction';
+import { getAuctionItem } from 'utils/auction';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -12,7 +12,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { CircularProgress, Modal, Pagination, Paper } from '@mui/material';
 import OfferDialog from 'components/OfferDialog';
-import { EVENT_TYPES, marketContractAddress, QUERY_KEYS } from '../constants';
+import { EVENT_TYPES, marketContractAddress, QUERY_KEYS, ZoombiesStableEndpoint, ZoombiesTestingEndpoint } from '../constants';
 import { ethers } from 'ethers';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons';
@@ -120,6 +120,10 @@ const SellerDiv = styled(Grid)(({ theme }) => ({
       width: '100%',
     },
   },
+
+  '.seller-address-link': {
+    marginLeft: '8px'
+  }
 }));
 
 const ViewListing = () => {
@@ -136,7 +140,7 @@ const ViewListing = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const auctionId = parseInt(id);
-
+  
   const {
     state: { contracts, wallet },
   } = useContext(store);
@@ -281,7 +285,8 @@ const ViewListing = () => {
   const isWinner = auctionItem?.highestBidder === wallet.address;
   const isOwner = wallet.address === auctionItem?.seller;
   const canSettle = isOver && (isWinner || isOwner);
-  const sellerURL = `https://blockscout.moonriver.moonbeam.network/address/${auctionItem?.seller}`;
+  const sellerURL = wallet.chainId === 1287 ? 
+    `${ZoombiesTestingEndpoint}/my-zoombies-nfts/${auctionItem?.seller}` : `${ZoombiesStableEndpoint}/my-zoombies-nfts/${auctionItem?.seller}`;
 
   const { isLoading, data } = useFetchBids(auctionId);
 
@@ -316,8 +321,8 @@ const ViewListing = () => {
           )}
         </Grid>
         <Grid item>
-          Seller Wallet:{' '}
-          <a href={sellerURL} rel="noreferrer" target="_blank">
+          Seller Wallet:
+          <a className="seller-address-link" href={sellerURL} rel="noreferrer" target="_blank">
             {auctionItem.seller
               ? `${auctionItem.seller.substr(
                   0,

@@ -1,16 +1,15 @@
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-import React, {useEffect, useState} from "react";
-import styled from "styled-components/macro";
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import React, { useContext, useEffect, useState } from 'react';
+import styled from 'styled-components/macro';
+import { store } from 'store/store';
 
-
-const Container = styled.div`
-`;
+const Container = styled.div``;
 
 const FlexRow = styled.div`
   display: flex;
@@ -23,89 +22,74 @@ const FlexRow = styled.div`
   }
 `;
 
-const SelectItem = styled.div`
-  display: flex;
-  align-items: flex-start;
-  flex: auto;
+const WrapDialog = ({
+  currency,
+  maxAmount,
+  onConfirm,
+  disabled,
+  open,
+  handleClose,
+}) => {
+  const { state } = useContext(store);
 
-  span {
-    margin-top: 24px;
-    margin-left: 10px;
-    font-size: 18px;
-  }
-`;
+  const { contracts } = state;
 
-const WrapDialog = ({ currency, maxAmount, onConfirm, disabled }) => {
-  const [open, setOpen] = useState(false);
   const [input, setInput] = useState(maxAmount);
   const [inputInvalid, setInputInvalid] = useState(false);
 
   useEffect(() => {
-    setInput(Math.floor((maxAmount * 1000)) / 1000);
-    if (open === true) {
-      setOpen(true)
-    }
-
+    setInput(Math.floor(maxAmount * 1000) / 1000);
   }, [maxAmount]);
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
   const handleAmountChanged = (e) => {
-    const value = e.target.value
+    const value = e.target.value;
 
     if (value < 0) {
-      setInput(0)
-      return
+      setInput(0);
+      return;
     }
 
-    let isDecimalOverflow = false
+    let isDecimalOverflow = false;
     if (value.toString().includes('.')) {
-      if (value.toString().split(".")[1].length > 3) {
-        isDecimalOverflow = true
+      if (value.toString().split('.')[1].length > 3) {
+        isDecimalOverflow = true;
       }
     }
 
     if (isDecimalOverflow) {
-      setInput(parseFloat(value).toFixed(3).toString())
+      setInput(parseFloat(value).toFixed(3).toString());
     } else {
-      setInput(value)
+      setInput(value);
     }
-  }
+  };
 
   const handleConfirm = () => {
     if (parseFloat(input) > maxAmount) {
-      setInputInvalid(true)
-
+      setInputInvalid(true);
     } else {
-      setInputInvalid(false)
-      onConfirm(input)
-      setOpen(false);
+      setInputInvalid(false);
+      onConfirm(input, contracts.WMOVRContract);
+      handleClose();
     }
-  }
+  };
 
   return (
     <Container>
-      <SelectItem variant="contained" onClick={handleClickOpen} disabled={disabled} className={"wrap-button"}>
-        {currency === 'MOVR' ? 'Wrap MOVR' : 'Unwrap WMOVR'}
-      </SelectItem>
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>{currency === "MOVR" ? "Wrap MOVR" : "Unwrap MOVR"}</DialogTitle>
+        <DialogTitle>
+          {currency === 'MOVR' ? 'Wrap MOVR' : 'Unwrap MOVR'}
+        </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Enter the amount you want to {currency === "MOVR" ? 'wrap' : 'unwrap'}
+            Enter the amount you want to{' '}
+            {currency === 'MOVR' ? 'wrap' : 'unwrap'}
           </DialogContentText>
           <FlexRow>
             <TextField
               autoFocus
               margin="dense"
               id="amount"
-              label={currency === 'MOVR' ? "Wrap Amount" : "Unwrap Amount"}
+              label={currency === 'MOVR' ? 'Wrap Amount' : 'Unwrap Amount'}
               type="number"
               variant="standard"
               value={input}

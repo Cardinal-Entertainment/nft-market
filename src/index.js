@@ -9,7 +9,7 @@ import { createGlobalStyle, ThemeProvider } from 'styled-components';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 
-import { ReactQueryDevtools } from 'react-query/devtools'
+// import { ReactQueryDevtools } from 'react-query/devtools'
 
 // Add global styles
 const GlobalStyle = createGlobalStyle`
@@ -35,7 +35,6 @@ ReactDOM.render(
           </StateProvider>
         </LocalizationProvider>
       </ThemeProvider>
-      <ReactQueryDevtools />
     </QueryClientProvider>
   </React.StrictMode>,
   document.getElementById('root')

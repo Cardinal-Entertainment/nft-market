@@ -1,5 +1,5 @@
-import React, { forwardRef, useContext, useEffect, useState } from 'react';
-import styled, { useTheme } from 'styled-components';
+import React, { useContext, useEffect, useState } from 'react';
+import { useTheme } from 'styled-components';
 import metamaskLogo from '../assets/metamask-face.png';
 import movrLogo from '../assets/movr_logo.png';
 import zoomCoin from '../assets/zoombies_coin.svg';
@@ -14,25 +14,14 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
-  addAssetToMetamask,
   formatAddress,
   getWalletWMOVRBalance,
   getWalletZoomBalance,
-  unWrapMOVR,
-  wrapMOVR,
 } from '../utils/wallet';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import WrapDialog from './WrapDialog';
-import { ButtonGroup, MenuItem } from '@mui/material';
-import Button from '@mui/material/Button';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import ClickAwayListener from '@mui/material/ClickAwayListener';
-import Grow from '@mui/material/Grow';
-import Paper from '@mui/material/Paper';
-import Popper from '@mui/material/Popper';
-import MenuList from '@mui/material/MenuList';
 import { styled as styled1 } from '@mui/material/styles';
 import NotificationAddon from './NotificationAddon';
+import WrapMovrMenu from './WrapMovrMenu';
 
 const Container = styled1('div')({
   width: '300px',
@@ -144,86 +133,32 @@ const ButtonGroupContainer = styled1('div')({
   },
 });
 
-const Navbar = (props, ref) => {
+const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
   const theme = useTheme();
-  const [zoomBalance, setZoomBalance] = useState('');
-  const [WMOVRBalance, setWMOVRBalance] = useState('');
-
-  const { toggleLiveFeeds, hideNavbar } = props;
   const { state } = useContext(store);
   const {
     wallet: { address, balance },
     contracts,
   } = state;
 
+  const [zoomBalance, setZoomBalance] = useState('');
+  const [WMOVRBalance, setWMOVRBalance] = useState('');
+
   const shortWallet = formatAddress(address);
 
-  const options = [
-    'UNWRAP WMOVR',
-    'WRAP MOVR',
-    'DISPLAY WMOVR',
-    'DISPLAY ZOOM',
-  ];
-  const [open, setOpen] = React.useState(false);
-  const anchorRef = React.useRef(null);
-  const [selectedIndex, setSelectedIndex] = React.useState(1);
-
-  const handleMenuItemClick = async (event, index) => {
-    setSelectedIndex(index);
-
-    if (index === 2) {
-      await handleAddAssetToMetamask('WMOVR');
-    } else if (index === 3) {
-      await handleAddAssetToMetamask('ZOOM');
-    }
-  };
-
-  const handleToggle = () => {
-    setOpen((prevOpen) => !prevOpen);
-  };
-
-  const handleClose = (event) => {
-    if (anchorRef.current && anchorRef.current.contains(event.target)) {
-      return;
-    }
-
-    setOpen(false);
-  };
-
-  const getZoomBalance = async () => {
-    const bal = await getWalletZoomBalance(contracts.ZoomContract, address);
-    setZoomBalance(bal);
-  };
-
-  const getWMOVRBalance = async () => {
-    const bal = await getWalletWMOVRBalance(contracts.WMOVRContract, address);
-    setWMOVRBalance(bal);
-  };
-
-  const handleUnwrapMOVR = async (amount) => {
-    if (amount > 0) {
-      await unWrapMOVR(contracts.WMOVRContract, amount.toString());
-    }
-  };
-
-  const handleWrapMOVR = async (amount) => {
-    if (amount > 0) {
-      await wrapMOVR(contracts.WMOVRContract, amount.toString());
-    }
-  };
-
-  const handleAddAssetToMetamask = async (tokenSymbol) => {
-    if (tokenSymbol === 'WMOVR') {
-      await addAssetToMetamask(tokenSymbol, contracts.WMOVRContract.address);
-    } else if (tokenSymbol === 'ZOOM') {
-      await addAssetToMetamask(tokenSymbol, contracts.ZoomContract.address);
-    }
-  };
-
   useEffect(() => {
+    const getZoomBalance = async () => {
+      const bal = await getWalletZoomBalance(contracts.ZoomContract, address);
+      setZoomBalance(bal);
+    };
+
+    const getWMOVRBalance = async () => {
+      const bal = await getWalletWMOVRBalance(contracts.WMOVRContract, address);
+      setWMOVRBalance(bal);
+    };
+
     if (contracts.ZoomContract && address) {
       getZoomBalance();
-
       contracts.ZoomContract.provider.on('block', () => {
         getZoomBalance();
       });
@@ -238,7 +173,7 @@ const Navbar = (props, ref) => {
   }, [contracts, address]);
 
   return (
-    <Container ref={ref} {...props}>
+    <Container>
       <NavigationSection>
         <NavLink
           exact
@@ -336,7 +271,7 @@ const Navbar = (props, ref) => {
             </span>
           </Tooltip>
         </NavItem>
-        <NavItem color="white" onClick={handleWrapMOVR}>
+        <NavItem color="white">
           <Tooltip
             title={<TooltipContent>{balance} MOVR</TooltipContent>}
             arrow
@@ -393,99 +328,10 @@ const Navbar = (props, ref) => {
             Help
           </NavItem>
         </NavLink>
-        <ButtonGroup
-          variant="contained"
-          ref={anchorRef}
-          aria-label="split button"
-          style={{
-            width: '100%',
-            height: '40px',
-          }}
-        >
-          <Button onClick={handleToggle} style={{ flex: 'auto' }}>
-            {options[selectedIndex]}
-          </Button>
-          <Button
-            size="small"
-            aria-controls={open ? 'split-button-menu' : undefined}
-            aria-expanded={open ? 'true' : undefined}
-            aria-label="select merge strategy"
-            aria-haspopup="menu"
-            onClick={handleToggle}
-          >
-            <ArrowDropDownIcon />
-          </Button>
-        </ButtonGroup>
-        <Popper
-          open={open}
-          anchorEl={anchorRef.current}
-          role={undefined}
-          transition
-          disablePortal
-          className={'popper'}
-        >
-          {({ TransitionProps, placement }) => (
-            <Grow
-              {...TransitionProps}
-              style={{
-                transformOrigin:
-                  placement === 'bottom' ? 'center top' : 'center bottom',
-              }}
-            >
-              <Paper>
-                <ClickAwayListener onClickAway={handleClose}>
-                  <MenuList id="split-button-menu">
-                    <MenuItem
-                      className={'popper-menuitem'}
-                      value={'unwrap-movr'}
-                      onClick={(event) => handleMenuItemClick(event, 0)}
-                    >
-                      <WrapDialog
-                        currency={'WMOVR'}
-                        maxAmount={WMOVRBalance}
-                        onConfirm={handleUnwrapMOVR}
-                        disabled={WMOVRBalance <= 0}
-                      />
-                    </MenuItem>
-                    <MenuItem
-                      className={'popper-menuitem'}
-                      value={'wrap-movr'}
-                      onClick={(event) => handleMenuItemClick(event, 1)}
-                    >
-                      <WrapDialog
-                        currency={'MOVR'}
-                        maxAmount={balance}
-                        onConfirm={handleWrapMOVR}
-                        disabled={balance <= 0}
-                      />
-                    </MenuItem>
-                    {shortWallet && (
-                      <>
-                        <MenuItem
-                          className={'popper-menuitem'}
-                          value={'add-wmovr'}
-                          onClick={(event) => handleMenuItemClick(event, 2)}
-                        >
-                          Add WMOVR to Metamask
-                        </MenuItem>
-                        <MenuItem
-                          className={'popper-menuitem'}
-                          value={'add-zoom'}
-                          onClick={(event) => handleMenuItemClick(event, 3)}
-                        >
-                          Add ZOOM to Metamask
-                        </MenuItem>
-                      </>
-                    )}
-                  </MenuList>
-                </ClickAwayListener>
-              </Paper>
-            </Grow>
-          )}
-        </Popper>
+        <WrapMovrMenu></WrapMovrMenu>
       </ButtonGroupContainer>
     </Container>
   );
 };
 
-export default forwardRef(Navbar);
+export default Navbar;
