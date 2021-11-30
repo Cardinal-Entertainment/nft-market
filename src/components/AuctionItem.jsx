@@ -207,7 +207,7 @@ const MetaContentButtonSection = styled('div')({
 });
 
 const DetailCardsDiv = styled(Grid)(({ theme }) => ({
-  flexGrow: 1,
+  flex: 1,
   margin: '0 12px',
   overflowX: 'auto',
 }));
@@ -217,9 +217,14 @@ const CardsContainer = styled('div')(({ theme }) => ({
 
   display: 'flex',
   // flexBasis: '100%',
-  width: '100%',
+  // width: '100%',
   minWidth: '177px',
-}));
+  [theme.breakpoints.down('sm')]: {
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
+}))
 
 const AuctionItem = ({ content }) => {
   const {
@@ -468,20 +473,10 @@ const AuctionItem = ({ content }) => {
 
       <DetailCardsDiv>
         <CardsContainer>
-          {auctionItem?.cards ? (
-            auctionItem.cards
-              .slice((cardPageNo - 1) * 5, cardPageNo * 5)
-              .map((card) => (
-                <CardImage
-                  key={card.id}
-                  src={cardImageBaseURL + '/' + card.id}
-                  alt={'CARD ' + card.id}
-                  loading="lazy"
-                />
-              ))
-          ) : (
-            <CircularProgress />
-          )}
+          {auctionItem?.cards ?
+            auctionItem.cards.map((card) => (
+              <CardImage key={card.id} src={cardImageBaseURL + "/" + card.id} alt={"CARD " + card.id} loading="lazy"/>
+            )) : <CircularProgress/>}
         </CardsContainer>
         {/*{auctionItem.cards && <Pagination count={Math.ceil(auctionItem.cards.length / 20)} className={"pagination-bar"} variant="outlined" shape="rounded" onChange={handleCardsTablePageChanged}/>}*/}
       </DetailCardsDiv>

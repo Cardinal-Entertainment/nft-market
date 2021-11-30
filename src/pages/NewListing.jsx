@@ -70,6 +70,7 @@ const Form = styled.div`
   border-radius: 4px;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 `;
 
 const InputContainer = styled.div`
@@ -103,13 +104,14 @@ const Select = styled(SelectSource)`
 `;
 
 const NFTContainer = styled.div`
-  flex: 1;
+  flex: auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(calc(0.55 * 260px), 1fr));
   place-items: center;
   //min-width: 600px;
 
-  max-height: 550px;
+  //max-height: 550px;
+  min-height: 270px;
   overflow-y: auto;
   border-radius: 4px;
   box-shadow: 0 6px 4px -4px gray;
@@ -293,14 +295,14 @@ const NewListing = () => {
           {userNFTs.length > 0 ? userNFTs.map((card) => (
             <LazyLoad key={card.id} once={true} resize={true}>
               <CardWrapper
-                  onClick={() => handleCardClicked(card.id)}
-                  key={card.id}
+                onClick={() => handleCardClicked(card.id)}
+                key={card.id}
               >
-                <img src={`https://moonbase.zoombies.world/nft-image/${card.id}`} alt={`Token #${card.id}`} />
+                <img src={`https://moonbase.zoombies.world/nft-image/${card.id}`} alt={`Token #${card.id}`}/>
                 <input
-                    type="checkbox"
-                    checked={!!selectedCards[card.id]}
-                    readOnly
+                  type="checkbox"
+                  checked={!!selectedCards[card.id]}
+                  readOnly
                 />
               </CardWrapper>
             </LazyLoad>

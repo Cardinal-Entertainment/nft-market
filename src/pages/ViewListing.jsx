@@ -31,15 +31,20 @@ const Container = styled('div')({
   flex: 1,
   height: '100%',
   color: 'white',
+  overflowY: 'auto',
 
   '& h1': {
     margin: 0,
   },
 
   '& .pagination-bar': {
-    padding: '12px',
+    padding: '12px'
   },
-});
+
+  '& .bid-table': {
+    flex: 'auto'
+  }
+})
 
 const FlexRow = styled('div')({
   display: 'flex',
