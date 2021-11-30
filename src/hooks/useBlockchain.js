@@ -131,24 +131,24 @@ const useBlockchain = () => {
 
     watchMarketEvents(MarketContract, marketContractAddress, ZoombiesContract);
 
-    const settledFilter = MarketContract.filters.Settled();
-    MarketContract.on(settledFilter, async ( itemNumber, bidAmount, winner, seller, tokenIds, block ) => {
-      const item = await MarketContract.getListItem(itemNumber);
-      dispatch(
-        Actions.newBidEventTriggered({
-          type: 'settled',
-          timestamp: Date.now() / 1000,
-          content: {
-            blockNumber: block.blockNumber,
-            itemNumber: itemNumber.toNumber(),
-            bidAmount: ethers.utils.formatEther(bidAmount),
-            winner: winner,
-            seller: seller,
-            currency: item.saleToken === zoomContractAddress ? 'ZOOM' : item.saleToken === wmovrContractAddress ? 'WMOVR' : ''
-          }
-        })
-      )
-    });
+    // const settledFilter = MarketContract.filters.Settled();
+    // MarketContract.on(settledFilter, async ( itemNumber, bidAmount, winner, seller, tokenIds, block ) => {
+    //   const item = await MarketContract.getListItem(itemNumber);
+    //   dispatch(
+    //     Actions.newBidEventTriggered({
+    //       type: 'settled',
+    //       timestamp: Date.now() / 1000,
+    //       content: {
+    //         blockNumber: block.blockNumber,
+    //         itemNumber: itemNumber.toNumber(),
+    //         bidAmount: ethers.utils.formatEther(bidAmount),
+    //         winner: winner,
+    //         seller: seller,
+    //         currency: item.saleToken === zoomContractAddress ? 'ZOOM' : item.saleToken === wmovrContractAddress ? 'WMOVR' : ''
+    //       }
+    //     })
+    //   )
+    // });
 
     dispatch(
       Actions.contractsLoaded({

@@ -37,7 +37,11 @@ const eventsToScrape = [
   {
     filterString:
     "ItemListed(uint256,uint256,address,uint256[],address,address,uint256)",
-  callbackFunc: itemListedCallback
+    callbackFunc: itemListedCallback
+  },
+  {
+    filterString: "Settled(address,address,uint256,address indexed,address indexed,address,uint256,uint256[])",
+    callbackFunc: settledCallback
   }
 ]
 
@@ -53,6 +57,7 @@ async function bidEventCallback(
     timestamp: moment().unix()
   }
 
+  console.log("bid-scraper-event")
   PubSub.publish(EVENT_TYPES.Bid, bidEvent);
 }
 
@@ -86,7 +91,55 @@ async function itemListedCallback(
     cards
   }
 
+  console.log("item-listed-scraper-event")
   PubSub.publish(EVENT_TYPES.ItemListed, itemListedEvent);
+}
+
+async function settledCallback(
+  eventLogs,
+  collectionName,
+  zoombiesContract
+) {
+  /*
+  event Settled(
+  uint256 indexed itemNumber,
+  address nftToken,
+  address saleToken,
+  uint256 bidAmount,
+  address indexed winner,
+  address indexed seller,
+  address royaltyReceiver,
+  uint256 royaltyAmount,
+  uint256[] tokenIds
+);
+   */
+  const { args } = marketInterface.parseLog(eventLogs)
+  const itemNumber = args.itemNumber.toNumber()
+  const tokenIds = args.tokenIds.map((tokenId) => {
+    return tokenId.toNumber()
+  });
+
+  const bidAmount = Number(ethers.utils.formatEther(args.bidAmount));
+  const royaltyAmount = Number(ethers.utils.formatEther(args.royaltyAmount));
+  const cards = await Promise.all(
+    tokenIds.map(tokenId => getCardData(tokenId, zoombiesContract))
+  )
+
+  const settledEvent = {
+    itemNumber,
+    tokenIds,
+    bidAmount,
+    royaltyAmount,
+    seller: args.seller,
+    winner: args.winner,
+    saleToken: args.saleToken,
+    nftToken: args.nftToken,
+    royaltyReceiver: args.royaltyReceiver,
+    cards
+  }
+
+  console.log("settled-event-scraper-event")
+  PubSub.publish(EVENT_TYPES.Settled, settledEvent);
 }
 
 async function watchMarketEvents(marketContract, marketContractAddress, zoombiesContract) {
