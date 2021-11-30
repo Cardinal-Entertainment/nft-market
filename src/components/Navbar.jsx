@@ -180,7 +180,6 @@ const Navbar = (props, ref) => {
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
-    hideNavbar();
   };
 
   const handleClose = (event) => {
