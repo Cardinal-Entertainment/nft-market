@@ -15,6 +15,9 @@ export const wmovrContractAddress =
 export const cardImageBaseURL = 'https://moonbase.zoombies.world/nft-image';
 export const apiEndpoint = 'https://api.zoombies.world';
 
+export const ZoombiesTestingEndpoint = `https://moonbase.zoombies.world`;
+export const ZoombiesStableEndpoint = 'https://movr.zoombies.world';
+
 export const EVENT_TYPES = {
   Bid: 'Bid',
   ItemListed: 'ItemListed',
