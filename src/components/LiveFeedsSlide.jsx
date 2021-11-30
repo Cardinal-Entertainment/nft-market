@@ -7,8 +7,6 @@ import { TransitionGroup } from 'react-transition-group';
 import Collapse from '@mui/material/Collapse';
 import {store} from "../store/store";
 import Actions from "../store/actions";
-import {ethers} from "ethers";
-import {wmovrContractAddress, zoomContractAddress} from "../constants";
 import moment from "moment";
 import PubSub from 'pubsub-js'
 import { EVENT_TYPES, QUERY_KEYS } from '../constants';
@@ -34,13 +32,20 @@ const FlexDiv = styled('div')({
   justifyContent: 'flex-end'
 });
 
-const FilterBar = styled('div')({
+const FilterBar = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   fontSize: '18px',
   flex: 'auto',
-})
+
+  '& .filter-label': {
+    color: 'white',
+    [theme.breakpoints.down('md')]: {
+      display: 'none'
+    }
+  }
+}));
 
 const FilterItemText = styled('div')(({ color, selected, splitter }) => ({
   color: color ? color : 'white',
@@ -324,7 +329,7 @@ const LiveFeedsSlide = (props, ref  ) => {
     <Container ref={ref}>
       <FlexDiv>
         <FilterBar>
-          <FilterItemText onClick={_remoteThisFUNCTION}>
+          <FilterItemText onClick={_remoteThisFUNCTION} class={"filter-label"}>
             VIEW:
           </FilterItemText>
           <FilterItemText selected={filters.my} splitter={"true"} color={'#41f7f8'} onClick={() => toggleFilter('my')}>
