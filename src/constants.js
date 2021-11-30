@@ -18,11 +18,11 @@ export const apiEndpoint = 'https://api.zoombies.world';
 export const EVENT_TYPES = {
   Bid: 'Bid',
   ItemListed: 'ItemListed',
+  Settled: 'Settled',
 };
 
 export const QUERY_KEYS = {
   listings: "fetchListings",
   bids: "fetchBids",
   profile: "fetchUserProfile",
-  liveFeeds: "liveFeeds"
 }

@@ -219,6 +219,24 @@ const App = () => {
     return "bid"
   }
 
+  const getSettleType = ( liveFeedItem ) => {
+
+    const condition = ( item ) => {
+      return item.itemNumber === liveFeedItem.itemNumber
+    }
+
+    if (myAuctions.bids.some(condition)) {
+      return "settlemybid"
+    }
+    if (liveFeedItem.winner === address) {
+      return "win"
+    }
+    if (myAuctions.listings.some(condition) || liveFeedItem.seller === address) {
+      return "sold"
+    }
+    return "settle"
+  }
+
   useEffect(() => {
     setShowMenu(isDesktop)
     const tokenNewAuction = PubSub.subscribe(EVENT_TYPES.ItemListed, (msg, data) => {
@@ -236,16 +254,16 @@ const App = () => {
       addLiveFeedItem(newAuction, filterKey)
     })
 
-    const tokenBid = PubSub.subscribe(EVENT_TYPES.Bid, (msg, data) => {
+    const tokenBid = PubSub.subscribe(EVENT_TYPES.Bid, async (msg, data) => {
       const bid = data
       let filterKey = ""
 
       const bidType = getBidType(bid)
 
       console.log("bidType", bidType)
-      let listingItem = myAuctions.listings.find( ( listing ) => listing.itemNumber == bid.itemNumber)
+      let listingItem = myAuctions.listings.find( ( listing ) => listing.itemNumber === bid.itemNumber)
       if (listingItem === undefined) {
-        listingItem = MarketContract.getListItem(bid.itemNumber)
+        listingItem = await MarketContract.getListItem(bid.itemNumber)
       }
 
       bid["type"] = bidType
@@ -256,6 +274,28 @@ const App = () => {
         filterKey = "MyAlerts"
       }
       addLiveFeedItem(bid, filterKey)
+    })
+
+    const tokenSettled = PubSub.subscribe(EVENT_TYPES.Settled, async (msg, data) => {
+      const settleData = data
+      let filterKey = ""
+
+      const settleType = getSettleType(settleData)
+
+      console.log("settleType", settleType)
+      let listingItem = myAuctions.listings.find( ( listing ) => listing.itemNumber === bid.itemNumber)
+      if (listingItem === undefined) {
+        listingItem = await MarketContract.getListItem(bid.itemNumber)
+      }
+
+      settleData["type"] = settleType
+      settleData["saleToken"] = listingItem.saleToken
+      if (settleType === "settle") {
+        filterKey = "General"
+      } else {
+        filterKey = "MyAlerts"
+      }
+      addLiveFeedItem(settleData, filterKey)
     })
 
     return () => {
