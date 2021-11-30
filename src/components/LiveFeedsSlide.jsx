@@ -9,18 +9,18 @@ import {store} from "../store/store";
 import Actions from "../store/actions";
 
 const Container = styled('div')(({ theme }) => ({
-  margin: '16px 16px 16px 0',
   zIndex: 1,
   padding: '16px',
   width: '392px',
   overflowY: 'auto',
   border: '1px solid #FFFFFF',
   background: 'linear-gradient(110.99deg, #000033 100%, #100238 100%)',
+  height: '100%',
 
   [theme.breakpoints.down('md')]: {
     margin: '0 0 0 -12px',
   },
-}))
+}));
 
 const FlexDiv = styled('div')({
   display: 'flex',

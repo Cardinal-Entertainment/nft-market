@@ -3,7 +3,7 @@ import PubSub from 'pubsub-js';
 import Button from '@mui/material/Button';
 import { store } from 'store/store';
 import { useHistory, useParams } from 'react-router-dom';
-import { getAuctionItem, getOffers as fetchOffers } from 'utils/auction';
+import { getAuctionItem } from 'utils/auction';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
