@@ -100,30 +100,11 @@ async function settledCallback(
   collectionName,
   zoombiesContract
 ) {
-  /*
-  event Settled(
-  uint256 indexed itemNumber,
-  address nftToken,
-  address saleToken,
-  uint256 bidAmount,
-  address indexed winner,
-  address indexed seller,
-  address royaltyReceiver,
-  uint256 royaltyAmount,
-  uint256[] tokenIds
-);
-   */
   const { args } = marketInterface.parseLog(eventLogs)
   const itemNumber = args.itemNumber.toNumber()
-  const tokenIds = args.tokenIds.map((tokenId) => {
-    return tokenId.toNumber()
-  });
 
   const bidAmount = Number(ethers.utils.formatEther(args.bidAmount));
   const royaltyAmount = Number(ethers.utils.formatEther(args.royaltyAmount));
-  const cards = await Promise.all(
-    tokenIds.map(tokenId => getCardData(tokenId, zoombiesContract))
-  )
 
   const settledEvent = {
     itemNumber,
@@ -135,7 +116,6 @@ async function settledCallback(
     saleToken: args.saleToken,
     nftToken: args.nftToken,
     royaltyReceiver: args.royaltyReceiver,
-    cards
   }
 
   console.log("settled-event-scraper-event")
