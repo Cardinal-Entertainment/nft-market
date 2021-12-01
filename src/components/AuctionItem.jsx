@@ -19,8 +19,8 @@ import moment from 'moment';
 import { useHistory } from 'react-router-dom';
 import { store } from '../store/store';
 import { ethers } from 'ethers';
-import { getOffers as fetchOffers } from '../utils/auction';
 import OfferDialog from './OfferDialog';
+import { useFetchBids } from 'hooks/useBids';
 
 const Container = styled(Grid)({
   display: 'flex',
@@ -216,8 +216,6 @@ const CardsContainer = styled('div')(({ theme }) => ({
   flexGrow: '1',
 
   display: 'flex',
-  // flexBasis: '100%',
-  // width: '100%',
   minWidth: '177px',
   [theme.breakpoints.down('sm')]: {
     justifyContent: 'center',
@@ -230,10 +228,8 @@ const AuctionItem = ({ content }) => {
     state: { contracts, wallet, zoomIncrement, wmovrIncrement },
   } = useContext(store);
   const history = useHistory();
-  const [cardPageNo, setCardPageNo] = useState(1);
   const [favorite, setFavorite] = useState(false);
   const [remainingTime, setRemainingTime] = useState('');
-  const [offers, setOffers] = useState([]);
   const [bidInProgress, setBidInProgress] = useState(false);
   const [approvalModalOpen, setApprovalModalOpen] = useState(false);
 
@@ -254,38 +250,37 @@ const AuctionItem = ({ content }) => {
       ? wmovrIncrement
       : 0;
 
-  const getOffers = async () => {
-    const offers = await fetchOffers(content.itemNumber);
-    setOffers(offers);
-  };
+  const {
+    data
+  } = useFetchBids(itemNumber);
 
   useEffect(() => {
-    getOffers(content.itemNumber);
-    let interval = null;
-    interval = setInterval(() => {
+    const updateRemainingTime = () => {
+      const timeDiff = moment.unix(auctionItem.auctionEnd).diff(moment()) / 1000;
+  
+      const remainingDays = Math.floor(timeDiff / (3600 * 24));
+      const remainingHours = Math.floor((timeDiff % (3600 * 24)) / 3600);
+      const remainingMinutes = Math.floor((timeDiff % 3600) / 60);
+      const remainingSeconds = Math.floor(timeDiff % 60);
+  
+      setRemainingTime(
+        formatTwoPlace(remainingDays) +
+          'd ' +
+          formatTwoPlace(remainingHours) +
+          'h ' +
+          formatTwoPlace(remainingMinutes) +
+          'm ' +
+          formatTwoPlace(remainingSeconds) +
+          's '
+      );
+    };
+
+    const interval = setInterval(() => {
       updateRemainingTime();
     }, 1000);
-  }, [content.itemNumber]);
 
-  const updateRemainingTime = () => {
-    const timeDiff = moment.unix(auctionItem.auctionEnd).diff(moment()) / 1000;
-
-    const remainingDays = Math.floor(timeDiff / (3600 * 24));
-    const remainingHours = Math.floor((timeDiff % (3600 * 24)) / 3600);
-    const remainingMinutes = Math.floor((timeDiff % 3600) / 60);
-    const remainingSeconds = Math.floor(timeDiff % 60);
-
-    setRemainingTime(
-      formatTwoPlace(remainingDays) +
-        'd ' +
-        formatTwoPlace(remainingHours) +
-        'h ' +
-        formatTwoPlace(remainingMinutes) +
-        'm ' +
-        formatTwoPlace(remainingSeconds) +
-        's '
-    );
-  };
+    return () => clearInterval(interval)
+  }, [auctionItem.auctionEnd])
 
   const formatTwoPlace = (value) => {
     if (value > 9) {
@@ -336,7 +331,7 @@ const AuctionItem = ({ content }) => {
     );
     await bidTx.wait();
     setBidInProgress(false);
-    getOffers();
+    // getOffers();
   };
 
   const toggleFavorite = () => {
@@ -346,10 +341,6 @@ const AuctionItem = ({ content }) => {
   const gotoAuction = () => {
     history.push(`/listing/${auctionItem.itemNumber}`);
   };
-
-  // const handleCardsTablePageChanged = (event, value) => {
-  //   setCardPageNo(value)
-  // }
 
   return (
     <Container key={auctionItem._id} container>
@@ -411,7 +402,7 @@ const AuctionItem = ({ content }) => {
               </span>
             </div>
             <div className={'meta-header-bids'}>
-              {offers.length > 0 ? offers.length : 'No'} bids
+              {data?.length > 0 ? data.length : 'No'} bids
             </div>
           </div>
         </MetaHeader>
