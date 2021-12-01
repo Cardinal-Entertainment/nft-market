@@ -14,8 +14,8 @@ const initialState = {
     address: null,
     balance: null,
     chainId: null,
-    // zoomBalance: null,
-    // wmovrBalance: null,
+    zoomBalance: null,
+    wmovrBalance: null,
   },
   contracts: {
     ZoomContract: null,
