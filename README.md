@@ -19,8 +19,8 @@ ZOOM contract - 0x8e21404bAd3A1d2327cc6D2B2118f47911a1f316
 
 Zoombies contract - 0x3E7997B8D30AA6216102fb2e9206246e478d57d3
 
-
 ---
+
 Before Listing or bidding, the user must set Approvals for the market contract on the NFTs and the saleToken contracts.
 
 For a seller, the dapp must call and get confirmed:
@@ -28,29 +28,28 @@ For a seller, the dapp must call and get confirmed:
 zoomInstance.setApprovalForAll("0x0D81Cd8e1c613c7A86A83C7269cB26B4fC6440b7", true)
 zoombiesInstance.setApprovalForAll("0x0D81Cd8e1c613c7A86A83C7269cB26B4fC6440b7", true)
 
-
-
 ---
+
 then it can call the exposed contract methods:
 
 Payable with saleToken ZOOM or WMOVR
 marketInstance.listItem(
-    auctionEnd, ( in seconds )
-    minPrice,
-    nftTokenIds[],
-    saleToken
+auctionEnd, ( in seconds )
+minPrice,
+nftTokenIds[],
+saleToken
 )
 
 payable matching the list saleToken
 bidder must token.approve(market,amount)
 marketInstance.bid(
-    itemNumber,
-    bidAmount
+itemNumber,
+bidAmount
 )
 
 After auctionEnd
 marketInstance.settle {
-  itemNumber
+itemNumber
 }
 
 --
@@ -62,37 +61,37 @@ RETURNS uint256
 marketInstance.getListItem(itemNumber);
 RETURNS
 struct Item {
-        uint256 auctionEnd;
-        uint256 minPrice;
-        address saleToken;
-        address seller;
-        address highestBidder;
-        uint256 highestBid;
-        uint256[] tokenIds;
-    }
+uint256 auctionEnd;
+uint256 minPrice;
+address saleToken;
+address seller;
+address highestBidder;
+uint256 highestBid;
+uint256[] tokenIds;
+}
 
 --
-EVENTS    
+EVENTS  
 --
 
 event ItemListed(
-    address indexed lister,
-    uint256[] indexed tokenIds,
-    address indexed saleToken,
-    uint256 minPrice
+address indexed lister,
+uint256[] indexed tokenIds,
+address indexed saleToken,
+uint256 minPrice
 );
 
 event Bid(
-    uint256 itemNumber,
-    uint256 bidAmount,
-    address indexed bidder,
-    uint256[] indexed tokenIds
+uint256 itemNumber,
+uint256 bidAmount,
+address indexed bidder,
+uint256[] indexed tokenIds
 );
 
 event Settled(
-    uint256 itemNumber,
-    uint256 bidAmount,
-    address indexed winner,
-    address indexed seller,
-    uint256[] indexed tokenIds
+uint256 itemNumber,
+uint256 bidAmount,
+address indexed winner,
+address indexed seller,
+uint256[] indexed tokenIds
 );

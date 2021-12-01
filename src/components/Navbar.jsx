@@ -1,27 +1,23 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { useTheme } from 'styled-components';
-import metamaskLogo from '../assets/metamask-face.png';
-import movrLogo from '../assets/movr_logo.png';
-import zoomCoin from '../assets/zoombies_coin.svg';
-import Tooltip from '@mui/material/Tooltip';
-import { store } from 'store/store';
-import { NavLink } from 'react-router-dom';
+import React, { useContext } from 'react'
+import { useTheme } from 'styled-components'
+import metamaskLogo from '../assets/metamask-face.png'
+import movrLogo from '../assets/movr_logo.png'
+import zoomCoin from '../assets/zoombies_coin.svg'
+import Tooltip from '@mui/material/Tooltip'
+import { store } from 'store/store'
+import { NavLink } from 'react-router-dom'
 import {
   faBell,
   faEdit,
   faQuestionCircle,
   faShoppingBag,
-} from '@fortawesome/free-solid-svg-icons';
+} from '@fortawesome/free-solid-svg-icons'
 
-import {
-  formatAddress,
-  getWalletWMOVRBalance,
-  getWalletZoomBalance,
-} from '../utils/wallet';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { styled as styled1 } from '@mui/material/styles';
-import NotificationAddon from './NotificationAddon';
-import WrapMovrMenu from './WrapMovrMenu';
+import { formatAddress } from '../utils/wallet'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { styled as styled1 } from '@mui/material/styles'
+import NotificationAddon from './NotificationAddon'
+import WrapMovrMenu from './WrapMovrMenu'
 
 const Container = styled1('div')({
   width: '300px',
@@ -39,7 +35,7 @@ const Container = styled1('div')({
       backgroundColor: '#1976d2',
     },
   },
-});
+})
 
 const NavItemLiveFeeds = styled1('div')(({ theme }) => ({
   display: 'flex',
@@ -47,7 +43,7 @@ const NavItemLiveFeeds = styled1('div')(({ theme }) => ({
   [theme.breakpoints.up('lg')]: {
     display: 'none',
   },
-}));
+}))
 
 const NavItem = styled1('div')(({ color }) => ({
   display: 'flex',
@@ -81,7 +77,7 @@ const NavItem = styled1('div')(({ color }) => ({
       width: '40px',
     },
   },
-}));
+}))
 
 const NavigationSection = styled1('div')({
   flex: 1,
@@ -104,7 +100,7 @@ const NavigationSection = styled1('div')({
     color: '#03c1e8',
     cursor: 'pointer',
   },
-});
+})
 
 const UserBalances = styled1('div')({
   padding: '5px',
@@ -115,11 +111,11 @@ const UserBalances = styled1('div')({
   },
 
   borderBottom: '1px solid white',
-});
+})
 
 const TooltipContent = styled1('span')({
   fontSize: '16px',
-});
+})
 
 const ButtonGroupContainer = styled1('div')({
   margin: '12px',
@@ -131,91 +127,17 @@ const ButtonGroupContainer = styled1('div')({
       flex: 'auto',
     },
   },
-});
+})
 
 const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
-  const theme = useTheme();
-  const [zoomBalance, setZoomBalance] = useState('');
-  const [WMOVRBalance, setWMOVRBalance] = useState('');
+  const theme = useTheme()
 
-  // const { togglelivefeeds, hidenavbar } = props;
-  const { state } = useContext(store);
+  const { state } = useContext(store)
   const {
-    wallet: { address, balance },
-    contracts,
-  } = state;
+    wallet: { address, balance, zoomBalance, wmovrBalance },
+  } = state
 
-  const shortWallet = formatAddress(address);
-
-  // const options = [
-  //   'UNWRAP WMOVR',
-  //   'WRAP MOVR',
-  //   'DISPLAY WMOVR',
-  //   'DISPLAY ZOOM',
-  // ];
-  // const [open, setOpen] = React.useState(false);
-  // const anchorRef = React.useRef(null);
-  // const [selectedIndex, setSelectedIndex] = React.useState(1);
-
-  // const handleMenuItemClick = async (event, index) => {
-  //   setSelectedIndex(index);
-
-  //   if (index === 2) {
-  //     await handleAddAssetToMetamask('WMOVR');
-  //   } else if (index === 3) {
-  //     await handleAddAssetToMetamask('ZOOM');
-  //   }
-  // };
-
-  // const handleToggle = () => {
-  //   setOpen((prevOpen) => !prevOpen);
-  //   hidenavbar();
-  // };
-
-  // const handleClose = (event) => {
-  //   if (anchorRef.current && anchorRef.current.contains(event.target)) {
-  //     return;
-  //   }
-
-  //   setOpen(false);
-  // };
-
-  // const getZoomBalance = async () => {
-  //   const bal = await getWalletZoomBalance(contracts.ZoomContract, address);
-  //   setZoomBalance(bal);
-  // };
-
-  // const getWMOVRBalance = async () => {
-  //   const bal = await getWalletWMOVRBalance(contracts.WMOVRContract, address);
-  //   setWMOVRBalance(bal);
-  // };
-
-
-  useEffect(() => {
-    const getZoomBalance = async () => {
-      const bal = await getWalletZoomBalance(contracts.ZoomContract, address);
-      setZoomBalance(bal);
-    };
-
-    const getWMOVRBalance = async () => {
-      const bal = await getWalletWMOVRBalance(contracts.WMOVRContract, address);
-      setWMOVRBalance(bal);
-    };
-
-    if (contracts.ZoomContract && address) {
-      getZoomBalance();
-      contracts.ZoomContract.provider.on('block', () => {
-        getZoomBalance();
-      });
-    }
-    if (contracts.WMOVRContract && address) {
-      getWMOVRBalance();
-
-      contracts.WMOVRContract.provider.on('block', () => {
-        getWMOVRBalance();
-      });
-    }
-  }, [contracts, address]);
+  const shortWallet = formatAddress(address)
 
   return (
     <Container>
@@ -305,14 +227,16 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
         <NavItem color="white">
           <Tooltip
             title={
-              <TooltipContent>{Number(WMOVRBalance) / 1} WMOVR</TooltipContent>
+              <TooltipContent>
+                {Number(wmovrBalance || 0) / 1} WMOVR
+              </TooltipContent>
             }
             arrow
             placement="right"
           >
             <span>
               <img src={movrLogo} alt="movr logo" />
-              {Number(WMOVRBalance).toFixed(4)} WMOVR
+              {Number(wmovrBalance || 0).toFixed(4)} WMOVR
             </span>
           </Tooltip>
         </NavItem>
@@ -332,7 +256,7 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
           <Tooltip
             title={
               <TooltipContent>
-                {zoomBalance.toLocaleString()} ZOOM Tokens
+                {zoomBalance?.toLocaleString()} ZOOM Tokens
               </TooltipContent>
             }
             arrow
@@ -340,7 +264,10 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
           >
             <span>
               <img className="zoom" src={zoomCoin} alt="zoom coin logo" />
-              {Number(Number(zoomBalance).toFixed(4)).toLocaleString()} ZOOM
+              {Number(
+                Number(zoomBalance || 0).toFixed(4)
+              ).toLocaleString()}{' '}
+              ZOOM
             </span>
           </Tooltip>
         </NavItem>
@@ -351,8 +278,8 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
             color="white"
             style={{ flex: 'auto' }}
             onClick={() => {
-              toggleLiveFeeds();
-              hideNavbar();
+              toggleLiveFeeds()
+              hideNavbar()
             }}
           >
             <FontAwesomeIcon className="marketplace" icon={faBell} size="lg" />
@@ -379,7 +306,7 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
         <WrapMovrMenu></WrapMovrMenu>
       </ButtonGroupContainer>
     </Container>
-  );
-};
+  )
+}
 
-export default Navbar;
+export default Navbar

@@ -1,7 +1,6 @@
+# Global Contract
 
-# Global Contract 
-
-## Functions 
+## Functions
 
 - DEFAULT_ADMIN_ROLE
 - changeCreatorFee
@@ -26,14 +25,10 @@
 - whitelistToken
 - zoombiesFee
 
-
-## Events 
+## Events
 
 - Paused
 - RoleAdminChanged
 - RoleGranted
 - RoleRevoked
 - Unpaused
-
-
-            

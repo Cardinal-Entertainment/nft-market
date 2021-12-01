@@ -1,7 +1,6 @@
+# WrappedMovr Contract
 
-# WrappedMovr Contract 
-
-## Functions 
+## Functions
 
 - allowance
 - approve
@@ -15,13 +14,9 @@
 - transferFrom
 - withdraw
 
-
-## Events 
+## Events
 
 - Approval
 - Deposit
 - Transfer
 - Withdrawal
-
-
-            

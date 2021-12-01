@@ -1,7 +1,6 @@
+# ZoomToken Contract
 
-# ZoomToken Contract 
-
-## Functions 
+## Functions
 
 - allowance
 - approve
@@ -16,11 +15,7 @@
 - transfer
 - transferFrom
 
-
-## Events 
+## Events
 
 - Approval
 - Transfer
-
-
-            

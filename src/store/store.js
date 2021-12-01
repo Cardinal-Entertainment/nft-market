@@ -1,11 +1,11 @@
-import React, { createContext, useReducer } from "react";
-import { ActionTypes } from "./actions";
-import logger from "./logger";
+import React, { createContext, useReducer } from 'react';
+import { ActionTypes } from './actions';
+import logger from './logger';
 
 export const DAPP_STATES = {
-  NOT_CONNECTED: "NOT_CONNECTED",
-  CONNECTED: "CONNECTED",
-  WALLET_CONNECTED: "WALLET_CONNECTED",
+  NOT_CONNECTED: 'NOT_CONNECTED',
+  CONNECTED: 'CONNECTED',
+  WALLET_CONNECTED: 'WALLET_CONNECTED',
 };
 
 const initialState = {
@@ -14,8 +14,8 @@ const initialState = {
     address: null,
     balance: null,
     chainId: null,
-    // zoomBalance: null,
-    // wmovrBalance: null,
+    zoomBalance: null,
+    wmovrBalance: null,
   },
   contracts: {
     ZoomContract: null,
@@ -64,20 +64,20 @@ const StateProvider = ({ children }) => {
       case ActionTypes.NEW_BID_EVENT:
         return {
           ...state,
-          newEventsCount:  (state.newEventsCount + 1),
-          events: [payload, ...state.events]
+          newEventsCount: state.newEventsCount + 1,
+          events: [payload, ...state.events],
         };
       case ActionTypes.MY_NEW_BID_EVENT:
         return {
           ...state,
-          myNewEventsCount:  (state.myNewEventsCount + 1),
-          myEvents: [payload, ...state.myEvents]
+          myNewEventsCount: state.myNewEventsCount + 1,
+          myEvents: [payload, ...state.myEvents],
         };
       case ActionTypes.RESET_NOTIFICATIONS:
         return {
           ...state,
-          newEventsCount:  0,
-          events: payload ? [] : state.events
+          newEventsCount: 0,
+          events: payload ? [] : state.events,
         };
       case ActionTypes.MIN_INCREMENT_UPDATED:
         return {

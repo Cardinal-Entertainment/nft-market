@@ -15,18 +15,24 @@ import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 import HelpPage from './pages/Help';
 import Profile from 'pages/Profile';
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import NotificationAddon from "./components/NotificationAddon";
-import AuctionArchive from "pages/AuctionArchive";
-import watchMarketEvents from "utils/setupWatcher";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import NotificationAddon from './components/NotificationAddon';
+import AuctionArchive from 'pages/AuctionArchive';
+import watchMarketEvents from 'utils/setupWatcher';
 import PubSub from 'pubsub-js';
 import { useQueryClient } from 'react-query';
 import { v4 as uuidv4 } from 'uuid';
-import {EVENT_TYPES, marketContractAddress, QUERY_KEYS, wmovrContractAddress, zoomContractAddress} from './constants';
-import {ethers} from "ethers";
-import moment from "moment";
-import {useFetchLiveFeeds} from "./hooks/useLiveFeeds";
-import {useFetchProfileQuery} from "./hooks/useProfile";
+import {
+  EVENT_TYPES,
+  marketContractAddress,
+  QUERY_KEYS,
+  wmovrContractAddress,
+  zoomContractAddress,
+} from './constants';
+import { ethers } from 'ethers';
+import moment from 'moment';
+import { useFetchLiveFeeds } from './hooks/useLiveFeeds';
+import { useFetchProfileQuery } from './hooks/useProfile';
 import { store } from 'store/store';
 
 const Container = styled('div')({
@@ -148,15 +154,17 @@ const App = () => {
   const { state } = useContext(store);
   const {
     wallet: { address },
-    contracts: { MarketContract }
+    contracts: { MarketContract },
   } = state;
-
 
   const { isLoading, data: myAuctions } = useFetchProfileQuery(address);
 
-  const addLiveFeedItem = ( liveFeedItem, filterKey ) => {
-    const liveFeeds = queryClient.getQueryData([QUERY_KEYS.liveFeeds, { filterKey }])
-    const uuid = uuidv4()
+  const addLiveFeedItem = (liveFeedItem, filterKey) => {
+    const liveFeeds = queryClient.getQueryData([
+      QUERY_KEYS.liveFeeds,
+      { filterKey },
+    ]);
+    const uuid = uuidv4();
 
     const newItem = {
       _id: uuid,
@@ -164,95 +172,118 @@ const App = () => {
       timestamp: Date.now() / 1000,
       content: {
         blockNumber: uuid, //should be removed when settle eventscraper is completed
-        currency: liveFeedItem.saleToken === zoomContractAddress ? 'ZOOM' : liveFeedItem.saleToken === wmovrContractAddress ? 'WMOVR' : '',
+        currency:
+          liveFeedItem.saleToken === zoomContractAddress
+            ? 'ZOOM'
+            : liveFeedItem.saleToken === wmovrContractAddress
+            ? 'WMOVR'
+            : '',
         ...liveFeedItem,
-      }
-    }
+      },
+    };
 
     if (liveFeeds) {
-      queryClient.setQueryData([QUERY_KEYS.liveFeeds, { filterKey }], [newItem, ...liveFeeds])
+      queryClient.setQueryData(
+        [QUERY_KEYS.liveFeeds, { filterKey }],
+        [newItem, ...liveFeeds]
+      );
     } else {
-      queryClient.setQueryData([QUERY_KEYS.liveFeeds, { filterKey }], [newItem])
+      queryClient.setQueryData(
+        [QUERY_KEYS.liveFeeds, { filterKey }],
+        [newItem]
+      );
     }
 
-    const newCount = queryClient.getQueryData([QUERY_KEYS.liveFeeds, { filterKey: "new" + filterKey }])
-    queryClient.setQueryData([QUERY_KEYS.liveFeeds, { filterKey: "new" + filterKey }], typeof(newCount) === 'string' ? parseInt(newCount) + 1 : newCount + 1)
-  }
+    const newCount = queryClient.getQueryData([
+      QUERY_KEYS.liveFeeds,
+      { filterKey: 'new' + filterKey },
+    ]);
+    queryClient.setQueryData(
+      [QUERY_KEYS.liveFeeds, { filterKey: 'new' + filterKey }],
+      typeof newCount === 'string' ? parseInt(newCount) + 1 : newCount + 1
+    );
+  };
 
-  const getBidType = ( liveFeedItem ) => {
-
-    const condition = ( bid ) => {
-      return bid.itemNumber === liveFeedItem.itemNumber
-    }
+  const getBidType = (liveFeedItem) => {
+    const condition = (bid) => {
+      return bid.itemNumber === liveFeedItem.itemNumber;
+    };
 
     if (myAuctions.bids.some(condition)) {
-      return "myoutbid"
+      return 'myoutbid';
     }
     if (liveFeedItem.bidder === address) {
-      return "mybid"
+      return 'mybid';
     }
     if (myAuctions.listings.some(condition)) {
-     return "mybidon"
+      return 'mybidon';
     }
-    return "bid"
-  }
+    return 'bid';
+  };
 
-  const getSettleType = ( liveFeedItem ) => {
-
-    const condition = ( item ) => {
-      return item.itemNumber === liveFeedItem.itemNumber
-    }
+  const getSettleType = (liveFeedItem) => {
+    const condition = (item) => {
+      return item.itemNumber === liveFeedItem.itemNumber;
+    };
 
     if (myAuctions.bids.some(condition)) {
-      return "settlemybid"
+      return 'settlemybid';
     }
     if (liveFeedItem.winner === address) {
-      return "win"
+      return 'win';
     }
-    if (myAuctions.listings.some(condition) || liveFeedItem.seller === address) {
-      return "sold"
+    if (
+      myAuctions.listings.some(condition) ||
+      liveFeedItem.seller === address
+    ) {
+      return 'sold';
     }
-    return "settle"
-  }
+    return 'settle';
+  };
 
   useEffect(() => {
-    setIsMobileDrawerOpen(isDesktop)
-    const tokenNewAuction = PubSub.subscribe(EVENT_TYPES.ItemListed, (msg, data) => {
-      const newAuction = data
-      let filterKey = ""
+    setIsMobileDrawerOpen(isDesktop);
+    const tokenNewAuction = PubSub.subscribe(
+      EVENT_TYPES.ItemListed,
+      (msg, data) => {
+        const newAuction = data;
+        let filterKey = '';
 
-      if (newAuction.lister === address) {
-        filterKey = "MyAlerts"
-        newAuction["type"] = "mynew"
-      } else {
-        filterKey = "General"
-        newAuction["type"] = "new"
+        if (newAuction.lister === address) {
+          filterKey = 'MyAlerts';
+          newAuction['type'] = 'mynew';
+        } else {
+          filterKey = 'General';
+          newAuction['type'] = 'new';
+        }
+
+        addLiveFeedItem(newAuction, filterKey);
       }
-
-      addLiveFeedItem(newAuction, filterKey)
-    })
+    );
 
     const tokenBid = PubSub.subscribe(EVENT_TYPES.Bid, async (msg, data) => {
-      const bid = data
-      let filterKey = ""
+      const bid = data;
+      let filterKey = '';
 
-      const bidType = getBidType(bid)
+      const bidType = getBidType(bid);
 
-      console.log("bidType", bidType)
-      let listingItem = myAuctions.listings.find( ( listing ) => listing.itemNumber === bid.itemNumber)
+      console.log('bidType', bidType);
+      let listingItem = myAuctions.listings.find(
+        (listing) => listing.itemNumber === bid.itemNumber
+      );
       if (listingItem === undefined) {
-        listingItem = await MarketContract.getListItem(bid.itemNumber)
+        listingItem = await MarketContract.getListItem(bid.itemNumber);
       }
 
-      bid["type"] = bidType
-      bid["saleToken"] = listingItem.saleToken
-      if (bidType === "bid") {
-        filterKey = "General"
+      bid['type'] = bidType;
+      bid['saleToken'] = listingItem.saleToken;
+      if (bidType === 'bid') {
+        filterKey = 'General';
       } else {
-        filterKey = "MyAlerts"
+        filterKey = 'MyAlerts';
       }
-      addLiveFeedItem(bid, filterKey)
-    })
+      addLiveFeedItem(bid, filterKey);
+    });
 
     // const tokenSettled = PubSub.subscribe(EVENT_TYPES.Settled, async (msg, data) => {
     //   const settleData = data
@@ -279,14 +310,12 @@ const App = () => {
     return () => {
       PubSub.unsubscribe(tokenNewAuction);
       PubSub.unsubscribe(tokenBid);
-    }
-  }, [ queryClient, isDesktop, address, myAuctions, MarketContract ]);
-
+    };
+  }, [queryClient, isDesktop, address, myAuctions, MarketContract]);
 
   // const toggleMenu = () => {
   //   setShowMenu(!showMenu)
   // }
-  
 
   // const NotificationButtonComponent = () => {
   //   return (
@@ -302,7 +331,7 @@ const App = () => {
   const LiveFeedButton = () => {
     return (
       <Button
-        onClick={() => setIsLiveFeedOpen(prevState => !prevState)}
+        onClick={() => setIsLiveFeedOpen((prevState) => !prevState)}
         className={'btn-livefeed'}
       >
         <img src={liveFeedIcon} alt={'Live Feed'} />
@@ -374,10 +403,16 @@ const App = () => {
               <Route path="/" component={Home} />
             </Switch>
           </Content>
-          { isLiveFeedOpen && (
-            <Slide direction="left" in={isLiveFeedOpen} mountOnEnter unmountOnExit>
-              <LiveFeedsSlide hidelivefeeds={() => setIsLiveFeedOpen(false)}/>
-            </Slide>) }
+          {isLiveFeedOpen && (
+            <Slide
+              direction="left"
+              in={isLiveFeedOpen}
+              mountOnEnter
+              unmountOnExit
+            >
+              <LiveFeedsSlide hidelivefeeds={() => setIsLiveFeedOpen(false)} />
+            </Slide>
+          )}
           {/* <Drawer
             anchor="right"
             open={isLiveFeedOpen}
