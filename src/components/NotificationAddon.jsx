@@ -1,6 +1,9 @@
-import React, { useContext } from 'react';
+import React, {useContext, useEffect} from "react";
 import { styled } from '@mui/material';
-import { store } from '../store/store';
+import {store} from "../store/store";
+import {useQueryClient} from "react-query";
+import { EVENT_TYPES, marketContractAddress, QUERY_KEYS } from '../constants';
+import {useFetchLiveFeeds} from "../hooks/useLiveFeeds";
 
 const ButtonAddon = styled('div')({
   position: 'absolute',
@@ -10,7 +13,7 @@ const ButtonAddon = styled('div')({
   height: '24px',
   minWidth: '16px',
   color: 'white',
-  backgroundColor: '#f00',
+  backgroundColor: '#41f7f8',
   borderRadius: '12px',
   display: 'flex',
   alignItems: 'center',
@@ -18,17 +21,56 @@ const ButtonAddon = styled('div')({
   fontWeight: 'bold',
 });
 
-const NotificationAddon = (props) => {
-  const { clickAction } = props;
-  const { state } = useContext(store);
+const ButtonAddonLeft = styled('div')({
+  position: 'absolute',
+  top: 0,
+  right: '32px',
+  padding: '0 4px',
+  height: '24px',
+  minWidth: '16px',
+  color: 'white',
+  backgroundColor: '#ff59e8',
+  borderRadius: '12px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontWeight: 'bold',
+})
+
+const NotificationAddon = ( props ) => {
+
+  const { clickAction } = props
+
+  const { data: newGeneralAlerts } = useFetchLiveFeeds("newGeneral")
+  const { data: newMyAlerts } = useFetchLiveFeeds("newMyAlerts")
 
   return (
-    state.newEventsCount > 0 && (
-      <ButtonAddon onClick={clickAction}>
-        {state.newEventsCount >= 100 ? '99+' : state.newEventsCount}
-      </ButtonAddon>
-    )
-  );
+
+    <>
+      {
+        newGeneralAlerts ? (
+          newGeneralAlerts > 0 && (
+            <ButtonAddon onClick={clickAction}>
+              {
+                newGeneralAlerts >= 100 ? '99+' : newGeneralAlerts
+              }
+            </ButtonAddon>
+          )
+        ) : <></>
+      }
+      {
+        newMyAlerts ? (
+          newMyAlerts > 0 && (
+            <ButtonAddonLeft onClick={clickAction}>
+              {
+                newMyAlerts >= 100 ? '99+' : newMyAlerts
+              }
+            </ButtonAddonLeft>
+          )
+        ) : <></>
+      }
+    </>
+  )
 };
 
 export default NotificationAddon;

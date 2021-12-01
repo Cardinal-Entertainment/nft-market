@@ -21,6 +21,7 @@ export const ZoombiesStableEndpoint = 'https://movr.zoombies.world';
 export const EVENT_TYPES = {
   Bid: 'Bid',
   ItemListed: 'ItemListed',
+  Settled: 'Settled',
 };
 
 export const QUERY_KEYS = {

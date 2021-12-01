@@ -135,16 +135,61 @@ const ButtonGroupContainer = styled1('div')({
 
 const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
   const theme = useTheme();
+  const [zoomBalance, setZoomBalance] = useState('');
+  const [WMOVRBalance, setWMOVRBalance] = useState('');
+
+  // const { togglelivefeeds, hidenavbar } = props;
   const { state } = useContext(store);
   const {
     wallet: { address, balance },
     contracts,
   } = state;
 
-  const [zoomBalance, setZoomBalance] = useState('');
-  const [WMOVRBalance, setWMOVRBalance] = useState('');
-
   const shortWallet = formatAddress(address);
+
+  // const options = [
+  //   'UNWRAP WMOVR',
+  //   'WRAP MOVR',
+  //   'DISPLAY WMOVR',
+  //   'DISPLAY ZOOM',
+  // ];
+  // const [open, setOpen] = React.useState(false);
+  // const anchorRef = React.useRef(null);
+  // const [selectedIndex, setSelectedIndex] = React.useState(1);
+
+  // const handleMenuItemClick = async (event, index) => {
+  //   setSelectedIndex(index);
+
+  //   if (index === 2) {
+  //     await handleAddAssetToMetamask('WMOVR');
+  //   } else if (index === 3) {
+  //     await handleAddAssetToMetamask('ZOOM');
+  //   }
+  // };
+
+  // const handleToggle = () => {
+  //   setOpen((prevOpen) => !prevOpen);
+  //   hidenavbar();
+  // };
+
+  // const handleClose = (event) => {
+  //   if (anchorRef.current && anchorRef.current.contains(event.target)) {
+  //     return;
+  //   }
+
+  //   setOpen(false);
+  // };
+
+  // const getZoomBalance = async () => {
+  //   const bal = await getWalletZoomBalance(contracts.ZoomContract, address);
+  //   setZoomBalance(bal);
+  // };
+
+  // const getWMOVRBalance = async () => {
+  //   const bal = await getWalletWMOVRBalance(contracts.WMOVRContract, address);
+  //   setWMOVRBalance(bal);
+  // };
+
 
   useEffect(() => {
     const getZoomBalance = async () => {
@@ -305,7 +350,10 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
           <NavItem
             color="white"
             style={{ flex: 'auto' }}
-            onClick={toggleLiveFeeds}
+            onClick={() => {
+              toggleLiveFeeds();
+              hideNavbar();
+            }}
           >
             <FontAwesomeIcon className="marketplace" icon={faBell} size="lg" />
             <NotificationAddon clickAction={toggleLiveFeeds} />

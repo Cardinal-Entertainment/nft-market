@@ -1,35 +1,49 @@
-import React from "react";
+import React, {useContext, useEffect, useState} from "react";
 import { forwardRef }from "react";
 import { styled } from '@mui/material';
 
 import iconNew from '../assets/new.png'
+import iconMyNew from '../assets/mynew.png'
 import iconBid from '../assets/bid.png'
+import iconMyBid from '../assets/mybid.png'
+import iconMyBidOn from '../assets/mybidon.png'
+import iconMyOutBid from '../assets/myoutbid.png'
 import iconSettle from '../assets/settle.png'
+import iconWin from '../assets/win.png'
+import iconSold from '../assets/sold.png'
 import wmovrCoin from "../assets/movr_logo.png";
 import zoomCoin from "../assets/zoombies_coin.svg";
 
 import moment from "moment";
 import {useHistory} from "react-router-dom";
 import {formatAddress} from "../utils/wallet";
+import {store} from "../store/store";
 
 const StyledDiv = styled('div')({
-  '& .container-highlight': {
-    backgroundColor: '#788ea5'
-  }
+  // '& .container-highlight': {
+  //   backgroundColor: '#788ea5'
+  // }
+
+  animation: 'mymove 5s infinite'
 });
 
-const Container = styled('div')({
+const Container = styled('div')(({ type, highlight }) => ({
   color: 'white',
   display: 'flex',
   margin: '6px 0',
   transition: 'opacity 700ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
-  backgroundColor: 'rgb(0, 30, 60)',
   borderRadius: '8px',
   border: '1px solid rgb(30, 73, 118)',
   overflow: 'hidden',
   padding: '8px',
   minHeight: '120px',
-});
+
+  // backgroundColor: type === 'highlight' ? '#788ea5' : 'rgb(0, 30, 60)'
+  backgroundColor: type === 'myalert' && highlight === "true" ? '#ff59e8aa' :
+                    (type !== 'myalert' && highlight === "true" ? '#41f7f8' :
+                      type === 'myalert' && highlight !== "true" ? '#ff59e8' : 'rgb(0, 30, 60)')
+
+}))
 
 const ImgEvent = styled('div')({
   display: 'flex',
@@ -101,15 +115,30 @@ const ContentBody = styled('div')({
 
 const LiveFeedItem = ( props, ref  ) => {
 
-  const history = useHistory();
   const { type, content, timestamp, highlight } = props
-  const { itemNumber, bidder, seller, winner, minPrice, bidAmount, auctionEnd, currency } = content
+  const { itemNumber, lister, bidder, seller, winner, minPrice, bidAmount, auctionEnd, currency } = content
 
+  const listerAddress = formatAddress(lister)
   const sellerAddress = formatAddress(seller)
-
   const bidderAddress = formatAddress(bidder)
-
   const winnerAddress = formatAddress(winner)
+
+  const [elapsedTime, setElapsedTime] = useState(moment.unix(timestamp).fromNow())
+  const history = useHistory();
+  const {
+    state: { wallet },
+  } = useContext(store);
+
+  useEffect(() => {
+    let interval = null;
+    interval = setInterval(() => {
+      updateElapsedTime()
+    }, 60000); //update every minute
+  }, []);
+
+  const updateElapsedTime = () => {
+    setElapsedTime(moment.unix(timestamp).fromNow());
+  }
 
   const gotoAuction = () => {
     history.push(`/listing/${itemNumber}`);
@@ -117,25 +146,67 @@ const LiveFeedItem = ( props, ref  ) => {
 
   return (
     <StyledDiv>
-      <Container ref={ref} {...props} className={highlight === 'true' ? 'container-highlight' : ''}>
+      <Container ref={ref} {...props} className={highlight === 'true' ? 'container-highlight' : ''} type={!(type === 'new' || type === 'bid' || type === 'settled') ? 'myalert' : ''} highlight={highlight}>
         <ImgEvent>
           {
-            type === 'new' ? (
+            (type === 'new') ? (
               <img src={iconNew} alt={type} style={
                 {
                   width: '32px',
                   height: '32px',
                 }
               }/>
-            ) : type === 'bid' ? (
+            ) : (type === 'mynew') ? (
+              <img src={iconMyNew} alt={type} style={
+                {
+                  width: '32px',
+                  height: '32px',
+                }
+              }/>
+            ) : (type === 'bid') ? (
               <img src={iconBid} alt={type} style={
                 {
                   width: '32px',
                   height: '32px',
                 }
               }/>
-            ) : type === 'settled' ? (
+            ) : (type === 'mybidon') ? (
+              <img src={iconMyBidOn} alt={type} style={
+                {
+                  width: '32px',
+                  height: '32px',
+                }
+              }/>
+            ) : (type === 'mybid') ? (
+              <img src={iconMyBid} alt={type} style={
+                {
+                  width: '32px',
+                  height: '32px',
+                }
+              }/>
+            ) : (type === 'settled' || type === 'settlemybid') ? (
               <img src={iconSettle} alt={type} style={
+                {
+                  width: '32px',
+                  height: '32px',
+                }
+              }/>
+            ) : type === 'myoutbid' ? (
+              <img src={iconMyOutBid} alt={type} style={
+                {
+                  width: '32px',
+                  height: '32px',
+                }
+              }/>
+            ) : type === 'sold' ? (
+              <img src={iconSold} alt={type} style={
+                {
+                  width: '32px',
+                  height: '32px',
+                }
+              }/>
+            ) : type === 'win' ? (
+              <img src={iconWin} alt={type} style={
                 {
                   width: '32px',
                   height: '32px',
@@ -150,14 +221,21 @@ const LiveFeedItem = ( props, ref  ) => {
               Auction #{itemNumber}
             </span>
             <div className={'content-timestamp'}>
-              {moment.unix(timestamp).fromNow()}
+              {elapsedTime}
             </div>
           </Header>
           <ContentBody>
             {
               type === 'new' ? (
                 <>
-                  <div className={'content-wallet-address'}>{sellerAddress + ' started a new auction.'}</div>
+                  <div className={'content-wallet-address'}>{listerAddress + ' started a new auction.'}</div>
+                  <div className={'content-amount'}>Min Price: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
+                    <span className={'span-amount'}>{minPrice}</span> {currency}</div>
+                  <div className={'content-auction-end'}>Auction Ends at: <span>{moment.unix(auctionEnd).format("MM/DD/YYYY, h:mm:ss A")}</span></div>
+                </>
+              ) : type === 'mynew' ? (
+                <>
+                  <div className={'content-wallet-address'}>You've created a new auction.</div>
                   <div className={'content-amount'}>Min Price: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
                     <span className={'span-amount'}>{minPrice}</span> {currency}</div>
                   <div className={'content-auction-end'}>Auction Ends at: <span>{moment.unix(auctionEnd).format("MM/DD/YYYY, h:mm:ss A")}</span></div>
@@ -168,10 +246,49 @@ const LiveFeedItem = ( props, ref  ) => {
                   <div className={'content-amount'}>Bid Amount: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
                     <span className={'span-amount'}>{bidAmount}</span> {currency}</div>
                 </>
+              ) : type === 'mybid' ? (
+                <>
+                  <div className={'content-wallet-address'}>You've placed a new bid</div>
+                  <div className={'content-amount'}>Bid Amount: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
+                    <span className={'span-amount'}>{bidAmount}</span> {currency}</div>
+                </>
+              ) : type === 'mybidon' ? (
+                <>
+                  <div className={'content-wallet-address'}>{bidderAddress + ' placed a new bid on your auction.'}</div>
+                  <div className={'content-amount'}>Bid Amount: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
+                    <span className={'span-amount'}>{bidAmount}</span> {currency}</div>
+                </>
+              ) : type === 'myoutbid' ? (
+                <>
+                  <div className={'content-wallet-address'}>You've been outbid by {bidderAddress}</div>
+                  <div>Increase your bid to win this auction.</div>
+                  <div className={'content-amount'}>Amount: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
+                    <span className={'span-amount'}>{bidAmount}</span> {currency}</div>
+                </>
               ) : type === 'settled' ? (
                 <>
                   <div className={'content-wallet-address'}>Winner: {winnerAddress}</div>
                   <div>{'This auction has been settled.'}</div>
+                  <div className={'content-amount'}>Amount: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
+                    <span className={'span-amount'}>{bidAmount}</span> {currency}</div>
+                </>
+              ) : type === 'sold' ? (
+                <>
+                  <div className={'content-wallet-address'}>Winner: {winnerAddress}</div>
+                  <div>{'Your auction ended and you sold your card.'}</div>
+                  <div className={'content-amount'}>Amount: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
+                    <span className={'span-amount'}>{bidAmount}</span> {currency}</div>
+                </>
+              ) : type === 'settlemybid' ? (
+                <>
+                  <div className={'content-wallet-address'}>Winner: {winnerAddress}</div>
+                  <div>You've placed a bid on this auction and it is settled.</div>
+                  <div className={'content-amount'}>Amount: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
+                    <span className={'span-amount'}>{bidAmount}</span> {currency}</div>
+                </>
+              ) : type === 'win' ? (
+                <>
+                  <div className={'content-wallet-address'}>You WIN in this auction.</div>
                   <div className={'content-amount'}>Amount: <img className="content-coin" src={currency === 'ZOOM' ? zoomCoin : wmovrCoin} alt={currency}/>
                     <span className={'span-amount'}>{bidAmount}</span> {currency}</div>
                 </>
