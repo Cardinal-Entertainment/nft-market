@@ -190,7 +190,6 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
   //   setWMOVRBalance(bal);
   // };
 
-
   useEffect(() => {
     const getZoomBalance = async () => {
       const bal = await getWalletZoomBalance(contracts.ZoomContract, address);

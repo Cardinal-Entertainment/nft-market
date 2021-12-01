@@ -221,10 +221,9 @@ const CardsContainer = styled('div')(({ theme }) => ({
   minWidth: '177px',
   [theme.breakpoints.down('sm')]: {
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
-
-}))
+}));
 
 const AuctionItem = ({ content }) => {
   const {
@@ -473,10 +472,18 @@ const AuctionItem = ({ content }) => {
 
       <DetailCardsDiv>
         <CardsContainer>
-          {auctionItem?.cards ?
+          {auctionItem?.cards ? (
             auctionItem.cards.map((card) => (
-              <CardImage key={card.id} src={cardImageBaseURL + "/" + card.id} alt={"CARD " + card.id} loading="lazy"/>
-            )) : <CircularProgress/>}
+              <CardImage
+                key={card.id}
+                src={cardImageBaseURL + '/' + card.id}
+                alt={'CARD ' + card.id}
+                loading="lazy"
+              />
+            ))
+          ) : (
+            <CircularProgress />
+          )}
         </CardsContainer>
         {/*{auctionItem.cards && <Pagination count={Math.ceil(auctionItem.cards.length / 20)} className={"pagination-bar"} variant="outlined" shape="rounded" onChange={handleCardsTablePageChanged}/>}*/}
       </DetailCardsDiv>

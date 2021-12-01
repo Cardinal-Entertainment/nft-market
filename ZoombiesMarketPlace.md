@@ -1,7 +1,6 @@
+# ZoombiesMarketPlace Contract
 
-# ZoombiesMarketPlace Contract 
-
-## Functions 
+## Functions
 
 - DEFAULT_ADMIN_ROLE
 - Items
@@ -53,8 +52,7 @@
 - whitelistToken
 - zoombiesFee
 
-
-## Events 
+## Events
 
 - Approval
 - ApprovalForAll
@@ -67,6 +65,3 @@
 - Settled
 - Transfer
 - Unpaused
-
-
-            

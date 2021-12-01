@@ -1,19 +1,18 @@
-import React, { useContext, useEffect, useState } from "react";
-import Button from "@mui/material/Button";
-import styled from "styled-components/macro";
-import SelectSource from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-import DateTimePicker from "@mui/lab/DateTimePicker";
-import TextField from "@mui/material/TextField";
-import { store } from "store/store";
-import { getCardData } from "utils/cardsUtil";
-import { omit } from "lodash";
-import { useHistory } from "react-router-dom";
-import { ethers } from "ethers";
+import React, { useContext, useEffect, useState } from 'react';
+import Button from '@mui/material/Button';
+import styled from 'styled-components/macro';
+import SelectSource from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import DateTimePicker from '@mui/lab/DateTimePicker';
+import TextField from '@mui/material/TextField';
+import { store } from 'store/store';
+import { getCardData } from 'utils/cardsUtil';
+import { omit } from 'lodash';
+import { useHistory } from 'react-router-dom';
+import { ethers } from 'ethers';
 import LazyLoad from 'react-lazyload';
-import {CircularProgress} from "@mui/material";
-import { zoombiesContractAddress } from "../constants";
-
+import { CircularProgress } from '@mui/material';
+import { zoombiesContractAddress } from '../constants';
 
 const Container = styled.div`
   flex: 1;
@@ -119,18 +118,18 @@ const NFTContainer = styled.div`
 `;
 
 const CURRENCY_TYPES = {
-  WMOVR: "WMOVR",
-  ZOOM: "ZOOM",
+  WMOVR: 'WMOVR',
+  ZOOM: 'ZOOM',
 };
 
 const tokenAddresses = {
   1285: {
-    [CURRENCY_TYPES.WMOVR]: "0x98878B06940aE243284CA214f92Bb71a2b032B8A",
-    [CURRENCY_TYPES.ZOOM]: "0x8bd5180Ccdd7AE4aF832c8C03e21Ce8484A128d4",
+    [CURRENCY_TYPES.WMOVR]: '0x98878B06940aE243284CA214f92Bb71a2b032B8A',
+    [CURRENCY_TYPES.ZOOM]: '0x8bd5180Ccdd7AE4aF832c8C03e21Ce8484A128d4',
   },
   1287: {
-    [CURRENCY_TYPES.WMOVR]: "0x372d0695E75563D9180F8CE31c9924D7e8aaac47",
-    [CURRENCY_TYPES.ZOOM]: "0x8e21404bAd3A1d2327cc6D2B2118f47911a1f316",
+    [CURRENCY_TYPES.WMOVR]: '0x372d0695E75563D9180F8CE31c9924D7e8aaac47',
+    [CURRENCY_TYPES.ZOOM]: '0x8e21404bAd3A1d2327cc6D2B2118f47911a1f316',
   },
 };
 
@@ -144,7 +143,7 @@ const NewListing = () => {
   const [dateTime, setDateTime] = useState(
     new Date(new Date().getTime() + 86400000 * 3)
   );
-  const [listPrice, setListPrice] = useState("0");
+  const [listPrice, setListPrice] = useState('0');
   const [createInProgress, setCreateInProgress] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState(
     CURRENCY_TYPES.WMOVR
@@ -214,34 +213,35 @@ const NewListing = () => {
       console.error(err);
     } finally {
       setCreateInProgress(false);
-      history.push("/");
+      history.push('/');
     }
   };
 
   const onKeyDown = (e) => {
     if (selectedCurrency === 'ZOOM') {
-      if(e.keyCode === 69 || e.keyCode === 190 || e.keyCode === 188){ // 'e', '.', ',' charaters
+      if (e.keyCode === 69 || e.keyCode === 190 || e.keyCode === 188) {
+        // 'e', '.', ',' charaters
         e.preventDefault();
       }
     }
-  }
+  };
 
   const handleAmountChanged = (e) => {
-    const value = e.target.value
+    const value = e.target.value;
 
-    let isDecimalOverflow = false
+    let isDecimalOverflow = false;
     if (selectedCurrency === 'WMOVR' && value.toString().includes('.')) {
-      if (value.toString().split(".")[1].length > 4) {
-        isDecimalOverflow = true
+      if (value.toString().split('.')[1].length > 4) {
+        isDecimalOverflow = true;
       }
     }
 
     if (isDecimalOverflow) {
-      setListPrice(parseFloat(value).toFixed(4).toString())
+      setListPrice(parseFloat(value).toFixed(4).toString());
     } else {
-      setListPrice(value)
+      setListPrice(value);
     }
-  }
+  };
 
   useEffect(() => {
     if (contracts.ZoombiesContract && wallet.address) {
@@ -292,23 +292,28 @@ const NewListing = () => {
           <span>Select NFTs below from your Crypt to add to the listing:</span>
         </FlexRow>
         <NFTContainer>
-          {userNFTs.length > 0 ? userNFTs.map((card) => (
-            <LazyLoad key={card.id} once={true} resize={true}>
-              <CardWrapper
-                onClick={() => handleCardClicked(card.id)}
-                key={card.id}
-              >
-                <img src={`https://moonbase.zoombies.world/nft-image/${card.id}`} alt={`Token #${card.id}`}/>
-                <input
-                  type="checkbox"
-                  checked={!!selectedCards[card.id]}
-                  readOnly
-                />
-              </CardWrapper>
-            </LazyLoad>
-          )) :
-          <CircularProgress/>
-          }
+          {userNFTs.length > 0 ? (
+            userNFTs.map((card) => (
+              <LazyLoad key={card.id} once={true} resize={true}>
+                <CardWrapper
+                  onClick={() => handleCardClicked(card.id)}
+                  key={card.id}
+                >
+                  <img
+                    src={`https://moonbase.zoombies.world/nft-image/${card.id}`}
+                    alt={`Token #${card.id}`}
+                  />
+                  <input
+                    type="checkbox"
+                    checked={!!selectedCards[card.id]}
+                    readOnly
+                  />
+                </CardWrapper>
+              </LazyLoad>
+            ))
+          ) : (
+            <CircularProgress />
+          )}
         </NFTContainer>
         <CenteredRow>
           <Button
@@ -321,7 +326,7 @@ const NewListing = () => {
             onClick={createListing}
           >
             {createInProgress
-              ? "Creating..."
+              ? 'Creating...'
               : `Create Listing (${Object.keys(selectedCards).length})`}
           </Button>
         </CenteredRow>

@@ -1,4 +1,3 @@
-
 export const marketContractJSON = require('./contracts/ZoombiesMarketPlace.json');
 export const marketContractAddress =
   '0x9362e967ae25891a799a39F42669C627c3D8eFD6';
@@ -25,7 +24,7 @@ export const EVENT_TYPES = {
 };
 
 export const QUERY_KEYS = {
-  listings: "fetchListings",
-  bids: "fetchBids",
-  profile: "fetchUserProfile",
-}
+  listings: 'fetchListings',
+  bids: 'fetchBids',
+  profile: 'fetchUserProfile',
+};

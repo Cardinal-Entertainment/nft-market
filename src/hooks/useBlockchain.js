@@ -1,13 +1,13 @@
-import { useContext, useEffect, useState } from "react";
-import { ethers } from "ethers";
-import detectEthereumProvider from "@metamask/detect-provider";
+import { useContext, useEffect, useState } from 'react';
+import { ethers } from 'ethers';
+import detectEthereumProvider from '@metamask/detect-provider';
 
-import zoombies_market_place_json from "../contracts/ZoombiesMarketPlace.json";
-import zoombies_json from "../contracts/Zoombies.json";
-import zoom_token_json from "../contracts/ZoomToken.json";
-import wrapped_movr_json from "../contracts/WrappedMovr.json";
-import { DAPP_STATES, store } from "store/store";
-import Actions from "store/actions";
+import zoombies_market_place_json from '../contracts/ZoombiesMarketPlace.json';
+import zoombies_json from '../contracts/Zoombies.json';
+import zoom_token_json from '../contracts/ZoomToken.json';
+import wrapped_movr_json from '../contracts/WrappedMovr.json';
+import { DAPP_STATES, store } from 'store/store';
+import Actions from 'store/actions';
 
 // import global_json from "../contracts/Global.json";
 
@@ -15,36 +15,38 @@ import {
   zoomContractAddress,
   marketContractAddress,
   wmovrContractAddress,
-} from "../constants";
-import {getWalletWMOVRBalance, getWalletZoomBalance} from "../utils/wallet";
-import watchMarketEvents from "utils/setupWatcher";
+} from '../constants';
+import { getWalletWMOVRBalance, getWalletZoomBalance } from '../utils/wallet';
+import watchMarketEvents from 'utils/setupWatcher';
 
-const isLocal = process.env.NODE_ENV === "development";
+const isLocal = process.env.NODE_ENV === 'development';
 
 const ethChainParam = isLocal
   ? {
-      chainId: "0x507", // Moonbase Alpha's chainId is 1287, which is 0x507 in hex
-      chainName: "Moonbase Alpha",
+      chainId: '0x507', // Moonbase Alpha's chainId is 1287, which is 0x507 in hex
+      chainName: 'Moonbase Alpha',
       nativeCurrency: {
-        name: "DEV",
-        symbol: "DEV",
+        name: 'DEV',
+        symbol: 'DEV',
         decimals: 18,
       },
-      rpcUrls: ["https://moonbase-alpha-api.bwarelabs.com/d6e703e6-a9d9-41bd-ab0a-5b96fae88395"],
+      rpcUrls: [
+        'https://moonbase-alpha-api.bwarelabs.com/d6e703e6-a9d9-41bd-ab0a-5b96fae88395',
+      ],
       blockExplorerUrls: [
-        "https://moonbase-blockscout.testnet.moonbeam.network/",
+        'https://moonbase-blockscout.testnet.moonbeam.network/',
       ],
     }
   : {
-      chainId: "0x505", // Moonbase Alpha's chainId is 1287, which is 0x507 in hex
-      chainName: "Moonriver",
+      chainId: '0x505', // Moonbase Alpha's chainId is 1287, which is 0x507 in hex
+      chainName: 'Moonriver',
       nativeCurrency: {
-        name: "MOVR",
-        symbol: "MOVR",
+        name: 'MOVR',
+        symbol: 'MOVR',
         decimals: 18,
       },
-      rpcUrls: ["https://rpc.moonriver.moonbeam.network"],
-      blockExplorerUrls: ["https://blockscout.moonriver.moonbeam.network/"],
+      rpcUrls: ['https://rpc.moonriver.moonbeam.network'],
+      blockExplorerUrls: ['https://blockscout.moonriver.moonbeam.network/'],
     };
 
 const useBlockchain = () => {
@@ -72,10 +74,12 @@ const useBlockchain = () => {
     const balance = await provider.getBalance(address);
 
     // console.log("newBalanace", ethers.utils.formatEther(balance))
-    dispatch(Actions.walletChanged({
-      address: accounts[0],
-      balance: Number(ethers.utils.formatEther(balance))
-    }));
+    dispatch(
+      Actions.walletChanged({
+        address: accounts[0],
+        balance: Number(ethers.utils.formatEther(balance)),
+      })
+    );
   };
 
   const loadContracts = async (signer, chainId) => {
@@ -115,40 +119,52 @@ const useBlockchain = () => {
       const address = await signer.getAddress();
       const bal = await getWalletZoomBalance(ZoomContract, address);
 
-      dispatch(Actions.walletChanged({
-        zoomBalance: bal
-      }));
+      dispatch(
+        Actions.walletChanged({
+          zoomBalance: bal,
+        })
+      );
     });
 
     WMOVRContract.provider.on('block', async () => {
       const address = await signer.getAddress();
       const bal = await getWalletWMOVRBalance(WMOVRContract, address);
 
-      dispatch(Actions.walletChanged({
-        wmovrBalance: bal
-      }));
+      dispatch(
+        Actions.walletChanged({
+          wmovrBalance: bal,
+        })
+      );
     });
 
     watchMarketEvents(MarketContract, marketContractAddress, ZoombiesContract);
 
     const settledFilter = MarketContract.filters.Settled();
-    MarketContract.on(settledFilter, async ( itemNumber, bidAmount, winner, seller, tokenIds, block ) => {
-      const item = await MarketContract.getListItem(itemNumber);
-      dispatch(
-        Actions.newBidEventTriggered({
-          type: 'settled',
-          timestamp: Date.now() / 1000,
-          content: {
-            blockNumber: block.blockNumber,
-            itemNumber: itemNumber.toNumber(),
-            bidAmount: ethers.utils.formatEther(bidAmount),
-            winner: winner,
-            seller: seller,
-            currency: item.saleToken === zoomContractAddress ? 'ZOOM' : item.saleToken === wmovrContractAddress ? 'WMOVR' : ''
-          }
-        })
-      )
-    });
+    MarketContract.on(
+      settledFilter,
+      async (itemNumber, bidAmount, winner, seller, tokenIds, block) => {
+        const item = await MarketContract.getListItem(itemNumber);
+        dispatch(
+          Actions.newBidEventTriggered({
+            type: 'settled',
+            timestamp: Date.now() / 1000,
+            content: {
+              blockNumber: block.blockNumber,
+              itemNumber: itemNumber.toNumber(),
+              bidAmount: ethers.utils.formatEther(bidAmount),
+              winner: winner,
+              seller: seller,
+              currency:
+                item.saleToken === zoomContractAddress
+                  ? 'ZOOM'
+                  : item.saleToken === wmovrContractAddress
+                  ? 'WMOVR'
+                  : '',
+            },
+          })
+        );
+      }
+    );
 
     dispatch(
       Actions.contractsLoaded({
@@ -196,17 +212,17 @@ const useBlockchain = () => {
 
     if (metamaskProvider) {
       await metamaskProvider.request({
-        method: 'eth_requestAccounts'
-      })
+        method: 'eth_requestAccounts',
+      });
       await metamaskProvider.request({
-        method: "wallet_addEthereumChain",
+        method: 'wallet_addEthereumChain',
         params: [ethChainParam],
       });
 
       const provider = new ethers.providers.Web3Provider(metamaskProvider);
 
       const signer = provider.getSigner();
-      
+
       const [address, balance, network] = await Promise.all([
         signer.getAddress(),
         signer.getBalance(),
@@ -222,20 +238,21 @@ const useBlockchain = () => {
       );
       dispatch(Actions.dAppStateChanged(DAPP_STATES.WALLET_CONNECTED));
 
-
-      window.ethereum.on("connected", handleConnect);
-      window.ethereum.on("disconnect", handleDisconnect);
-      window.ethereum.on("accountsChanged", handleAccountsChanged);
+      window.ethereum.on('connected', handleConnect);
+      window.ethereum.on('disconnect', handleDisconnect);
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
 
       dispatch(Actions.dAppStateChanged(DAPP_STATES.CONNECTED));
       // await provider.send("eth_requestAccounts", []);
 
       provider.on('block', () => {
         provider.getBalance(address).then((balance) => {
-          dispatch(Actions.walletChanged({
-            balance: Number(ethers.utils.formatEther(balance))
-          }));
-        })
+          dispatch(
+            Actions.walletChanged({
+              balance: Number(ethers.utils.formatEther(balance)),
+            })
+          );
+        });
       });
 
       const { ZoombiesContract } = await loadContracts(signer, network.chainId);
