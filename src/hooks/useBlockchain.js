@@ -9,8 +9,6 @@ import wrapped_movr_json from '../contracts/WrappedMovr.json'
 import { DAPP_STATES, store } from 'store/store'
 import Actions from 'store/actions'
 
-// import global_json from "../contracts/Global.json";
-
 import {
   zoomContractAddress,
   marketContractAddress,
@@ -69,19 +67,34 @@ const useBlockchain = () => {
         mustBeMetaMask: true,
       })
 
-      const provider = new ethers.providers.Web3Provider(metamaskProvider)
+      const provider = new ethers.providers.Web3Provider(metamaskProvider)      
       const signer = provider.getSigner()
-      const address = await signer.getAddress()
-      const balance = await provider.getBalance(address)
-      const zoomBalance = await getWalletZoomBalance(zoomContract, address);
-      const wmovrBalance = await getWalletWMOVRBalance(wmovrContract, address);
+      const [address, balance] = await Promise.all([
+        signer.getAddress(),
+        signer.getBalance(),
+      ])
+
+      const [zoomBalance, wmovrBalance] = await Promise.all([
+        getWalletZoomBalance(zoomContract, address),
+        getWalletWMOVRBalance(wmovrContract, address),
+      ])
+
+      provider.on('block', () => {
+        provider.getBalance(address).then((balance) => {
+          dispatch(
+            Actions.walletChanged({
+              balance: Number(ethers.utils.formatEther(balance)),
+            })
+          )
+        })
+      })
 
       dispatch(
         Actions.walletChanged({
           address,
           balance: Number(ethers.utils.formatEther(balance)),
           zoomBalance,
-          wmovrBalance
+          wmovrBalance,
         })
       )
     }
@@ -193,7 +206,7 @@ const useBlockchain = () => {
         ZoomContract,
         ZoombiesContract,
         MarketContract,
-        WMOVRContract
+        WMOVRContract,
       }
     }
 
@@ -255,18 +268,16 @@ const useBlockchain = () => {
           })
         })
 
-        const { ZoombiesContract, ZoomContract, WMOVRContract} = await loadContracts(
-          signer,
-          network.chainId
-        )
+        const { ZoombiesContract, ZoomContract, WMOVRContract } =
+          await loadContracts(signer, network.chainId)
 
-        const zoomBalance = await getWalletZoomBalance(ZoomContract, address);
-        const WMOVRBalance = await getWalletWMOVRBalance(WMOVRContract, address);
+        const zoomBalance = await getWalletZoomBalance(ZoomContract, address)
+        const WMOVRBalance = await getWalletWMOVRBalance(WMOVRContract, address)
 
         dispatch(
           Actions.walletChanged({
             zoomBalance: zoomBalance,
-            wmovrBalance: WMOVRBalance
+            wmovrBalance: WMOVRBalance,
           })
         )
 
@@ -274,7 +285,9 @@ const useBlockchain = () => {
 
         window.ethereum.on('connected', handleConnect)
         window.ethereum.on('disconnect', handleDisconnect)
-        window.ethereum.on('accountsChanged', () => handleAccountsChanged(ZoomContract, WMOVRContract))
+        window.ethereum.on('accountsChanged', () =>
+          handleAccountsChanged(ZoomContract, WMOVRContract)
+        )
       } else {
         // No metamask detected.
         return
