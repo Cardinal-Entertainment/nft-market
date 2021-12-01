@@ -285,31 +285,32 @@ const App = () => {
       addLiveFeedItem(bid, filterKey);
     });
 
-    // const tokenSettled = PubSub.subscribe(EVENT_TYPES.Settled, async (msg, data) => {
-    //   const settleData = data
-    //   let filterKey = ""
+    const tokenSettled = PubSub.subscribe(EVENT_TYPES.Settled, async (msg, data) => {
+      const settleData = data
+      let filterKey = ""
 
-    //   const settleType = getSettleType(settleData)
+      const settleType = getSettleType(settleData)
 
-    //   console.log("settleType", settleType)
-    //   let listingItem = myAuctions.listings.find( ( listing ) => listing.itemNumber === bid.itemNumber)
-    //   if (listingItem === undefined) {
-    //     listingItem = await MarketContract.getListItem(bid.itemNumber)
-    //   }
+      console.log("settleType", settleType)
+      let listingItem = myAuctions.listings.find( ( listing ) => listing.itemNumber === settleData.itemNumber)
+      if (listingItem === undefined) {
+        listingItem = await MarketContract.getListItem(settleData.itemNumber)
+      }
 
-    //   settleData["type"] = settleType
-    //   settleData["saleToken"] = listingItem.saleToken
-    //   if (settleType === "settle") {
-    //     filterKey = "General"
-    //   } else {
-    //     filterKey = "MyAlerts"
-    //   }
-    //   addLiveFeedItem(settleData, filterKey)
-    // })
+      settleData["type"] = settleType
+      settleData["saleToken"] = listingItem.saleToken
+      if (settleType === "settle") {
+        filterKey = "General"
+      } else {
+        filterKey = "MyAlerts"
+      }
+      addLiveFeedItem(settleData, filterKey)
+    })
 
     return () => {
       PubSub.unsubscribe(tokenNewAuction);
       PubSub.unsubscribe(tokenBid);
+      PubSub.unsubscribe(tokenSettled);
     };
   }, [queryClient, isDesktop, address, myAuctions, MarketContract]);
 
@@ -335,6 +336,7 @@ const App = () => {
         className={'btn-livefeed'}
       >
         <img src={liveFeedIcon} alt={'Live Feed'} />
+        <NotificationAddon onClick={() => setIsLiveFeedOpen((prevState) => !prevState)}/>
       </Button>
     );
   };
@@ -343,18 +345,26 @@ const App = () => {
     return (
       <HamburgerMenuButton>
         {isMobileDrawerOpen ? (
-          <FontAwesomeIcon
-            icon={faTimes}
-            size="lg"
-            onClick={() => setIsMobileDrawerOpen(false)}
-          />
+          <>
+            <FontAwesomeIcon
+              icon={faTimes}
+              size="lg"
+              onClick={() => setIsMobileDrawerOpen(false)}
+            />
+            <NotificationAddon onClick={() => setIsMobileDrawerOpen(false)}/>
+          </>
         ) : (
-          <FontAwesomeIcon
-            icon={faBars}
-            size="lg"
-            onClick={() => setIsMobileDrawerOpen(true)}
-          />
+          <>
+            <FontAwesomeIcon
+              icon={faBars}
+              size="lg"
+              onClick={() => setIsMobileDrawerOpen(true)}
+            />
+            <NotificationAddon onClick={() => setIsMobileDrawerOpen(true)}/>
+          </>
+
         )}
+        <NotificationAddon/>
       </HamburgerMenuButton>
     );
   };
