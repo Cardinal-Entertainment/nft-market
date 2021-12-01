@@ -1,16 +1,20 @@
-import { zoomContractAddress, wmovrContractAddress, apiEndpoint } from "../constants";
-import axios from 'axios'
+import {
+  zoomContractAddress,
+  wmovrContractAddress,
+  apiEndpoint,
+} from '../constants';
+import axios from 'axios';
 
 export const getTokenSymbol = (saleToken) => {
   switch (saleToken) {
     case zoomContractAddress:
-      return "ZOOM"
+      return 'ZOOM';
     case wmovrContractAddress:
-      return "WMOVR"
+      return 'WMOVR';
     default:
-      return "Unknown"
+      return 'Unknown';
   }
-}
+};
 
 /**
  *
@@ -20,17 +24,23 @@ export const getTokenSymbol = (saleToken) => {
  *
  * @returns Array of cards for an auction listing.
  */
-export const getAuctionItem = async (
-  auctionId,
-  zoombiesContract
-) => {
+export const getAuctionItem = async (auctionId, zoombiesContract) => {
   try {
-    const item = await axios.get(`${apiEndpoint}/item/${auctionId}`)
+    const item = await axios.get(`${apiEndpoint}/item/${auctionId}`);
     // const item = await axios.get(`http://localhost:3001/item/${auctionId}`)
-    const { tokenIds, saleToken, highestBidder, highestBid, lister: seller, minPrice, auctionStart, auctionEnd } = item.data;
+    const {
+      tokenIds,
+      saleToken,
+      highestBidder,
+      highestBid,
+      lister: seller,
+      minPrice,
+      auctionStart,
+      auctionEnd,
+    } = item.data;
 
     const currency = getTokenSymbol(saleToken);
-    
+
     return {
       id: auctionId,
       tokenIds,
@@ -41,7 +51,7 @@ export const getAuctionItem = async (
       highestBid,
       highestBidder,
       seller,
-      saleToken
+      saleToken,
     };
   } catch (err) {
     console.error(err);
@@ -49,13 +59,13 @@ export const getAuctionItem = async (
 };
 
 export const getOffers = async (auctionId) => {
-  const res = await axios.get(`${apiEndpoint}/bids/${auctionId}`)
+  const res = await axios.get(`${apiEndpoint}/bids/${auctionId}`);
   // const res = await axios.get(`http://localhost:3001/bids/${auctionId}`)
 
   return res.data.map((offer) => ({
     date: offer.timestamp,
     from: offer.bidder,
     amount: offer.bidAmount,
-    status: "Bid",
-  }))
-}
+    status: 'Bid',
+  }));
+};

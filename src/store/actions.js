@@ -1,10 +1,11 @@
 export const ActionTypes = {
-  WALLET_CHANGED: "WALLET_CHANGED",
-  DAPP_STATE_CHANGED: "DAPP_STATE_CHANGED",
-  CONTRACTS_LOADED: "CONTRACTS_LOADED",
-  NEW_BID_EVENT: "NEW_BID_EVENT",
-  RESET_NOTIFICATIONS: "RESET_NOTIFICATIONS",
-  MIN_INCREMENT_UPDATED: "MIN_INCREMENT_UPDATED"
+  WALLET_CHANGED: 'WALLET_CHANGED',
+  DAPP_STATE_CHANGED: 'DAPP_STATE_CHANGED',
+  CONTRACTS_LOADED: 'CONTRACTS_LOADED',
+  NEW_BID_EVENT: 'NEW_BID_EVENT',
+  MY_NEW_BID_EVENT: 'MY_NEW_BID_EVENT',
+  RESET_NOTIFICATIONS: 'RESET_NOTIFICATIONS',
+  MIN_INCREMENT_UPDATED: 'MIN_INCREMENT_UPDATED',
 };
 
 const Actions = {
@@ -32,18 +33,24 @@ const Actions = {
       payload,
     };
   },
-  resetNotifications( payload ) {
+  myNewBidEventTriggered(payload) {
+    return {
+      type: ActionTypes.MY_NEW_BID_EVENT,
+      payload,
+    };
+  },
+  resetNotifications(payload) {
     return {
       type: ActionTypes.RESET_NOTIFICATIONS,
       payload,
     };
   },
-  minIncrementUpdated( payload ) {
+  minIncrementUpdated(payload) {
     return {
       type: ActionTypes.MIN_INCREMENT_UPDATED,
       payload,
     };
-  }
+  },
 };
 
 export default Actions;

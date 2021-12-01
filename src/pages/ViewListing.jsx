@@ -12,7 +12,13 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { CircularProgress, Modal, Pagination, Paper } from '@mui/material';
 import OfferDialog from 'components/OfferDialog';
-import { EVENT_TYPES, marketContractAddress, QUERY_KEYS, ZoombiesStableEndpoint, ZoombiesTestingEndpoint } from '../constants';
+import {
+  EVENT_TYPES,
+  marketContractAddress,
+  QUERY_KEYS,
+  ZoombiesStableEndpoint,
+  ZoombiesTestingEndpoint,
+} from '../constants';
 import { ethers } from 'ethers';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons';
@@ -31,6 +37,7 @@ const Container = styled('div')({
   flex: 1,
   height: '100%',
   color: 'white',
+  overflowY: 'auto',
 
   '& h1': {
     margin: 0,
@@ -38,6 +45,10 @@ const Container = styled('div')({
 
   '& .pagination-bar': {
     padding: '12px',
+  },
+
+  '& .bid-table': {
+    flex: 'auto',
   },
 });
 
@@ -117,8 +128,8 @@ const SellerDiv = styled(Grid)(({ theme }) => ({
   },
 
   '.seller-address-link': {
-    marginLeft: '8px'
-  }
+    marginLeft: '8px',
+  },
 }));
 
 const ViewListing = () => {
@@ -135,7 +146,7 @@ const ViewListing = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const auctionId = parseInt(id);
-  
+
   const {
     state: { contracts, wallet },
   } = useContext(store);
@@ -255,24 +266,33 @@ const ViewListing = () => {
   useEffect(() => {
     const token = PubSub.subscribe(EVENT_TYPES.Bid, (msg, data) => {
       const bid = data;
-      const currentBidData = queryClient.getQueryData([QUERY_KEYS.bids, { auctionId }]);
+      const currentBidData = queryClient.getQueryData([
+        QUERY_KEYS.bids,
+        { auctionId },
+      ]);
       const randomId = uuidv4();
       const bidWithId = {
         ...bid,
-        _id: randomId
-      }
-      
+        _id: randomId,
+      };
+
       if (bid.itemNumber === auctionId) {
         if (currentBidData) {
-          queryClient.setQueryData([QUERY_KEYS.bids, {auctionId}], [bidWithId, ...currentBidData]);
+          queryClient.setQueryData(
+            [QUERY_KEYS.bids, { auctionId }],
+            [bidWithId, ...currentBidData]
+          );
         } else {
-          queryClient.setQueryData([QUERY_KEYS.bids, {auctionId}], [bidWithId]);
+          queryClient.setQueryData(
+            [QUERY_KEYS.bids, { auctionId }],
+            [bidWithId]
+          );
         }
       }
     });
 
     return () => PubSub.unsubscribe(token);
-  }, [queryClient, auctionId])
+  }, [queryClient, auctionId]);
 
   const now = moment().unix();
   const end = moment(auctionItem?.auctionEnd * 1000).unix();
@@ -280,8 +300,10 @@ const ViewListing = () => {
   const isWinner = auctionItem?.highestBidder === wallet.address;
   const isOwner = wallet.address === auctionItem?.seller;
   const canSettle = isOver && (isWinner || isOwner);
-  const sellerURL = wallet.chainId === 1287 ? 
-    `${ZoombiesTestingEndpoint}/my-zoombies-nfts/${auctionItem?.seller}` : `${ZoombiesStableEndpoint}/my-zoombies-nfts/${auctionItem?.seller}`;
+  const sellerURL =
+    wallet.chainId === 1287
+      ? `${ZoombiesTestingEndpoint}/my-zoombies-nfts/${auctionItem?.seller}`
+      : `${ZoombiesStableEndpoint}/my-zoombies-nfts/${auctionItem?.seller}`;
 
   const { isLoading, data } = useFetchBids(auctionId);
 
@@ -317,7 +339,12 @@ const ViewListing = () => {
         </Grid>
         <Grid item>
           Seller Wallet:
-          <a className="seller-address-link" href={sellerURL} rel="noreferrer" target="_blank">
+          <a
+            className="seller-address-link"
+            href={sellerURL}
+            rel="noreferrer"
+            target="_blank"
+          >
             {auctionItem.seller
               ? `${auctionItem.seller.substr(
                   0,
@@ -400,11 +427,15 @@ const ViewListing = () => {
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 >
                   <TableCell>
-                    {moment(bid.timestamp * 1000).format('MM/DD/YYYY, h:mm:ss A')}
+                    {moment(bid.timestamp * 1000).format(
+                      'MM/DD/YYYY, h:mm:ss A'
+                    )}
                   </TableCell>
                   <TableCell>
                     {bid.bidder
-                      ? `${bid.bidder.substr(0, 8)} ... ${bid.bidder.substr(36)}`
+                      ? `${bid.bidder.substr(0, 8)} ... ${bid.bidder.substr(
+                          36
+                        )}`
                       : ''}
                   </TableCell>
                   <TableCell>{bid.bidAmount}</TableCell>

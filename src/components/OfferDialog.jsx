@@ -1,12 +1,12 @@
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
-import React, {useEffect, useState} from "react";
-import styled from "styled-components/macro";
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import React, { useEffect, useState } from 'react';
+import styled from 'styled-components/macro';
 
 const FlexRow = styled.div`
   display: flex;
@@ -19,10 +19,17 @@ const FlexRow = styled.div`
   }
 `;
 
-const OfferDialog = ({ currency, minAmount, maxAmount, onConfirm, disabled, quickBid }) => {
+const OfferDialog = ({
+  currency,
+  minAmount,
+  maxAmount,
+  onConfirm,
+  disabled,
+  quickBid,
+}) => {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState(minAmount);
-  const [inputInvalid, setInputInvalid] = useState("");
+  const [inputInvalid, setInputInvalid] = useState('');
 
   useEffect(() => {
     setInput(minAmount);
@@ -38,45 +45,57 @@ const OfferDialog = ({ currency, minAmount, maxAmount, onConfirm, disabled, quic
 
   const onKeyDown = (e) => {
     if (currency === 'ZOOM') {
-      if(e.keyCode === 69 || e.keyCode === 190 || e.keyCode === 188){ // 'e', '.', ',' charaters
+      if (e.keyCode === 69 || e.keyCode === 190 || e.keyCode === 188) {
+        // 'e', '.', ',' charaters
         e.preventDefault();
       }
     }
-  }
+  };
 
   const handleAmountChanged = (e) => {
-    const value = e.target.value
+    const value = e.target.value;
 
-    let isDecimalOverflow = false
+    let isDecimalOverflow = false;
     if (currency === 'WMOVR' && value.toString().includes('.')) {
-      if (value.toString().split(".")[1].length > 4) {
-        isDecimalOverflow = true
+      if (value.toString().split('.')[1].length > 4) {
+        isDecimalOverflow = true;
       }
     }
 
     if (isDecimalOverflow) {
-      setInput(parseFloat(value).toFixed(4).toString())
+      setInput(parseFloat(value).toFixed(4).toString());
     } else {
-      setInput(value)
+      setInput(value);
     }
-  }
+  };
 
   const handleConfirm = () => {
     if (parseFloat(input) < minAmount) {
-      setInputInvalid("Set bigger amount")
+      setInputInvalid('Set bigger amount');
     } else if (parseFloat(input) > maxAmount) {
-      setInputInvalid("You don't have enough coin")
+      setInputInvalid("You don't have enough coin");
     } else {
-      setInputInvalid("")
-      onConfirm(input)
+      setInputInvalid('');
+      onConfirm(input);
       setOpen(false);
     }
-  }
+  };
 
   return (
     <div>
-      <Button variant="contained" onClick={handleClickOpen} disabled={disabled} className={quickBid ? "button-bid" : ''}>
-        {quickBid ? 'Quick bid (' + Math.round(minAmount * 10000) / 10000.0 + ' ' + currency + ')' : 'Make Offer'}
+      <Button
+        variant="contained"
+        onClick={handleClickOpen}
+        disabled={disabled}
+        className={quickBid ? 'button-bid' : ''}
+      >
+        {quickBid
+          ? 'Quick bid (' +
+            Math.round(minAmount * 10000) / 10000.0 +
+            ' ' +
+            currency +
+            ')'
+          : 'Make Offer'}
       </Button>
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Make Offer</DialogTitle>
@@ -92,12 +111,16 @@ const OfferDialog = ({ currency, minAmount, maxAmount, onConfirm, disabled, quic
               label="Offer Amount"
               type="number"
               variant="standard"
-              value={currency === 'ZOOM' ? parseInt(input).toString() : parseFloat(input).toFixed(4)}
+              value={
+                currency === 'ZOOM'
+                  ? parseInt(input).toString()
+                  : parseFloat(input).toFixed(4)
+              }
               onChange={handleAmountChanged}
               onKeyDown={onKeyDown}
-              error={inputInvalid !== ""}
+              error={inputInvalid !== ''}
               helperText={inputInvalid}
-              inputProps={{ step: currency === 'WMOVR' ? 0.0001 : 1}}
+              inputProps={{ step: currency === 'WMOVR' ? 0.0001 : 1 }}
             />
             <span>{currency}</span>
           </FlexRow>

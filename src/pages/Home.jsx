@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import PubSub from 'pubsub-js'
+import PubSub from 'pubsub-js';
 import styled from 'styled-components';
 import Filterbar from '../components/Filterbar';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -44,7 +44,7 @@ const Home = () => {
     keyword: '', // search keyword,
     sortField: '', //sort by key
   });
-  
+
   const { data, isLoading, hasNextPage, fetchNextPage } =
     useFetchListingQuery(filters);
 
@@ -62,28 +62,34 @@ const Home = () => {
        * We will only append the new listing based on the current cached data a user is viewing.
        * Say a user clears the filter afterwards,
        * react-query will automatically refetch since we are using filters as part of query key.
-       * 
+       *
        * The assumption is that by the time user switches filter, the new listing should've been
        * stored in the database and API call will fetch it.
        * So it should be safe to have the data eventually consistent.
        */
-      const currentData = queryClient.getQueryData([QUERY_KEYS.listings, { filters }]);
+      const currentData = queryClient.getQueryData([
+        QUERY_KEYS.listings,
+        { filters },
+      ]);
       if (currentData) {
-        queryClient.setQueryData([QUERY_KEYS.listings, { filters }], queryData => {
-          return {
-            pageParams: queryData.pageParams,
-            pages: [
-              {
-                totalCount: queryData.pages[0].totalCount + 1,
-                nextOffset: queryData.pages[0].nextOffset,
-                data: [data]
-              },
-              ...queryData.pages
-            ]
+        queryClient.setQueryData(
+          [QUERY_KEYS.listings, { filters }],
+          (queryData) => {
+            return {
+              pageParams: queryData.pageParams,
+              pages: [
+                {
+                  totalCount: queryData.pages[0].totalCount + 1,
+                  nextOffset: queryData.pages[0].nextOffset,
+                  data: [data],
+                },
+                ...queryData.pages,
+              ],
+            };
           }
-        })
+        );
       }
-    })
+    });
 
     return () => PubSub.unsubscribe(token);
   }, [queryClient, filters]);
@@ -111,7 +117,10 @@ const Home = () => {
           >
             {data.pages.map((page) =>
               page.data.map((auction) => (
-                <AuctionItem content={auction} key={`${auction.itemNumber}-${auction._id}`} />
+                <AuctionItem
+                  content={auction}
+                  key={`${auction.itemNumber}-${auction._id}`}
+                />
               ))
             )}
           </InfiniteScroll>

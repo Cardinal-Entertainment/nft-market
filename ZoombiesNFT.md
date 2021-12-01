@@ -1,7 +1,6 @@
+# ZoombiesNFT Contract
 
-# ZoombiesNFT Contract 
-
-## Functions 
+## Functions
 
 - DEFAULT_ADMIN_ROLE
 - approve
@@ -45,8 +44,7 @@
 - whitelistToken
 - zoombiesFee
 
-
-## Events 
+## Events
 
 - Approval
 - ApprovalForAll
@@ -56,6 +54,3 @@
 - RoleRevoked
 - Transfer
 - Unpaused
-
-
-            
