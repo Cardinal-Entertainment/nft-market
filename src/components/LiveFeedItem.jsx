@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { forwardRef } from 'react';
 import { styled } from '@mui/material';
 
@@ -17,7 +17,6 @@ import zoomCoin from '../assets/zoombies_coin.svg';
 import moment from 'moment';
 import { useHistory } from 'react-router-dom';
 import { formatAddress } from '../utils/wallet';
-import { store } from '../store/store';
 
 const StyledDiv = styled('div')({
   // '& .container-highlight': {
@@ -121,7 +120,6 @@ const LiveFeedItem = (props, ref) => {
     itemNumber,
     lister,
     bidder,
-    seller,
     winner,
     minPrice,
     bidAmount,
@@ -130,7 +128,6 @@ const LiveFeedItem = (props, ref) => {
   } = content;
 
   const listerAddress = formatAddress(lister);
-  const sellerAddress = formatAddress(seller);
   const bidderAddress = formatAddress(bidder);
   const winnerAddress = formatAddress(winner);
 
@@ -138,20 +135,16 @@ const LiveFeedItem = (props, ref) => {
     moment.unix(timestamp).fromNow()
   );
   const history = useHistory();
-  const {
-    state: { wallet },
-  } = useContext(store);
 
   useEffect(() => {
-    let interval = null;
-    interval = setInterval(() => {
-      updateElapsedTime();
+    const interval = setInterval(() => {
+      setElapsedTime(moment.unix(timestamp).fromNow());
     }, 60000); //update every minute
-  }, []);
 
-  const updateElapsedTime = () => {
-    setElapsedTime(moment.unix(timestamp).fromNow());
-  };
+    return () => clearInterval(interval);
+  }, [timestamp]);
+
+
 
   const gotoAuction = () => {
     history.push(`/listing/${itemNumber}`);

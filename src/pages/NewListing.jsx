@@ -177,28 +177,6 @@ const NewListing = () => {
     }
   };
 
-  const getUserNFTs = async () => {
-    const nftsCount = await contracts.ZoombiesContract.balanceOf(
-      wallet.address
-    );
-    const tokensOfOwner = [];
-    for (let i = 0; i < nftsCount; i++) {
-      const nftTokenId = await contracts.ZoombiesContract.tokenOfOwnerByIndex(
-        wallet.address,
-        i
-      );
-
-      tokensOfOwner.push(nftTokenId);
-    }
-
-    const cards = await Promise.all(
-      tokensOfOwner.map((token) =>
-        getCardData(parseInt(token), contracts.ZoombiesContract)
-      )
-    );
-    setUserNFTs(cards);
-  };
-
   const createListing = async () => {
     setCreateInProgress(true);
     try {
@@ -244,6 +222,29 @@ const NewListing = () => {
   };
 
   useEffect(() => {
+    const getUserNFTs = async () => {
+      const nftsCount = await contracts.ZoombiesContract.balanceOf(
+        wallet.address
+      );
+      const tokensOfOwner = [];
+      for (let i = 0; i < nftsCount; i++) {
+        const nftTokenId = await contracts.ZoombiesContract.tokenOfOwnerByIndex(
+          wallet.address,
+          i
+        );
+  
+        tokensOfOwner.push(nftTokenId);
+      }
+  
+      const cards = await Promise.all(
+        tokensOfOwner.map((token) =>
+          getCardData(parseInt(token), contracts.ZoombiesContract)
+        )
+      );
+      setUserNFTs(cards);
+    };
+
+    
     if (contracts.ZoombiesContract && wallet.address) {
       getUserNFTs();
     }

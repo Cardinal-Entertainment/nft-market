@@ -1,12 +1,10 @@
 import * as React from 'react';
-import { forwardRef, useContext, useState } from 'react';
+import { forwardRef, useState } from 'react';
 import LiveFeedItem from './LiveFeedItem';
 import { styled } from '@mui/material';
 import Button from '@mui/material/Button';
 import { TransitionGroup } from 'react-transition-group';
 import Collapse from '@mui/material/Collapse';
-import { store } from '../store/store';
-import Actions from '../store/actions';
 import moment from 'moment';
 import PubSub from 'pubsub-js';
 import { EVENT_TYPES, QUERY_KEYS } from '../constants';
@@ -77,7 +75,6 @@ const CloseButton = styled(Button)(({ theme }) => ({
 }));
 
 const LiveFeedsSlide = (props, ref) => {
-  const { dispatch, state } = useContext(store);
   const [filters, setFilters] = useState({
     my: true,
     general: true,
@@ -112,187 +109,187 @@ const LiveFeedsSlide = (props, ref) => {
     });
   };
 
-  const addNewElement = () => {
-    dispatch(
-      Actions.newBidEventTriggered({
-        type: 'new',
-        timestamp: Date.now() / 1000,
-        content: {
-          blockNumber: Date.now(),
-          // itemNumber: itemNumber.toNumber(),
-          itemNumber: 10,
-          minPrice: 23.0,
-          bidAmount: 12032.25,
-          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-          bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-          currency: 'ZOOM',
-          winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-        },
-      })
-    );
+  // const addNewElement = () => {
+  //   dispatch(
+  //     Actions.newBidEventTriggered({
+  //       type: 'new',
+  //       timestamp: Date.now() / 1000,
+  //       content: {
+  //         blockNumber: Date.now(),
+  //         // itemNumber: itemNumber.toNumber(),
+  //         itemNumber: 10,
+  //         minPrice: 23.0,
+  //         bidAmount: 12032.25,
+  //         seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //         bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //         currency: 'ZOOM',
+  //         winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //       },
+  //     })
+  //   );
 
-    dispatch(
-      Actions.myNewBidEventTriggered({
-        type: 'mynew',
-        timestamp: Date.now() / 1000,
-        content: {
-          blockNumber: Date.now(),
-          // itemNumber: itemNumber.toNumber(),
-          itemNumber: 10,
-          minPrice: 23.0,
-          bidAmount: 12032.25,
-          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-          bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-          currency: 'ZOOM',
-          winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-        },
-      })
-    );
+  //   dispatch(
+  //     Actions.myNewBidEventTriggered({
+  //       type: 'mynew',
+  //       timestamp: Date.now() / 1000,
+  //       content: {
+  //         blockNumber: Date.now(),
+  //         // itemNumber: itemNumber.toNumber(),
+  //         itemNumber: 10,
+  //         minPrice: 23.0,
+  //         bidAmount: 12032.25,
+  //         seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //         bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //         currency: 'ZOOM',
+  //         winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //       },
+  //     })
+  //   );
 
-    dispatch(
-      Actions.newBidEventTriggered({
-        type: 'bid',
-        timestamp: Date.now() / 1000,
-        content: {
-          blockNumber: Date.now(),
-          // itemNumber: itemNumber.toNumber(),
-          itemNumber: 10,
-          minPrice: 23.0,
-          bidAmount: 12032.25,
-          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-          bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-          currency: 'ZOOM',
-          winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-        },
-      })
-    );
+  //   dispatch(
+  //     Actions.newBidEventTriggered({
+  //       type: 'bid',
+  //       timestamp: Date.now() / 1000,
+  //       content: {
+  //         blockNumber: Date.now(),
+  //         // itemNumber: itemNumber.toNumber(),
+  //         itemNumber: 10,
+  //         minPrice: 23.0,
+  //         bidAmount: 12032.25,
+  //         seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //         bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //         currency: 'ZOOM',
+  //         winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //       },
+  //     })
+  //   );
 
-    dispatch(
-      Actions.myNewBidEventTriggered({
-        type: 'myoutbid',
-        timestamp: Date.now() / 1000,
-        content: {
-          blockNumber: Date.now(),
-          // itemNumber: itemNumber.toNumber(),
-          itemNumber: 10,
-          minPrice: 23.0,
-          bidAmount: 12032.25,
-          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-          bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-          currency: 'ZOOM',
-          winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-        },
-      })
-    );
+  //   dispatch(
+  //     Actions.myNewBidEventTriggered({
+  //       type: 'myoutbid',
+  //       timestamp: Date.now() / 1000,
+  //       content: {
+  //         blockNumber: Date.now(),
+  //         // itemNumber: itemNumber.toNumber(),
+  //         itemNumber: 10,
+  //         minPrice: 23.0,
+  //         bidAmount: 12032.25,
+  //         seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //         bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //         currency: 'ZOOM',
+  //         winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //       },
+  //     })
+  //   );
 
-    dispatch(
-      Actions.myNewBidEventTriggered({
-        type: 'mybidon',
-        timestamp: Date.now() / 1000,
-        content: {
-          blockNumber: Date.now(),
-          // itemNumber: itemNumber.toNumber(),
-          itemNumber: 10,
-          minPrice: 23.0,
-          bidAmount: 12032.25,
-          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-          bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-          currency: 'ZOOM',
-          winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-        },
-      })
-    );
+  //   dispatch(
+  //     Actions.myNewBidEventTriggered({
+  //       type: 'mybidon',
+  //       timestamp: Date.now() / 1000,
+  //       content: {
+  //         blockNumber: Date.now(),
+  //         // itemNumber: itemNumber.toNumber(),
+  //         itemNumber: 10,
+  //         minPrice: 23.0,
+  //         bidAmount: 12032.25,
+  //         seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //         bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //         currency: 'ZOOM',
+  //         winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //       },
+  //     })
+  //   );
 
-    dispatch(
-      Actions.myNewBidEventTriggered({
-        type: 'mybid',
-        timestamp: Date.now() / 1000,
-        content: {
-          blockNumber: Date.now(),
-          // itemNumber: itemNumber.toNumber(),
-          itemNumber: 10,
-          minPrice: 23.0,
-          bidAmount: 12032.25,
-          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-          bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-          currency: 'ZOOM',
-          winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-        },
-      })
-    );
+  //   dispatch(
+  //     Actions.myNewBidEventTriggered({
+  //       type: 'mybid',
+  //       timestamp: Date.now() / 1000,
+  //       content: {
+  //         blockNumber: Date.now(),
+  //         // itemNumber: itemNumber.toNumber(),
+  //         itemNumber: 10,
+  //         minPrice: 23.0,
+  //         bidAmount: 12032.25,
+  //         seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //         bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //         currency: 'ZOOM',
+  //         winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //       },
+  //     })
+  //   );
 
-    dispatch(
-      Actions.myNewBidEventTriggered({
-        type: 'sold',
-        timestamp: Date.now() / 1000,
-        content: {
-          blockNumber: Date.now(),
-          // itemNumber: itemNumber.toNumber(),
-          itemNumber: 10,
-          minPrice: 23.0,
-          bidAmount: 12032.25,
-          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-          bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-          currency: 'ZOOM',
-          winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-        },
-      })
-    );
+  //   dispatch(
+  //     Actions.myNewBidEventTriggered({
+  //       type: 'sold',
+  //       timestamp: Date.now() / 1000,
+  //       content: {
+  //         blockNumber: Date.now(),
+  //         // itemNumber: itemNumber.toNumber(),
+  //         itemNumber: 10,
+  //         minPrice: 23.0,
+  //         bidAmount: 12032.25,
+  //         seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //         bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //         currency: 'ZOOM',
+  //         winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //       },
+  //     })
+  //   );
 
-    dispatch(
-      Actions.myNewBidEventTriggered({
-        type: 'settlemybid',
-        timestamp: Date.now() / 1000,
-        content: {
-          blockNumber: Date.now(),
-          // itemNumber: itemNumber.toNumber(),
-          itemNumber: 10,
-          minPrice: 23.0,
-          bidAmount: 12032.25,
-          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-          bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-          currency: 'ZOOM',
-          winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-        },
-      })
-    );
+  //   dispatch(
+  //     Actions.myNewBidEventTriggered({
+  //       type: 'settlemybid',
+  //       timestamp: Date.now() / 1000,
+  //       content: {
+  //         blockNumber: Date.now(),
+  //         // itemNumber: itemNumber.toNumber(),
+  //         itemNumber: 10,
+  //         minPrice: 23.0,
+  //         bidAmount: 12032.25,
+  //         seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //         bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //         currency: 'ZOOM',
+  //         winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //       },
+  //     })
+  //   );
 
-    dispatch(
-      Actions.newBidEventTriggered({
-        type: 'settled',
-        timestamp: Date.now() / 1000,
-        content: {
-          blockNumber: Date.now(),
-          // itemNumber: itemNumber.toNumber(),
-          itemNumber: 10,
-          minPrice: 23.0,
-          bidAmount: 12032.25,
-          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-          bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-          currency: 'ZOOM',
-          winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-        },
-      })
-    );
+  //   dispatch(
+  //     Actions.newBidEventTriggered({
+  //       type: 'settled',
+  //       timestamp: Date.now() / 1000,
+  //       content: {
+  //         blockNumber: Date.now(),
+  //         // itemNumber: itemNumber.toNumber(),
+  //         itemNumber: 10,
+  //         minPrice: 23.0,
+  //         bidAmount: 12032.25,
+  //         seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //         bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //         currency: 'ZOOM',
+  //         winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //       },
+  //     })
+  //   );
 
-    dispatch(
-      Actions.myNewBidEventTriggered({
-        type: 'win',
-        timestamp: Date.now() / 1000,
-        content: {
-          blockNumber: Date.now(),
-          // itemNumber: itemNumber.toNumber(),
-          itemNumber: 10,
-          minPrice: 23.0,
-          bidAmount: 12032.25,
-          seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-          bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-          currency: 'ZOOM',
-          winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
-        },
-      })
-    );
-  };
+  //   dispatch(
+  //     Actions.myNewBidEventTriggered({
+  //       type: 'win',
+  //       timestamp: Date.now() / 1000,
+  //       content: {
+  //         blockNumber: Date.now(),
+  //         // itemNumber: itemNumber.toNumber(),
+  //         itemNumber: 10,
+  //         minPrice: 23.0,
+  //         bidAmount: 12032.25,
+  //         seller: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //         bidder: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //         currency: 'ZOOM',
+  //         winner: '0x24213bd4cEc78A8843B50b9503c1d56eEA4d0232',
+  //       },
+  //     })
+  //   );
+  // };
 
   const _remoteThisFUNCTION = () => {
     const itemListedEvent = {

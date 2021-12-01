@@ -1,8 +1,5 @@
-import React, { useContext, useEffect } from 'react';
+import React from 'react';
 import { styled } from '@mui/material';
-import { store } from '../store/store';
-import { useQueryClient } from 'react-query';
-import { EVENT_TYPES, marketContractAddress, QUERY_KEYS } from '../constants';
 import { useFetchLiveFeeds } from '../hooks/useLiveFeeds';
 
 const ButtonAddon = styled('div')({
