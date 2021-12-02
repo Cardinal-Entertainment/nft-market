@@ -197,6 +197,26 @@ const App = () => {
       return 'bid'
     }
 
+    const getSettleType = (liveFeedItem) => {
+      const condition = (item) => {
+        return item.itemNumber === liveFeedItem.itemNumber;
+      };
+
+      if (myAuctions.bids.some(condition)) {
+        return 'settlemybid';
+      }
+      if (liveFeedItem.winner === address) {
+        return 'win';
+      }
+      if (
+        myAuctions.listings.some(condition) ||
+        liveFeedItem.seller === address
+      ) {
+        return 'sold';
+      }
+      return 'settle';
+    };
+
     setIsMobileDrawerOpen(isDesktop)
     const tokenNewAuction = PubSub.subscribe(
       EVENT_TYPES.ItemListed,
