@@ -450,7 +450,7 @@ const AuctionItem = ({ content }) => {
                   : parseFloat(wallet.wmovrBalance)
               }
               onConfirm={handleConfirmBid}
-              disabled={moment().isAfter(moment.unix(auctionItem.auctionEnd)) || bidInProgress}
+              disabled={moment().isAfter(moment.unix(auctionItem.auctionEnd)) || bidInProgress || auctionItem.lister === wallet.address}
               quickBid
             />
             <Button className={'button-more-info'} onClick={gotoAuction}>
