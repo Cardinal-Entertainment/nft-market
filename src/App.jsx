@@ -1,58 +1,53 @@
-import DialogSource from '@mui/material/Dialog';
-import useBlockchain from './hooks/useBlockchain';
-import zoombiesLogo from './assets/zoombies_head.svg';
-import liveFeedIcon from './assets/live-feed.png';
-import React, { useContext, useEffect, useState } from 'react';
-import Navbar from 'components/Navbar';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import Home from 'pages/Home';
-import NewListing from 'pages/NewListing';
-import ViewListing from 'pages/ViewListing';
-import { Button, Drawer, Slide } from '@mui/material';
-import LiveFeedsSlide from './components/LiveFeedsSlide';
-import { styled, useMediaQuery } from '@mui/material';
-import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
+import DialogSource from '@mui/material/Dialog'
+import useBlockchain from './hooks/useBlockchain'
+import zoombiesLogo from './assets/zoombies_head.svg'
+import liveFeedIcon from './assets/live-feed.png'
+import React, { useContext, useEffect, useState } from 'react'
+import Navbar from 'components/Navbar'
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
+import Home from 'pages/Home'
+import NewListing from 'pages/NewListing'
+import ViewListing from 'pages/ViewListing'
+import { Button, Drawer, Slide } from '@mui/material'
+import LiveFeedsSlide from './components/LiveFeedsSlide'
+import { styled, useMediaQuery } from '@mui/material'
+import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons'
 
-import HelpPage from './pages/Help';
-import Profile from 'pages/Profile';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import NotificationAddon from './components/NotificationAddon';
-import AuctionArchive from 'pages/AuctionArchive';
-import watchMarketEvents from 'utils/setupWatcher';
-import PubSub from 'pubsub-js';
-import { useQueryClient } from 'react-query';
-import { v4 as uuidv4 } from 'uuid';
+import HelpPage from './pages/Help'
+import Profile from 'pages/Profile'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import AuctionArchive from 'pages/AuctionArchive'
+import PubSub from 'pubsub-js'
+import { useQueryClient } from 'react-query'
+import { v4 as uuidv4 } from 'uuid'
 import {
   EVENT_TYPES,
-  marketContractAddress,
   QUERY_KEYS,
   wmovrContractAddress,
   zoomContractAddress,
-} from './constants';
-import { ethers } from 'ethers';
-import moment from 'moment';
-import { useFetchLiveFeeds } from './hooks/useLiveFeeds';
-import { useFetchProfileQuery } from './hooks/useProfile';
-import { store } from 'store/store';
+} from './constants'
+import { useFetchProfileQuery } from './hooks/useProfile'
+import { store } from 'store/store'
+import NotificationAddon from './components/NotificationAddon'
 
 const Container = styled('div')({
   height: '100vh',
   display: 'flex',
   flexDirection: 'column',
   overflow: 'hidden',
-});
+})
 
 const Dialog = styled(DialogSource)({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   maxWidth: '500px',
-});
+})
 
 const Logo = styled('img')({
   width: '40px',
   height: '40px',
-});
+})
 
 const Header = styled('div')({
   height: '75px',
@@ -75,11 +70,11 @@ const Header = styled('div')({
     marginLeft: 'auto',
     marginRight: '32px',
   },
-});
+})
 
 const Footer = styled('div')({
   height: '0px',
-});
+})
 
 const Body = styled('div')({
   flex: 1,
@@ -91,7 +86,7 @@ const Body = styled('div')({
   '& .permanent-drawer': {
     position: 'relative',
   },
-});
+})
 
 const Content = styled('div')(({ theme }) => ({
   flex: 1,
@@ -104,7 +99,7 @@ const Content = styled('div')(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
     padding: '8px',
   },
-}));
+}))
 
 const HamburgerMenuButton = styled('div')(() => ({
   position: 'relative',
@@ -112,175 +107,135 @@ const HamburgerMenuButton = styled('div')(() => ({
   flex: 'auto',
   justifyContent: 'flex-end',
   padding: '16px',
-}));
+}))
 
 const NavbarContainer = styled('div')(({ theme }) => ({
   display: 'flex',
   height: '100%',
-}));
+}))
 
 const App = () => {
   const {
     selectors: { isApprovalModalOpen },
     actions: { setIsApprovalModalOpen },
-  } = useBlockchain();
+  } = useBlockchain()
 
-  const isDesktop = useMediaQuery('(min-width:1024px)');
-  const [isLiveFeedOpen, setIsLiveFeedOpen] = useState(false);
-  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+  const isDesktop = useMediaQuery('(min-width:1024px)')
+  const [isLiveFeedOpen, setIsLiveFeedOpen] = useState(false)
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
 
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
-  // const showSlider = () => {
-  //   if (checked) {
-  //     // dispatch (Actions.resetNotifications(false))
-  //     queryClient.setQueryData([QUERY_KEYS.liveFeeds, { filterKey: "newMyAlerts" }], 0)
-  //     queryClient.setQueryData([QUERY_KEYS.liveFeeds, { filterKey: "newGeneral" }], 0)
-  //   }
-  //   setChecked(!checked)
-  //   if (!isDesktop) {
-  //     setShowMenu(false)
-  //   }
-  // };
-
-  // const hideNavbar = () => {
-
-  //   if (!isDesktop) {
-  //     setShowMenu(false)
-  //     setChecked(false)
-  //   }
-  // }
-
-  const { state } = useContext(store);
+  const { state } = useContext(store)
   const {
     wallet: { address },
     contracts: { MarketContract },
-  } = state;
+  } = state
 
-  const { isLoading, data: myAuctions } = useFetchProfileQuery(address);
-
-  const addLiveFeedItem = (liveFeedItem, filterKey) => {
-    const liveFeeds = queryClient.getQueryData([
-      QUERY_KEYS.liveFeeds,
-      { filterKey },
-    ]);
-    const uuid = uuidv4();
-
-    const newItem = {
-      _id: uuid,
-      type: liveFeedItem.type,
-      timestamp: Date.now() / 1000,
-      content: {
-        blockNumber: uuid, //should be removed when settle eventscraper is completed
-        currency:
-          liveFeedItem.saleToken === zoomContractAddress
-            ? 'ZOOM'
-            : liveFeedItem.saleToken === wmovrContractAddress
-            ? 'WMOVR'
-            : '',
-        ...liveFeedItem,
-      },
-    };
-
-    if (liveFeeds) {
-      queryClient.setQueryData(
-        [QUERY_KEYS.liveFeeds, { filterKey }],
-        [newItem, ...liveFeeds]
-      );
-    } else {
-      queryClient.setQueryData(
-        [QUERY_KEYS.liveFeeds, { filterKey }],
-        [newItem]
-      );
-    }
-
-    const newCount = queryClient.getQueryData([
-      QUERY_KEYS.liveFeeds,
-      { filterKey: 'new' + filterKey },
-    ]);
-    queryClient.setQueryData(
-      [QUERY_KEYS.liveFeeds, { filterKey: 'new' + filterKey }],
-      typeof newCount === 'string' ? parseInt(newCount) + 1 : newCount + 1
-    );
-  };
-
-  const getBidType = (liveFeedItem) => {
-    const condition = (bid) => {
-      return bid.itemNumber === liveFeedItem.itemNumber;
-    };
-
-    if (myAuctions.bids.some(condition)) {
-      return 'myoutbid';
-    }
-    if (liveFeedItem.bidder === address) {
-      return 'mybid';
-    }
-    if (myAuctions.listings.some(condition)) {
-      return 'mybidon';
-    }
-    return 'bid';
-  };
-
-  const getSettleType = (liveFeedItem) => {
-    const condition = (item) => {
-      return item.itemNumber === liveFeedItem.itemNumber;
-    };
-
-    if (myAuctions.bids.some(condition)) {
-      return 'settlemybid';
-    }
-    if (liveFeedItem.winner === address) {
-      return 'win';
-    }
-    if (
-      myAuctions.listings.some(condition) ||
-      liveFeedItem.seller === address
-    ) {
-      return 'sold';
-    }
-    return 'settle';
-  };
+  const { data: myAuctions } = useFetchProfileQuery(address)
 
   useEffect(() => {
-    setIsMobileDrawerOpen(isDesktop);
+    const addLiveFeedItem = (liveFeedItem, filterKey) => {
+      const liveFeeds = queryClient.getQueryData([
+        QUERY_KEYS.liveFeeds,
+        { filterKey },
+      ])
+      const uuid = uuidv4()
+
+      const newItem = {
+        _id: uuid,
+        type: liveFeedItem.type,
+        timestamp: Date.now() / 1000,
+        content: {
+          blockNumber: uuid, //should be removed when settle eventscraper is completed
+          currency:
+            liveFeedItem.saleToken === zoomContractAddress
+              ? 'ZOOM'
+              : liveFeedItem.saleToken === wmovrContractAddress
+              ? 'WMOVR'
+              : '',
+          ...liveFeedItem,
+        },
+      }
+
+      if (liveFeeds) {
+        queryClient.setQueryData(
+          [QUERY_KEYS.liveFeeds, { filterKey }],
+          [newItem, ...liveFeeds]
+        )
+      } else {
+        queryClient.setQueryData(
+          [QUERY_KEYS.liveFeeds, { filterKey }],
+          [newItem]
+        )
+      }
+
+      const newCount = queryClient.getQueryData([
+        QUERY_KEYS.liveFeeds,
+        { filterKey: 'new' + filterKey },
+      ])
+      queryClient.setQueryData(
+        [QUERY_KEYS.liveFeeds, { filterKey: 'new' + filterKey }],
+        typeof newCount === 'string' ? parseInt(newCount) + 1 : newCount + 1
+      )
+    }
+
+    const getBidType = (liveFeedItem) => {
+      const condition = (bid) => {
+        return bid.itemNumber === liveFeedItem.itemNumber
+      }
+
+      if (myAuctions.bids.some(condition)) {
+        return 'myoutbid'
+      }
+      if (liveFeedItem.bidder === address) {
+        return 'mybid'
+      }
+      if (myAuctions.listings.some(condition)) {
+        return 'mybidon'
+      }
+      return 'bid'
+    }
+
+    setIsMobileDrawerOpen(isDesktop)
     const tokenNewAuction = PubSub.subscribe(
       EVENT_TYPES.ItemListed,
       (msg, data) => {
-        const newAuction = data;
-        let filterKey = '';
+        const newAuction = data
+        let filterKey = ''
 
         if (newAuction.lister === address) {
-          filterKey = 'MyAlerts';
-          newAuction['type'] = 'mynew';
+          filterKey = 'MyAlerts'
+          newAuction['type'] = 'mynew'
         } else {
-          filterKey = 'General';
-          newAuction['type'] = 'new';
+          filterKey = 'General'
+          newAuction['type'] = 'new'
         }
 
-        addLiveFeedItem(newAuction, filterKey);
+        addLiveFeedItem(newAuction, filterKey)
       }
-    );
+    )
 
     const tokenBid = PubSub.subscribe(EVENT_TYPES.Bid, async (msg, data) => {
-      const bid = data;
-      let filterKey = '';
+      const bid = data
+      let filterKey = ''
 
-      const bidType = getBidType(bid);
+      const bidType = getBidType(bid)
 
-      console.log('bidType', bidType);
+      console.log('bidType', bidType)
       let listingItem = myAuctions.listings.find(
         (listing) => listing.itemNumber === bid.itemNumber
-      );
+      )
       if (listingItem === undefined) {
-        listingItem = await MarketContract.getListItem(bid.itemNumber);
+        listingItem = await MarketContract.getListItem(bid.itemNumber)
       }
 
-      bid['type'] = bidType;
-      bid['saleToken'] = listingItem.saleToken;
+      bid['type'] = bidType
+      bid['saleToken'] = listingItem.saleToken
       if (bidType === 'bid') {
-        filterKey = 'General';
+        filterKey = 'General'
       } else {
-        filterKey = 'MyAlerts';
+        filterKey = 'MyAlerts'
       }
       addLiveFeedItem(bid, filterKey);
     });
@@ -328,7 +283,6 @@ const App = () => {
   //   )
   // }
 
-  // const ToggleMenu = () => {
   const LiveFeedButton = () => {
     return (
       <Button
@@ -338,8 +292,8 @@ const App = () => {
         <img src={liveFeedIcon} alt={'Live Feed'} />
         <NotificationAddon onClick={() => setIsLiveFeedOpen((prevState) => !prevState)}/>
       </Button>
-    );
-  };
+    )
+  }
 
   const MobileHamburgerMenu = () => {
     return (
@@ -366,8 +320,8 @@ const App = () => {
         )}
         <NotificationAddon/>
       </HamburgerMenuButton>
-    );
-  };
+    )
+  }
 
   return (
     <Container>
@@ -378,16 +332,6 @@ const App = () => {
           {isDesktop ? <LiveFeedButton /> : <MobileHamburgerMenu />}
         </Header>
         <Body>
-          {/* {
-            showMenu && (
-              <Slide direction="right" in={showMenu} mountOnEnter unmountOnExit>
-                <NavbarContainer>
-                  <Navbar togglelivefeeds={() => showSlider()} hidenavbar={() => hideNavbar()}/>
-                </NavbarContainer>
-              </Slide>
-            )
-          } */}
-
           <Drawer
             classes={{
               paper: 'permanent-drawer',
@@ -423,13 +367,6 @@ const App = () => {
               <LiveFeedsSlide hidelivefeeds={() => setIsLiveFeedOpen(false)} />
             </Slide>
           )}
-          {/* <Drawer
-            anchor="right"
-            open={isLiveFeedOpen}
-            onClose={() => setIsLiveFeedOpen(false)}
-          >
-            <LiveFeedsSlide hideLiveFeeds={() => setIsLiveFeedOpen(false)} />
-          </Drawer> */}
         </Body>
         <Footer />
         <Dialog
@@ -442,7 +379,7 @@ const App = () => {
         </Dialog>
       </Router>
     </Container>
-  );
-};
+  )
+}
 
-export default App;
+export default App

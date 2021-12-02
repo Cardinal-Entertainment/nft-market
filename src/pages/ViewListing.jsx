@@ -26,7 +26,6 @@ import moment from 'moment';
 import LazyLoad from 'react-lazyload';
 import zoomLogo from '../assets/zoombies_coin.svg';
 import movrLogo from '../assets/movr_logo.png';
-import { getWalletWMOVRBalance, getWalletZoomBalance } from '../utils/wallet';
 import { styled, Grid } from '@mui/material';
 import { useFetchBids } from 'hooks/useBids';
 import LoadingModal from 'components/LoadingModal';
@@ -141,8 +140,6 @@ const ViewListing = () => {
   const [cardPageNo, setCardPageNo] = useState(1);
 
   const [minIncrement, setMinIncrement] = useState('');
-  const [zoomBalance, setZoomBalance] = useState('');
-  const [WMOVRBalance, setWMOVRBalance] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const auctionId = parseInt(id);
@@ -150,36 +147,27 @@ const ViewListing = () => {
   const {
     state: { contracts, wallet },
   } = useContext(store);
+  
+  const {
+    zoomBalance,
+    wmovrBalance
+  } = wallet;
 
-  const getZoomBalance = async () => {
-    const bal = await getWalletZoomBalance(
-      contracts.ZoomContract,
-      wallet.address
-    );
-    setZoomBalance(bal);
-  };
+  // const getZoomBalance = async () => {
+  //   const bal = await getWalletZoomBalance(
+  //     contracts.ZoomContract,
+  //     wallet.address
+  //   );
+  //   setZoomBalance(bal);
+  // };
 
-  const getWMOVRBalance = async () => {
-    const bal = await getWalletWMOVRBalance(
-      contracts.WMOVRContract,
-      wallet.address
-    );
-    setWMOVRBalance(bal);
-  };
-
-  const getListingInfo = async () => {
-    const auctionItem = await getAuctionItem(
-      auctionId,
-      contracts.ZoombiesContract
-    );
-
-    const minIncrement1 = await contracts.MarketContract.tokenMinIncrement(
-      auctionItem.saleToken
-    );
-    setMinIncrement(ethers.utils.formatEther(minIncrement1));
-    setAuctionItem(auctionItem);
-    setIsRefreshing(false);
-  };
+  // const getWMOVRBalance = async () => {
+  //   const bal = await getWalletWMOVRBalance(
+  //     contracts.WMOVRContract,
+  //     wallet.address
+  //   );
+  //   setWMOVRBalance(bal);
+  // };
 
   const handleConfirmBid = async (amount) => {
     const { currency, id } = auctionItem;
@@ -233,25 +221,24 @@ const ViewListing = () => {
   };
 
   useEffect(() => {
+    const getListingInfo = async () => {
+      const auctionItem = await getAuctionItem(
+        auctionId,
+        contracts.ZoombiesContract
+      );
+  
+      const minIncrement1 = await contracts.MarketContract.tokenMinIncrement(
+        auctionItem.saleToken
+      );
+      setMinIncrement(ethers.utils.formatEther(minIncrement1));
+      setAuctionItem(auctionItem);
+      setIsRefreshing(false);
+    };
+
     setIsRefreshing(true);
     if (contracts.MarketContract && contracts.ZoombiesContract) {
       getListingInfo().then(() => {
         setIsRefreshing(false);
-      });
-    }
-
-    if (contracts.ZoomContract && wallet.address) {
-      getZoomBalance();
-
-      contracts.ZoomContract.provider.on('block', () => {
-        getZoomBalance();
-      });
-    }
-    if (contracts.WMOVRContract && wallet.address) {
-      getWMOVRBalance();
-
-      contracts.WMOVRContract.provider.on('block', () => {
-        getWMOVRBalance();
       });
     }
   }, [
@@ -388,7 +375,7 @@ const ViewListing = () => {
       )}
       <SpacedRow>
         <h3>Offers</h3>
-        {!isOver && (
+        {!isOver && zoomBalance && wmovrBalance && (
           <OfferDialog
             currency={auctionItem?.currency}
             minAmount={
@@ -400,7 +387,7 @@ const ViewListing = () => {
             maxAmount={
               auctionItem?.currency === 'ZOOM'
                 ? parseFloat(zoomBalance)
-                : parseFloat(WMOVRBalance)
+                : parseFloat(wmovrBalance)
             }
             onConfirm={handleConfirmBid}
             disabled={bidInProgress}

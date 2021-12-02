@@ -5,7 +5,7 @@ import { apiEndpoint, QUERY_KEYS } from '../constants';
 
 const getUserProfiles = async (userAddress) => {
   if (!ethers.utils.isAddress(userAddress)) {
-    console.error('Address is invalid.');
+    //console.error('Address is invalid.');
     return null;
   }
 
