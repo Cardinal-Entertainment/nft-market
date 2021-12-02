@@ -336,7 +336,7 @@ const LiveFeedsSlide = (props, ref) => {
     <Container ref={ref}>
       <FlexDiv>
         <FilterBar>
-          <FilterItemText onClick={_remoteThisFUNCTION} class={'filter-label'}>
+          <FilterItemText onClick={_remoteThisFUNCTION} className={'filter-label'}>
             VIEW:
           </FilterItemText>
           <FilterItemText
