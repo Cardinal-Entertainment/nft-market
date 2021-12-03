@@ -12,7 +12,7 @@ import { useHistory } from 'react-router-dom';
 import { ethers } from 'ethers';
 import LazyLoad from 'react-lazyload';
 import { CircularProgress } from '@mui/material';
-import { zoombiesContractAddress } from '../constants';
+import { zoombiesContractAddress, ZoombiesStableEndpoint, ZoombiesTestingEndpoint } from '../constants'
 
 const Container = styled.div`
   flex: 1;
@@ -316,7 +316,8 @@ const NewListing = () => {
                   />
                 </CardWrapper>
               </LazyLoad>
-            )) : <>No Cards</>
+            )) : <>You do not have any NFTs to list, you can mint Zoombies&nbsp;<a href={wallet.chainId === 1287
+              ? `${ZoombiesTestingEndpoint}` : `${ZoombiesStableEndpoint}`}>here</a></>
           ) : (
             <CircularProgress />
           )}
