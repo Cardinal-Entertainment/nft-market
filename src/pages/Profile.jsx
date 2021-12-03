@@ -25,6 +25,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+  margin: 12px;
 
   .user-profile-header {
     margin-top: 0;

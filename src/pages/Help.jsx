@@ -4,6 +4,7 @@ import styled from 'styled-components/macro';
 const Container = styled.div`
   display: flex;
   color: white;
+  margin: 12px;
 
   h1 {
     margin-top: 0;
