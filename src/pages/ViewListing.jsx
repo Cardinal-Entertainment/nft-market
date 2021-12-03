@@ -375,7 +375,7 @@ const ViewListing = () => {
       )}
       <SpacedRow>
         <h3>Offers</h3>
-        {!isOver && zoomBalance && wmovrBalance && (
+        {!isOver && zoomBalance && wmovrBalance && auctionItem.seller !== wallet.address && (
           <OfferDialog
             currency={auctionItem?.currency}
             minAmount={
