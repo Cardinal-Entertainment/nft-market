@@ -150,6 +150,7 @@ const NewListing = () => {
   );
   const [userNFTs, setUserNFTs] = useState([]);
   const [selectedCards, setSelectedCards] = useState({});
+  const [loading, setLoading] = useState(false);
   // const [input, setInput] = useState(0);
 
   const {
@@ -223,6 +224,7 @@ const NewListing = () => {
 
   useEffect(() => {
     const getUserNFTs = async () => {
+      setLoading(true)
       const nftsCount = await contracts.ZoombiesContract.balanceOf(
         wallet.address
       );
@@ -242,11 +244,13 @@ const NewListing = () => {
         )
       );
       setUserNFTs(cards);
+      setLoading(false)
     };
 
     
     if (contracts.ZoombiesContract && wallet.address) {
       getUserNFTs();
+
     }
   }, [contracts.ZoombiesContract, wallet.address]);
 
@@ -293,7 +297,8 @@ const NewListing = () => {
           <span>Select NFTs below from your Crypt to add to the listing:</span>
         </FlexRow>
         <NFTContainer>
-          {userNFTs.length > 0 ? (
+          {!loading ? (
+            userNFTs.length > 0 ?
             userNFTs.map((card) => (
               <LazyLoad key={card.id} once={true} resize={true}>
                 <CardWrapper
@@ -311,7 +316,7 @@ const NewListing = () => {
                   />
                 </CardWrapper>
               </LazyLoad>
-            ))
+            )) : <>No Cards</>
           ) : (
             <CircularProgress />
           )}
