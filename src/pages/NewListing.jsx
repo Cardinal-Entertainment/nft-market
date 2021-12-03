@@ -329,7 +329,9 @@ const NewListing = () => {
             disabled={
               !Object.keys(selectedCards).length ||
               createInProgress ||
-              isDateError
+              isDateError ||
+              listPrice === '' ||
+              parseFloat(listPrice) <= 0
             }
             onClick={createListing}
           >
