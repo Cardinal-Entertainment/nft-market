@@ -3,7 +3,8 @@ import styled from 'styled-components/macro';
 
 const Container = styled.div`
   color: white;
-
+  overflow-y: auto;
+  padding: 12px;
   h1 {
     margin-top: 0;
     margin-bottom: 10px;
