@@ -317,7 +317,7 @@ const NewListing = () => {
                   />
                 </CardWrapper>
               </LazyLoad>
-            )) : <div>You do not have any NFTs to list, you can mint Zoombies&nbsp;<a href={wallet.chainId === 1287
+            )) : <div>You do not have any NFTs to list, you can mint Zoombies&nbsp;<a target={"_blank"} href={wallet.chainId === 1287
               ? `${ZoombiesTestingEndpoint}` : `${ZoombiesStableEndpoint}`}>here</a></div>
           ) : (
             <CircularProgress />
