@@ -47,6 +47,7 @@ const CardWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin: 0 4px;
 
   &:hover {
     background: #eee;
@@ -104,12 +105,11 @@ const Select = styled(SelectSource)`
 
 const NFTContainer = styled.div`
   flex: auto;
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  justify-content: center;
   grid-template-columns: repeat(auto-fit, minmax(calc(0.55 * 260px), 1fr));
-  place-items: center;
-  //min-width: 600px;
-
-  //max-height: 550px;
   min-height: 270px;
   overflow-y: auto;
   border-radius: 4px;
