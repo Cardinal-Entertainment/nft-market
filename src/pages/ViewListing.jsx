@@ -134,6 +134,7 @@ const SellerDiv = styled(Grid)(({ theme }) => ({
 const ViewListing = () => {
   const history = useHistory();
   const { id } = useParams();
+  const [isOnChain, setIsOnChain] = useState(false);
   const [auctionItem, setAuctionItem] = useState({});
   const [approvalModalOpen, setApprovalModalOpen] = useState(false);
   const [bidInProgress, setBidInProgress] = useState(false);
@@ -230,6 +231,16 @@ const ViewListing = () => {
       const minIncrement1 = await contracts.MarketContract.tokenMinIncrement(
         auctionItem.saleToken
       );
+
+      const itemFromChain = await contracts.MarketContract.getListItem(auctionId);
+      if (itemFromChain === undefined) {
+        setIsOnChain(false)
+      } else if (itemFromChain.seller === '0x0000000000000000000000000000000000000000') {
+        setIsOnChain(false);
+      } else {
+        setIsOnChain(true)
+      }
+
       setMinIncrement(ethers.utils.formatEther(minIncrement1));
       setAuctionItem(auctionItem);
       setIsRefreshing(false);
@@ -306,7 +317,7 @@ const ViewListing = () => {
           />
           <h1>Auction #{auctionId}</h1>
         </HeaderRow>
-        {canSettle && (
+        {canSettle && !isOnChain && (
           <Button variant="contained" color="success" onClick={handleSettle}>
             Settle
           </Button>

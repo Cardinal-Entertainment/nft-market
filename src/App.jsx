@@ -266,14 +266,7 @@ const App = () => {
 
       const settleType = getSettleType(settleData)
 
-      console.log("settleType", settleType)
-      let listingItem = myAuctions.listings.find( ( listing ) => listing.itemNumber === settleData.itemNumber)
-      if (listingItem === undefined) {
-        listingItem = await MarketContract.getListItem(settleData.itemNumber)
-      }
-
       settleData["type"] = settleType
-      settleData["saleToken"] = listingItem.saleToken
       if (settleType === "settle") {
         filterKey = "General"
       } else {
@@ -288,20 +281,6 @@ const App = () => {
       PubSub.unsubscribe(tokenSettled);
     };
   }, [queryClient, isDesktop, address, myAuctions, MarketContract]);
-
-  // const toggleMenu = () => {
-  //   setShowMenu(!showMenu)
-  // }
-
-  // const NotificationButtonComponent = () => {
-  //   return (
-  //     <NotificationButton>
-  //       <Button onClick={showSlider} className={'btn-livefeed'}><img src={liveFeedIcon} alt={"Live Feed"}/>
-  //       <NotificationAddon clickAction={showSlider}/>
-  //       </Button>
-  //     </NotificationButton>
-  //   )
-  // }
 
   const LiveFeedButton = () => {
     return (
