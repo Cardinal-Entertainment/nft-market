@@ -183,15 +183,16 @@ const NewListing = () => {
       await contracts.MarketContract.listItem(
         parseInt((new Date(dateTime).getTime() / 1000).toFixed(0)),
         ethers.utils.parseEther(listPrice),
-        Object.keys(selectedCards).map(parseInt),
+        Object.keys(selectedCards).map(id => parseInt(id)),
         zoombiesContractAddress,
         getCurrencyAddress(selectedCurrency, wallet.chainId)
       );
+      setCreateInProgress(false);
+      history.push('/');
     } catch (err) {
       console.error(err);
     } finally {
       setCreateInProgress(false);
-      history.push('/');
     }
   };
 
