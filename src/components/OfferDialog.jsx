@@ -26,6 +26,7 @@ const OfferDialog = ({
   onConfirm,
   disabled,
   quickBid,
+  mylisting
 }) => {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState(minAmount);
@@ -89,13 +90,17 @@ const OfferDialog = ({
         disabled={disabled}
         className={quickBid ? 'button-bid' : ''}
       >
-        {quickBid
-          ? 'Quick bid (' +
-            Math.round(minAmount * 10000) / 10000.0 +
-            ' ' +
-            currency +
-            ')'
-          : 'Make Offer'}
+        {
+          mylisting ? 'My Listing' :
+            (quickBid
+              ? 'Quick bid (' +
+              Math.round(minAmount * 10000) / 10000.0 +
+              ' ' +
+              currency +
+              ')'
+              : 'Make Offer')
+        }
+
       </Button>
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Make Offer</DialogTitle>
