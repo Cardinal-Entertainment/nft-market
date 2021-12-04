@@ -12,7 +12,7 @@ import { useHistory } from 'react-router-dom';
 import { ethers } from 'ethers';
 import LazyLoad from 'react-lazyload';
 import { CircularProgress } from '@mui/material';
-import { zoombiesContractAddress } from '../constants';
+import { zoombiesContractAddress, ZoombiesStableEndpoint, ZoombiesTestingEndpoint } from '../constants'
 
 const Container = styled.div`
   flex: 1;
@@ -48,6 +48,7 @@ const CardWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin: 0 4px;
 
   &:hover {
     background: #eee;
@@ -105,12 +106,11 @@ const Select = styled(SelectSource)`
 
 const NFTContainer = styled.div`
   flex: auto;
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  justify-content: center;
   grid-template-columns: repeat(auto-fit, minmax(calc(0.55 * 260px), 1fr));
-  place-items: center;
-  //min-width: 600px;
-
-  //max-height: 550px;
   min-height: 270px;
   overflow-y: auto;
   border-radius: 4px;
@@ -151,6 +151,7 @@ const NewListing = () => {
   );
   const [userNFTs, setUserNFTs] = useState([]);
   const [selectedCards, setSelectedCards] = useState({});
+  const [loading, setLoading] = useState(false);
   // const [input, setInput] = useState(0);
 
   const {
@@ -184,15 +185,16 @@ const NewListing = () => {
       await contracts.MarketContract.listItem(
         parseInt((new Date(dateTime).getTime() / 1000).toFixed(0)),
         ethers.utils.parseEther(listPrice),
-        Object.keys(selectedCards).map(parseInt),
+        Object.keys(selectedCards).map(id => parseInt(id)),
         zoombiesContractAddress,
         getCurrencyAddress(selectedCurrency, wallet.chainId)
       );
+      setCreateInProgress(false);
+      history.push('/');
     } catch (err) {
       console.error(err);
     } finally {
       setCreateInProgress(false);
-      history.push('/');
     }
   };
 
@@ -224,6 +226,7 @@ const NewListing = () => {
 
   useEffect(() => {
     const getUserNFTs = async () => {
+      setLoading(true)
       const nftsCount = await contracts.ZoombiesContract.balanceOf(
         wallet.address
       );
@@ -243,11 +246,13 @@ const NewListing = () => {
         )
       );
       setUserNFTs(cards);
+      setLoading(false)
     };
 
     
     if (contracts.ZoombiesContract && wallet.address) {
       getUserNFTs();
+
     }
   }, [contracts.ZoombiesContract, wallet.address]);
 
@@ -294,7 +299,8 @@ const NewListing = () => {
           <span>Select NFTs below from your Crypt to add to the listing:</span>
         </FlexRow>
         <NFTContainer>
-          {userNFTs.length > 0 ? (
+          {!loading ? (
+            userNFTs.length > 0 ?
             userNFTs.map((card) => (
               <LazyLoad key={card.id} once={true} resize={true}>
                 <CardWrapper
@@ -312,7 +318,8 @@ const NewListing = () => {
                   />
                 </CardWrapper>
               </LazyLoad>
-            ))
+            )) : <div>You do not have any NFTs to list, you can mint Zoombies&nbsp;<a href={wallet.chainId === 1287
+              ? `${ZoombiesTestingEndpoint}` : `${ZoombiesStableEndpoint}`}>here</a></div>
           ) : (
             <CircularProgress />
           )}
