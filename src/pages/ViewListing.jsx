@@ -267,6 +267,7 @@ const ListingMetadata = ({
   isBidInProgress,
   handleConfirmBid,
   isAuctionOver,
+  walletAddress
 }) => {
   const shortWallet = formatAddress(listing.seller)
   const dateListed = moment(listing.auctionStart * 1000).format(
@@ -329,7 +330,7 @@ const ListingMetadata = ({
           currency={listing.currency}
           maxAmount={maxOfferAmount}
           onConfirm={handleConfirmBid}
-          disabled={isBidInProgress || !canBid || isAuctionOver}
+          disabled={isBidInProgress || !canBid || isAuctionOver || listing.seller === walletAddress}
         ></OfferDialog>
       </div>
     </ListingMetadataWrapper>
@@ -547,6 +548,7 @@ const ViewListing = () => {
               sellerUrl={sellerURL}
               handleConfirmBid={handleConfirmBid}
               isAuctionOver={isOver}
+              walletAddress={wallet.address}
             />
           </div>
 
