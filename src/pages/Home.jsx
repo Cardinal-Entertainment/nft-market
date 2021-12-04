@@ -8,6 +8,7 @@ import { useFetchListingQuery } from '../hooks/useListing';
 import LoadingModal from 'components/LoadingModal';
 import { EVENT_TYPES, QUERY_KEYS } from '../constants';
 import { useQueryClient } from 'react-query';
+import { v4 as uuidv4 } from 'uuid'
 
 const Container = styled.div`
   flex: auto;
@@ -93,6 +94,67 @@ const Home = () => {
 
     return () => PubSub.unsubscribe(token);
   }, [queryClient, filters]);
+
+  useEffect(() => {
+    const token = PubSub.subscribe(EVENT_TYPES.Bid, (msg, data) => {
+      console.log("home-bid-event");
+      const currentData = queryClient.getQueryData([
+        QUERY_KEYS.listings,
+        { filters },
+      ]);
+      console.log("currentData", currentData);
+      if (currentData) {
+        const auctionId = data.itemNumber;
+        console.log("auctionId", auctionId);
+        const currentBidData = queryClient.getQueryData([
+          QUERY_KEYS.bids,
+          { auctionId },
+        ]);
+        console.log("currentBidData", currentBidData)
+        const randomId = uuidv4();
+        const bidWithId = {
+          ...data,
+          _id: randomId,
+        };
+
+        if (data.itemNumber === auctionId) {
+          console.log("if (data.itemNumber === auctionId)")
+          if (currentBidData) {
+            console.log("setBidData::Before")
+            queryClient.setQueryData(
+              [QUERY_KEYS.bids, { auctionId }],
+              [bidWithId, ...currentBidData]
+            );
+            console.log("setBidData::after")
+          } else {
+            console.log("setBidData::New-Before")
+            queryClient.setQueryData(
+              [QUERY_KEYS.bids, { auctionId }],
+              [bidWithId]
+            );
+            console.log("setBidData::New-After")
+          }
+        }
+
+        console.log("setListingData::Before")
+        queryClient.setQueryData(
+          [QUERY_KEYS.listings, { filters }],
+          (queryData) => {
+            queryData.pages.map((page) => {
+              page.data.map((auction) => {
+                if (auction.itemNumber === data.itemNumber) {
+                  auction.highestBid = data.bidAmount;
+                }
+                return auction;
+              });
+              return page;
+            });
+
+            return queryData;
+          }
+        );
+      }
+    });
 
   return (
     <Container>
