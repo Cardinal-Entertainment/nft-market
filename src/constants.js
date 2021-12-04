@@ -25,6 +25,7 @@ export const EVENT_TYPES = {
 
 export const QUERY_KEYS = {
   listings: 'fetchListings',
+  listing: 'fetchSingleListing',
   bids: 'fetchBids',
-  profile: 'fetchUserProfile',
+  profile: 'fetchUserProfile'
 };
