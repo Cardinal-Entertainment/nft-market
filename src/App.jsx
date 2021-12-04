@@ -92,7 +92,6 @@ const Content = styled('div')(({ theme }) => ({
   flex: 1,
   minWidth: 0,
 
-  padding: '16px 8px 16px 16px',
   display: 'flex',
   background: 'linear-gradient(110.99deg, #000033 0%, #100238 100%)',
 

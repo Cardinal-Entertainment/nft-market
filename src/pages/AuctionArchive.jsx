@@ -12,6 +12,7 @@ const Container = styled.div`
   flex-direction: column;
   width: 100%;
   overflow-y: auto;
+  margin: 12px;
 
   .auction-archives-header {
     margin-top: 0;

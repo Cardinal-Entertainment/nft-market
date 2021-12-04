@@ -13,14 +13,17 @@ import { useQueryClient } from 'react-query';
 
 const Container = styled('div')(({ theme }) => ({
   zIndex: 1,
+  margin: '12px 12px 12px 0px',
   padding: '16px',
   width: '392px',
   overflowY: 'auto',
   border: '1px solid #FFFFFF',
+  borderRadius: '5px',
+
   background: 'linear-gradient(110.99deg, #000033 100%, #100238 100%)',
-  height: '100%',
 
   [theme.breakpoints.down('md')]: {
+    borderRadius: '0px',
     margin: '0 0 0 -12px',
   },
 }));

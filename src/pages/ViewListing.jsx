@@ -10,7 +10,7 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import { CircularProgress, Modal, Pagination, Paper } from '@mui/material';
+import { CircularProgress, Modal, Paper } from '@mui/material';
 import OfferDialog from 'components/OfferDialog';
 import {
   EVENT_TYPES,
@@ -26,7 +26,7 @@ import moment from 'moment';
 import LazyLoad from 'react-lazyload';
 import zoomLogo from '../assets/zoombies_coin.svg';
 import movrLogo from '../assets/movr_logo.png';
-import { styled, Grid } from '@mui/material';
+import { styled } from '@mui/material';
 import { useFetchBids } from 'hooks/useBids';
 import LoadingModal from 'components/LoadingModal';
 import { useQueryClient } from 'react-query';
@@ -34,9 +34,11 @@ import { v4 as uuidv4 } from 'uuid';
 
 const Container = styled('div')({
   flex: 1,
-  height: '100%',
-  color: 'white',
+  // height: '100%',
+  background: 'white',
+  color: '#7e7e7e',
   overflowY: 'auto',
+  padding: '12px',
 
   '& h1': {
     margin: 0,
@@ -72,7 +74,6 @@ const SpacedRow = styled(FlexRow)({
 });
 
 const NFTContainer = styled('div')({
-  width: '100%',
   display: 'flex',
   flexWrap: 'wrap',
 
@@ -108,19 +109,46 @@ const ModalContent = styled('div')({
   },
 });
 
+const FlexWrap = styled('div')({
+  display: 'flex',
+  flexWrap: 'wrap'
+});
+
+const PriceDiv = styled('div')({
+  display: 'flex',
+  flexDirection: 'column',
+  flexWrap: 'wrap',
+  margin: '20px 0',
+
+  '& .price-min': {
+    color: '#2169a9'
+  },
+  '& .price-current': {
+    marginTop: '-10px',
+    color: '#357439'
+  },
+});
+
 const StyledLogo = styled('img')({
   width: '30px',
   padding: '0 5px',
 });
 
-const SellerDiv = styled(Grid)(({ theme }) => ({
-  padding: '12px',
+const SellerDiv = styled('div')(({ theme }) => ({
+  padding: '40px 12px',
   display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'start',
+
+  '& .seller-address': {
+    marginRight: '12px',
+    color: '#313131',
+  },
 
   '& div': {
     display: 'flex',
-    alignItems: 'center',
-    margin: '0 12px',
+    // alignItems: 'center',
+    // margin: '0 12px',
     [theme.breakpoints.down('sm')]: {
       width: '100%',
     },
@@ -129,6 +157,12 @@ const SellerDiv = styled(Grid)(({ theme }) => ({
   '.seller-address-link': {
     marginLeft: '8px',
   },
+
+  '& .zoombies-count': {
+    fontSize: '24px',
+    color: 'black',
+    padding: '8px 0'
+  }
 }));
 
 const ViewListing = () => {
@@ -138,7 +172,6 @@ const ViewListing = () => {
   const [auctionItem, setAuctionItem] = useState({});
   const [approvalModalOpen, setApprovalModalOpen] = useState(false);
   const [bidInProgress, setBidInProgress] = useState(false);
-  const [cardPageNo, setCardPageNo] = useState(1);
 
   const [minIncrement, setMinIncrement] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -153,22 +186,6 @@ const ViewListing = () => {
     zoomBalance,
     wmovrBalance
   } = wallet;
-
-  // const getZoomBalance = async () => {
-  //   const bal = await getWalletZoomBalance(
-  //     contracts.ZoomContract,
-  //     wallet.address
-  //   );
-  //   setZoomBalance(bal);
-  // };
-
-  // const getWMOVRBalance = async () => {
-  //   const bal = await getWalletWMOVRBalance(
-  //     contracts.WMOVRContract,
-  //     wallet.address
-  //   );
-  //   setWMOVRBalance(bal);
-  // };
 
   const handleConfirmBid = async (amount) => {
     const { currency, id } = auctionItem;
@@ -215,10 +232,6 @@ const ViewListing = () => {
     const tx = await contracts.MarketContract.settle(parseInt(auctionId));
     await tx.wait();
     history.push('/');
-  };
-
-  const handleCardsTablePageChanged = (event, value) => {
-    setCardPageNo(value);
   };
 
   useEffect(() => {
@@ -313,7 +326,7 @@ const ViewListing = () => {
             icon={faChevronLeft}
             size="2x"
             onClick={() => history.goBack()}
-            color="white"
+            color="#7e7e7e"
           />
           <h1>Auction #{auctionId}</h1>
         </HeaderRow>
@@ -323,87 +336,99 @@ const ViewListing = () => {
           </Button>
         )}
       </SpacedRow>
-      <SellerDiv container>
-        <Grid item>
-          {'Amount: ' +
-            (auctionItem?.minPrice ? auctionItem.minPrice : 0) +
-            ' ' +
-            (auctionItem?.currency ? auctionItem.currency : '')}
-          {auctionItem.currency === 'ZOOM' ? (
-            <StyledLogo src={zoomLogo} />
-          ) : (
-            <StyledLogo src={movrLogo} />
-          )}
-        </Grid>
-        <Grid item>
-          Seller Wallet:
-          <a
-            className="seller-address-link"
-            href={sellerURL}
-            rel="noreferrer"
-            target="_blank"
-          >
-            {auctionItem.seller
-              ? `${auctionItem.seller.substr(
-                  0,
-                  8
-                )}...${auctionItem.seller.substr(36)}`
-              : ''}
-          </a>
-        </Grid>
-        <Grid item>
-          {'Date Listed: ' +
-            (new Date(auctionItem.auctionStart * 1000).toLocaleString() ??
-              'Unknown')}
-        </Grid>
-      </SellerDiv>
 
-      <NFTContainer>
-        {auctionItem?.tokenIds ? (
-          auctionItem.tokenIds
-            .slice((cardPageNo - 1) * 20, cardPageNo * 20)
-            .map((tokenId) => (
-              <LazyLoad key={tokenId} once={true} resize={true}>
-                <img
-                  src={`https://moonbase.zoombies.world/nft-image/${tokenId}`}
-                  alt={`Token #${tokenId}`}
-                  loading="lazy"
-                />
-              </LazyLoad>
-            ))
-        ) : (
-          <CircularProgress />
-        )}
-      </NFTContainer>
-      {auctionItem.tokenIds && (
-        <Pagination
-          count={Math.ceil(auctionItem.tokenIds.length / 20)}
-          className={'pagination-bar'}
-          variant="outlined"
-          shape="rounded"
-          onChange={handleCardsTablePageChanged}
-        />
-      )}
+      <FlexWrap>
+        <div>
+          <NFTContainer>
+            {auctionItem?.tokenIds ? (
+              auctionItem.tokenIds
+                .map((tokenId) => (
+                  <LazyLoad key={tokenId} once={true} resize={true}>
+                    <img
+                      src={`https://moonbase.zoombies.world/nft-image/${tokenId}`}
+                      alt={`Token #${tokenId}`}
+                      loading="lazy"
+                    />
+                  </LazyLoad>
+                ))
+            ) : (
+              <CircularProgress />
+            )}
+          </NFTContainer>
+        </div>
+        <SellerDiv>
+          <FlexWrap>
+            <div className={"seller-address"}>
+              Seller Wallet:
+              <a
+                className="seller-address-link"
+                href={sellerURL}
+                rel="noreferrer"
+                target="_blank"
+              >
+                {auctionItem.seller
+                  ? `${auctionItem.seller.substr(
+                    0,
+                    8
+                  )}...${auctionItem.seller.substr(36)}`
+                  : ''}
+              </a>
+            </div>
+            <div className={"seller-address"}>
+              {'Date Listed: ' +
+              (new Date(auctionItem.auctionStart * 1000).toLocaleString() ??
+                'Unknown')}
+            </div>
+          </FlexWrap>
+          <div className={"zoombies-count"}>
+            {
+              auctionItem?.tokenIds ?
+                (auctionItem.tokenIds.length > 1 ? auctionItem.tokenIds.length + " Zoombies NFTs" : "One Zoombies NFT")
+                : 'No Zoombies NFT'}</div>
+          <div>
+            {'Auction ends ' + (moment.unix(auctionItem.auctionEnd).format("MM/DD/YYYY hh:mm A z"))}
+          </div>
+          <PriceDiv>
+            <div className={"price-min"}>
+              {'Minimum Price: ' +
+              (auctionItem?.minPrice ? auctionItem.minPrice : 0) +
+              ' ' +
+              (auctionItem?.currency ? auctionItem.currency : '')}
+              {auctionItem.currency === 'ZOOM' ? (
+                <StyledLogo src={zoomLogo} />
+              ) : (
+                <StyledLogo src={movrLogo} />
+              )}
+            </div>
+            <div className={"price-current"}>
+              Current Price: {auctionItem?.highestBid} {(auctionItem?.currency ? auctionItem.currency : '')}
+            </div>
+          </PriceDiv>
+          {!isOver && zoomBalance && wmovrBalance && (
+            <OfferDialog
+              currency={auctionItem?.currency}
+              minAmount={
+                Math.max(
+                  parseFloat(auctionItem?.highestBid),
+                  parseFloat(auctionItem?.minPrice)
+                ) + parseFloat(minIncrement)
+              }
+              maxAmount={
+                auctionItem?.currency === 'ZOOM'
+                  ? parseFloat(zoomBalance)
+                  : parseFloat(wmovrBalance)
+              }
+              onConfirm={handleConfirmBid}
+              disabled={bidInProgress}
+            />
+          )}
+        </SellerDiv>
+      </FlexWrap>
+
+
+
       <SpacedRow>
-        <h3>Offers</h3>
-        {!isOver && zoomBalance && wmovrBalance && (
-          <OfferDialog
-            currency={auctionItem?.currency}
-            minAmount={
-              Math.max(
-                parseFloat(auctionItem?.highestBid),
-                parseFloat(auctionItem?.minPrice)
-              ) + parseFloat(minIncrement)
-            }
-            maxAmount={
-              auctionItem?.currency === 'ZOOM'
-                ? parseFloat(zoomBalance)
-                : parseFloat(wmovrBalance)
-            }
-            onConfirm={handleConfirmBid}
-            disabled={bidInProgress}
-          />
-        )}
+        <h3>Item History</h3>
       </SpacedRow>
       {isLoading ? (
         <LoadingModal text="Loading bids..." open={isLoading} />
