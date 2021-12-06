@@ -15,6 +15,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   //overflow-y: auto;
+  margin: 12px;
   border: solid 1px white;
   padding: 16px;
   overflow-y: auto;

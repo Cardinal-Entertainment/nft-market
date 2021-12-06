@@ -77,7 +77,7 @@ const OfferDialog = ({
       setInputInvalid("You don't have enough coin");
     } else {
       setInputInvalid('');
-      onConfirm(input);
+      onConfirm(parseFloat(input));
       setOpen(false);
     }
   };

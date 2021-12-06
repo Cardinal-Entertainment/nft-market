@@ -1,63 +1,70 @@
-import React, { useContext, useEffect, useState } from 'react';
-import PubSub from 'pubsub-js';
-import Button from '@mui/material/Button';
-import { store } from 'store/store';
-import { useHistory, useParams } from 'react-router-dom';
-import { getAuctionItem } from 'utils/auction';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import { CircularProgress, Modal, Pagination, Paper } from '@mui/material';
-import OfferDialog from 'components/OfferDialog';
+import React, { useContext, useEffect, useState } from 'react'
+import styled from 'styled-components'
+import PubSub from 'pubsub-js'
+import Button from '@mui/material/Button'
+import { store } from 'store/store'
+import { useHistory, useParams } from 'react-router-dom'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
+import { CircularProgress, Modal, Paper } from '@mui/material'
+import OfferDialog from 'components/OfferDialog'
 import {
   EVENT_TYPES,
   marketContractAddress,
   QUERY_KEYS,
   ZoombiesStableEndpoint,
   ZoombiesTestingEndpoint,
-} from '../constants';
-import { ethers } from 'ethers';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft } from '@fortawesome/free-solid-svg-icons';
-import moment from 'moment';
-import LazyLoad from 'react-lazyload';
-import zoomLogo from '../assets/zoombies_coin.svg';
-import movrLogo from '../assets/movr_logo.png';
-import { styled, Grid } from '@mui/material';
-import { useFetchBids } from 'hooks/useBids';
-import LoadingModal from 'components/LoadingModal';
-import { useQueryClient } from 'react-query';
-import { v4 as uuidv4 } from 'uuid';
+} from '../constants'
+import { ethers } from 'ethers'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faChevronLeft } from '@fortawesome/free-solid-svg-icons'
+import moment from 'moment'
+import momentTimezone from 'moment-timezone'
+import LazyLoad from 'react-lazyload'
+import zoomLogo from '../assets/zoombies_coin.svg'
+import movrLogo from '../assets/movr_logo.png'
+import LoadingModal from 'components/LoadingModal'
+import { useQueryClient } from 'react-query'
+import { v4 as uuidv4 } from 'uuid'
+import { useFetchSingleListingQuery } from 'hooks/useListing'
+import { formatAddress } from 'utils/wallet'
 
 const Container = styled('div')({
-  flex: 1,
-  height: '100%',
-  color: 'white',
-  overflowY: 'auto',
+  backgroundColor: 'white',
+  width: '100%',
+  padding: '16px 24px',
 
-  '& h1': {
-    margin: 0,
+  h1: {
+    color: 'gray',
   },
 
-  '& .pagination-bar': {
-    padding: '12px',
-  },
+  '.listing-content': {
+    display: 'flex',
+    flexDirection: 'column',
+    maxWidth: '1920px',
+    width: '100%',
+    padding: '0 20px',
 
-  '& .bid-table': {
-    flex: 'auto',
+    '.listing-wrapper': {
+      display: 'flex',
+    },
   },
-});
+})
 
 const FlexRow = styled('div')({
   display: 'flex',
   alignItems: 'center',
-});
+})
 
 const HeaderRow = styled(FlexRow)({
-  marginBottom: '10px',
+  marginBottom: '48px',
+  width: '100%',
+  justifyContent: 'space-between',
+
   '& svg': {
     cursor: 'pointer',
   },
@@ -65,30 +72,13 @@ const HeaderRow = styled(FlexRow)({
   '& h1': {
     marginLeft: '10px',
   },
-});
 
-const SpacedRow = styled(FlexRow)({
-  justifyContent: 'space-between',
-});
-
-const NFTContainer = styled('div')({
-  width: '100%',
-  display: 'flex',
-  flexWrap: 'wrap',
-
-  maxHeight: '550px',
-  overflowX: 'auto',
-  borderRadius: '8px',
-  padding: '5px',
-
-  '& > *': {
-    display: 'inline-block',
-    margin: '0 5px',
+  '.title-back-btn': {
+    display: 'flex',
+    alignItems: 'center',
   },
-  '& img': {
-    width: '175px',
-  },
-});
+})
+
 
 const ModalContent = styled('div')({
   position: 'absolute',
@@ -106,351 +96,478 @@ const ModalContent = styled('div')({
   '& > *': {
     margin: '5px 0',
   },
-});
+})
+
 
 const StyledLogo = styled('img')({
   width: '30px',
   padding: '0 5px',
-});
+})
 
-const SellerDiv = styled(Grid)(({ theme }) => ({
-  padding: '12px',
-  display: 'flex',
+const ListingNFTWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 20%;
 
-  '& div': {
-    display: 'flex',
-    alignItems: 'center',
-    margin: '0 12px',
-    [theme.breakpoints.down('sm')]: {
-      width: '100%',
-    },
-  },
+  img {
+    width: 100%;
+  }
 
-  '.seller-address-link': {
-    marginLeft: '8px',
-  },
-}));
+  .nft-previews {
+    display: flex;
+    overflow-x: auto;
 
-const ViewListing = () => {
-  const history = useHistory();
-  const { id } = useParams();
-  const [auctionItem, setAuctionItem] = useState({});
-  const [approvalModalOpen, setApprovalModalOpen] = useState(false);
-  const [bidInProgress, setBidInProgress] = useState(false);
-  const [cardPageNo, setCardPageNo] = useState(1);
-
-  const [minIncrement, setMinIncrement] = useState('');
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  const auctionId = parseInt(id);
-
-  const {
-    state: { contracts, wallet },
-  } = useContext(store);
-  
-  const {
-    zoomBalance,
-    wmovrBalance
-  } = wallet;
-
-  // const getZoomBalance = async () => {
-  //   const bal = await getWalletZoomBalance(
-  //     contracts.ZoomContract,
-  //     wallet.address
-  //   );
-  //   setZoomBalance(bal);
-  // };
-
-  // const getWMOVRBalance = async () => {
-  //   const bal = await getWalletWMOVRBalance(
-  //     contracts.WMOVRContract,
-  //     wallet.address
-  //   );
-  //   setWMOVRBalance(bal);
-  // };
-
-  const handleConfirmBid = async (amount) => {
-    const { currency, id } = auctionItem;
-    let currencyContract;
-
-    if (
-      parseFloat(amount) <
-      Math.max(
-        auctionItem?.highestBid + parseFloat(minIncrement),
-        auctionItem?.minAmount + parseFloat(minIncrement)
-      )
-    ) {
-      throw new Error(`Invalid amount valid : ${amount}`);
+    button {
+      background: none;
+      margin-right: 16px;
+      border: none;
     }
 
-    switch (currency) {
-      case 'ZOOM':
-        currencyContract = contracts.ZoomContract;
-        break;
-      case 'WMOVR':
-        currencyContract = contracts.WMOVRContract;
-        break;
-      default:
-        throw new Error(`Unhandled currency type: ${currency}`);
+    img {
+      width: 50px;
+    }
+  }
+`
+
+const ListingMetadataWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: 48px;
+  width: 80%;
+
+  .seller-date-wrapper {
+    display: flex;
+  }
+
+  .nft-count {
+    margin-top: 24px;
+
+    h1 {
+      color: black;
+    }
+  }
+
+  .auction-end {
+    margin-top: 12px;
+
+    h2 {
+      color: gray;
+      font-weight: normal;
+      margin: 0;
+    }
+  }
+
+  .price-wrapper {
+    margin-top: 24px;
+
+    p {
+      font-size: 1.5rem;
+      margin: 0;
     }
 
-    const weiAmount = ethers.utils.parseEther(amount.toString());
-
-    const approveTx = await currencyContract.approve(
-      marketContractAddress,
-      weiAmount
-    );
-    setApprovalModalOpen(true);
-    await approveTx.wait();
-    setApprovalModalOpen(false);
-    setBidInProgress(true);
-    const bidTx = await contracts.MarketContract.bid(parseInt(id), weiAmount);
-    await bidTx.wait();
-    setBidInProgress(false);
-    //getOffers();
-  };
-
-  const handleSettle = async () => {
-    const tx = await contracts.MarketContract.settle(parseInt(auctionId));
-    await tx.wait();
-    history.push('/');
-  };
-
-  const handleCardsTablePageChanged = (event, value) => {
-    setCardPageNo(value);
-  };
-
-  useEffect(() => {
-    const getListingInfo = async () => {
-      const auctionItem = await getAuctionItem(
-        auctionId,
-        contracts.ZoombiesContract
-      );
-  
-      const minIncrement1 = await contracts.MarketContract.tokenMinIncrement(
-        auctionItem.saleToken
-      );
-      setMinIncrement(ethers.utils.formatEther(minIncrement1));
-      setAuctionItem(auctionItem);
-      setIsRefreshing(false);
-    };
-
-    setIsRefreshing(true);
-    if (contracts.MarketContract && contracts.ZoombiesContract) {
-      getListingInfo().then(() => {
-        setIsRefreshing(false);
-      });
+    .min-price {
+      color: #2169a9;
+      display: flex;
+      align-items: center;
     }
-  }, [
-    contracts.MarketContract,
-    contracts.ZoombiesContract,
-    contracts.WMOVRContract,
-    contracts.ZoomContract,
-    auctionId,
-  ]);
 
-  const queryClient = useQueryClient();
-  useEffect(() => {
-    const token = PubSub.subscribe(EVENT_TYPES.Bid, (msg, data) => {
-      const bid = data;
-      const currentBidData = queryClient.getQueryData([
-        QUERY_KEYS.bids,
-        { auctionId },
-      ]);
-      const randomId = uuidv4();
-      const bidWithId = {
-        ...bid,
-        _id: randomId,
-      };
+    .current-price {
+      color: #357439;
+    }
+  }
 
-      if (bid.itemNumber === auctionId) {
-        if (currentBidData) {
-          queryClient.setQueryData(
-            [QUERY_KEYS.bids, { auctionId }],
-            [bidWithId, ...currentBidData]
-          );
-        } else {
-          queryClient.setQueryData(
-            [QUERY_KEYS.bids, { auctionId }],
-            [bidWithId]
-          );
-        }
-      }
-    });
+  .offer-wrapper {
+    margin-top: 32px;
+  }
 
-    return () => PubSub.unsubscribe(token);
-  }, [queryClient, auctionId]);
+  span {
+    font-size: 1.25rem;
+    margin-right: 24px;
 
-  const now = moment().unix();
-  const end = moment(auctionItem?.auctionEnd * 1000).unix();
-  const isOver = end < now;
-  const isWinner = auctionItem?.highestBidder === wallet.address;
-  const isOwner = wallet.address === auctionItem?.seller;
-  const canSettle = isOver && (isWinner || isOwner);
-  const sellerURL =
-    wallet.chainId === 1287
-      ? `${ZoombiesTestingEndpoint}/my-zoombies-nfts/${auctionItem?.seller}`
-      : `${ZoombiesStableEndpoint}/my-zoombies-nfts/${auctionItem?.seller}`;
+    a {
+      margin-left: 8px !important;
+    }
+  }
+`
 
-  const { isLoading, data } = useFetchBids(auctionId);
+const ItemHistoryWrapper = styled.div`
+  margin-top: 32px;
+  padding: 16px 16px 0px 0px;
+
+  h2 {
+    font-weight: normal;
+  }
+
+  h3 {
+    color: gray;
+  }
+
+  .bid-table {
+    border: 1px solid black;
+  }
+
+  .bid-table-header th {
+    font-weight: bold;
+    font-size: 1.1rem;
+  }
+`
+
+const handleSettle = async (history, marketContract, auctionId) => {
+  const tx = await marketContract.settle(parseInt(auctionId))
+  await tx.wait()
+  history.push('/')
+}
+
+const ListingNFTs = ({ cards }) => {
+  const [enlargedCard, setEnlargedCard] = useState(cards[0])
+  return (
+    <ListingNFTWrapper>
+      <div className="enlarged-nft">
+        <LazyLoad once={true} resize={true}>
+          <img
+            src={`https://moonbase.zoombies.world/nft-image/${enlargedCard.id}`}
+            alt={`Token #${enlargedCard.id}`}
+            loading="lazy"
+          />
+        </LazyLoad>
+      </div>
+      <div className="nft-previews">
+        {cards.map((card) => (
+          <LazyLoad key={card.id} once={true} resize={true}>
+            <button
+              style={
+                enlargedCard.id === card.id
+                  ? {
+                      backgroundColor: 'lightgray',
+                    }
+                  : {}
+              }
+              disabled={enlargedCard.id === card.id}
+              onClick={() => setEnlargedCard(card)}
+            >
+              <img
+                src={`https://moonbase.zoombies.world/nft-image/${card.id}`}
+                alt={`Token #${card.id}`}
+                loading="lazy"
+              />
+            </button>
+          </LazyLoad>
+        ))}
+      </div>
+    </ListingNFTWrapper>
+  )
+}
+
+const ListingMetadata = ({
+  listing,
+  sellerUrl,
+  minIncrement,
+  zoomBalance,
+  wmovrBalance,
+  isBidInProgress,
+  handleConfirmBid,
+  isAuctionOver,
+  walletAddress
+}) => {
+  const shortWallet = formatAddress(listing.seller)
+  const dateListed = moment(listing.auctionStart * 1000).format(
+    'MM/DD/YYYY h:mm:ss A'
+  )
+  const localAuctionEnd = moment(listing.auctionEnd * 1000).local()
+  const auctionEndDate = localAuctionEnd.format('MMMM D, YYYY')
+  const auctionEndTime = localAuctionEnd.format('h:mm:ss A')
+  const timezone = momentTimezone.tz(momentTimezone.tz.guess()).zoneAbbr()
+  const highestBid =
+    listing.highestBid > listing.minPrice
+      ? listing.highestBid
+      : listing.minPrice
+
+  const minOfferAmount =
+    Math.max(parseFloat(listing.highestBid), parseFloat(listing.minPrice)) +
+    minIncrement
+  const maxOfferAmount =
+    listing.currency === 'ZOOM' ? zoomBalance : wmovrBalance
+  const canBid =
+    listing.currency === 'ZOOM'
+      ? zoomBalance > minOfferAmount
+      : wmovrBalance > minOfferAmount
 
   return (
-    <Container>
-      <SpacedRow>
-        <HeaderRow>
-          <FontAwesomeIcon
-            icon={faChevronLeft}
-            size="2x"
-            onClick={() => history.goBack()}
-            color="white"
-          />
-          <h1>Auction #{auctionId}</h1>
-        </HeaderRow>
-        {canSettle && (
-          <Button variant="contained" color="success" onClick={handleSettle}>
-            Settle
-          </Button>
-        )}
-      </SpacedRow>
-      <SellerDiv container>
-        <Grid item>
-          {'Amount: ' +
-            (auctionItem?.minPrice ? auctionItem.minPrice : 0) +
-            ' ' +
-            (auctionItem?.currency ? auctionItem.currency : '')}
-          {auctionItem.currency === 'ZOOM' ? (
+    <ListingMetadataWrapper>
+      <div className="seller-date-wrapper">
+        <span>
+          Seller Wallet:
+          <a href={sellerUrl} rel="noreferrer" target="_blank">
+            {shortWallet}
+          </a>
+        </span>
+        <span>Date Listed: {dateListed}</span>
+      </div>
+      <div className="nft-count">
+        <h1>{listing.cards.length} Zoombies NFTs</h1>
+      </div>
+      <div className="auction-end">
+        <h2>
+          Auction ends {auctionEndDate} at {auctionEndTime} {timezone}
+        </h2>
+      </div>
+      <div className="price-wrapper">
+        <p className="min-price">
+          Minimum Price: {listing.minPrice} {listing.currency}
+          {listing.currency === 'ZOOM' ? (
             <StyledLogo src={zoomLogo} />
           ) : (
             <StyledLogo src={movrLogo} />
           )}
-        </Grid>
-        <Grid item>
-          Seller Wallet:
-          <a
-            className="seller-address-link"
-            href={sellerURL}
-            rel="noreferrer"
-            target="_blank"
-          >
-            {auctionItem.seller
-              ? `${auctionItem.seller.substr(
-                  0,
-                  8
-                )}...${auctionItem.seller.substr(36)}`
-              : ''}
-          </a>
-        </Grid>
-        <Grid item>
-          {'Date Listed: ' +
-            (new Date(auctionItem.auctionStart * 1000).toLocaleString() ??
-              'Unknown')}
-        </Grid>
-      </SellerDiv>
+        </p>
+        <p className="current-price">
+          Current Price: {highestBid} {listing.currency}
+        </p>
+      </div>
+      <div className="offer-wrapper">
+        <OfferDialog
+          minAmount={minOfferAmount}
+          currency={listing.currency}
+          maxAmount={maxOfferAmount}
+          onConfirm={handleConfirmBid}
+          disabled={isBidInProgress || !canBid || isAuctionOver || listing.seller === walletAddress}
+        ></OfferDialog>
+      </div>
+    </ListingMetadataWrapper>
+  )
+}
 
-      <NFTContainer>
-        {auctionItem?.tokenIds ? (
-          auctionItem.tokenIds
-            .slice((cardPageNo - 1) * 20, cardPageNo * 20)
-            .map((tokenId) => (
-              <LazyLoad key={tokenId} once={true} resize={true}>
-                <img
-                  src={`https://moonbase.zoombies.world/nft-image/${tokenId}`}
-                  alt={`Token #${tokenId}`}
-                  loading="lazy"
-                />
-              </LazyLoad>
-            ))
-        ) : (
-          <CircularProgress />
-        )}
-      </NFTContainer>
-      {auctionItem.tokenIds && (
-        <Pagination
-          count={Math.ceil(auctionItem.tokenIds.length / 20)}
-          className={'pagination-bar'}
-          variant="outlined"
-          shape="rounded"
-          onChange={handleCardsTablePageChanged}
-        />
-      )}
-      <SpacedRow>
-        <h3>Offers</h3>
-        {!isOver && zoomBalance && wmovrBalance && (
-          <OfferDialog
-            currency={auctionItem?.currency}
-            minAmount={
-              Math.max(
-                parseFloat(auctionItem?.highestBid),
-                parseFloat(auctionItem?.minPrice)
-              ) + parseFloat(minIncrement)
-            }
-            maxAmount={
-              auctionItem?.currency === 'ZOOM'
-                ? parseFloat(zoomBalance)
-                : parseFloat(wmovrBalance)
-            }
-            onConfirm={handleConfirmBid}
-            disabled={bidInProgress}
-          />
-        )}
-      </SpacedRow>
-      {isLoading ? (
-        <LoadingModal text="Loading bids..." open={isLoading} />
+const ItemHistory = ({ bids }) => {
+  return (
+    <ItemHistoryWrapper>
+      <h2>Item History</h2>
+      {bids.length === 0 ? (
+        <h3>There are currently no bids for this auction.</h3>
       ) : (
-        <TableContainer component={Paper} className="bid-table">
-          <Table size="small" aria-label="a dense table">
+        <TableContainer
+          classes={{
+            root: 'bid-table',
+          }}
+          component={Paper}
+        >
+          <Table stickyHeader={true} size="small" aria-label="a dense table">
             <TableHead>
-              <TableRow>
+              <TableRow
+                classes={{
+                  head: 'bid-table-header',
+                }}
+              >
+                <TableCell>Event</TableCell>
                 <TableCell>Time</TableCell>
                 <TableCell>From</TableCell>
                 <TableCell>Amount</TableCell>
-                {/* <TableCell>Currency</TableCell> */}
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.map((bid) => (
-                <TableRow
-                  key={bid._id}
-                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                >
-                  <TableCell>
-                    {moment(bid.timestamp * 1000).format(
-                      'MM/DD/YYYY, h:mm:ss A'
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {bid.bidder
-                      ? `${bid.bidder.substr(0, 8)} ... ${bid.bidder.substr(
-                          36
-                        )}`
-                      : ''}
-                  </TableCell>
-                  <TableCell>{bid.bidAmount}</TableCell>
-                  {/* <TableCell>{row.status}</TableCell> */}
-                </TableRow>
-              ))}
+              {bids &&
+                bids.map((bid) => (
+                  <TableRow
+                    key={bid._id}
+                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                  >
+                    <TableCell>Bid</TableCell>
+                    <TableCell>
+                      {moment(bid.timestamp * 1000).format(
+                        'MM/DD/YYYY, h:mm:ss A'
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {bid.bidder
+                        ? `${bid.bidder.substr(0, 8)} ... ${bid.bidder.substr(
+                            36
+                          )}`
+                        : ''}
+                    </TableCell>
+                    <TableCell>{bid.bidAmount}</TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </TableContainer>
       )}
+    </ItemHistoryWrapper>
+  )
+}
 
-      <Modal
-        open={approvalModalOpen}
-        onClose={() => setApprovalModalOpen(false)}
-      >
-        <ModalContent>
-          <div>Please wait for the Approval to complete.</div>
-          <CircularProgress />
-        </ModalContent>
-      </Modal>
-      <Modal open={isRefreshing}>
-        <ModalContent>
-          <div>Loading content.</div>
-          <CircularProgress />
-        </ModalContent>
-      </Modal>
-    </Container>
-  );
-};
+const ViewListing = () => {
+  const history = useHistory()
+  const { id } = useParams()
+  const [approvalModalOpen, setApprovalModalOpen] = useState(false)
+  const [bidInProgress, setBidInProgress] = useState(false)
 
-export default ViewListing;
+
+  const auctionId = parseInt(id)
+
+  const {
+    state: { contracts, wallet, zoomIncrement, wmovrIncrement },
+  } = useContext(store)
+
+  const { zoomBalance, wmovrBalance } = wallet
+  const { MarketContract } = contracts
+
+  const queryClient = useQueryClient()
+  useEffect(() => {
+    const token = PubSub.subscribe(EVENT_TYPES.Bid, (msg, data) => {
+      const bid = data
+      const currentListing = queryClient.getQueryData([
+        QUERY_KEYS.listing,
+        { itemNumber: auctionId, marketContractAddress: MarketContract?.address },
+      ])
+      const randomId = uuidv4()
+      const bidWithId = {
+        ...bid,
+        _id: randomId,
+      }
+
+      if (bid.itemNumber === auctionId) {
+        if (currentListing.bids.length > 0) {
+          queryClient.setQueryData(
+            [QUERY_KEYS.listing,  { itemNumber: auctionId, marketContractAddress: MarketContract?.address }],
+            {
+              ...currentListing,
+              bids: [...currentListing.bids, bidWithId]
+            }
+          )
+        } else {
+          queryClient.setQueryData(
+            [QUERY_KEYS.listing,  { itemNumber: auctionId, marketContractAddress: MarketContract?.address }],
+            {
+              ...currentListing,
+              bids: [bidWithId]
+            }
+          )
+        }
+      }
+    })
+
+    return () => PubSub.unsubscribe(token)
+  }, [queryClient, auctionId, MarketContract])
+
+  const { isLoading: isFetchingListing, data: auctionItem } =
+    useFetchSingleListingQuery(auctionId, MarketContract)
+
+  if (isFetchingListing) {
+    return (
+      <LoadingModal text="Loading auction item..." open={isFetchingListing} />
+    )
+  }
+
+  if (auctionItem) {
+    const now = moment().unix()
+    const end = moment(auctionItem.auctionEnd * 1000).unix()
+    const isOver = end < now
+    const isWinner = auctionItem.highestBidder === wallet.address
+    const isOwner = wallet.address === auctionItem.seller
+    const canSettle =
+      isOver && (isWinner || isOwner) && !auctionItem.isItemSettled
+    const sellerURL =
+      wallet.chainId === 1287
+        ? `${ZoombiesTestingEndpoint}/my-zoombies-nfts/${auctionItem?.seller}`
+        : `${ZoombiesStableEndpoint}/my-zoombies-nfts/${auctionItem?.seller}`
+
+    const minIncrement =
+      auctionItem.currency === 'ZOOM' ? zoomIncrement : wmovrIncrement
+
+    const handleConfirmBid = async (amount) => {
+      const { currency, id } = auctionItem
+      let currencyContract
+
+      if (
+        parseFloat(amount) <
+        Math.max(
+          auctionItem?.highestBid + minIncrement,
+          auctionItem?.minAmount + minIncrement
+        )
+      ) {
+        throw new Error(`Invalid amount valid : ${amount}`)
+      }
+
+      switch (currency) {
+        case 'ZOOM':
+          currencyContract = contracts.ZoomContract
+          break
+        case 'WMOVR':
+          currencyContract = contracts.WMOVRContract
+          break
+        default:
+          throw new Error(`Unhandled currency type: ${currency}`)
+      }
+
+      const weiAmount = ethers.utils.parseEther(amount.toString())
+
+      const approveTx = await currencyContract.approve(
+        marketContractAddress,
+        weiAmount
+      )
+      setBidInProgress(true)
+      setApprovalModalOpen(true)
+      await approveTx.wait()
+      setApprovalModalOpen(false)
+      const bidTx = await contracts.MarketContract.bid(parseInt(id), weiAmount)
+      await bidTx.wait()
+      setBidInProgress(false)
+    }
+
+    return (
+      <Container>
+        <HeaderRow>
+          <div className="title-back-btn">
+            <FontAwesomeIcon
+              icon={faChevronLeft}
+              size="2x"
+              onClick={() => history.goBack()}
+              color="gray"
+            />
+            <h1>Auction #{auctionId}</h1>
+          </div>
+
+          {canSettle && (
+            <Button
+              variant="contained"
+              color="success"
+              onClick={() => handleSettle(history, MarketContract, auctionId)}
+            >
+              Settle
+            </Button>
+          )}
+        </HeaderRow>
+        <div className="listing-content">
+          <div className="listing-wrapper">
+            <ListingNFTs cards={auctionItem.cards} />
+            <ListingMetadata
+              minIncrement={minIncrement}
+              zoomBalance={zoomBalance}
+              wmovrBalance={wmovrBalance}
+              isBidInProgress={bidInProgress}
+              listing={auctionItem}
+              sellerUrl={sellerURL}
+              handleConfirmBid={handleConfirmBid}
+              isAuctionOver={isOver}
+              walletAddress={wallet.address}
+            />
+          </div>
+
+          <ItemHistory bids={auctionItem.bids} />
+        </div>
+        <Modal
+          open={approvalModalOpen}
+          onClose={() => setApprovalModalOpen(false)}
+        >
+          <ModalContent>
+            <div>Please wait for the Approval to complete.</div>
+            <CircularProgress />
+          </ModalContent>
+        </Modal>
+      </Container>
+    )
+  }
+
+  return null
+}
+
+export default ViewListing
