@@ -156,7 +156,8 @@ const Home = () => {
         );
       }
     });
-
+  });
+  
   return (
     <Container>
       <Filterbar
