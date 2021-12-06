@@ -156,7 +156,8 @@ const Home = () => {
         );
       }
     });
-  });
+    return () => PubSub.unsubscribe(token);
+  }, [queryClient, filters]);
   
   return (
     <Container>
