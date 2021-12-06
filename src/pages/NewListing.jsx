@@ -20,6 +20,10 @@ import {
 import { useFetchUserNFTQuery } from 'hooks/useProfile'
 import zoomLogo from '../assets/zoombies_coin.svg'
 import LoadingModal from 'components/LoadingModal'
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const Container = styled.div`
   flex: 1;
@@ -27,7 +31,7 @@ const Container = styled.div`
   flex-direction: column;
   justify-content: center;
   margin: 12px;
-  
+
   h1 {
     margin-top: 0;
     margin-bottom: 10px;
@@ -309,6 +313,28 @@ const NewListing = () => {
       />
       <h1>New Listing</h1>
       <Form>
+        <FlexRow>
+          <Accordion>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1a-content"
+              id="panel1a-header"
+            >
+              <h4>Review steps to list a successful NFT auction</h4>
+            </AccordionSummary>
+            <AccordionDetails>
+              <ol>
+                <li>Set a sell price</li>
+                <li>Set auction end date ( under 2 weeks )</li>
+                <li>Select 1 or bundle NFTs (up to 20) for auction</li>
+                <li>Approve the market to list NFTs on your behalf ( one-time )</li>
+                <li>Approve the market to burn your ZOOM listing Fee ( base fee X num. of NFTs)</li>
+                <li>List your NFTs for auction</li>
+                <li>Check back after your auction close date for the Highest Bid ! settle auction and collect bid with Zero sales Fee !</li>
+              </ol>
+            </AccordionDetails>
+          </Accordion>
+        </FlexRow>
         <FlexRow>
           <InputContainer>
             <CurrencyInput
