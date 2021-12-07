@@ -1,6 +1,6 @@
 export const marketContractJSON = require('./contracts/ZoombiesMarketPlace.json');
 export const marketContractAddress =
-  '0x2638E66993F1E1FaAf5872743a6C6CeEBbD5AFe0';
+  '0x25EdB1cb586fE53973b7e761C8eC711a89B8ACdF';
 
 export const zoomContractAddress = '0x8e21404bAd3A1d2327cc6D2B2118f47911a1f316';
 
