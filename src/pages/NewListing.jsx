@@ -265,6 +265,7 @@ const NewListing = () => {
     } catch (err) {
       console.error(err)
     } finally {
+      setApproveZoomInProgress(false);
       setCreateInProgress(false)
     }
   }
