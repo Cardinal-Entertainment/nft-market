@@ -33,12 +33,12 @@ const eventsToScrape = [
   },
   {
     filterString:
-      'ItemListed(uint256,uint256,address,uint256[],address,address,uint256)',
+      'ItemListed(uint256,uint256,address,uint256[],address,address,uint256,uint256)',
     callbackFunc: itemListedCallback,
   },
   {
     filterString:
-      'Settled(address,address,uint256,address indexed,address indexed,address,uint256,uint256[])',
+      'Settled(uint256 indexed,address,address,uint256,address indexed,address indexed,address,uint256,uint256[])',
     callbackFunc: settledCallback,
   },
 ]
@@ -80,6 +80,7 @@ async function itemListedCallback(eventLogs, collectionName, zoombiesContract) {
     auctionStart: moment().unix(),
     highestBidder: null,
     cards,
+    zoomBurned: args.zoomBurned
   }
 
   console.log('item-listed-scraper-event')
