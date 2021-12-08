@@ -332,9 +332,6 @@ const LiveFeedsSlide = (props, ref) => {
   const { data: newMyAlerts } = useFetchLiveFeeds('newMyAlerts');
   const { data: newGeneral } = useFetchLiveFeeds('newGeneral');
 
-  console.log('generalAlerts', generalAlerts);
-  console.log('myAlerts', myAlerts);
-
   return (
     <Container ref={ref}>
       <FlexDiv>

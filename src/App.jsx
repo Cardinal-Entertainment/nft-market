@@ -241,7 +241,6 @@ const App = () => {
 
       const bidType = getBidType(bid)
 
-      console.log('bidType', bidType)
       let listingItem = myAuctions.listings.find(
         (listing) => listing.itemNumber === bid.itemNumber
       )

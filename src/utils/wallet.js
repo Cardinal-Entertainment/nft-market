@@ -16,7 +16,6 @@ export const getWalletZoomBalance = async (zoomContract, address) => {
 };
 
 export const unWrapMOVR = async (wmovrContract, amount) => {
-  console.log('amount : ', amount);
   await wmovrContract.withdraw(ethers.utils.parseEther(amount));
 };
 

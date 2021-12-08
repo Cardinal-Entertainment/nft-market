@@ -98,20 +98,16 @@ const Home = () => {
 
   useEffect(() => {
     const token = PubSub.subscribe(EVENT_TYPES.Bid, (msg, data) => {
-      console.log("home-bid-event");
       const currentData = queryClient.getQueryData([
         QUERY_KEYS.listings,
         { filters },
       ]);
-      console.log("currentData", currentData);
       if (currentData) {
         const auctionId = data.itemNumber;
-        console.log("auctionId", auctionId);
         const currentBidData = queryClient.getQueryData([
           QUERY_KEYS.bids,
           { auctionId },
         ]);
-        console.log("currentBidData", currentBidData)
         const randomId = uuidv4();
         const bidWithId = {
           ...data,
@@ -119,25 +115,19 @@ const Home = () => {
         };
 
         if (data.itemNumber === auctionId) {
-          console.log("if (data.itemNumber === auctionId)")
           if (currentBidData) {
-            console.log("setBidData::Before")
             queryClient.setQueryData(
               [QUERY_KEYS.bids, { auctionId }],
               [bidWithId, ...currentBidData]
             );
-            console.log("setBidData::after")
           } else {
-            console.log("setBidData::New-Before")
             queryClient.setQueryData(
               [QUERY_KEYS.bids, { auctionId }],
               [bidWithId]
             );
-            console.log("setBidData::New-After")
           }
         }
 
-        console.log("setListingData::Before")
         queryClient.setQueryData(
           [QUERY_KEYS.listings, { filters }],
           (queryData) => {
