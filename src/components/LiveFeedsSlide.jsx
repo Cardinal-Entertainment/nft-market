@@ -5,9 +5,7 @@ import { styled } from '@mui/material';
 import Button from '@mui/material/Button';
 import { TransitionGroup } from 'react-transition-group';
 import Collapse from '@mui/material/Collapse';
-import moment from 'moment';
-import PubSub from 'pubsub-js';
-import { EVENT_TYPES, QUERY_KEYS } from '../constants';
+import { QUERY_KEYS } from '../constants';
 import { useFetchLiveFeeds } from '../hooks/useLiveFeeds';
 import { useQueryClient } from 'react-query';
 
@@ -111,7 +109,7 @@ const LiveFeedsSlide = (props, ref) => {
       [key]: !filters[key],
     });
   };
-  
+
   const { data: generalAlerts } = useFetchLiveFeeds('General');
   const { data: myAlerts } = useFetchLiveFeeds('MyAlerts');
   const { data: newMyAlerts } = useFetchLiveFeeds('newMyAlerts');
