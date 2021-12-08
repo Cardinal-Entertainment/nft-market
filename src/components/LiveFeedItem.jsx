@@ -40,9 +40,9 @@ const Container = styled('div')(({ type, highlight }) => ({
   // backgroundColor: type === 'highlight' ? '#788ea5' : 'rgb(0, 30, 60)'
   backgroundColor:
     type === 'myalert' && highlight === 'true'
-      ? '#ff59e8aa'
-      : type !== 'myalert' && highlight === 'true'
       ? '#41f7f8'
+      : type !== 'myalert' && highlight === 'true'
+      ? '#ff59e8aa'
       : type === 'myalert' && highlight !== 'true'
       ? '#ff59e8'
       : 'rgb(0, 30, 60)',

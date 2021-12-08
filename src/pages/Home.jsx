@@ -8,6 +8,7 @@ import { useFetchListingQuery } from '../hooks/useListing';
 import LoadingModal from 'components/LoadingModal';
 import { EVENT_TYPES, QUERY_KEYS } from '../constants';
 import { useQueryClient } from 'react-query';
+import { v4 as uuidv4 } from 'uuid'
 
 const Container = styled.div`
   flex: auto;
@@ -95,6 +96,59 @@ const Home = () => {
     return () => PubSub.unsubscribe(token);
   }, [queryClient, filters]);
 
+  useEffect(() => {
+    const token = PubSub.subscribe(EVENT_TYPES.Bid, (msg, data) => {
+      const currentData = queryClient.getQueryData([
+        QUERY_KEYS.listings,
+        { filters },
+      ]);
+      if (currentData) {
+        const auctionId = data.itemNumber;
+        const currentBidData = queryClient.getQueryData([
+          QUERY_KEYS.bids,
+          { auctionId },
+        ]);
+        const randomId = uuidv4();
+        const bidWithId = {
+          ...data,
+          _id: randomId,
+        };
+
+        if (data.itemNumber === auctionId) {
+          if (currentBidData) {
+            queryClient.setQueryData(
+              [QUERY_KEYS.bids, { auctionId }],
+              [bidWithId, ...currentBidData]
+            );
+          } else {
+            queryClient.setQueryData(
+              [QUERY_KEYS.bids, { auctionId }],
+              [bidWithId]
+            );
+          }
+        }
+
+        queryClient.setQueryData(
+          [QUERY_KEYS.listings, { filters }],
+          (queryData) => {
+            queryData.pages.map((page) => {
+              page.data.map((auction) => {
+                if (auction.itemNumber === data.itemNumber) {
+                  auction.highestBid = data.bidAmount;
+                }
+                return auction;
+              });
+              return page;
+            });
+
+            return queryData;
+          }
+        );
+      }
+    });
+    return () => PubSub.unsubscribe(token);
+  }, [queryClient, filters]);
+  
   return (
     <Container>
       <Filterbar
