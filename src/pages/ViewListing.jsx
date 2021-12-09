@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from 'react'
-import styled from 'styled-components'
 import PubSub from 'pubsub-js'
 import Button from '@mui/material/Button'
 import { store } from 'store/store'
@@ -32,11 +31,19 @@ import { useQueryClient } from 'react-query'
 import { v4 as uuidv4 } from 'uuid'
 import { useFetchSingleListingQuery } from 'hooks/useListing'
 import { formatAddress } from 'utils/wallet'
+import { styled } from '@mui/material';
 
-const Container = styled('div')({
+const Container = styled('div')(({ theme }) => ({
   backgroundColor: 'white',
   width: '100%',
   padding: '16px 24px',
+  display: 'flex',
+  flexDirection: 'column',
+  marginRight: '12px',
+
+  [theme.breakpoints.down('md')]: {
+    padding: '0',
+  },
 
   h1: {
     color: 'gray',
@@ -44,24 +51,34 @@ const Container = styled('div')({
 
   '.listing-content': {
     display: 'flex',
+    flex: 1,
+    overflowY: 'auto',
     flexDirection: 'column',
     maxWidth: '1920px',
     width: '100%',
     padding: '0 20px',
 
+    [theme.breakpoints.down('md')]: {
+      padding: '0',
+    },
+
     '.listing-wrapper': {
       display: 'flex',
+      flexWrap: 'wrap',
+      [theme.breakpoints.down('md')]: {
+        alignItems: 'center',
+        justifyContent: 'center'
+      },
     },
   },
-})
+}))
 
 const FlexRow = styled('div')({
   display: 'flex',
   alignItems: 'center',
 })
 
-const HeaderRow = styled(FlexRow)({
-  marginBottom: '48px',
+const HeaderRow = styled(FlexRow)(({ theme }) => ({
   width: '100%',
   justifyContent: 'space-between',
 
@@ -77,7 +94,7 @@ const HeaderRow = styled(FlexRow)({
     display: 'flex',
     alignItems: 'center',
   },
-})
+}))
 
 
 const ModalContent = styled('div')({
@@ -104,113 +121,136 @@ const StyledLogo = styled('img')({
   padding: '0 5px',
 })
 
-const ListingNFTWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 20%;
+const ListingNFTWrapper = styled('div')({
+  display: 'flex',
+  flexDirection: 'column',
+  width: '20%',
+  minWidth: '177px',
 
-  img {
-    width: 100%;
-  }
+  '& img': {
+    width: '100%',
+  },
 
-  .nft-previews {
-    display: flex;
-    overflow-x: auto;
+  '& .nft-previews': {
+    display: 'flex',
+    overflowX: 'auto',
 
-    button {
-      background: none;
-      margin-right: 16px;
-      border: none;
-    }
+    '& button': {
+      background: 'none',
+      marginRight: '16px',
+      border: 'none',
+    },
 
-    img {
-      width: 50px;
-    }
-  }
-`
-
-const ListingMetadataWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 48px;
-  width: 80%;
-
-  .seller-date-wrapper {
-    display: flex;
-  }
-
-  .nft-count {
-    margin-top: 24px;
-
-    h1 {
-      color: black;
+    '& img': {
+    width: '50px',
     }
   }
+})
 
-  .auction-end {
-    margin-top: 12px;
+const ListingMetadataWrapper = styled('div')(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  padding: '48px',
 
-    h2 {
-      color: gray;
-      font-weight: normal;
-      margin: 0;
+  [theme.breakpoints.down('md')]: {
+    padding: '0',
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    '& .seller-date-wrapper': {
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+
+    '& .auction-end h2': {
+      textAlign: 'center',
+    }
+  },
+
+  '& .seller-date-wrapper': {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+
+  '& .nft-count': {
+    marginTop: '24px',
+
+    '& h1': {
+      color: 'black',
+    }
+  },
+
+  '& .auction-end': {
+    marginTop: '12px',
+
+    '& h2': {
+        color: 'gray',
+        fontWeight: 'normal',
+        margin: '0',
+      },
+  },
+
+  '& .price-wrapper': {
+    marginTop: '24px',
+
+    '& p': {
+      fontSize: '1.5rem',
+      margin: 0,
+    },
+
+    '& .min-price': {
+      color: '#2169a9',
+      display: 'flex',
+      alignItems: 'center',
+    },
+
+    '& .current-price': {
+      color: '#357439',
+    }
+  },
+
+  '& .offer-wrapper': {
+    marginTop: '32px',
+  },
+
+  '& span': {
+    fontSize: '1.25rem',
+    marginRight: '24px',
+
+    '& a': {
+      marginLeft: '8px !important'
     }
   }
+}))
 
-  .price-wrapper {
-    margin-top: 24px;
+const ItemHistoryWrapper = styled('div')(({ theme }) => ({
+  marginTop: '32px',
+  padding: '16px 16px 0px 0px',
+  alignItems: 'center',
+  justifyContent: 'center',
 
-    p {
-      font-size: 1.5rem;
-      margin: 0;
-    }
+  [theme.breakpoints.down('md')]: {
+    padding: '4px',
+  },
 
-    .min-price {
-      color: #2169a9;
-      display: flex;
-      align-items: center;
-    }
+  '& h2': {
+    fontWeight: 'normal',
+  },
 
-    .current-price {
-      color: #357439;
-    }
+  '& h3': {
+    color: 'gray',
+  },
+
+  ' & .bid-table': {
+    border: '1px solid black',
+  },
+
+  '& .bid-table-header th': {
+    fontWeight: 'bold',
+    fontSize: '1.1rem',
   }
+}))
 
-  .offer-wrapper {
-    margin-top: 32px;
-  }
-
-  span {
-    font-size: 1.25rem;
-    margin-right: 24px;
-
-    a {
-      margin-left: 8px !important;
-    }
-  }
-`
-
-const ItemHistoryWrapper = styled.div`
-  margin-top: 32px;
-  padding: 16px 16px 0px 0px;
-
-  h2 {
-    font-weight: normal;
-  }
-
-  h3 {
-    color: gray;
-  }
-
-  .bid-table {
-    border: 1px solid black;
-  }
-
-  .bid-table-header th {
-    font-weight: bold;
-    font-size: 1.1rem;
-  }
-`
 
 const handleSettle = async (history, marketContract, auctionId) => {
   const tx = await marketContract.settle(parseInt(auctionId))
