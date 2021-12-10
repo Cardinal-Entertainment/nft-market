@@ -36,7 +36,7 @@ const AuctionArchive = () => {
     <Container>
       <h1 className="auction-archives-header">
         Auction Archives
-        {totalCount && ` - ${totalCount} Past Auctions`}
+        {totalCount !== null && ` - ${totalCount} Past Auctions`}
       </h1>
       {isLoading ? (
         <LoadingModal open={true} text="Loading Profile..." />

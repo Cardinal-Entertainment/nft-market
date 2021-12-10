@@ -1,7 +1,7 @@
 import { useQuery } from 'react-query'
 import axios from 'axios'
 import { ethers } from 'ethers'
-import { apiEndpoint, QUERY_KEYS } from '../constants'
+import { apiEndpoint, marketContractAddress, QUERY_KEYS } from '../constants'
 import { getCardData } from 'utils/cardsUtil'
 
 const getUserProfiles = async (userAddress) => {
@@ -82,4 +82,20 @@ export const useFetchUserNFTQuery = (
     ...{
       refetchOnWindowFocus: false,
     },
+  })
+
+
+  const getUserZoomAllowance = async (zoomTokenContract, ownerAddress) => {
+    const allowance = await zoomTokenContract.allowance(ownerAddress, marketContractAddress);
+
+    return parseInt(allowance.toString())
+  }
+
+  export const useGetZoomAllowanceQuery = (
+    userAddress,
+    zoomTokenContract
+  ) => useQuery({
+    queryKey: [QUERY_KEYS.zoomAllowance, { zoomTokenContract: zoomTokenContract?.address, userAddress }],
+    queryFn: () => getUserZoomAllowance(zoomTokenContract, userAddress),
+    refetchOnWindowFocus: false
   })

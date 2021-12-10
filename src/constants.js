@@ -28,5 +28,6 @@ export const QUERY_KEYS = {
   listing: 'fetchSingleListing',
   bids: 'fetchBids',
   profile: 'fetchUserProfile',
-  userNFT: 'fetchUserNFT'
+  userNFT: 'fetchUserNFT',
+  zoomAllowance: 'fetchUserZoomAllowance'
 };
