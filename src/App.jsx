@@ -1,6 +1,7 @@
 import DialogSource from '@mui/material/Dialog'
 import useBlockchain from './hooks/useBlockchain'
 import zoombiesLogo from './assets/zoombies_head.svg'
+import zoomTokenLogo from './assets/zoombies_coin.svg'
 import liveFeedIcon from './assets/live-feed.png'
 import React, { useContext, useEffect, useState } from 'react'
 import Navbar from 'components/Navbar'
@@ -47,6 +48,10 @@ const Dialog = styled(DialogSource)({
 const Logo = styled('img')({
   width: '40px',
   height: '40px',
+})
+
+const TitleLabelText = styled('span')({
+  marginLeft: '0.5rem',
 })
 
 const Header = styled('div')({
@@ -324,8 +329,10 @@ const App = () => {
     <Container>
       <Router>
         <Header>
-          <img src={zoombiesLogo} alt={'ZOOM'} />
-          <h1>Zoombies Market</h1>
+
+          <img align="middle" src="https://zoombies.world/images/mr-icon.png" />
+          <h1>Zoom <img align="top" src={zoomTokenLogo} alt={'ZOOM token'} />
+          Market</h1> <TitleLabelText>Never pay commission!</TitleLabelText>
           {isDesktop ? <LiveFeedButton /> : <MobileHamburgerMenu />}
         </Header>
         <Body>
