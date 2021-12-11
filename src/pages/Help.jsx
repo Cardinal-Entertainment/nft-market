@@ -19,10 +19,15 @@ const HelpPage = () => {
   return (
     <Container>
       <h2>No Commission Market !</h2>
-      <p>Never pay a Sale commission, this means you as a seller keep ALL the proceeds on the sale of your Moonriver NFTs in the ZOOM market.</p>
+      <p>
+        Never pay a Sale commission, the ZOOM Market will NEVER take a commission on your NFT sale. For Example:<br />
+        If you sell an item for 1 MOVR, a competing NFT market may take anywhere from 0.025 MOVR. Doesn't seem so bad.<br/>
+        Now what if you sell an item for 100 MOVR, that is now 2.5 MOVR commission<br />
+        or what if you wanted to list 100 items for 1 movr each 0.025 x 100 = 2.5 MOVR.<br />
+        We want <strong>you</strong> to keep that commission. You worked hard to sell it, you deserve to keep it :)
+      </p>
 
       <h2>How it works:</h2>
-
       <p>You can view all listings as long as you are connected to Moonriver.
         Each Auction listing can be bid on before the auction end time. Upon auction end, the bidder who has submitted the highest bid wins the NFT auction.
         If someone bids higher than your bid, you can decide whether to over bid, 1) providing that the bidding time period has not ended and 2) you bid the minimum increment.
@@ -30,19 +35,17 @@ const HelpPage = () => {
       </p>
 
       <h2>Wrapping MOVR</h2>
-
       <p>Wrapping a coin allows a 3rd party contract, a market in this case, to manage a coin on behalf of the user. The term ‘wrapped’ refers to an original asset that is put in a wrapper, a kind of digital vault.
       To be able to bid on an NFT with MOVR, the Market will automatically wrap it as WMOVR
       If you have sold an NFT(s) in an auction, the Market will automatically unwrap your WMOVR and convert it back to MOVR when you Settle the auction after the auction end date.
       </p>
 
       <h2>Creating a listing</h2>
-
       <p>You have to authorize the market (contract) to sell NFT’s on your behalf.
       </p>
       <p>
         To create a new listing:<br />
-        Select your card(S) and currency(s) you want to sell for
+        Select your card(s) and currency(s) you want to sell for
         Enter the minimum amount you want for the card(s)
         Select an auction end date (max time is 2 weeks)
       </p>
@@ -73,7 +76,7 @@ const HelpPage = () => {
         The current listing fee is: %ZOOMBURN%
       </p><p>
         If you do not have enough ZOOM to list your item, please visit the link below and click on “ZOOM Token” to purchase from the ZOOM exchanges:
-        https://movr.zoombies.world/market
+         <a href="https://movr.zoombies.world/market" target="_blank">https://movr.zoombies.world/market</a>
       </p>
 
       <h2>Royalty Fee</h2>
@@ -87,6 +90,10 @@ const HelpPage = () => {
       For more information visit :
       <a href={"https://eips.ethereum.org/EIPS/eip-2981"}> https://eips.ethereum.org/EIPS/eip-2981</a>
       </h4>
+
+      <p>
+        Want to list your Moonriver NFT collection Or ERC20 token on the ZOOM Market? <a href="https://discord.gg/eDXvJKUZgQ" target="_blank">contact us on Discord</a>.
+      </p>
 
     </Container>
   );
