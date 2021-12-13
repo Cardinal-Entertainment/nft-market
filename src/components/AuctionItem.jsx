@@ -21,7 +21,6 @@ import { store } from '../store/store';
 import { ethers } from 'ethers';
 import OfferDialog from './OfferDialog';
 import { useFetchBids } from 'hooks/useBids';
-import { useNextMonthDisabled } from '@mui/lab/internal/pickers/hooks/date-helpers-hooks'
 
 const Container = styled(Grid)({
   display: 'flex',

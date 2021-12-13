@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components/macro';
+import { store } from 'store/store';
+import { ethers } from 'ethers';
 
 const Container = styled.div`
   color: white;
@@ -16,6 +18,33 @@ const Container = styled.div`
 `;
 
 const HelpPage = () => {
+
+  const {
+    state: { contracts },
+  } = useContext(store);
+
+  const [zoomBurnFee, setZoomBurnFee] = useState(0);
+  const [totalSupply, setTotalSupply] = useState(0);
+
+  useEffect( () => {
+
+    const getZoomInfo = async () => {
+      if (contracts.ZoomContract != null) {
+        const totalSup = await contracts.ZoomContract.totalSupply();
+        setTotalSupply(Number(ethers.utils.formatEther(totalSup)));
+      }
+
+      if (contracts.MarketContract != null) {
+        const burnFee = await contracts.MarketContract.zoomBurnFee();
+        setZoomBurnFee(Number(ethers.utils.formatEther(burnFee)));
+      }
+    };
+
+    getZoomInfo();
+
+
+  }, [contracts.MarketContract,contracts.ZoomContract]);
+
   return (
     <Container>
       <h2>No Commission Market !</h2>
@@ -72,8 +101,8 @@ const HelpPage = () => {
       </p><p>
         The ZOOM listing fee is variable based on the current value and circulating supply of ZOOM. The upper bound of the ZOOM listing fee is 10 Million ZOOM.
       </p><p>
-        The current circulating supply of ZOOM is: %ZOOMSUPPLY%<br />
-        The current listing fee is: %ZOOMBURN%
+        The current circulating supply of ZOOM is: { totalSupply }<br />
+        The current listing fee is: { zoomBurnFee } ZOOM
       </p><p>
         If you do not have enough ZOOM to list your item, please visit the link below and click on “ZOOM Token” to purchase from the ZOOM exchanges:
          <a href="https://movr.zoombies.world/market" rel="noreferrer" target="_blank">https://movr.zoombies.world/market</a>
