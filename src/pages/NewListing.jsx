@@ -24,6 +24,7 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import CheckCircle from '@mui/icons-material/CheckCircle';
 
 const Container = styled.div`
   flex: 1;
@@ -270,6 +271,10 @@ const NewListing = () => {
     }
   }
 
+  const requestApproveAllNFT = async () => {
+    console.log("Call nftContract.setApprovalForAll(market.addres, true)");
+  }
+
   const onKeyDown = (e) => {
     if (selectedCurrency === 'ZOOM') {
       if (e.keyCode === 69 || e.keyCode === 190 || e.keyCode === 188) {
@@ -374,12 +379,22 @@ const NewListing = () => {
           <span>Select NFTs below from your Crypt to add to the listing:</span>
         </FlexRow>
         <FlexRow>
+          {<CheckCircle color="success" />} NFT listing Approved ( show this if nftContract.isApprovedForAll(wallet, market.address) else show the button)
+          <Button
+            variant="contained"
+            color="error"
+            onClick={requestApproveAllNFT}>
+            Approve Market to list NFTs
+          </Button>
+        </FlexRow>
+        <FlexRow>
+        {<CheckCircle color="success" />}
           <div className="zoom-burn-fee">
-            Zoom Burn Fee:{' '}
+            Zoom <StyledLogo src={zoomLogo} /> Burn Fee:{' '}
             {data && data.zoomBurnFee
               ? data.zoomBurnFee * numberOfSelectedCards
               : 0}{' '}
-            <StyledLogo src={zoomLogo} />{' '}
+            {' '}
           </div>
         </FlexRow>
         <NFTContainer>
