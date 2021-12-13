@@ -76,7 +76,7 @@ const HelpPage = () => {
         The current listing fee is: %ZOOMBURN%
       </p><p>
         If you do not have enough ZOOM to list your item, please visit the link below and click on “ZOOM Token” to purchase from the ZOOM exchanges:
-         <a href="https://movr.zoombies.world/market" target="_blank">https://movr.zoombies.world/market</a>
+         <a href="https://movr.zoombies.world/market" rel="noreferrer" target="_blank">https://movr.zoombies.world/market</a>
       </p>
 
       <h2>Royalty Fee</h2>
@@ -92,7 +92,7 @@ const HelpPage = () => {
       </h4>
 
       <p>
-        Want to list your Moonriver NFT collection Or ERC20 token on the ZOOM Market? <a href="https://discord.gg/eDXvJKUZgQ" target="_blank">contact us on Discord</a>.
+        Want to list your Moonriver NFT collection Or ERC20 token on the ZOOM Market? <a href="https://discord.gg/eDXvJKUZgQ" rel="noreferrer" target="_blank">contact us on Discord</a>.
       </p>
 
     </Container>
