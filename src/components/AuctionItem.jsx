@@ -321,13 +321,13 @@ const AuctionItem = ({ content }) => {
 
     const weiAmount = ethers.utils.parseEther(amount.toString());
 
-    const approveTx = await currencyContract.approve(
-      marketContractAddress,
-      weiAmount
-    );
-    setApprovalModalOpen(true);
-    await approveTx.wait();
-    setApprovalModalOpen(false);
+    // const approveTx = await currencyContract.approve(
+    //   marketContractAddress,
+    //   weiAmount
+    // );
+    // setApprovalModalOpen(true);
+    // await approveTx.wait();
+    // setApprovalModalOpen(false);
     setBidInProgress(true);
     const bidTx = await contracts.MarketContract.bid(
       parseInt(itemNumber),
