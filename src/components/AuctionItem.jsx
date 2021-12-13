@@ -296,7 +296,7 @@ const AuctionItem = ({ content }) => {
     let { currency } = auctionItem;
     let currencyContract;
 
-    if (currency !== undefined) {
+    if (currency === undefined) {
       currency = auctionItem.saleToken === zoomContractAddress ? "ZOOM" : (auctionItem.saleToken === wmovrContractAddress ? "WMOVR" : "");
     }
     if (
