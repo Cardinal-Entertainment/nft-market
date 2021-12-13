@@ -29,6 +29,7 @@ import {
 import { useFetchProfileQuery } from './hooks/useProfile'
 import { store } from 'store/store'
 import NotificationAddon from './components/NotificationAddon'
+import LoadingModal from './components/LoadingModal'
 
 const Container = styled('div')({
   height: '100vh',
@@ -387,14 +388,11 @@ const App = () => {
           )}
         </Body>
         <Footer />
-        <Dialog
+        <LoadingModal
+          text="Waiting for Approval..."
           open={isApprovalModalOpen}
           onClose={() => setIsApprovalModalOpen(false)}
-        >
-          <Logo
-            src={'https://cryptoz.cards/assets/cryptokeeper_logo_binance.png'}
-          />
-        </Dialog>
+        />
       </Router>
     </Container>
   )
