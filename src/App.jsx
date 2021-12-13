@@ -1,6 +1,6 @@
 import DialogSource from '@mui/material/Dialog'
 import useBlockchain from './hooks/useBlockchain'
-import zoombiesLogo from './assets/zoombies_head.svg'
+import zoomTokenLogo from './assets/zoombies_coin.svg'
 import liveFeedIcon from './assets/live-feed.png'
 import React, { useContext, useEffect, useState } from 'react'
 import Navbar from 'components/Navbar'
@@ -49,13 +49,17 @@ const Logo = styled('img')({
   height: '40px',
 })
 
-const Header = styled('div')({
+const TitleLabelText = styled('span')({
+  marginLeft: '16px',
+})
+
+const Header = styled('div')(({ theme }) => ({
   height: '75px',
   background: '#301748',
   display: 'flex',
   alignItems: 'center',
+  fontWeight: 500,
 
-  fontWeight: '500',
   fontSize: '16px',
   color: 'white',
 
@@ -70,7 +74,19 @@ const Header = styled('div')({
     marginLeft: 'auto',
     marginRight: '32px',
   },
-})
+
+  [theme.breakpoints.down('md')]: {
+    '& img': {
+      width: '40px',
+    },
+  },
+
+  [theme.breakpoints.down('sm')]: {
+    '& img': {
+      width: '25px',
+    },
+  },
+}))
 
 const Footer = styled('div')({
   height: '0px',
@@ -198,23 +214,23 @@ const App = () => {
 
     const getSettleType = (liveFeedItem) => {
       const condition = (item) => {
-        return item.itemNumber === liveFeedItem.itemNumber;
-      };
+        return item.itemNumber === liveFeedItem.itemNumber
+      }
 
       if (myAuctions.bids.some(condition)) {
-        return 'settlemybid';
+        return 'settlemybid'
       }
       if (liveFeedItem.winner === address) {
-        return 'win';
+        return 'win'
       }
       if (
         myAuctions.listings.some(condition) ||
         liveFeedItem.seller === address
       ) {
-        return 'sold';
+        return 'sold'
       }
-      return 'settle';
-    };
+      return 'settle'
+    }
 
     setIsMobileDrawerOpen(isDesktop)
     const tokenNewAuction = PubSub.subscribe(
@@ -255,30 +271,33 @@ const App = () => {
       } else {
         filterKey = 'MyAlerts'
       }
-      addLiveFeedItem(bid, filterKey);
-    });
-
-    const tokenSettled = PubSub.subscribe(EVENT_TYPES.Settled, async (msg, data) => {
-      const settleData = data
-      let filterKey = ""
-
-      const settleType = getSettleType(settleData)
-
-      settleData["type"] = settleType
-      if (settleType === "settle") {
-        filterKey = "General"
-      } else {
-        filterKey = "MyAlerts"
-      }
-      addLiveFeedItem(settleData, filterKey)
+      addLiveFeedItem(bid, filterKey)
     })
 
+    const tokenSettled = PubSub.subscribe(
+      EVENT_TYPES.Settled,
+      async (msg, data) => {
+        const settleData = data
+        let filterKey = ''
+
+        const settleType = getSettleType(settleData)
+
+        settleData['type'] = settleType
+        if (settleType === 'settle') {
+          filterKey = 'General'
+        } else {
+          filterKey = 'MyAlerts'
+        }
+        addLiveFeedItem(settleData, filterKey)
+      }
+    )
+
     return () => {
-      PubSub.unsubscribe(tokenNewAuction);
-      PubSub.unsubscribe(tokenBid);
-      PubSub.unsubscribe(tokenSettled);
-    };
-  }, [queryClient, isDesktop, address, myAuctions, MarketContract]);
+      PubSub.unsubscribe(tokenNewAuction)
+      PubSub.unsubscribe(tokenBid)
+      PubSub.unsubscribe(tokenSettled)
+    }
+  }, [queryClient, isDesktop, address, myAuctions, MarketContract])
 
   const LiveFeedButton = () => {
     return (
@@ -287,7 +306,9 @@ const App = () => {
         className={'btn-livefeed'}
       >
         <img src={liveFeedIcon} alt={'Live Feed'} />
-        <NotificationAddon onClick={() => setIsLiveFeedOpen((prevState) => !prevState)}/>
+        <NotificationAddon
+          onClick={() => setIsLiveFeedOpen((prevState) => !prevState)}
+        />
       </Button>
     )
   }
@@ -302,7 +323,7 @@ const App = () => {
               size="lg"
               onClick={() => setIsMobileDrawerOpen(false)}
             />
-            <NotificationAddon onClick={() => setIsMobileDrawerOpen(false)}/>
+            <NotificationAddon onClick={() => setIsMobileDrawerOpen(false)} />
           </>
         ) : (
           <>
@@ -311,11 +332,10 @@ const App = () => {
               size="lg"
               onClick={() => setIsMobileDrawerOpen(true)}
             />
-            <NotificationAddon onClick={() => setIsMobileDrawerOpen(true)}/>
+            <NotificationAddon onClick={() => setIsMobileDrawerOpen(true)} />
           </>
-
         )}
-        <NotificationAddon/>
+        <NotificationAddon />
       </HamburgerMenuButton>
     )
   }
@@ -324,8 +344,9 @@ const App = () => {
     <Container>
       <Router>
         <Header>
-          <img src={zoombiesLogo} alt={'ZOOM'} />
-          <h1>Zoombies Market</h1>
+          <img alt="MOVR Token" src="https://zoombies.world/images/mr-icon.png" />
+          <h1>Zoom </h1> <img src={zoomTokenLogo} alt={'ZOOM token'} />
+          <h1>Market</h1> <TitleLabelText>Never pay commission!</TitleLabelText>
           {isDesktop ? <LiveFeedButton /> : <MobileHamburgerMenu />}
         </Header>
         <Body>
