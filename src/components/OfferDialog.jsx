@@ -7,6 +7,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components/macro';
+import { ethers } from 'ethers'
 
 const FlexRow = styled.div`
   display: flex;
@@ -28,6 +29,7 @@ const OfferDialog = ({
   quickBid,
   mylisting
 }) => {
+  console.log("opened:",minAmount.toString());
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState(minAmount);
   const [inputInvalid, setInputInvalid] = useState('');
@@ -71,13 +73,15 @@ const OfferDialog = ({
   };
 
   const handleConfirm = () => {
-    if (parseFloat(input) < minAmount) {
+    console.log("Dialog input:", input.toString(), minAmount.toString());
+
+    if (input.lt(ethers.utils.parseEther(minAmount.toString()))) {
       setInputInvalid('Set bigger amount');
     } else if (parseFloat(input) > maxAmount) {
       setInputInvalid("You don't have enough coin");
     } else {
       setInputInvalid('');
-      onConfirm(parseFloat(input));
+      onConfirm(input);
       setOpen(false);
     }
   };
@@ -119,7 +123,7 @@ const OfferDialog = ({
               value={
                 currency === 'ZOOM'
                   ? parseInt(input).toString()
-                  : parseFloat(input).toFixed(4)
+                  : ethers.utils.formatEther(input)
               }
               onChange={handleAmountChanged}
               onKeyDown={onKeyDown}
@@ -135,6 +139,7 @@ const OfferDialog = ({
           <Button
             variant="contained"
             onClick={() => {
+              console.log("at click",input);
               handleConfirm(input);
             }}
           >

@@ -322,15 +322,28 @@ const ListingMetadata = ({
       ? listing.highestBid
       : listing.minPrice
 
+/*
   const minOfferAmount =
     Math.max(parseFloat(listing.highestBid), parseFloat(listing.minPrice)) +
     minIncrement
+*/
+  const minOfferAmount =
+      ethers.utils.parseEther(listing.highestBid.toString()).gt(ethers.utils.parseEther(listing.minPrice.toString())) ? ethers.utils.parseEther(listing.highestBid.toString()) : ethers.utils.parseEther(listing.minPrice.toString());
+
+      console.log("minOfferAmount before", minOfferAmount.toString());
+      minOfferAmount.add(ethers.utils.parseEther(minIncrement.toString()));
+      console.log("minOfferAmount after", minOfferAmount.toString());
+
+
   const maxOfferAmount =
     listing.currency === 'ZOOM' ? zoomBalance : wmovrBalance
   const canBid =
     listing.currency === 'ZOOM'
-      ? zoomBalance > minOfferAmount
-      : wmovrBalance > minOfferAmount
+      ? ethers.utils.parseEther(zoomBalance).gt(minOfferAmount)
+      : ethers.utils.parseEther(wmovrBalance).gt(minOfferAmount)
+
+console.log("minIncrement",minIncrement);
+console.log("minOfferAmount",listing.highestBid, minOfferAmount.toString());
 
   return (
     <ListingMetadataWrapper>
@@ -517,6 +530,7 @@ const ViewListing = () => {
       const { currency, id } = auctionItem
       let currencyContract
 
+      console.log("Pre:", amount);
       if (
         parseFloat(amount) <
         Math.max(
@@ -538,7 +552,9 @@ const ViewListing = () => {
           throw new Error(`Unhandled currency type: ${currency}`)
       }
 
+      console.log("amount me:",amount.toString());
       const weiAmount = ethers.utils.parseEther(amount.toString())
+      console.log("ITs me:",weiAmount.toString());
 
       const approveTx = await currencyContract.approve(
         marketContractAddress,
@@ -548,7 +564,7 @@ const ViewListing = () => {
       setApprovalModalOpen(true)
       await approveTx.wait()
       setApprovalModalOpen(false)
-      const bidTx = await contracts.MarketContract.bid(parseInt(id), weiAmount)
+      const bidTx = await contracts.MarketContract.bid(parseInt(id), weiAmount.toString())
       await bidTx.wait()
       setBidInProgress(false)
     }
