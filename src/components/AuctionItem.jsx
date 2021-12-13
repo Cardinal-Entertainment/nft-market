@@ -21,6 +21,7 @@ import { store } from '../store/store';
 import { ethers } from 'ethers';
 import OfferDialog from './OfferDialog';
 import { useFetchBids } from 'hooks/useBids';
+import { useNextMonthDisabled } from '@mui/lab/internal/pickers/hooks/date-helpers-hooks'
 
 const Container = styled(Grid)({
   display: 'flex',
@@ -291,9 +292,13 @@ const AuctionItem = ({ content }) => {
   };
 
   const handleConfirmBid = async (amount) => {
-    const { currency, itemNumber } = auctionItem;
+    const { itemNumber } = auctionItem;
+    let { currency } = auctionItem;
     let currencyContract;
 
+    if (currency !== undefined) {
+      currency = auctionItem.saleToken === zoomContractAddress ? "ZOOM" : (auctionItem.saleToken === wmovrContractAddress ? "WMOVR" : "");
+    }
     if (
       parseFloat(amount) <
       Math.max(
