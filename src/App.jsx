@@ -1,4 +1,3 @@
-import DialogSource from '@mui/material/Dialog'
 import useBlockchain from './hooks/useBlockchain'
 import zoomTokenLogo from './assets/zoombies_coin.svg'
 import liveFeedIcon from './assets/live-feed.png'
@@ -36,18 +35,6 @@ const Container = styled('div')({
   display: 'flex',
   flexDirection: 'column',
   overflow: 'hidden',
-})
-
-const Dialog = styled(DialogSource)({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  maxWidth: '500px',
-})
-
-const Logo = styled('img')({
-  width: '40px',
-  height: '40px',
 })
 
 const TitleLabelText = styled('span')({

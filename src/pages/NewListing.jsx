@@ -224,12 +224,13 @@ const NewListing = () => {
     const getIsApprovedForAll = async () => {
       if (contracts.ZoombiesContract != null) {
         const approved = await contracts.ZoombiesContract.isApprovedForAll(wallet.address, marketContractAddress);
+        console.log("approved", approved);
         setIsApprovedForAll(approved);
       }
     }
 
     getIsApprovedForAll().then();
-  }, [contracts.ZoombiesContract]);
+  }, [wallet.address, contracts.ZoombiesContract]);
 
   const handleCardClicked = (cardId) => {
     if (selectedCards[cardId]) {
@@ -283,8 +284,23 @@ const NewListing = () => {
     }
   }
 
+  const approveContract = async () => {
+    if (contracts.ZoombiesContract != null) {
+      const marketIsApproved = await contracts.ZoombiesContract.isApprovedForAll(
+        wallet.address,
+        marketContractAddress
+      )
+
+      if (!marketIsApproved) {
+        setIsApprovedForAll(false)
+        await contracts.ZoombiesContract.setApprovalForAll(marketContractAddress, true)
+        setIsApprovedForAll(true)
+      }
+    }
+  }
+
   const requestApproveAllNFT = async () => {
-    console.log("Call nftContract.setApprovalForAll(market.addres, true)");
+    await approveContract();
   }
 
   const onKeyDown = (e) => {

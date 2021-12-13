@@ -540,14 +540,14 @@ const ViewListing = () => {
 
       const weiAmount = ethers.utils.parseEther(amount.toString())
 
-      // const approveTx = await currencyContract.approve(
-      //   marketContractAddress,
-      //   weiAmount
-      // )
+      const approveTx = await currencyContract.approve(
+        marketContractAddress,
+        weiAmount
+      )
       setBidInProgress(true)
-      // setApprovalModalOpen(true)
-      // await approveTx.wait()
-      // setApprovalModalOpen(false)
+      setApprovalModalOpen(true)
+      await approveTx.wait()
+      setApprovalModalOpen(false)
       const bidTx = await contracts.MarketContract.bid(parseInt(id), weiAmount)
       await bidTx.wait()
       setBidInProgress(false)
