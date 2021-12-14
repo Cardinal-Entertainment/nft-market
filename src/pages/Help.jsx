@@ -40,7 +40,7 @@ const HelpPage = () => {
       }
     };
 
-    getZoomInfo();
+    getZoomInfo().then();
 
 
   }, [contracts.MarketContract,contracts.ZoomContract]);

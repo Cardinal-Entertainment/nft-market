@@ -210,19 +210,6 @@ const useBlockchain = () => {
       }
     }
 
-    const approveContract = async (address, ZoombiesContract) => {
-      const marketIsApproved = await ZoombiesContract.isApprovedForAll(
-        address,
-        marketContractAddress
-      )
-
-      if (!marketIsApproved) {
-        setIsApprovalModalOpen(true)
-        await ZoombiesContract.setApprovalForAll(marketContractAddress, true)
-        setIsApprovalModalOpen(false)
-      }
-    }
-
     const setupEthers = async () => {
       const metamaskProvider = await detectEthereumProvider({
         mustBeMetaMask: true,
@@ -268,7 +255,7 @@ const useBlockchain = () => {
           })
         })
 
-        const { ZoombiesContract, ZoomContract, WMOVRContract } =
+        const { ZoomContract, WMOVRContract } =
           await loadContracts(signer, network.chainId)
 
         const zoomBalance = await getWalletZoomBalance(ZoomContract, address)
@@ -281,7 +268,7 @@ const useBlockchain = () => {
           })
         )
 
-        await approveContract(address, ZoombiesContract)
+        // await approveContract(address, ZoombiesContract)
 
         window.ethereum.on('connected', handleConnect)
         window.ethereum.on('disconnect', handleDisconnect)

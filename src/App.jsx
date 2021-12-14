@@ -1,4 +1,3 @@
-import DialogSource from '@mui/material/Dialog'
 import useBlockchain from './hooks/useBlockchain'
 import zoomTokenLogo from './assets/zoombies_coin.svg'
 import liveFeedIcon from './assets/live-feed.png'
@@ -29,24 +28,13 @@ import {
 import { useFetchProfileQuery } from './hooks/useProfile'
 import { store } from 'store/store'
 import NotificationAddon from './components/NotificationAddon'
+import LoadingModal from './components/LoadingModal'
 
 const Container = styled('div')({
   height: '100vh',
   display: 'flex',
   flexDirection: 'column',
   overflow: 'hidden',
-})
-
-const Dialog = styled(DialogSource)({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  maxWidth: '500px',
-})
-
-const Logo = styled('img')({
-  width: '40px',
-  height: '40px',
 })
 
 const TitleLabelText = styled('span')({
@@ -387,14 +375,11 @@ const App = () => {
           )}
         </Body>
         <Footer />
-        <Dialog
+        <LoadingModal
+          text="Waiting for Approval..."
           open={isApprovalModalOpen}
           onClose={() => setIsApprovalModalOpen(false)}
-        >
-          <Logo
-            src={'https://cryptoz.cards/assets/cryptokeeper_logo_binance.png'}
-          />
-        </Dialog>
+        />
       </Router>
     </Container>
   )

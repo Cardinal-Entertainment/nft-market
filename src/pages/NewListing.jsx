@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import Button from '@mui/material/Button'
 import styled from 'styled-components/macro'
 import SelectSource from '@mui/material/Select'
@@ -24,6 +24,7 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import CheckCircle from '@mui/icons-material/CheckCircle';
 
 const Container = styled.div`
   flex: 1;
@@ -213,10 +214,23 @@ const NewListing = () => {
   const [selectedCurrency, setSelectedCurrency] = useState(CURRENCY_TYPES.WMOVR)
   const [selectedCards, setSelectedCards] = useState({})
   const [approveZoomInProgress, setApproveZoomInProgress] = useState(false)
+  const [isApprovedForAll, setIsApprovedForAll] = useState(false)
 
   const {
     state: { contracts, wallet },
   } = useContext(store)
+
+  useEffect(() => {
+    const getIsApprovedForAll = async () => {
+      if (contracts.ZoombiesContract != null) {
+        const approved = await contracts.ZoombiesContract.isApprovedForAll(wallet.address, marketContractAddress);
+        console.log("approved", approved);
+        setIsApprovedForAll(approved);
+      }
+    }
+
+    getIsApprovedForAll().then();
+  }, [wallet.address, contracts.ZoombiesContract]);
 
   const handleCardClicked = (cardId) => {
     if (selectedCards[cardId]) {
@@ -268,6 +282,25 @@ const NewListing = () => {
       setApproveZoomInProgress(false);
       setCreateInProgress(false)
     }
+  }
+
+  const approveContract = async () => {
+    if (contracts.ZoombiesContract != null) {
+      const marketIsApproved = await contracts.ZoombiesContract.isApprovedForAll(
+        wallet.address,
+        marketContractAddress
+      )
+
+      if (!marketIsApproved) {
+        setIsApprovedForAll(false)
+        await contracts.ZoombiesContract.setApprovalForAll(marketContractAddress, true)
+        setIsApprovedForAll(true)
+      }
+    }
+  }
+
+  const requestApproveAllNFT = async () => {
+    await approveContract();
   }
 
   const onKeyDown = (e) => {
@@ -374,12 +407,25 @@ const NewListing = () => {
           <span>Select NFTs below from your Crypt to add to the listing:</span>
         </FlexRow>
         <FlexRow>
+          {
+            isApprovedForAll ?
+              (<><CheckCircle color="success" />NFT listing Approved</>):
+              (<Button
+                variant="contained"
+                color="error"
+                onClick={requestApproveAllNFT}>
+                Approve Market to list NFTs
+              </Button>)
+          }
+        </FlexRow>
+        <FlexRow>
+        {<CheckCircle color="success" />}
           <div className="zoom-burn-fee">
-            Zoom Burn Fee:{' '}
+            Zoom <StyledLogo src={zoomLogo} /> Burn Fee:{' '}
             {data && data.zoomBurnFee
               ? data.zoomBurnFee * numberOfSelectedCards
               : 0}{' '}
-            <StyledLogo src={zoomLogo} />{' '}
+            {' '}
           </div>
         </FlexRow>
         <NFTContainer>
@@ -403,7 +449,8 @@ const NewListing = () => {
               isDateError ||
               listPrice === '' ||
               parseFloat(listPrice) <= 0 ||
-              !haveEnoughZoom
+              !haveEnoughZoom ||
+              !isApprovedForAll
             }
             onClick={createListing}
           >
