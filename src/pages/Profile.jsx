@@ -219,7 +219,7 @@ const userListingColumns = [
 
 const handleRowClick = (params, history) => {
   try {
-    const itemNumber = parseInt(params.row.itemNumber.replace('#', ''))
+    const itemNumber = parseInt(params.row.itemNumber)
     history.push(`/listing/${itemNumber}`)
   } catch (err) {
     console.error(`Failed to parse itemNumber: ${params.row.itemNumber}`)

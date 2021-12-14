@@ -22,8 +22,10 @@ const ModalContent = styled.div`
 const LoadingModal = (props) => {
   const text = props.text || 'Loading...';
   const isOpen = props.open;
+  const onClose = props.onClose;
+
   return (
-    <Modal open={isOpen}>
+    <Modal open={isOpen} onClose={onClose ? onClose : null}>
       <ModalContent>
         <div>{text}</div>
         <CircularProgress />
