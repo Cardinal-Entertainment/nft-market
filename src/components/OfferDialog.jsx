@@ -73,11 +73,12 @@ const OfferDialog = ({
   };
 
   const handleConfirm = () => {
-    console.log("Dialog input:", input.toString(), minAmount.toString());
+    console.log("Dialog input,min,max:", input.toString(), minAmount.toString(),maxAmount.toString());
 
-    if (input.lt(ethers.utils.parseEther(minAmount.toString()))) {
+    if (input.lt(minAmount.toString())) {
+      console.log('WHAT THE HELL');
       setInputInvalid('Set bigger amount');
-    } else if (parseFloat(input) > maxAmount) {
+    } else if (input.gt(ethers.utils.parseEther(maxAmount.toString()))) {
       setInputInvalid("You don't have enough coin");
     } else {
       setInputInvalid('');
@@ -139,7 +140,7 @@ const OfferDialog = ({
           <Button
             variant="contained"
             onClick={() => {
-              console.log("at click",input);
+              console.log("at click",input.toString());
               handleConfirm(input);
             }}
           >
