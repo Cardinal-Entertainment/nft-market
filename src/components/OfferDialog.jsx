@@ -34,6 +34,8 @@ const OfferDialog = ({
   const [input, setInput] = useState(minAmount);
   const [inputInvalid, setInputInvalid] = useState('');
 
+console.log("dialog input start:",input.toString());
+
   useEffect(() => {
     setInput(minAmount);
   }, [minAmount]);
@@ -123,8 +125,8 @@ const OfferDialog = ({
               variant="standard"
               value={
                 currency === 'ZOOM'
-                  ? parseInt(input).toString()
-                  : ethers.utils.formatEther(input)
+                  ? ethers.utils.formatEther(input.toString())
+                  : ethers.utils.formatEther(input.toString())
               }
               onChange={handleAmountChanged}
               onKeyDown={onKeyDown}

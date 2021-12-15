@@ -327,11 +327,13 @@ const ListingMetadata = ({
     Math.max(parseFloat(listing.highestBid), parseFloat(listing.minPrice)) +
     minIncrement
 */
-  const minOfferAmount =
-      ethers.utils.parseEther(listing.highestBid.toString()).gt(ethers.utils.parseEther(listing.minPrice.toString())) ? ethers.utils.parseEther(listing.highestBid.toString()) : ethers.utils.parseEther(listing.minPrice.toString());
+  let minOfferAmount =
+      ethers.utils.parseEther(listing.highestBid.toString()).gt(ethers.utils.parseEther(listing.minPrice.toString()))
+      ? ethers.utils.parseEther(listing.highestBid.toString())
+      : ethers.utils.parseEther(listing.minPrice.toString());
 
-      console.log("minOfferAmount before", minOfferAmount.toString());
-      minOfferAmount.add(ethers.utils.parseEther(minIncrement.toString()));
+      console.log("minOfferAmount before", minOfferAmount, minOfferAmount.toString(), minIncrement);
+      minOfferAmount = minOfferAmount.add(ethers.utils.parseEther(minIncrement.toString()));
       console.log("minOfferAmount after", minOfferAmount.toString());
 
 
@@ -341,9 +343,6 @@ const ListingMetadata = ({
     listing.currency === 'ZOOM'
       ? ethers.utils.parseEther(zoomBalance).gt(minOfferAmount)
       : ethers.utils.parseEther(wmovrBalance).gt(minOfferAmount)
-
-console.log("minIncrement",minIncrement);
-console.log("minOfferAmount",listing.highestBid, minOfferAmount.toString());
 
   return (
     <ListingMetadataWrapper>
@@ -460,6 +459,8 @@ const ViewListing = () => {
     state: { contracts, wallet, zoomIncrement, wmovrIncrement },
   } = useContext(store)
 
+  console.log("wmovrIncrement", wmovrIncrement);
+
   const { zoomBalance, wmovrBalance } = wallet
   const { MarketContract } = contracts
 
@@ -552,19 +553,16 @@ const ViewListing = () => {
           throw new Error(`Unhandled currency type: ${currency}`)
       }
 
-      console.log("amount me:",amount.toString());
-      const weiAmount = ethers.utils.parseEther(amount.toString())
-      console.log("ITs me:",weiAmount.toString());
-
       const approveTx = await currencyContract.approve(
         marketContractAddress,
-        weiAmount
+        amount.toString()
       )
+
       setBidInProgress(true)
       setApprovalModalOpen(true)
       await approveTx.wait()
       setApprovalModalOpen(false)
-      const bidTx = await contracts.MarketContract.bid(parseInt(id), weiAmount.toString())
+      const bidTx = await contracts.MarketContract.bid(parseInt(id), amount.toString())
       await bidTx.wait()
       setBidInProgress(false)
     }
