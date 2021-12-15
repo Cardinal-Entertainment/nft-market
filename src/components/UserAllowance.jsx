@@ -1,4 +1,4 @@
-import { Button, CircularProgress, Grid, Input } from '@mui/material'
+import { Button, CircularProgress, Grid, TextField } from '@mui/material'
 import React, { useContext,useState } from 'react';
 import { store } from 'store/store';
 import { useGetZoomAllowanceQuery } from '../hooks/useProfile'
@@ -116,14 +116,16 @@ const UserAllowance = () => {
               max={zoomBalance ? parseInt(zoomBalance) : 0}
             />
           </Grid>
-          <Grid item xs={6} md={3}>
-            <Input
+          <Grid item xs={9} md={3}>
+            <TextField
               value={zoomAllowance}
-              style={{width: '100%'}}
               size="large"
               fullWidth
               onChange={handleInputChange}
               onBlur={handleBlur}
+              error={parseInt(zoomBalance) < zoomAllowance}
+              helperText={parseInt(zoomBalance) < zoomAllowance ? 'Exceeds your ZOOM balance' : null}
+              variant={"standard"}
               inputProps={{
                 step: 500,
                 min: 0,
@@ -131,7 +133,7 @@ const UserAllowance = () => {
                 type: 'number',
                 'aria-labelledby': 'input-slider',
               }}
-            ></Input>
+            />
           </Grid>
         </Grid>
         <Grid className="button-wrapper">
