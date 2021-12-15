@@ -443,15 +443,14 @@ console.log("home page: amount:", amount);
             <OfferDialog
               currency={coinType}
               minAmount={
-                Math.max(
-                  parseFloat(auctionItem.highestBid),
-                  parseFloat(auctionItem.minPrice)
-                ) + parseFloat(minIncrement)
+                ethers.utils.parseEther(auctionItem.highestBid.toString()).gt(ethers.utils.parseEther(auctionItem.minPrice.toString()))
+                  ? ethers.utils.parseEther(auctionItem.highestBid.toString()).add(ethers.utils.parseEther(minIncrement.toString()))
+                  : ethers.utils.parseEther(auctionItem.minPrice.toString()).add(ethers.utils.parseEther(minIncrement.toString()))
               }
               maxAmount={
                 coinType === 'ZOOM'
-                  ? parseFloat(wallet.zoomBalance)
-                  : parseFloat(wallet.wmovrBalance)
+                  ? (wallet.zoomBalance)
+                  : (wallet.wmovrBalance)
               }
               onConfirm={handleConfirmBid}
               disabled={moment().isAfter(moment.unix(auctionItem.auctionEnd)) || bidInProgress || auctionItem.lister === wallet.address}

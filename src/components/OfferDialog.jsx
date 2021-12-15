@@ -31,11 +31,8 @@ const OfferDialog = ({
 }) => {
   console.log("opened:",minAmount.toString());
   const [open, setOpen] = useState(false);
-  let [input, setInput] = useState(minAmount);
+  const [input, setInput] = useState(ethers.utils.parseEther(minAmount.toString()));
   const [inputInvalid, setInputInvalid] = useState('');
-
-console.log("dialog input start:",input.toString());
-  input = ethers.utils.parseEther(input.toString());
 
   useEffect(() => {
     setInput(minAmount);
@@ -102,7 +99,7 @@ console.log("dialog input start:",input.toString());
           mylisting ? 'My Listing' :
             (quickBid
               ? 'Quick bid (' +
-              Math.round(minAmount * 10000) / 10000.0 +
+              ethers.utils.formatEther(minAmount) +
               ' ' +
               currency +
               ')'
