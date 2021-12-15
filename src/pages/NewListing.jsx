@@ -17,7 +17,7 @@ import {
   ZoombiesStableEndpoint,
   ZoombiesTestingEndpoint,
 } from '../constants'
-import { useFetchUserNFTQuery } from 'hooks/useProfile'
+import { useFetchUserNFTQuery, useGetZoomAllowanceQuery } from 'hooks/useProfile'
 import zoomLogo from '../assets/zoombies_coin.svg'
 import LoadingModal from 'components/LoadingModal'
 import Accordion from '@mui/material/Accordion';
@@ -339,6 +339,13 @@ const NewListing = () => {
   const haveEnoughZoom =
     wallet?.zoomBalance > numberOfSelectedCards * data?.zoomBurnFee
 
+  const { data: currentAllowance, isLoadingAllowance } = useGetZoomAllowanceQuery(
+    wallet.address,
+    contracts.ZoomContract
+  )
+
+  const exceedZoomAllowance = numberOfSelectedCards * data?.zoomBurnFee > currentAllowance
+
   return (
     <Container>
       <LoadingModal
@@ -419,17 +426,30 @@ const NewListing = () => {
           }
         </FlexRow>
         <FlexRow>
-        {<CheckCircle color="success" />}
-          <div className="zoom-burn-fee">
-            Zoom <StyledLogo src={zoomLogo} /> Burn Fee:{' '}
-            {data && data.zoomBurnFee
-              ? data.zoomBurnFee * numberOfSelectedCards
-              : 0}{' '}
-            {' '}
-          </div>
+          {
+            !exceedZoomAllowance ?
+              (
+                <>
+                  <CheckCircle color="success" />
+                  <div className="zoom-burn-fee">
+                    Zoom <StyledLogo src={zoomLogo} /> Burn Fee:{' '}
+                    {data && data.zoomBurnFee
+                      ? data.zoomBurnFee * numberOfSelectedCards
+                      : 0}{' '}
+                    { currentAllowance !== undefined ? '(Allowance : ' + currentAllowance + ')' : ''}
+                  </div>
+                </>
+              ) :
+              (
+                <Button>
+                  Increate ZOOM Allowance
+                </Button>
+              )
+          }
+
         </FlexRow>
         <NFTContainer>
-          {isLoading ? (
+          {isLoading || isLoadingAllowance ? (
             <CircularProgress />
           ) : (
             renderUserNFTs(
@@ -450,7 +470,8 @@ const NewListing = () => {
               listPrice === '' ||
               parseFloat(listPrice) <= 0 ||
               !haveEnoughZoom ||
-              !isApprovedForAll
+              !isApprovedForAll ||
+              exceedZoomAllowance
             }
             onClick={createListing}
           >
