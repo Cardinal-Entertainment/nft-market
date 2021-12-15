@@ -25,6 +25,8 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CheckCircle from '@mui/icons-material/CheckCircle';
+import UserAllowance from '../components/UserAllowance'
+import Typography from '@mui/material/Typography'
 
 const Container = styled.div`
   flex: 1;
@@ -441,9 +443,18 @@ const NewListing = () => {
                 </>
               ) :
               (
-                <Button>
-                  Increate ZOOM Allowance
-                </Button>
+                <Accordion>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel1a-content"
+                    id="panel1a-header"
+                  >
+                    <Typography variant="h8">Increase ZOOM Allowance</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <UserAllowance />
+                  </AccordionDetails>
+                </Accordion>
               )
           }
 
