@@ -257,12 +257,12 @@ const AuctionItem = ({ content }) => {
   useEffect(() => {
     const updateRemainingTime = () => {
       const timeDiff = moment.unix(auctionItem.auctionEnd).diff(moment()) / 1000;
-  
+
       const remainingDays = Math.floor(timeDiff / (3600 * 24));
       const remainingHours = Math.floor((timeDiff % (3600 * 24)) / 3600);
       const remainingMinutes = Math.floor((timeDiff % 3600) / 60);
       const remainingSeconds = Math.floor(timeDiff % 60);
-  
+
       setRemainingTime(
         formatTwoPlace(remainingDays) +
           'd ' +
@@ -318,7 +318,7 @@ const AuctionItem = ({ content }) => {
       default:
         throw new Error(`Unhandled currency type: ${currency}`);
     }
-
+console.log("home page: amount:", amount);
     const weiAmount = ethers.utils.parseEther(amount.toString());
 
     const approveTx = await currencyContract.approve(

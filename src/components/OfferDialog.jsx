@@ -31,10 +31,11 @@ const OfferDialog = ({
 }) => {
   console.log("opened:",minAmount.toString());
   const [open, setOpen] = useState(false);
-  const [input, setInput] = useState(minAmount);
+  let [input, setInput] = useState(minAmount);
   const [inputInvalid, setInputInvalid] = useState('');
 
 console.log("dialog input start:",input.toString());
+  input = ethers.utils.parseEther(input.toString());
 
   useEffect(() => {
     setInput(minAmount);
