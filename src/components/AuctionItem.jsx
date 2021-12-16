@@ -257,12 +257,12 @@ const AuctionItem = ({ content }) => {
   useEffect(() => {
     const updateRemainingTime = () => {
       const timeDiff = moment.unix(auctionItem.auctionEnd).diff(moment()) / 1000;
-  
+
       const remainingDays = Math.floor(timeDiff / (3600 * 24));
       const remainingHours = Math.floor((timeDiff % (3600 * 24)) / 3600);
       const remainingMinutes = Math.floor((timeDiff % 3600) / 60);
       const remainingSeconds = Math.floor(timeDiff % 60);
-  
+
       setRemainingTime(
         formatTwoPlace(remainingDays) +
           'd ' +
@@ -318,7 +318,7 @@ const AuctionItem = ({ content }) => {
       default:
         throw new Error(`Unhandled currency type: ${currency}`);
     }
-
+console.log("home page: amount:", amount);
     const weiAmount = ethers.utils.parseEther(amount.toString());
 
     const approveTx = await currencyContract.approve(
@@ -443,15 +443,14 @@ const AuctionItem = ({ content }) => {
             <OfferDialog
               currency={coinType}
               minAmount={
-                Math.max(
-                  parseFloat(auctionItem.highestBid),
-                  parseFloat(auctionItem.minPrice)
-                ) + parseFloat(minIncrement)
+                ethers.utils.parseEther(auctionItem.highestBid.toString()).gt(ethers.utils.parseEther(auctionItem.minPrice.toString()))
+                  ? ethers.utils.parseEther(auctionItem.highestBid.toString()).add(ethers.utils.parseEther(minIncrement.toString()))
+                  : ethers.utils.parseEther(auctionItem.minPrice.toString()).add(ethers.utils.parseEther(minIncrement.toString()))
               }
               maxAmount={
                 coinType === 'ZOOM'
-                  ? parseFloat(wallet.zoomBalance)
-                  : parseFloat(wallet.wmovrBalance)
+                  ? (wallet.zoomBalance)
+                  : (wallet.wmovrBalance)
               }
               onConfirm={handleConfirmBid}
               disabled={moment().isAfter(moment.unix(auctionItem.auctionEnd)) || bidInProgress || auctionItem.lister === wallet.address}

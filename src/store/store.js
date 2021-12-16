@@ -30,7 +30,7 @@ const initialState = {
   myEvents: [],
   myNewEventsCount: 0,
   zoomIncrement: 25000,
-  wmovrIncrement: 0.0025,
+  wmovrIncrement: 0.02,
 };
 
 const store = createContext(initialState);
