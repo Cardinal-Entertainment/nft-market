@@ -134,7 +134,7 @@ const NFTContainer = styled.div`
   align-items: start;
   justify-content: center;
   grid-template-columns: repeat(auto-fit, minmax(calc(0.55 * 260px), 1fr));
-  min-height: 270px;
+  min-height: 310px;
   overflow-y: auto;
   border-radius: 4px;
   box-shadow: 0 6px 4px -4px gray;
@@ -262,17 +262,6 @@ const NewListing = () => {
   const createListing = async () => {
     setCreateInProgress(true)
     try {
-      const zoomBurn = data?.zoomBurnFee
-        ? data.zoomBurnFee * numberOfSelectedCards
-        : 0
-      const weiAmount = ethers.utils.parseEther(zoomBurn.toString())
-      setApproveZoomInProgress(true)
-      const tx = await contracts.ZoomContract.approve(
-        marketContractAddress,
-        weiAmount
-      )
-      await tx.wait()
-      setApproveZoomInProgress(false)
       await contracts.MarketContract.listItem(
         parseInt((new Date(dateTime).getTime() / 1000).toFixed(0)),
         ethers.utils.parseEther(listPrice),
@@ -445,7 +434,7 @@ const NewListing = () => {
                 {data && data.zoomBurnFee
                   ? data.zoomBurnFee * numberOfSelectedCards
                   : 0}{' '}
-                { currentAllowance !== undefined ? `(Allowance : ' + ${currentAllowance} + ')` : ''}
+                { currentAllowance !== undefined ? `(Allowance : ${currentAllowance})` : ''}
               </div>
             </FlexRow>
             {
