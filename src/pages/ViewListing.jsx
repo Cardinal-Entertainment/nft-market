@@ -532,14 +532,14 @@ const ViewListing = () => {
       let currencyContract
 
       console.log("Pre:", amount);
-      if (
-        parseFloat(amount) <
-        Math.max(
-          auctionItem?.highestBid + minIncrement,
-          auctionItem?.minAmount + minIncrement
-        )
-      ) {
-        throw new Error(`Invalid amount valid : ${amount}`)
+
+      const minAmount = ethers.utils.parseEther(auctionItem?.highestBid.toString()).add(ethers.utils.parseEther(minIncrement.toString()))
+        .gt(ethers.utils.parseEther(auctionItem?.minPrice.toString()).add(ethers.utils.parseEther(minIncrement.toString()))) ?
+        ethers.utils.parseEther(auctionItem?.highestBid.toString()).add(ethers.utils.parseEther(minIncrement.toString())) :
+        ethers.utils.parseEther(auctionItem?.minPrice.toString()).add(ethers.utils.parseEther(minIncrement.toString()))
+
+      if (ethers.utils.parseEther(amount.toString()).lt(minAmount)) {
+        throw new Error(`Invalid amount valid : ${amount}`);
       }
 
       switch (currency) {

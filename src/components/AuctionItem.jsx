@@ -298,13 +298,16 @@ const AuctionItem = ({ content }) => {
     if (currency === undefined) {
       currency = auctionItem.saleToken === zoomContractAddress ? "ZOOM" : (auctionItem.saleToken === wmovrContractAddress ? "WMOVR" : "");
     }
-    if (
-      parseFloat(amount) <
-      Math.max(
-        auctionItem?.highestBid + parseFloat(minIncrement),
-        auctionItem?.minAmount + parseFloat(minIncrement)
-      )
-    ) {
+
+    const minAmount = ethers.utils.parseEther(auctionItem?.highestBid.toString()).add(ethers.utils.parseEther(minIncrement.toString()))
+      .gt(ethers.utils.parseEther(auctionItem?.minPrice.toString()).add(ethers.utils.parseEther(minIncrement.toString()))) ?
+      ethers.utils.parseEther(auctionItem?.highestBid.toString()).add(ethers.utils.parseEther(minIncrement.toString())) :
+      ethers.utils.parseEther(auctionItem?.minPrice.toString()).add(ethers.utils.parseEther(minIncrement.toString()))
+
+    console.log("ZOOM balance", wallet.zoomBalance);
+    console.log("WMOVR balance", wallet.wmovrBalance);
+
+    if (ethers.utils.parseEther(amount.toString()).lt(minAmount)) {
       throw new Error(`Invalid amount valid : ${amount}`);
     }
 
