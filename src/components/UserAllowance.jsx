@@ -58,7 +58,7 @@ const UserAllowance = ({ initial }) => {
 
   const handleInputChange = (event) => {
     setZoomAllowance(
-      event.target.value === '' ? '' : Number(event.target.value)
+      event.target.value === '' ? 0 : Number(event.target.value)
     )
   }
 
@@ -107,61 +107,59 @@ const UserAllowance = ({ initial }) => {
   }
 
   return (
-    <>
-      <UserAllowanceWrapper>
-        {isLoading ? (
-          <CircularProgress></CircularProgress>
-        ) : (
-          <h2>Your current zoom allowance: {currentAllowance} ZOOM</h2>
-        )}
-        <Grid className="slider-wrapper" container>
-          <Grid className="slider" item xs={12} md={9}>
-            <Slider
-              value={zoomAllowance}
-              onChange={handleSliderChange}
-              aria-labelledby="input-slider"
-              min={0}
-              max={maxZOOMAllowance}
-            />
-          </Grid>
-          <Grid item xs={9} md={3}>
-            <TextField
-              value={zoomAllowance}
-              size="large"
-              fullWidth
-              onChange={handleInputChange}
-              onBlur={handleBlur}
-              error={parseInt(zoomBalance) < zoomAllowance}
-              helperText={parseInt(zoomBalance) < zoomAllowance ? 'Exceeds your ZOOM balance' : null}
-              variant={"standard"}
-              inputProps={{
-                step: 500,
-                min: 0,
-                max: parseInt(zoomBalance) || 0,
-                type: 'number',
-                'aria-labelledby': 'input-slider',
-              }}
-            />
-          </Grid>
+    <UserAllowanceWrapper className={"helloworld"}>
+      {isLoading ? (
+        <CircularProgress></CircularProgress>
+      ) : (
+        <h2>Your current zoom allowance: {currentAllowance} ZOOM</h2>
+      )}
+      <Grid className="slider-wrapper" container>
+        <Grid className="slider" item xs={12} md={8}>
+          <Slider
+            value={zoomAllowance}
+            onChange={handleSliderChange}
+            aria-labelledby="input-slider"
+            min={0}
+            max={maxZOOMAllowance}
+          />
         </Grid>
-        <Grid className="button-wrapper">
-          <Button
-            style={{
-              minWidth: '150px',
+        <Grid item xs={6} md={4}>
+          <TextField
+            value={zoomAllowance === 0 ? '' : zoomAllowance}
+            size="large"
+            fullWidth
+            onChange={handleInputChange}
+            onBlur={handleBlur}
+            error={parseInt(zoomBalance) < zoomAllowance}
+            helperText={parseInt(zoomBalance) < zoomAllowance ? 'Exceeds your ZOOM balance' : null}
+            variant={"standard"}
+            inputProps={{
+              step: 500,
+              min: 0,
+              max: parseInt(zoomBalance) || 0,
+              type: 'number',
+              'aria-labelledby': 'input-slider',
             }}
-            onClick={onSetZoomAllowance}
-            disabled={isSettingAllowance}
-            variant="contained"
-          >
-            {isSettingAllowance ? (
-              <CircularProgress />
-            ) : (
-              `Set Zoom Allowance (${zoomAllowance} zoom)`
-            )}
-          </Button>
+          />
         </Grid>
-      </UserAllowanceWrapper>
-    </>
+      </Grid>
+      <Grid className="button-wrapper">
+        <Button
+          style={{
+            minWidth: '150px',
+          }}
+          onClick={onSetZoomAllowance}
+          disabled={isSettingAllowance}
+          variant="contained"
+        >
+          {isSettingAllowance ? (
+            <CircularProgress />
+          ) : (
+            `Set Zoom Allowance (${zoomAllowance} zoom)`
+          )}
+        </Button>
+      </Grid>
+    </UserAllowanceWrapper>
   )
 }
 

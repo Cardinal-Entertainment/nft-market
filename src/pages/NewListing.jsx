@@ -345,13 +345,12 @@ const NewListing = () => {
   const haveEnoughZoom =
     wallet?.zoomBalance > numberOfSelectedCards * data?.zoomBurnFee
 
-  const { data: currentAllowance, isLoadingAllowance } = useGetZoomAllowanceQuery(
+  const { data: currentAllowance, isLoading: isLoadingAllowance } = useGetZoomAllowanceQuery(
     wallet.address,
     contracts.ZoomContract
   )
 
   const exceedZoomAllowance = numberOfSelectedCards * data?.zoomBurnFee > currentAllowance
-  console.log('exceedZoomAllowance', exceedZoomAllowance);
 
   return (
     <Container>
@@ -442,30 +441,28 @@ const NewListing = () => {
                 )
               }
               <div className="zoom-burn-fee">
-                Zoom <StyledLogo src={zoomLogo} /> Burn Fee:{' '}
+                Zoom <StyledLogo src={zoomLogo} /> Burn Fee:
                 {data && data.zoomBurnFee
                   ? data.zoomBurnFee * numberOfSelectedCards
                   : 0}{' '}
-                { currentAllowance !== undefined ? '(Allowance : ' + currentAllowance + ')' : ''}
+                { currentAllowance !== undefined ? `(Allowance : ' + ${currentAllowance} + ')` : ''}
               </div>
             </FlexRow>
             {
               exceedZoomAllowance &&
               (
-                <>
-                  <Accordion>
-                    <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
-                      aria-controls="panel1a-content"
-                      id="panel1a-header"
-                    >
-                      <Typography variant="h8">Increase ZOOM Allowance</Typography>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <UserAllowance initial={data.zoomBurnFee * numberOfSelectedCards}/>
-                    </AccordionDetails>
-                  </Accordion>
-                </>
+                <Accordion>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel1a-content"
+                    id="panel1a-header"
+                  >
+                    <Typography variant="h8">Increase ZOOM Allowance</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <UserAllowance initial={data.zoomBurnFee * numberOfSelectedCards}/>
+                  </AccordionDetails>
+                </Accordion>
               )
             }
           </FlexColumn>

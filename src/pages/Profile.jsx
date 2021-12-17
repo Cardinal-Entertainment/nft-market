@@ -52,6 +52,13 @@ const UserProfileWrapper = styled.div`
     border: 1px solid white;
     margin-bottom: 24px;
   }
+  
+  .div-allowance-accordion .MuiAccordion-region {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
 `
 
 const UserBidsWrapper = styled.div`
@@ -288,7 +295,7 @@ const UserListings = ({ listingCount, listings }) => {
 const UserProfile = ({ data }) => {
   return (
     <UserProfileWrapper>
-      <Accordion>
+      <Accordion className={"div-allowance-accordion"}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1a-content"
@@ -297,7 +304,7 @@ const UserProfile = ({ data }) => {
           <Typography variant="h4">Set ZOOM Allowance</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <UserAllowance />
+          <UserAllowance/>
         </AccordionDetails>
       </Accordion>
       <Accordion>
