@@ -7,6 +7,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components/macro';
+import { ethers } from 'ethers'
 
 const FlexRow = styled.div`
   display: flex;
@@ -28,8 +29,9 @@ const OfferDialog = ({
   quickBid,
   mylisting
 }) => {
+  console.log("opened:",minAmount.toString());
   const [open, setOpen] = useState(false);
-  const [input, setInput] = useState(minAmount);
+  const [input, setInput] = useState(ethers.utils.parseEther(minAmount.toString()));
   const [inputInvalid, setInputInvalid] = useState('');
 
   useEffect(() => {
@@ -71,13 +73,16 @@ const OfferDialog = ({
   };
 
   const handleConfirm = () => {
-    if (parseFloat(input) < minAmount) {
+    console.log("Dialog input,min,max:", input.toString(), minAmount.toString(),maxAmount.toString());
+
+    if (input.lt(minAmount.toString())) {
+      console.log('WHAT THE HELL');
       setInputInvalid('Set bigger amount');
-    } else if (parseFloat(input) > maxAmount) {
+    } else if (input.gt(ethers.utils.parseEther(maxAmount.toString()))) {
       setInputInvalid("You don't have enough coin");
     } else {
       setInputInvalid('');
-      onConfirm(parseFloat(input));
+      onConfirm(input);
       setOpen(false);
     }
   };
@@ -94,7 +99,7 @@ const OfferDialog = ({
           mylisting ? 'My Listing' :
             (quickBid
               ? 'Quick bid (' +
-              Math.round(minAmount * 10000) / 10000.0 +
+              ethers.utils.formatEther(minAmount) +
               ' ' +
               currency +
               ')'
@@ -118,8 +123,8 @@ const OfferDialog = ({
               variant="standard"
               value={
                 currency === 'ZOOM'
-                  ? parseInt(input).toString()
-                  : parseFloat(input).toFixed(4)
+                  ? ethers.utils.formatEther(input.toString())
+                  : ethers.utils.formatEther(input.toString())
               }
               onChange={handleAmountChanged}
               onKeyDown={onKeyDown}
@@ -135,6 +140,7 @@ const OfferDialog = ({
           <Button
             variant="contained"
             onClick={() => {
+              console.log("at click",input.toString());
               handleConfirm(input);
             }}
           >

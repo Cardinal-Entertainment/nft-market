@@ -322,15 +322,27 @@ const ListingMetadata = ({
       ? listing.highestBid
       : listing.minPrice
 
+/*
   const minOfferAmount =
     Math.max(parseFloat(listing.highestBid), parseFloat(listing.minPrice)) +
     minIncrement
+*/
+  let minOfferAmount =
+      ethers.utils.parseEther(listing.highestBid.toString()).gt(ethers.utils.parseEther(listing.minPrice.toString()))
+      ? ethers.utils.parseEther(listing.highestBid.toString())
+      : ethers.utils.parseEther(listing.minPrice.toString());
+
+      console.log("minOfferAmount before", minOfferAmount, minOfferAmount.toString(), minIncrement);
+      minOfferAmount = minOfferAmount.add(ethers.utils.parseEther(minIncrement.toString()));
+      console.log("minOfferAmount after", minOfferAmount.toString());
+
+
   const maxOfferAmount =
     listing.currency === 'ZOOM' ? zoomBalance : wmovrBalance
   const canBid =
     listing.currency === 'ZOOM'
-      ? zoomBalance > minOfferAmount
-      : wmovrBalance > minOfferAmount
+      ? ethers.utils.parseEther(zoomBalance).gt(minOfferAmount)
+      : ethers.utils.parseEther(wmovrBalance).gt(minOfferAmount)
 
   return (
     <ListingMetadataWrapper>
@@ -447,6 +459,8 @@ const ViewListing = () => {
     state: { contracts, wallet, zoomIncrement, wmovrIncrement },
   } = useContext(store)
 
+  console.log("wmovrIncrement", wmovrIncrement);
+
   const { zoomBalance, wmovrBalance } = wallet
   const { MarketContract } = contracts
 
@@ -517,6 +531,7 @@ const ViewListing = () => {
       const { currency, id } = auctionItem
       let currencyContract
 
+      console.log("Pre:", amount);
       if (
         parseFloat(amount) <
         Math.max(
@@ -538,17 +553,16 @@ const ViewListing = () => {
           throw new Error(`Unhandled currency type: ${currency}`)
       }
 
-      const weiAmount = ethers.utils.parseEther(amount.toString())
-
       const approveTx = await currencyContract.approve(
         marketContractAddress,
-        weiAmount
+        amount.toString()
       )
+
       setBidInProgress(true)
       setApprovalModalOpen(true)
       await approveTx.wait()
       setApprovalModalOpen(false)
-      const bidTx = await contracts.MarketContract.bid(parseInt(id), weiAmount)
+      const bidTx = await contracts.MarketContract.bid(parseInt(id), amount.toString())
       await bidTx.wait()
       setBidInProgress(false)
     }
