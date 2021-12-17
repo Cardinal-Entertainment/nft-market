@@ -56,6 +56,10 @@ const FlexRow = styled.div`
     align-items: center;
   }
 `
+const FlexColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+`
 
 const CenteredRow = styled.div`
   display: flex;
@@ -347,6 +351,7 @@ const NewListing = () => {
   )
 
   const exceedZoomAllowance = numberOfSelectedCards * data?.zoomBurnFee > currentAllowance
+  console.log('exceedZoomAllowance', exceedZoomAllowance);
 
   return (
     <Container>
@@ -428,36 +433,42 @@ const NewListing = () => {
           }
         </FlexRow>
         <FlexRow>
-          {
-            !exceedZoomAllowance ?
+          <FlexColumn>
+            <FlexRow>
+              {
+                !exceedZoomAllowance &&
+                (
+                  <CheckCircle color="success" />
+                )
+              }
+              <div className="zoom-burn-fee">
+                Zoom <StyledLogo src={zoomLogo} /> Burn Fee:{' '}
+                {data && data.zoomBurnFee
+                  ? data.zoomBurnFee * numberOfSelectedCards
+                  : 0}{' '}
+                { currentAllowance !== undefined ? '(Allowance : ' + currentAllowance + ')' : ''}
+              </div>
+            </FlexRow>
+            {
+              exceedZoomAllowance &&
               (
                 <>
-                  <CheckCircle color="success" />
-                  <div className="zoom-burn-fee">
-                    Zoom <StyledLogo src={zoomLogo} /> Burn Fee:{' '}
-                    {data && data.zoomBurnFee
-                      ? data.zoomBurnFee * numberOfSelectedCards
-                      : 0}{' '}
-                    { currentAllowance !== undefined ? '(Allowance : ' + currentAllowance + ')' : ''}
-                  </div>
+                  <Accordion>
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls="panel1a-content"
+                      id="panel1a-header"
+                    >
+                      <Typography variant="h8">Increase ZOOM Allowance</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <UserAllowance initial={data.zoomBurnFee * numberOfSelectedCards}/>
+                    </AccordionDetails>
+                  </Accordion>
                 </>
-              ) :
-              (
-                <Accordion>
-                  <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="panel1a-content"
-                    id="panel1a-header"
-                  >
-                    <Typography variant="h8">Increase ZOOM Allowance</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <UserAllowance />
-                  </AccordionDetails>
-                </Accordion>
               )
-          }
-
+            }
+          </FlexColumn>
         </FlexRow>
         <NFTContainer>
           {isLoading || isLoadingAllowance ? (

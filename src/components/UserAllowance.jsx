@@ -1,9 +1,9 @@
 import { Button, CircularProgress, Grid, TextField } from '@mui/material'
-import React, { useContext,useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react'
 import { store } from 'store/store';
 import { useGetZoomAllowanceQuery } from '../hooks/useProfile'
 import { useQueryClient } from 'react-query'
-import { marketContractAddress, QUERY_KEYS } from '../constants'
+import { marketContractAddress, maxZOOMAllowance, QUERY_KEYS } from '../constants'
 import Slider from '@mui/material/Slider'
 import { styled as muiStyled } from '@mui/material/styles'
 
@@ -32,7 +32,7 @@ const UserAllowanceWrapper = muiStyled('div')(({ theme }) => ({
 
 }))
 
-const UserAllowance = () => {
+const UserAllowance = ({ initial }) => {
   const {
     state: { wallet, contracts },
   } = useContext(store)
@@ -43,6 +43,14 @@ const UserAllowance = () => {
   const { zoomBalance } = wallet
   const [zoomAllowance, setZoomAllowance] = useState(0)
   const [isSettingAllowance, setIsSettingAllowance] = useState(false)
+
+  useEffect(() => {
+    if (initial !== undefined) {
+      setZoomAllowance(initial)
+    } else if (currentAllowance !== undefined) {
+      setZoomAllowance(currentAllowance)
+    }
+  }, [initial, currentAllowance])
 
   const handleSliderChange = (event, newValue) => {
     setZoomAllowance(newValue)
@@ -113,7 +121,7 @@ const UserAllowance = () => {
               onChange={handleSliderChange}
               aria-labelledby="input-slider"
               min={0}
-              max={zoomBalance ? parseInt(zoomBalance) : 0}
+              max={maxZOOMAllowance}
             />
           </Grid>
           <Grid item xs={9} md={3}>
