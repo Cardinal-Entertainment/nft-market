@@ -341,8 +341,8 @@ const ListingMetadata = ({
     listing.currency === 'ZOOM' ? ethers.utils.parseEther(zoomBalance) : ethers.utils.parseEther(wmovrBalance)
   const canBid =
     listing.currency === 'ZOOM'
-      ? ethers.utils.parseEther(zoomBalance).gt(minOfferAmount)
-      : ethers.utils.parseEther(wmovrBalance).gt(minOfferAmount)
+      ? ethers.utils.parseEther(zoomBalance ? zoomBalance : "0").gt(minOfferAmount)
+      : ethers.utils.parseEther(wmovrBalance ? wmovrBalance : "0").gt(minOfferAmount)
 
   return (
     <ListingMetadataWrapper>
@@ -477,20 +477,24 @@ const ViewListing = () => {
       }
 
       if (bid.itemNumber === auctionId) {
-        if (currentListing.bids.length > 0) {
-          queryClient.setQueryData(
-            [QUERY_KEYS.listing,  { itemNumber: auctionId, marketContractAddress: MarketContract?.address }],
-            {
-              ...currentListing,
-              bids: [...currentListing.bids, bidWithId]
-            }
-          )
+        if (currentListing && currentListing.bids) {
+          if (currentListing.bids.length > 0) {
+            queryClient.setQueryData(
+              [QUERY_KEYS.listing,  { itemNumber: auctionId, marketContractAddress: MarketContract?.address }],
+              {
+                ...currentListing,
+                bids: [...currentListing.bids, bidWithId],
+                highestBid: bid.bidAmount
+              }
+            )
+          }
         } else {
           queryClient.setQueryData(
             [QUERY_KEYS.listing,  { itemNumber: auctionId, marketContractAddress: MarketContract?.address }],
             {
               ...currentListing,
-              bids: [bidWithId]
+              bids: [bidWithId],
+              highestBid: bid.bidAmount
             }
           )
         }
