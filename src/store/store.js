@@ -29,8 +29,8 @@ const initialState = {
   newEventsCount: 0,
   myEvents: [],
   myNewEventsCount: 0,
-  zoomIncrement: 25000,
-  wmovrIncrement: 0.02,
+  zoomIncrement: 25000, //this is ether units, convert to BigNumber and use wei
+  wmovrIncrement: 0.02, //this is ether units, convert to BigNumber and use wei
 };
 
 const store = createContext(initialState);

@@ -339,6 +339,9 @@ const NewListing = () => {
     contracts.ZoomContract
   )
 
+  console.log("currentAllowance", currentAllowance);
+
+  //const exceedZoomAllowance = numberOfSelectedCards * data?.zoomBurnFee > currentAllowance
   const exceedZoomAllowance = numberOfSelectedCards * data?.zoomBurnFee > currentAllowance
 
   return (
@@ -434,7 +437,7 @@ const NewListing = () => {
                 {data && data.zoomBurnFee
                   ? data.zoomBurnFee * numberOfSelectedCards
                   : 0}{' '}
-                { currentAllowance !== undefined ? `(Allowance : ${currentAllowance})` : ''}
+                { currentAllowance !== undefined ? `(Allowance : ${ethers.utils.formatEther(currentAllowance)})` : ''}
               </div>
             </FlexRow>
             {

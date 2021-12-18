@@ -2,6 +2,7 @@ import { Button, CircularProgress, Grid, TextField } from '@mui/material'
 import React, { useContext, useEffect, useState } from 'react'
 import { store } from 'store/store';
 import { useGetZoomAllowanceQuery } from '../hooks/useProfile'
+import { ethers } from 'ethers'
 import { useQueryClient } from 'react-query'
 import { marketContractAddress, maxZOOMAllowance, QUERY_KEYS } from '../constants'
 import Slider from '@mui/material/Slider'
@@ -111,7 +112,7 @@ const UserAllowance = ({ initial }) => {
       {isLoading ? (
         <CircularProgress></CircularProgress>
       ) : (
-        <h2>Your current zoom allowance: {currentAllowance} ZOOM</h2>
+        <h2>Your current zoom allowance: {ethers.utils.formatEther(currentAllowance)} ZOOM</h2>
       )}
       <Grid className="slider-wrapper" container>
         <Grid className="slider" item xs={12} md={8}>
