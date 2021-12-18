@@ -423,7 +423,7 @@ const NewListing = () => {
           <FlexColumn>
             <FlexRow>
               {
-                !exceedZoomAllowance &&
+                !exceedZoomAllowance && numberOfSelectedCards > 0 && 
                 (
                   <CheckCircle color="success" />
                 )
@@ -431,7 +431,7 @@ const NewListing = () => {
               <div className="zoom-burn-fee">
                 Zoom <StyledLogo src={zoomLogo} /> Burn Fee:
                 {data && data.zoomBurnFee
-                  ? ` ${data.zoomBurnFee * numberOfSelectedCards}`
+                  ? ` ${ethers.utils.formatEther(toBigNumber(data.zoomBurnFee * numberOfSelectedCards))}`
                   : 0}{' '}
                 { currentAllowance !== undefined ? `(Allowance : ${ethers.utils.formatEther(currentAllowance)})` : ''}
               </div>
