@@ -41,15 +41,16 @@ const UserAllowance = ({ initial }) => {
     wallet.address,
     contracts.ZoomContract
   )
+
   const { zoomBalance } = wallet
   const [zoomAllowance, setZoomAllowance] = useState(0)
   const [isSettingAllowance, setIsSettingAllowance] = useState(false)
 
   useEffect(() => {
     if (initial !== undefined) {
-      setZoomAllowance(initial)
+      setZoomAllowance(parseInt(ethers.utils.formatEther(initial.toString())))
     } else if (currentAllowance !== undefined) {
-      setZoomAllowance(currentAllowance)
+      setZoomAllowance(parseInt(ethers.utils.formatEther(currentAllowance.toString())))
     }
   }, [initial, currentAllowance])
 
@@ -76,16 +77,16 @@ const UserAllowance = ({ initial }) => {
   const onSetZoomAllowance = async () => {
     try {
       setIsSettingAllowance(true)
-      if (zoomAllowance < currentAllowance) {
+      if (ethers.utils.parseEther(zoomAllowance.toString()).lt(currentAllowance)) {
         const tx = await contracts.ZoomContract.decreaseAllowance(
           marketContractAddress,
-          currentAllowance - zoomAllowance
+          currentAllowance.sub(ethers.utils.parseEther(zoomAllowance.toString()))
         )
         await tx.wait()
-      } else if (zoomAllowance > currentAllowance) {
+      } else if (ethers.utils.parseEther(zoomAllowance.toString()).gt(currentAllowance)) {
         const tx = await contracts.ZoomContract.increaseAllowance(
           marketContractAddress,
-          zoomAllowance - currentAllowance
+          ethers.utils.parseEther(zoomAllowance.toString()).sub(currentAllowance)
         )
         await tx.wait()
       }
@@ -98,7 +99,7 @@ const UserAllowance = ({ initial }) => {
             zoomTokenContract: contracts.ZoomContract.address,
           },
         ],
-        zoomAllowance
+        ethers.utils.parseEther(zoomAllowance.toString())
       )
     } catch (e) {
       console.error(e)

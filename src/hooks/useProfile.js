@@ -87,8 +87,7 @@ export const useFetchUserNFTQuery = (
 
   const getUserZoomAllowance = async (zoomTokenContract, ownerAddress) => {
     if (zoomTokenContract) {
-      const allowance = await zoomTokenContract.allowance(ownerAddress, marketContractAddress);
-      return parseInt(allowance.toString())
+      return await zoomTokenContract.allowance(ownerAddress, marketContractAddress);
     } else {
       return 0;
     }
