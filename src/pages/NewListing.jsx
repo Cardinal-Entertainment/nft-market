@@ -339,9 +339,6 @@ const NewListing = () => {
     contracts.ZoomContract
   )
 
-  console.log("currentAllowance", currentAllowance);
-
-  //const exceedZoomAllowance = numberOfSelectedCards * data?.zoomBurnFee > currentAllowance
   const exceedZoomAllowance = numberOfSelectedCards * data?.zoomBurnFee > currentAllowance
 
   return (
