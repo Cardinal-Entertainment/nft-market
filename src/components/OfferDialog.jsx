@@ -8,6 +8,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components/macro';
 import { ethers } from 'ethers'
+import { compareAsBigNumbers } from '../utils/BigNumbers'
 
 const FlexRow = styled.div`
   display: flex;
@@ -21,21 +22,20 @@ const FlexRow = styled.div`
 `;
 
 const OfferDialog = ({
-  currency,
-  minAmount,
-  maxAmount,
-  onConfirm,
-  disabled,
-  quickBid,
-  mylisting
-}) => {
-  console.log("opened:",minAmount.toString());
+                       currency,
+                       minAmount,
+                       maxAmount,
+                       onConfirm,
+                       disabled,
+                       quickBid,
+                       mylisting
+                     }) => {
   const [open, setOpen] = useState(false);
-  const [input, setInput] = useState(ethers.utils.parseEther(minAmount.toString()));
+  const [input, setInput] = useState(ethers.utils.formatEther(minAmount));
   const [inputInvalid, setInputInvalid] = useState('');
 
   useEffect(() => {
-    setInput(minAmount);
+    setInput(ethers.utils.formatEther(minAmount));
   }, [minAmount]);
 
   const handleClickOpen = () => {
@@ -46,43 +46,19 @@ const OfferDialog = ({
     setOpen(false);
   };
 
-  const onKeyDown = (e) => {
-    if (currency === 'ZOOM') {
-      if (e.keyCode === 69 || e.keyCode === 190 || e.keyCode === 188) {
-        // 'e', '.', ',' charaters
-        e.preventDefault();
-      }
-    }
-  };
-
   const handleAmountChanged = (e) => {
     const value = e.target.value;
-
-    let isDecimalOverflow = false;
-    if (currency === 'WMOVR' && value.toString().includes('.')) {
-      if (value.toString().split('.')[1].length > 4) {
-        isDecimalOverflow = true;
-      }
-    }
-
-    if (isDecimalOverflow) {
-      setInput(parseFloat(value).toFixed(4).toString());
-    } else {
-      setInput(value);
-    }
+    setInput(value);
   };
 
   const handleConfirm = () => {
-    console.log("Dialog input,min,max:", input.toString(), minAmount.toString(),maxAmount.toString());
-
-    if (input.lt(minAmount.toString())) {
-      console.log('WHAT THE HELL');
+    if (ethers.utils.parseEther(input).lt(minAmount)) {
       setInputInvalid('Set bigger amount');
-    } else if (input.gt(ethers.utils.parseEther(maxAmount.toString()))) {
+    } else if (ethers.utils.parseEther(input).gt(maxAmount)) {
       setInputInvalid("You don't have enough coin");
     } else {
       setInputInvalid('');
-      onConfirm(input);
+      onConfirm(parseFloat(input));
       setOpen(false);
     }
   };
@@ -98,12 +74,7 @@ const OfferDialog = ({
         {
           mylisting ? 'My Listing' :
             (quickBid
-              ? 'Quick bid (' +
-              ethers.utils.formatEther(minAmount) +
-              ' ' +
-              currency +
-              ')'
-              : 'Make Offer')
+              ? `Quick bid (${ethers.utils.formatEther(minAmount)} ${currency})` : 'Make Offer')
         }
 
       </Button>
@@ -121,13 +92,13 @@ const OfferDialog = ({
               label="Offer Amount"
               type="number"
               variant="standard"
-              value={
-                currency === 'ZOOM'
-                  ? ethers.utils.formatEther(input.toString())
-                  : ethers.utils.formatEther(input.toString())
+              value={input
+                // currency === 'ZOOM'
+                //   ? parseInt(input).toString()
+                //   : parseFloat(input).toFixed(4)
               }
               onChange={handleAmountChanged}
-              onKeyDown={onKeyDown}
+              // onKeyDown={onKeyDown}
               error={inputInvalid !== ''}
               helperText={inputInvalid}
               inputProps={{ step: currency === 'WMOVR' ? 0.0001 : 1 }}
@@ -140,7 +111,6 @@ const OfferDialog = ({
           <Button
             variant="contained"
             onClick={() => {
-              console.log("at click",input.toString());
               handleConfirm(input);
             }}
           >

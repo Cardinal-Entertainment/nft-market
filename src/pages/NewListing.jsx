@@ -231,7 +231,6 @@ const NewListing = () => {
     const getIsApprovedForAll = async () => {
       if (contracts.ZoombiesContract != null) {
         const approved = await contracts.ZoombiesContract.isApprovedForAll(wallet.address, marketContractAddress);
-        console.log("approved", approved);
         setIsApprovedForAll(approved);
       }
     }

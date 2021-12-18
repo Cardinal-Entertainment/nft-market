@@ -21,6 +21,7 @@ import { store } from '../store/store';
 import { ethers } from 'ethers';
 import OfferDialog from './OfferDialog';
 import { useFetchBids } from 'hooks/useBids';
+import { toBigNumber } from '../utils/BigNumbers'
 
 const Container = styled(Grid)({
   display: 'flex',
@@ -298,13 +299,13 @@ const AuctionItem = ({ content }) => {
     if (currency === undefined) {
       currency = auctionItem.saleToken === zoomContractAddress ? "ZOOM" : (auctionItem.saleToken === wmovrContractAddress ? "WMOVR" : "");
     }
-    if (
-      parseFloat(amount) <
-      Math.max(
-        auctionItem?.highestBid + parseFloat(minIncrement),
-        auctionItem?.minAmount + parseFloat(minIncrement)
-      )
-    ) {
+
+    const minAmount = ethers.utils.parseEther(auctionItem?.highestBid.toString()).add(minIncrement)
+      .gt(ethers.utils.parseEther(auctionItem?.minPrice.toString()).add(minIncrement)) ?
+      ethers.utils.parseEther(auctionItem?.highestBid.toString()).add(minIncrement) :
+      ethers.utils.parseEther(auctionItem?.minPrice.toString()).add(minIncrement)
+
+    if (ethers.utils.parseEther(amount.toString()).lt(minAmount)) {
       throw new Error(`Invalid amount valid : ${amount}`);
     }
 
@@ -444,13 +445,13 @@ console.log("home page: amount:", amount);
               currency={coinType}
               minAmount={
                 ethers.utils.parseEther(auctionItem.highestBid.toString()).gt(ethers.utils.parseEther(auctionItem.minPrice.toString()))
-                  ? ethers.utils.parseEther(auctionItem.highestBid.toString()).add(ethers.utils.parseEther(minIncrement.toString()))
-                  : ethers.utils.parseEther(auctionItem.minPrice.toString()).add(ethers.utils.parseEther(minIncrement.toString()))
+                  ? ethers.utils.parseEther(auctionItem.highestBid.toString()).add(minIncrement)
+                  : ethers.utils.parseEther(auctionItem.minPrice.toString()).add(minIncrement)
               }
               maxAmount={
                 coinType === 'ZOOM'
-                  ? (wallet.zoomBalance)
-                  : (wallet.wmovrBalance)
+                  ? (wallet.zoomBalance ? ethers.utils.parseEther(wallet.zoomBalance) : toBigNumber(0))
+                  : (wallet.wmovrBalance ? ethers.utils.parseEther(wallet.wmovrBalance) : toBigNumber(0))
               }
               onConfirm={handleConfirmBid}
               disabled={moment().isAfter(moment.unix(auctionItem.auctionEnd)) || bidInProgress || auctionItem.lister === wallet.address}

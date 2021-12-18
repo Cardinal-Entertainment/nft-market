@@ -1,6 +1,7 @@
 import React, { createContext, useReducer } from 'react';
 import { ActionTypes } from './actions';
 import logger from './logger';
+import { toBigNumber } from '../utils/BigNumbers'
 
 export const DAPP_STATES = {
   NOT_CONNECTED: 'NOT_CONNECTED',
@@ -29,8 +30,8 @@ const initialState = {
   newEventsCount: 0,
   myEvents: [],
   myNewEventsCount: 0,
-  zoomIncrement: 25000, //this is ether units, convert to BigNumber and use wei
-  wmovrIncrement: 0.02, //this is ether units, convert to BigNumber and use wei
+  zoomIncrement: toBigNumber(25000), //this is ether units, convert to BigNumber and use wei
+  wmovrIncrement: toBigNumber(0.02), //this is ether units, convert to BigNumber and use wei
 };
 
 const store = createContext(initialState);
