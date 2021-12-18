@@ -124,14 +124,6 @@ const useBlockchain = () => {
         signer
       )
 
-      // const zoomIncrement = await MarketContract.tokenMinIncrement(zoomContractAddress)
-      // const wmovrIncrement = await MarketContract.tokenMinIncrement(wmovrContractAddress)
-      //
-      // dispatch(Actions.minIncrementUpdated({
-      //   zoomIncrement: ethers.utils.formatEther(zoomIncrement),
-      //   wmovrIncrement: ethers.utils.formatEther(wmovrIncrement)
-      // }))
-
       ZoomContract.provider.on('block', async () => {
         const address = await signer.getAddress()
         const bal = await getWalletZoomBalance(ZoomContract, address)

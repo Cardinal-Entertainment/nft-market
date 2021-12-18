@@ -17,7 +17,7 @@ import {
   ZoombiesStableEndpoint,
   ZoombiesTestingEndpoint,
 } from '../constants'
-import { useFetchUserNFTQuery } from 'hooks/useProfile'
+import { useFetchUserNFTQuery, useGetZoomAllowanceQuery } from 'hooks/useProfile'
 import zoomLogo from '../assets/zoombies_coin.svg'
 import LoadingModal from 'components/LoadingModal'
 import Accordion from '@mui/material/Accordion';
@@ -25,6 +25,9 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CheckCircle from '@mui/icons-material/CheckCircle';
+import UserAllowance from '../components/UserAllowance'
+import Typography from '@mui/material/Typography'
+import { compareAsBigNumbers, toBigNumber } from '../utils/BigNumbers'
 
 const Container = styled.div`
   flex: 1;
@@ -53,6 +56,10 @@ const FlexRow = styled.div`
     display: flex;
     align-items: center;
   }
+`
+const FlexColumn = styled.div`
+  display: flex;
+  flex-direction: column;
 `
 
 const CenteredRow = styled.div`
@@ -128,7 +135,7 @@ const NFTContainer = styled.div`
   align-items: start;
   justify-content: center;
   grid-template-columns: repeat(auto-fit, minmax(calc(0.55 * 260px), 1fr));
-  min-height: 270px;
+  min-height: 310px;
   overflow-y: auto;
   border-radius: 4px;
   box-shadow: 0 6px 4px -4px gray;
@@ -224,7 +231,6 @@ const NewListing = () => {
     const getIsApprovedForAll = async () => {
       if (contracts.ZoombiesContract != null) {
         const approved = await contracts.ZoombiesContract.isApprovedForAll(wallet.address, marketContractAddress);
-        console.log("approved", approved);
         setIsApprovedForAll(approved);
       }
     }
@@ -256,17 +262,6 @@ const NewListing = () => {
   const createListing = async () => {
     setCreateInProgress(true)
     try {
-      const zoomBurn = data?.zoomBurnFee
-        ? data.zoomBurnFee * numberOfSelectedCards
-        : 0
-      const weiAmount = ethers.utils.parseEther(zoomBurn.toString())
-      setApproveZoomInProgress(true)
-      const tx = await contracts.ZoomContract.approve(
-        marketContractAddress,
-        weiAmount
-      )
-      await tx.wait()
-      setApproveZoomInProgress(false)
       await contracts.MarketContract.listItem(
         parseInt((new Date(dateTime).getTime() / 1000).toFixed(0)),
         ethers.utils.parseEther(listPrice),
@@ -336,8 +331,14 @@ const NewListing = () => {
   )
 
   const numberOfSelectedCards = Object.keys(selectedCards).length || 0
-  const haveEnoughZoom =
-    wallet?.zoomBalance > numberOfSelectedCards * data?.zoomBurnFee
+  const haveEnoughZoom = compareAsBigNumbers(parseInt(wallet?.zoomBalance), numberOfSelectedCards * data?.zoomBurnFee) === 1
+
+  const { data: currentAllowance, isLoading: isLoadingAllowance } = useGetZoomAllowanceQuery(
+    wallet.address,
+    contracts.ZoomContract
+  )
+
+  const exceedZoomAllowance = toBigNumber(data?.zoomBurnFee ? numberOfSelectedCards * data?.zoomBurnFee : 0).gt(currentAllowance ? currentAllowance : toBigNumber(0))
 
   return (
     <Container>
@@ -419,17 +420,43 @@ const NewListing = () => {
           }
         </FlexRow>
         <FlexRow>
-        {<CheckCircle color="success" />}
-          <div className="zoom-burn-fee">
-            Zoom <StyledLogo src={zoomLogo} /> Burn Fee:{' '}
-            {data && data.zoomBurnFee
-              ? data.zoomBurnFee * numberOfSelectedCards
-              : 0}{' '}
-            {' '}
-          </div>
+          <FlexColumn>
+            <FlexRow>
+              {
+                !exceedZoomAllowance && numberOfSelectedCards > 0 && 
+                (
+                  <CheckCircle color="success" />
+                )
+              }
+              <div className="zoom-burn-fee">
+                Zoom <StyledLogo src={zoomLogo} /> Burn Fee:
+                {data && data.zoomBurnFee
+                  ? ` ${ethers.utils.formatEther(toBigNumber(data.zoomBurnFee * numberOfSelectedCards))}`
+                  : 0}{' '}
+                { currentAllowance !== undefined ? `(Allowance : ${ethers.utils.formatEther(currentAllowance)})` : ''}
+              </div>
+            </FlexRow>
+            {
+              exceedZoomAllowance &&
+              (
+                <Accordion>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel1a-content"
+                    id="panel1a-header"
+                  >
+                    <Typography variant="h8">Increase ZOOM Allowance</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    <UserAllowance initial={toBigNumber(data.zoomBurnFee ? data.zoomBurnFee * numberOfSelectedCards : 0)}/>
+                  </AccordionDetails>
+                </Accordion>
+              )
+            }
+          </FlexColumn>
         </FlexRow>
         <NFTContainer>
-          {isLoading ? (
+          {isLoading || isLoadingAllowance ? (
             <CircularProgress />
           ) : (
             renderUserNFTs(
@@ -450,7 +477,8 @@ const NewListing = () => {
               listPrice === '' ||
               parseFloat(listPrice) <= 0 ||
               !haveEnoughZoom ||
-              !isApprovedForAll
+              !isApprovedForAll ||
+              exceedZoomAllowance
             }
             onClick={createListing}
           >

@@ -1,5 +1,4 @@
-import React, { useContext, useState } from 'react'
-import { useQueryClient } from 'react-query'
+import React, { useContext } from 'react'
 import styled from 'styled-components'
 import Accordion from '@mui/material/Accordion'
 import AccordionSummary from '@mui/material/AccordionSummary'
@@ -8,10 +7,10 @@ import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { DataGrid } from '@mui/x-data-grid'
+import UserAllowance from '../components/UserAllowance'
 
 import {
   useFetchProfileQuery,
-  useGetZoomAllowanceQuery,
 } from 'hooks/useProfile'
 import { store } from 'store/store'
 
@@ -23,15 +22,10 @@ import moment from 'moment'
 import {
   zoomContractAddress,
   wmovrContractAddress,
-  marketContractAddress,
-  QUERY_KEYS,
 } from '../constants'
 
 import { useHistory } from 'react-router'
 import LoadingModal from 'components/LoadingModal'
-import { Button, CircularProgress, Input } from '@mui/material'
-import Slider from '@mui/material/Slider'
-import { styled as muiStyled } from '@mui/material'
 
 const Container = styled.div`
   display: flex;
@@ -58,6 +52,13 @@ const UserProfileWrapper = styled.div`
     border: 1px solid white;
     margin-bottom: 24px;
   }
+  
+  .div-allowance-accordion .MuiAccordion-region {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
 `
 
 const UserBidsWrapper = styled.div`
@@ -82,38 +83,6 @@ const UserBidsWrapper = styled.div`
     }
   }
 `
-
-const UserAllowanceWrapper = muiStyled('div')(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  padding: '16px',
-  alignItems: 'center',
-  maxWidth: '1024px',
-  margin: '0 auto',
-
-  '.slider-wrapper': {
-    display: 'flex',
-    alignItems: 'center',
-    width: '50%',
-    margin: '12px 0px',
-
-    '.slider': {
-      width: '80%',
-      paddingRight: '24px',
-    },
-  },
-
-  '.button-wrapper': {
-    marginTop: '16px',
-  },
-
-  [theme.breakpoints.down('md')]: {
-    '.slider-wrapper': {
-      width: '80%',
-      flexDirection: 'column',
-    },
-  },
-}))
 
 const UserListingsWrapper = styled.div``
 
@@ -323,132 +292,10 @@ const UserListings = ({ listingCount, listings }) => {
   )
 }
 
-const UserAllowance = ({ userAddress, zoomTokenContract }) => {
-  const {
-    state: { wallet, contracts },
-  } = useContext(store)
-  const { data: currentAllowance, isLoading } = useGetZoomAllowanceQuery(
-    wallet.address,
-    contracts.ZoomContract
-  )
-  const { zoomBalance } = wallet
-  const [zoomAllowance, setZoomAllowance] = useState(0)
-  const [isSettingAllowance, setIsSettingAllowance] = useState(false)
-
-  const handleSliderChange = (event, newValue) => {
-    setZoomAllowance(newValue)
-  }
-
-  const handleInputChange = (event) => {
-    setZoomAllowance(
-      event.target.value === '' ? '' : Number(event.target.value)
-    )
-  }
-
-  const handleBlur = () => {
-    if (zoomAllowance < 0) {
-      setZoomAllowance(0)
-    } else if (zoomAllowance > zoomBalance) {
-      setZoomAllowance(zoomBalance)
-    }
-  }
-
-  const queryClient = useQueryClient()
-
-  const onSetZoomAllowance = async () => {
-    try {
-      setIsSettingAllowance(true)
-      if (zoomAllowance < currentAllowance) {
-        const tx = await contracts.ZoomContract.decreaseAllowance(
-          marketContractAddress,
-          currentAllowance - zoomAllowance
-        )
-        await tx.wait()
-      } else if (zoomAllowance > currentAllowance) {
-        const tx = await contracts.ZoomContract.increaseAllowance(
-          marketContractAddress,
-          zoomAllowance - currentAllowance
-        )
-        await tx.wait()
-      }
-
-      queryClient.setQueryData(
-        [
-          QUERY_KEYS.zoomAllowance,
-          {
-            userAddress: wallet.address,
-            zoomTokenContract: contracts.ZoomContract.address,
-          },
-        ],
-        zoomAllowance
-      )
-    } catch (e) {
-      console.error(e)
-    } finally {
-      setIsSettingAllowance(false)
-    }
-  }
-
-  return (
-    <>
-      <UserAllowanceWrapper>
-        {isLoading ? (
-          <CircularProgress></CircularProgress>
-        ) : (
-          <h2>Your current zoom allowance: {currentAllowance} ZOOM</h2>
-        )}
-        <div className="slider-wrapper">
-          <div className="slider">
-            <Slider
-              value={zoomAllowance}
-              onChange={handleSliderChange}
-              aria-labelledby="input-slider"
-              min={0}
-              max={zoomBalance ? parseInt(zoomBalance) : 0}
-            />
-          </div>
-          <div>
-            <Input
-              value={zoomAllowance}
-              size="large"
-              fullWidth
-              onChange={handleInputChange}
-              onBlur={handleBlur}
-              inputProps={{
-                step: 500,
-                min: 0,
-                max: parseInt(zoomBalance) || 0,
-                type: 'number',
-                'aria-labelledby': 'input-slider',
-              }}
-            ></Input>
-          </div>
-        </div>
-        <div className="button-wrapper">
-          <Button
-            style={{
-              minWidth: '150px',
-            }}
-            onClick={onSetZoomAllowance}
-            disabled={isSettingAllowance}
-            variant="contained"
-          >
-            {isSettingAllowance ? (
-              <CircularProgress />
-            ) : (
-              `Set Zoom Allowance (${zoomAllowance} zoom)`
-            )}
-          </Button>
-        </div>
-      </UserAllowanceWrapper>
-    </>
-  )
-}
-
 const UserProfile = ({ data }) => {
   return (
     <UserProfileWrapper>
-      <Accordion>
+      <Accordion className={"div-allowance-accordion"}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1a-content"
@@ -457,7 +304,7 @@ const UserProfile = ({ data }) => {
           <Typography variant="h4">Set ZOOM Allowance</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <UserAllowance />
+          <UserAllowance/>
         </AccordionDetails>
       </Accordion>
       <Accordion>

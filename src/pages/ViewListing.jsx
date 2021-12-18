@@ -32,6 +32,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { useFetchSingleListingQuery } from 'hooks/useListing'
 import { formatAddress } from 'utils/wallet'
 import { styled } from '@mui/material';
+import { compareAsBigNumbers, toBigNumber } from '../utils/BigNumbers'
 
 const Container = styled('div')(({ theme }) => ({
   backgroundColor: 'white',
@@ -318,9 +319,8 @@ const ListingMetadata = ({
   const auctionEndTime = localAuctionEnd.format('h:mm:ss A')
   const timezone = momentTimezone.tz(momentTimezone.tz.guess()).zoneAbbr()
   const highestBid =
-    listing.highestBid > listing.minPrice
-      ? listing.highestBid
-      : listing.minPrice
+    compareAsBigNumbers(listing.highestBid, listing.minPrice) === 1
+      ? toBigNumber(listing.highestBid) : toBigNumber(listing.minPrice)
 
 /*
   const minOfferAmount =
@@ -333,12 +333,12 @@ const ListingMetadata = ({
       : ethers.utils.parseEther(listing.minPrice.toString());
 
       console.log("minOfferAmount before", minOfferAmount, minOfferAmount.toString(), minIncrement);
-      minOfferAmount = minOfferAmount.add(ethers.utils.parseEther(minIncrement.toString()));
+      minOfferAmount = minOfferAmount.add(minIncrement);
       console.log("minOfferAmount after", minOfferAmount.toString());
 
 
   const maxOfferAmount =
-    listing.currency === 'ZOOM' ? zoomBalance : wmovrBalance
+    listing.currency === 'ZOOM' ? ethers.utils.parseEther(zoomBalance) : ethers.utils.parseEther(wmovrBalance)
   const canBid =
     listing.currency === 'ZOOM'
       ? ethers.utils.parseEther(zoomBalance).gt(minOfferAmount)
@@ -373,7 +373,7 @@ const ListingMetadata = ({
           )}
         </p>
         <p className="current-price">
-          Current Price: {highestBid} {listing.currency}
+          Current Price: {ethers.utils.formatEther(highestBid)} {listing.currency}
         </p>
       </div>
       <div className="offer-wrapper">
@@ -383,7 +383,7 @@ const ListingMetadata = ({
           maxAmount={maxOfferAmount}
           onConfirm={handleConfirmBid}
           disabled={isBidInProgress || !canBid || isAuctionOver || listing.seller === walletAddress}
-        ></OfferDialog>
+        />
       </div>
     </ListingMetadataWrapper>
   )
@@ -459,8 +459,6 @@ const ViewListing = () => {
     state: { contracts, wallet, zoomIncrement, wmovrIncrement },
   } = useContext(store)
 
-  console.log("wmovrIncrement", wmovrIncrement);
-
   const { zoomBalance, wmovrBalance } = wallet
   const { MarketContract } = contracts
 
@@ -531,14 +529,13 @@ const ViewListing = () => {
       const { currency, id } = auctionItem
       let currencyContract
 
+      const minAmount = ethers.utils.parseEther(auctionItem?.highestBid.toString()).add(minIncrement)
+        .gt(ethers.utils.parseEther(auctionItem?.minPrice.toString()).add(minIncrement)) ?
+        ethers.utils.parseEther(auctionItem?.highestBid.toString()).add(minIncrement) :
+        ethers.utils.parseEther(auctionItem?.minPrice.toString()).add(minIncrement)
+      
       console.log("Pre:", amount);
-      if (
-        parseFloat(amount) <
-        Math.max(
-          auctionItem?.highestBid + minIncrement,
-          auctionItem?.minAmount + minIncrement
-        )
-      ) {
+      if (ethers.utils.parseEther(amount.toString()).lt(minAmount)) {
         throw new Error(`Invalid amount valid : ${amount}`)
       }
 
@@ -555,14 +552,14 @@ const ViewListing = () => {
 
       const approveTx = await currencyContract.approve(
         marketContractAddress,
-        amount.toString()
+        toBigNumber(amount)
       )
 
       setBidInProgress(true)
       setApprovalModalOpen(true)
       await approveTx.wait()
       setApprovalModalOpen(false)
-      const bidTx = await contracts.MarketContract.bid(parseInt(id), amount.toString())
+      const bidTx = await contracts.MarketContract.bid(parseInt(id), toBigNumber(amount))
       await bidTx.wait()
       setBidInProgress(false)
     }
