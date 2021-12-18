@@ -27,6 +27,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CheckCircle from '@mui/icons-material/CheckCircle';
 import UserAllowance from '../components/UserAllowance'
 import Typography from '@mui/material/Typography'
+import { compareAsBigNumbers, toBigNumber } from '../utils/BigNumbers'
 
 const Container = styled.div`
   flex: 1;
@@ -331,15 +332,14 @@ const NewListing = () => {
   )
 
   const numberOfSelectedCards = Object.keys(selectedCards).length || 0
-  const haveEnoughZoom =
-    wallet?.zoomBalance > numberOfSelectedCards * data?.zoomBurnFee
+  const haveEnoughZoom = compareAsBigNumbers(parseInt(wallet?.zoomBalance), numberOfSelectedCards * data?.zoomBurnFee) === 1
 
   const { data: currentAllowance, isLoading: isLoadingAllowance } = useGetZoomAllowanceQuery(
     wallet.address,
     contracts.ZoomContract
   )
 
-  const exceedZoomAllowance = numberOfSelectedCards * data?.zoomBurnFee > currentAllowance
+  const exceedZoomAllowance = toBigNumber(data?.zoomBurnFee ? numberOfSelectedCards * data?.zoomBurnFee : 0).gt(currentAllowance ? currentAllowance : toBigNumber(0))
 
   return (
     <Container>
@@ -432,7 +432,7 @@ const NewListing = () => {
               <div className="zoom-burn-fee">
                 Zoom <StyledLogo src={zoomLogo} /> Burn Fee:
                 {data && data.zoomBurnFee
-                  ? data.zoomBurnFee * numberOfSelectedCards
+                  ? ` ${data.zoomBurnFee * numberOfSelectedCards}`
                   : 0}{' '}
                 { currentAllowance !== undefined ? `(Allowance : ${ethers.utils.formatEther(currentAllowance)})` : ''}
               </div>
@@ -449,7 +449,7 @@ const NewListing = () => {
                     <Typography variant="h8">Increase ZOOM Allowance</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
-                    <UserAllowance initial={data.zoomBurnFee * numberOfSelectedCards}/>
+                    <UserAllowance initial={toBigNumber(data.zoomBurnFee ? data.zoomBurnFee * numberOfSelectedCards : 0)}/>
                   </AccordionDetails>
                 </Accordion>
               )

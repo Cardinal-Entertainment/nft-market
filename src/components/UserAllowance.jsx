@@ -7,6 +7,7 @@ import { useQueryClient } from 'react-query'
 import { marketContractAddress, maxZOOMAllowance, QUERY_KEYS } from '../constants'
 import Slider from '@mui/material/Slider'
 import { styled as muiStyled } from '@mui/material/styles'
+import { compareAsBigNumbers } from '../utils/BigNumbers'
 
 const UserAllowanceWrapper = muiStyled('div')(({ theme }) => ({
   display: 'flex',
@@ -67,7 +68,7 @@ const UserAllowance = ({ initial }) => {
   const handleBlur = () => {
     if (zoomAllowance < 0) {
       setZoomAllowance(0)
-    } else if (zoomAllowance > zoomBalance) {
+    } else if (compareAsBigNumbers(zoomAllowance, parseInt(zoomBalance)) === 1) {
       setZoomAllowance(zoomBalance)
     }
   }
@@ -132,8 +133,8 @@ const UserAllowance = ({ initial }) => {
             fullWidth
             onChange={handleInputChange}
             onBlur={handleBlur}
-            error={parseInt(zoomBalance) < zoomAllowance}
-            helperText={parseInt(zoomBalance) < zoomAllowance ? 'Exceeds your ZOOM balance' : null}
+            error={compareAsBigNumbers(parseInt(zoomBalance),zoomAllowance) === -1}
+            helperText={compareAsBigNumbers(parseInt(zoomBalance), zoomAllowance) === -1 ? 'Exceeds your ZOOM balance' : null}
             variant={"standard"}
             inputProps={{
               step: 500,
