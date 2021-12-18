@@ -458,7 +458,7 @@ const ViewListing = () => {
   const {
     state: { contracts, wallet, zoomIncrement, wmovrIncrement },
   } = useContext(store)
-  
+
   const { zoomBalance, wmovrBalance } = wallet
   const { MarketContract } = contracts
 

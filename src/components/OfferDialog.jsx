@@ -8,7 +8,6 @@ import DialogTitle from '@mui/material/DialogTitle';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components/macro';
 import { ethers } from 'ethers'
-import { compareAsBigNumbers } from '../utils/BigNumbers'
 
 const FlexRow = styled.div`
   display: flex;
