@@ -53,7 +53,7 @@ export const addAssetToMetamask = async (tokenSymbol, address) => {
       });
     }
   } catch (error) {
-    console.log('addCZXPtoMetaMask error:', error);
+    console.error('addCZXPtoMetaMask error:', error);
   }
 };
 

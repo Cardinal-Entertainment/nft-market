@@ -1,7 +1,6 @@
 import moment from 'moment';
 
 export const getStatus = (endTime, highestBidder, address) => {
-  // console.log({ highestBidder });
   const now = moment().unix();
   const end = moment(endTime).unix();
 

@@ -1,13 +1,18 @@
 import { Button, CircularProgress, Grid, TextField } from '@mui/material'
 import React, { useContext, useEffect, useState } from 'react'
-import { store } from 'store/store';
+import { store } from 'store/store'
 import { useGetZoomAllowanceQuery } from '../hooks/useProfile'
 import { ethers } from 'ethers'
 import { useQueryClient } from 'react-query'
-import { marketContractAddress, maxZOOMAllowance, QUERY_KEYS } from '../constants'
+import {
+  marketContractAddress,
+  maxZOOMAllowance,
+  QUERY_KEYS,
+} from '../constants'
 import Slider from '@mui/material/Slider'
 import { styled as muiStyled } from '@mui/material/styles'
 import { compareAsBigNumbers } from '../utils/BigNumbers'
+import { waitForTransaction } from 'utils/transactions'
 
 const UserAllowanceWrapper = muiStyled('div')(({ theme }) => ({
   display: 'flex',
@@ -31,7 +36,6 @@ const UserAllowanceWrapper = muiStyled('div')(({ theme }) => ({
   '.button-wrapper': {
     marginTop: '16px',
   },
-
 }))
 
 const UserAllowance = ({ initial }) => {
@@ -51,7 +55,9 @@ const UserAllowance = ({ initial }) => {
     if (initial !== undefined) {
       setZoomAllowance(parseInt(ethers.utils.formatEther(initial.toString())))
     } else if (currentAllowance !== undefined) {
-      setZoomAllowance(parseInt(ethers.utils.formatEther(currentAllowance.toString())))
+      setZoomAllowance(
+        parseInt(ethers.utils.formatEther(currentAllowance.toString()))
+      )
     }
   }, [initial, currentAllowance])
 
@@ -60,15 +66,15 @@ const UserAllowance = ({ initial }) => {
   }
 
   const handleInputChange = (event) => {
-    setZoomAllowance(
-      event.target.value === '' ? 0 : Number(event.target.value)
-    )
+    setZoomAllowance(event.target.value === '' ? 0 : Number(event.target.value))
   }
 
   const handleBlur = () => {
     if (zoomAllowance < 0) {
       setZoomAllowance(0)
-    } else if (compareAsBigNumbers(zoomAllowance, parseInt(zoomBalance)) === 1) {
+    } else if (
+      compareAsBigNumbers(zoomAllowance, parseInt(zoomBalance)) === 1
+    ) {
       setZoomAllowance(zoomBalance)
     }
   }
@@ -78,18 +84,26 @@ const UserAllowance = ({ initial }) => {
   const onSetZoomAllowance = async () => {
     try {
       setIsSettingAllowance(true)
-      if (ethers.utils.parseEther(zoomAllowance.toString()).lt(currentAllowance)) {
+      if (
+        ethers.utils.parseEther(zoomAllowance.toString()).lt(currentAllowance)
+      ) {
         const tx = await contracts.ZoomContract.decreaseAllowance(
           marketContractAddress,
-          currentAllowance.sub(ethers.utils.parseEther(zoomAllowance.toString()))
+          currentAllowance.sub(
+            ethers.utils.parseEther(zoomAllowance.toString())
+          )
         )
-        await tx.wait()
-      } else if (ethers.utils.parseEther(zoomAllowance.toString()).gt(currentAllowance)) {
+        await waitForTransaction(tx)
+      } else if (
+        ethers.utils.parseEther(zoomAllowance.toString()).gt(currentAllowance)
+      ) {
         const tx = await contracts.ZoomContract.increaseAllowance(
           marketContractAddress,
-          ethers.utils.parseEther(zoomAllowance.toString()).sub(currentAllowance)
+          ethers.utils
+            .parseEther(zoomAllowance.toString())
+            .sub(currentAllowance)
         )
-        await tx.wait()
+        await waitForTransaction(tx)
       }
 
       queryClient.setQueryData(
@@ -103,6 +117,7 @@ const UserAllowance = ({ initial }) => {
         ethers.utils.parseEther(zoomAllowance.toString())
       )
     } catch (e) {
+      debugger
       console.error(e)
     } finally {
       setIsSettingAllowance(false)
@@ -110,11 +125,14 @@ const UserAllowance = ({ initial }) => {
   }
 
   return (
-    <UserAllowanceWrapper className={"helloworld"}>
+    <UserAllowanceWrapper className={'helloworld'}>
       {isLoading ? (
         <CircularProgress></CircularProgress>
       ) : (
-        <h2>Your current zoom allowance: {ethers.utils.formatEther(currentAllowance)} ZOOM</h2>
+        <h2>
+          Your current zoom allowance:{' '}
+          {ethers.utils.formatEther(currentAllowance)} ZOOM
+        </h2>
       )}
       <Grid className="slider-wrapper" container>
         <Grid className="slider" item xs={12} md={8}>
@@ -133,9 +151,15 @@ const UserAllowance = ({ initial }) => {
             fullWidth
             onChange={handleInputChange}
             onBlur={handleBlur}
-            error={compareAsBigNumbers(parseInt(zoomBalance),zoomAllowance) === -1}
-            helperText={compareAsBigNumbers(parseInt(zoomBalance), zoomAllowance) === -1 ? 'Exceeds your ZOOM balance' : null}
-            variant={"standard"}
+            error={
+              compareAsBigNumbers(parseInt(zoomBalance), zoomAllowance) === -1
+            }
+            helperText={
+              compareAsBigNumbers(parseInt(zoomBalance), zoomAllowance) === -1
+                ? 'Exceeds your ZOOM balance'
+                : null
+            }
+            variant={'standard'}
             inputProps={{
               step: 500,
               min: 0,
@@ -166,4 +190,4 @@ const UserAllowance = ({ initial }) => {
   )
 }
 
-export default UserAllowance;
+export default UserAllowance

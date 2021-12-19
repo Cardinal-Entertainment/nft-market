@@ -1,27 +1,28 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart, faClock } from '@fortawesome/free-regular-svg-icons';
+import React, { useContext, useEffect, useState } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faHeart, faClock } from '@fortawesome/free-regular-svg-icons'
 import {
   faHeart as faHeartSolid,
   faChevronRight,
-} from '@fortawesome/free-solid-svg-icons';
-import movrLogo from '../assets/movr_logo.png';
-import zoomCoin from '../assets/zoombies_coin.svg';
-import { Button, CircularProgress, Modal, styled, Grid } from '@mui/material';
+} from '@fortawesome/free-solid-svg-icons'
+import movrLogo from '../assets/movr_logo.png'
+import zoomCoin from '../assets/zoombies_coin.svg'
+import { Button, CircularProgress, Modal, styled, Grid } from '@mui/material'
 import {
   cardImageBaseURL,
   marketContractAddress,
   wmovrContractAddress,
   zoomContractAddress,
-} from '../constants';
-import { useTheme } from 'styled-components';
-import moment from 'moment';
-import { useHistory } from 'react-router-dom';
-import { store } from '../store/store';
-import { ethers } from 'ethers';
-import OfferDialog from './OfferDialog';
-import { useFetchBids } from 'hooks/useBids';
+} from '../constants'
+import { useTheme } from 'styled-components'
+import moment from 'moment'
+import { useHistory } from 'react-router-dom'
+import { store } from '../store/store'
+import { ethers } from 'ethers'
+import OfferDialog from './OfferDialog'
+import { useFetchBids } from 'hooks/useBids'
 import { toBigNumber } from '../utils/BigNumbers'
+import { waitForTransaction } from 'utils/transactions'
 
 const Container = styled(Grid)({
   display: 'flex',
@@ -48,7 +49,7 @@ const Container = styled(Grid)({
   '& .meta-header-bids': {
     color: '#838383',
   },
-});
+})
 
 const ModalContent = styled('div')({
   position: 'absolute',
@@ -66,7 +67,7 @@ const ModalContent = styled('div')({
   '& > *': {
     margin: '5px 0',
   },
-});
+})
 
 const MetaDiv = styled(Grid)(({ theme }) => ({
   backgroundColor: 'white',
@@ -83,7 +84,7 @@ const MetaDiv = styled(Grid)(({ theme }) => ({
   [theme.breakpoints.down('sm')]: {
     width: '100%',
   },
-}));
+}))
 
 const MetaHeader = styled('div')({
   display: 'flex',
@@ -109,18 +110,18 @@ const MetaHeader = styled('div')({
     display: 'flex',
     justifyContent: 'space-between',
   },
-});
+})
 
 const MetaContent = styled('div')({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
-});
+})
 
 const CardImage = styled('img')({
   width: '177px',
   height: '270px',
-});
+})
 
 const MetaContentBidAmount = styled('div')({
   display: 'flex',
@@ -134,7 +135,7 @@ const MetaContentBidAmount = styled('div')({
     fontSize: '18px',
     padding: '6px 0 0 4px',
   },
-});
+})
 
 const MetaContentRow = styled('div')({
   margin: '8px 0',
@@ -153,13 +154,13 @@ const MetaContentRow = styled('div')({
     display: 'flex',
     alignItems: 'flex-end',
   },
-});
+})
 
 const MetaContentTip = styled('div')({
   fontSize: '12px',
   lineHeight: '1rem',
   color: '#838383',
-});
+})
 
 const MetaContentTime = styled('div')({
   display: 'flex',
@@ -168,7 +169,7 @@ const MetaContentTime = styled('div')({
   '& .meta-content-remaining-time': {
     margin: '0 0 0 4px',
   },
-});
+})
 
 const MetaContentButtonSection = styled('div')({
   display: 'flex',
@@ -205,13 +206,13 @@ const MetaContentButtonSection = styled('div')({
     justifyContent: 'space-between',
     backgroundColor: '#474747',
   },
-});
+})
 
 const DetailCardsDiv = styled(Grid)(({ theme }) => ({
   flex: 1,
   margin: '0 12px',
   overflowX: 'auto',
-}));
+}))
 
 const CardsContainer = styled('div')(({ theme }) => ({
   flexGrow: '1',
@@ -222,47 +223,45 @@ const CardsContainer = styled('div')(({ theme }) => ({
     justifyContent: 'center',
     alignItems: 'center',
   },
-}));
+}))
 
 const AuctionItem = ({ content }) => {
   const {
     state: { contracts, wallet, zoomIncrement, wmovrIncrement },
-  } = useContext(store);
-  const history = useHistory();
-  const [favorite, setFavorite] = useState(false);
-  const [remainingTime, setRemainingTime] = useState('');
-  const [bidInProgress, setBidInProgress] = useState(false);
-  const [approvalModalOpen, setApprovalModalOpen] = useState(false);
+  } = useContext(store)
+  const history = useHistory()
+  const [favorite, setFavorite] = useState(false)
+  const [remainingTime, setRemainingTime] = useState('')
+  const [bidInProgress, setBidInProgress] = useState(false)
+  const [approvalModalOpen, setApprovalModalOpen] = useState(false)
 
-  const theme = useTheme();
+  const theme = useTheme()
 
-  const auctionItem = content;
-  const { itemNumber, highestBid } = auctionItem;
+  const auctionItem = content
+  const { itemNumber, highestBid } = auctionItem
   const coinType =
     auctionItem.saleToken === zoomContractAddress
       ? 'ZOOM'
       : auctionItem.saleToken === wmovrContractAddress
       ? 'WMOVR'
-      : '';
+      : ''
   const minIncrement =
     auctionItem.saleToken === zoomContractAddress
       ? zoomIncrement
       : auctionItem.saleToken === wmovrContractAddress
       ? wmovrIncrement
-      : 0;
+      : 0
 
-  const {
-    data
-  } = useFetchBids(itemNumber);
+  const { data } = useFetchBids(itemNumber)
 
   useEffect(() => {
     const updateRemainingTime = () => {
-      const timeDiff = moment.unix(auctionItem.auctionEnd).diff(moment()) / 1000;
+      const timeDiff = moment.unix(auctionItem.auctionEnd).diff(moment()) / 1000
 
-      const remainingDays = Math.floor(timeDiff / (3600 * 24));
-      const remainingHours = Math.floor((timeDiff % (3600 * 24)) / 3600);
-      const remainingMinutes = Math.floor((timeDiff % 3600) / 60);
-      const remainingSeconds = Math.floor(timeDiff % 60);
+      const remainingDays = Math.floor(timeDiff / (3600 * 24))
+      const remainingHours = Math.floor((timeDiff % (3600 * 24)) / 3600)
+      const remainingMinutes = Math.floor((timeDiff % 3600) / 60)
+      const remainingSeconds = Math.floor(timeDiff % 60)
 
       setRemainingTime(
         formatTwoPlace(remainingDays) +
@@ -273,79 +272,93 @@ const AuctionItem = ({ content }) => {
           'm ' +
           formatTwoPlace(remainingSeconds) +
           's '
-      );
-    };
+      )
+    }
 
     const interval = setInterval(() => {
-      updateRemainingTime();
-    }, 1000);
+      updateRemainingTime()
+    }, 1000)
 
     return () => clearInterval(interval)
   }, [auctionItem.auctionEnd])
 
   const formatTwoPlace = (value) => {
     if (value > 9) {
-      return value;
+      return value
     } else {
-      return '0' + value;
+      return '0' + value
     }
-  };
+  }
 
   const handleConfirmBid = async (amount) => {
-    const { itemNumber } = auctionItem;
-    let { currency } = auctionItem;
-    let currencyContract;
+    const { itemNumber } = auctionItem
+    let { currency } = auctionItem
+    let currencyContract
 
     if (currency === undefined) {
-      currency = auctionItem.saleToken === zoomContractAddress ? "ZOOM" : (auctionItem.saleToken === wmovrContractAddress ? "WMOVR" : "");
+      currency =
+        auctionItem.saleToken === zoomContractAddress
+          ? 'ZOOM'
+          : auctionItem.saleToken === wmovrContractAddress
+          ? 'WMOVR'
+          : ''
     }
 
-    const minAmount = ethers.utils.parseEther(auctionItem?.highestBid.toString()).add(minIncrement)
-      .gt(ethers.utils.parseEther(auctionItem?.minPrice.toString()).add(minIncrement)) ?
-      ethers.utils.parseEther(auctionItem?.highestBid.toString()).add(minIncrement) :
-      ethers.utils.parseEther(auctionItem?.minPrice.toString()).add(minIncrement)
+    const minAmount = ethers.utils
+      .parseEther(auctionItem?.highestBid.toString())
+      .add(minIncrement)
+      .gt(
+        ethers.utils
+          .parseEther(auctionItem?.minPrice.toString())
+          .add(minIncrement)
+      )
+      ? ethers.utils
+          .parseEther(auctionItem?.highestBid.toString())
+          .add(minIncrement)
+      : ethers.utils
+          .parseEther(auctionItem?.minPrice.toString())
+          .add(minIncrement)
 
     if (ethers.utils.parseEther(amount.toString()).lt(minAmount)) {
-      throw new Error(`Invalid amount valid : ${amount}`);
+      throw new Error(`Invalid amount valid : ${amount}`)
     }
 
     switch (currency) {
       case 'ZOOM':
-        currencyContract = contracts.ZoomContract;
-        break;
+        currencyContract = contracts.ZoomContract
+        break
       case 'WMOVR':
-        currencyContract = contracts.WMOVRContract;
-        break;
+        currencyContract = contracts.WMOVRContract
+        break
       default:
-        throw new Error(`Unhandled currency type: ${currency}`);
+        throw new Error(`Unhandled currency type: ${currency}`)
     }
-console.log("home page: amount:", amount);
-    const weiAmount = ethers.utils.parseEther(amount.toString());
+
+    const weiAmount = ethers.utils.parseEther(amount.toString())
 
     const approveTx = await currencyContract.approve(
       marketContractAddress,
       weiAmount
-    );
-    setApprovalModalOpen(true);
-    await approveTx.wait();
-    setApprovalModalOpen(false);
-    setBidInProgress(true);
+    )
+    setApprovalModalOpen(true)
+    waitForTransaction(approveTx)
+    setApprovalModalOpen(false)
+    setBidInProgress(true)
     const bidTx = await contracts.MarketContract.bid(
       parseInt(itemNumber),
       weiAmount
-    );
-    await bidTx.wait();
-    setBidInProgress(false);
-    // getOffers();
-  };
+    )
+    waitForTransaction(bidTx)
+    setBidInProgress(false)
+  }
 
   const toggleFavorite = () => {
-    setFavorite(!favorite);
-  };
+    setFavorite(!favorite)
+  }
 
   const gotoAuction = () => {
-    history.push(`/listing/${auctionItem.itemNumber}`);
-  };
+    history.push(`/listing/${auctionItem.itemNumber}`)
+  }
 
   return (
     <Container key={auctionItem._id} container>
@@ -376,7 +389,7 @@ console.log("home page: amount:", amount);
               <span style={{ color: theme.colors.epic }}>
                 {
                   auctionItem.cards.filter((card) => {
-                    return card.rarity.toLowerCase() === 'epic';
+                    return card.rarity.toLowerCase() === 'epic'
                   }).length
                 }
                 E
@@ -384,7 +397,7 @@ console.log("home page: amount:", amount);
               <span style={{ color: theme.colors.rare }}>
                 {
                   auctionItem.cards.filter((card) => {
-                    return card.rarity.toLowerCase() === 'rare';
+                    return card.rarity.toLowerCase() === 'rare'
                   }).length
                 }
                 R
@@ -392,7 +405,7 @@ console.log("home page: amount:", amount);
               <span style={{ color: theme.colors.uncommon }}>
                 {
                   auctionItem.cards.filter((card) => {
-                    return card.rarity.toLowerCase() === 'uncommon';
+                    return card.rarity.toLowerCase() === 'uncommon'
                   }).length
                 }
                 U
@@ -400,7 +413,7 @@ console.log("home page: amount:", amount);
               <span style={{ color: theme.colors.common }}>
                 {
                   auctionItem.cards.filter((card) => {
-                    return card.rarity.toLowerCase() === 'common';
+                    return card.rarity.toLowerCase() === 'common'
                   }).length
                 }
                 C
@@ -444,17 +457,31 @@ console.log("home page: amount:", amount);
             <OfferDialog
               currency={coinType}
               minAmount={
-                ethers.utils.parseEther(auctionItem.highestBid.toString()).gt(ethers.utils.parseEther(auctionItem.minPrice.toString()))
-                  ? ethers.utils.parseEther(auctionItem.highestBid.toString()).add(minIncrement)
-                  : ethers.utils.parseEther(auctionItem.minPrice.toString()).add(minIncrement)
+                ethers.utils
+                  .parseEther(auctionItem.highestBid.toString())
+                  .gt(ethers.utils.parseEther(auctionItem.minPrice.toString()))
+                  ? ethers.utils
+                      .parseEther(auctionItem.highestBid.toString())
+                      .add(minIncrement)
+                  : ethers.utils
+                      .parseEther(auctionItem.minPrice.toString())
+                      .add(minIncrement)
               }
               maxAmount={
                 coinType === 'ZOOM'
-                  ? (wallet.zoomBalance ? ethers.utils.parseEther(wallet.zoomBalance) : toBigNumber(0))
-                  : (wallet.wmovrBalance ? ethers.utils.parseEther(wallet.wmovrBalance) : toBigNumber(0))
+                  ? wallet.zoomBalance
+                    ? ethers.utils.parseEther(wallet.zoomBalance)
+                    : toBigNumber(0)
+                  : wallet.wmovrBalance
+                  ? ethers.utils.parseEther(wallet.wmovrBalance)
+                  : toBigNumber(0)
               }
               onConfirm={handleConfirmBid}
-              disabled={moment().isAfter(moment.unix(auctionItem.auctionEnd)) || bidInProgress || auctionItem.lister === wallet.address}
+              disabled={
+                moment().isAfter(moment.unix(auctionItem.auctionEnd)) ||
+                bidInProgress ||
+                auctionItem.lister === wallet.address
+              }
               mylisting={auctionItem.lister === wallet.address}
               quickBid
             />
@@ -494,7 +521,7 @@ console.log("home page: amount:", amount);
         </ModalContent>
       </Modal>
     </Container>
-  );
-};
+  )
+}
 
-export default AuctionItem;
+export default AuctionItem
