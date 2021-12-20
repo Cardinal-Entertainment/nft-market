@@ -19,7 +19,6 @@ import {
 } from '../constants'
 import { useFetchUserNFTQuery, useGetZoomAllowanceQuery } from 'hooks/useProfile'
 import zoomLogo from '../assets/zoombies_coin.svg'
-import LoadingModal from 'components/LoadingModal'
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';

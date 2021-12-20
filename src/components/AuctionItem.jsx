@@ -237,7 +237,7 @@ const AuctionItem = ({ content }) => {
   const theme = useTheme();
 
   const auctionItem = content;
-  const { itemNumber, highestBid } = auctionItem;
+  const { itemNumber } = auctionItem;
   const coinType =
     auctionItem.saleToken === zoomContractAddress
       ? 'ZOOM'
