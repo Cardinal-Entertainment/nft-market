@@ -220,7 +220,6 @@ const NewListing = () => {
   const [createInProgress, setCreateInProgress] = useState(false)
   const [selectedCurrency, setSelectedCurrency] = useState(CURRENCY_TYPES.WMOVR)
   const [selectedCards, setSelectedCards] = useState({})
-  const [approveZoomInProgress, setApproveZoomInProgress] = useState(false)
   const [isApprovedForAll, setIsApprovedForAll] = useState(false)
 
   const {
@@ -274,7 +273,6 @@ const NewListing = () => {
     } catch (err) {
       console.error(err)
     } finally {
-      setApproveZoomInProgress(false);
       setCreateInProgress(false)
     }
   }
@@ -342,10 +340,6 @@ const NewListing = () => {
 
   return (
     <Container>
-      <LoadingModal
-        text="Waiting for Zoom Approval..."
-        open={approveZoomInProgress}
-      />
       <h1>New Listing</h1>
       <Form>
         <FlexRow>

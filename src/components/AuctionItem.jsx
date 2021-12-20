@@ -322,13 +322,16 @@ const AuctionItem = ({ content }) => {
 console.log("home page: amount:", amount);
     const weiAmount = ethers.utils.parseEther(amount.toString());
 
-    const approveTx = await currencyContract.approve(
-      marketContractAddress,
-      weiAmount
-    );
-    setApprovalModalOpen(true);
-    await approveTx.wait();
-    setApprovalModalOpen(false);
+    if (currency === "ZOOM") {
+      const approveTx = await currencyContract.approve(
+        marketContractAddress,
+        weiAmount
+      );
+      setApprovalModalOpen(true);
+      await approveTx.wait();
+      setApprovalModalOpen(false);
+    }
+
     setBidInProgress(true);
     const bidTx = await contracts.MarketContract.bid(
       parseInt(itemNumber),

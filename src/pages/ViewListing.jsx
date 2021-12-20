@@ -554,15 +554,17 @@ const ViewListing = () => {
           throw new Error(`Unhandled currency type: ${currency}`)
       }
 
-      const approveTx = await currencyContract.approve(
-        marketContractAddress,
-        toBigNumber(amount)
-      )
+      if (currency === "ZOOM") {
+        const approveTx = await currencyContract.approve(
+          marketContractAddress,
+          toBigNumber(amount)
+        )
+        setApprovalModalOpen(true)
+        await approveTx.wait()
+        setApprovalModalOpen(false)
+      }
 
       setBidInProgress(true)
-      setApprovalModalOpen(true)
-      await approveTx.wait()
-      setApprovalModalOpen(false)
       const bidTx = await contracts.MarketContract.bid(parseInt(id), toBigNumber(amount))
       await bidTx.wait()
       setBidInProgress(false)
