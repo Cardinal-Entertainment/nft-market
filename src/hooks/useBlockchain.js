@@ -18,8 +18,7 @@ import { getWalletWMOVRBalance, getWalletZoomBalance } from '../utils/wallet'
 import watchMarketEvents from 'utils/setupWatcher'
 
 
-//const isLocal = process.env.NODE_ENV === 'development'
-const isLocal = true;
+const isLocal = process.env.NODE_ENV === 'development'
 
 const ethChainParam = isLocal
   ? {
