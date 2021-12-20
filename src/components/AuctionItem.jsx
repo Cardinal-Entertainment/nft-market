@@ -424,7 +424,7 @@ console.log("home page: amount:", amount);
                 loading="lazy"
               />
               <span>
-                {Math.round(parseFloat(highestBid) * 10000) / 10000 + ' '}
+                {ethers.utils.formatEther(ethers.utils.parseEther(auctionItem.highestBid.toString()))}
               </span>
               <span className={'meta-content-coin-text'}>{coinType}</span>
             </MetaContentBidAmount>
