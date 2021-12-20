@@ -17,6 +17,7 @@ import {
 import { getWalletWMOVRBalance, getWalletZoomBalance } from '../utils/wallet'
 import watchMarketEvents from 'utils/setupWatcher'
 
+
 const isLocal = process.env.NODE_ENV === 'development'
 
 const ethChainParam = isLocal
@@ -67,7 +68,7 @@ const useBlockchain = () => {
         mustBeMetaMask: true,
       })
 
-      const provider = new ethers.providers.Web3Provider(metamaskProvider)      
+      const provider = new ethers.providers.Web3Provider(metamaskProvider)
       const signer = provider.getSigner()
       const [address, balance] = await Promise.all([
         signer.getAddress(),
