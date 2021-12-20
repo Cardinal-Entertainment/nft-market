@@ -341,14 +341,14 @@ const AuctionItem = ({ content }) => {
       weiAmount
     )
     setApprovalModalOpen(true)
-    waitForTransaction(approveTx)
+    await waitForTransaction(approveTx)
     setApprovalModalOpen(false)
     setBidInProgress(true)
     const bidTx = await contracts.MarketContract.bid(
       parseInt(itemNumber),
       weiAmount
     )
-    waitForTransaction(bidTx)
+    await waitForTransaction(bidTx)
     setBidInProgress(false)
   }
 

@@ -253,7 +253,7 @@ const ItemHistoryWrapper = styled('div')(({ theme }) => ({
 
 const handleSettle = async (history, marketContract, auctionId) => {
   const tx = await marketContract.settle(parseInt(auctionId))
-  waitForTransaction(tx)
+  await waitForTransaction(tx)
   history.push('/')
 }
 
@@ -593,13 +593,13 @@ const ViewListing = () => {
 
       setBidInProgress(true)
       setApprovalModalOpen(true)
-      waitForTransaction(approveTx)
+      await waitForTransaction(approveTx)
       setApprovalModalOpen(false)
       const bidTx = await contracts.MarketContract.bid(
         parseInt(id),
         toBigNumber(amount)
       )
-      waitForTransaction(bidTx)
+      await waitForTransaction(bidTx)
       setBidInProgress(false)
     }
 
