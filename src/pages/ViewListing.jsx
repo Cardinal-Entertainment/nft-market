@@ -305,6 +305,7 @@ const ListingMetadata = ({
   minIncrement,
   zoomBalance,
   wmovrBalance,
+  movrBalance,
   isBidInProgress,
   handleConfirmBid,
   isAuctionOver,
@@ -338,7 +339,9 @@ const ListingMetadata = ({
 
 
   const maxOfferAmount =
-    listing.currency === 'ZOOM' ? ethers.utils.parseEther(zoomBalance) : ethers.utils.parseEther(wmovrBalance)
+    listing.currency === 'ZOOM' ? ethers.utils.parseEther(zoomBalance) : ethers.utils.parseEther(wmovrBalance).add(ethers.utils.parseEther(movrBalance.toString()))
+
+  console.log("maxOfferAmount", ethers.utils.formatEther(maxOfferAmount));
   const canBid =
     listing.currency === 'ZOOM'
       ? ethers.utils.parseEther(zoomBalance ? zoomBalance : "0").gt(minOfferAmount)
@@ -463,7 +466,7 @@ const ViewListing = () => {
     state: { contracts, wallet, zoomIncrement, wmovrIncrement },
   } = useContext(store)
 
-  const { zoomBalance, wmovrBalance } = wallet
+  const { zoomBalance, wmovrBalance, balance: movrBalance } = wallet
   const { MarketContract } = contracts
 
   const queryClient = useQueryClient()
@@ -604,6 +607,7 @@ const ViewListing = () => {
               minIncrement={minIncrement}
               zoomBalance={zoomBalance}
               wmovrBalance={wmovrBalance}
+              movrBalance={movrBalance}
               isBidInProgress={bidInProgress}
               listing={auctionItem}
               sellerUrl={sellerURL}

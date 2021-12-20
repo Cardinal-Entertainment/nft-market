@@ -454,7 +454,7 @@ console.log("home page: amount:", amount);
               maxAmount={
                 coinType === 'ZOOM'
                   ? (wallet.zoomBalance ? ethers.utils.parseEther(wallet.zoomBalance) : toBigNumber(0))
-                  : (wallet.wmovrBalance ? ethers.utils.parseEther(wallet.wmovrBalance) : toBigNumber(0))
+                  : (wallet.wmovrBalance ? ethers.utils.parseEther(wallet.wmovrBalance).add(toBigNumber(wallet.balance)) : toBigNumber(0))
               }
               onConfirm={handleConfirmBid}
               disabled={moment().isAfter(moment.unix(auctionItem.auctionEnd)) || bidInProgress || auctionItem.lister === wallet.address}
