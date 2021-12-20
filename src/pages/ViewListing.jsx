@@ -377,13 +377,17 @@ const ListingMetadata = ({
         </p>
       </div>
       <div className="offer-wrapper">
-        <OfferDialog
-          minAmount={minOfferAmount}
-          currency={listing.currency}
-          maxAmount={maxOfferAmount}
-          onConfirm={handleConfirmBid}
-          disabled={isBidInProgress || !canBid || isAuctionOver || listing.seller === walletAddress}
-        />
+        {
+          !isAuctionOver && (
+            <OfferDialog
+              minAmount={minOfferAmount}
+              currency={listing.currency}
+              maxAmount={maxOfferAmount}
+              onConfirm={handleConfirmBid}
+              disabled={isBidInProgress || !canBid || isAuctionOver || listing.seller === walletAddress}
+            />
+          )
+        }
       </div>
     </ListingMetadataWrapper>
   )
@@ -435,7 +439,7 @@ const ItemHistory = ({ bids }) => {
                           )}`
                         : ''}
                     </TableCell>
-                    <TableCell>{bid.bidAmount}</TableCell>
+                    <TableCell>{ethers.utils.formatEther(ethers.utils.parseEther(bid.bidAmount.toString()))}</TableCell>
                   </TableRow>
                 ))}
             </TableBody>
