@@ -309,6 +309,8 @@ const AuctionItem = ({ content }) => {
       throw new Error(`Invalid amount valid : ${amount}`);
     }
 
+    let movrValue = 0;
+
     switch (currency) {
       case 'ZOOM':
         currencyContract = contracts.ZoomContract;
@@ -325,17 +327,19 @@ console.log("home page: amount:", amount);
     if (currency === "ZOOM") {
       const approveTx = await currencyContract.approve(
         marketContractAddress,
-        weiAmount
       );
       setApprovalModalOpen(true);
       await approveTx.wait();
       setApprovalModalOpen(false);
+    }else{
+      movrValue = weiAmount
     }
 
     setBidInProgress(true);
     const bidTx = await contracts.MarketContract.bid(
       parseInt(itemNumber),
-      weiAmount
+      weiAmount,
+      {value:movrValue}
     );
     await bidTx.wait();
     setBidInProgress(false);
