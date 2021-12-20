@@ -365,7 +365,7 @@ const ListingMetadata = ({
       </div>
       <div className="price-wrapper">
         <p className="min-price">
-          Minimum Price: {listing.minPrice} {listing.currency}
+          Minimum Price: {ethers.utils.formatEther(ethers.utils.parseEther(listing.minPrice.toString()))} {listing.currency}
           {listing.currency === 'ZOOM' ? (
             <StyledLogo src={zoomLogo} />
           ) : (
