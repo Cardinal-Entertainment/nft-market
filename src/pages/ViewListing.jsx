@@ -13,7 +13,6 @@ import { CircularProgress, Modal, Paper } from '@mui/material'
 import OfferDialog from 'components/OfferDialog'
 import {
   EVENT_TYPES,
-  marketContractAddress,
   QUERY_KEYS,
   ZoombiesStableEndpoint,
   ZoombiesTestingEndpoint,
@@ -32,7 +31,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { useFetchSingleListingQuery } from 'hooks/useListing'
 import { formatAddress } from 'utils/wallet'
 import { styled } from '@mui/material'
-import { compareAsBigNumbers, toBigNumber } from '../utils/BigNumbers'
+import { toBigNumber } from '../utils/BigNumbers'
 import { waitForTransaction } from 'utils/transactions'
 import { useGetZoomAllowanceQuery } from 'hooks/useProfile'
 
@@ -604,27 +603,6 @@ const ViewListing = () => {
         throw new Error(`Invalid amount valid : ${amount}`)
       }
 
-      // switch (currency) {
-      //   case 'ZOOM':
-      //     currencyContract = contracts.ZoomContract
-      //     break
-      //   case 'WMOVR':
-      //     currencyContract = contracts.WMOVRContract
-      //     break
-      //   default:
-      //     throw new Error(`Unhandled currency type: ${currency}`)
-      // }
-
-      // if (currency === "ZOOM") {
-      //   const approveTx = await currencyContract.approve(
-      //     marketContractAddress,
-      //     toBigNumber(amount)
-      //   )
-      //   setApprovalModalOpen(true)
-      //   await approveTx.wait()
-      //   setApprovalModalOpen(false)
-      // }
-
       setBidInProgress(true)
       const bidTx = await contracts.MarketContract.bid(
         parseInt(id),
@@ -632,14 +610,6 @@ const ViewListing = () => {
         { value: currency === 'WMOVR' ? toBigNumber(amount) : 0 }
       )
       await waitForTransaction(bidTx)
-
-      // const bidTx = await contracts.MarketContract.bid(
-      //   parseInt(itemNumber),
-      //   weiAmount,
-      //   {value:movrValue}
-      // );
-      // await bidTx.wait();
-      //
       setBidInProgress(false)
     }
 

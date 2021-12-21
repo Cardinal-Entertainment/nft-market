@@ -10,7 +10,6 @@ import zoomCoin from '../assets/zoombies_coin.svg'
 import { Button, CircularProgress, Modal, styled, Grid } from '@mui/material'
 import {
   cardImageBaseURL,
-  marketContractAddress,
   wmovrContractAddress,
   zoomContractAddress,
 } from '../constants'
@@ -239,7 +238,7 @@ const AuctionItem = ({ content, archived }) => {
   const theme = useTheme()
 
   const auctionItem = content
-  const { itemNumber, highestBid } = auctionItem
+  const { itemNumber } = auctionItem
   const coinType =
     auctionItem.saleToken === zoomContractAddress
       ? 'ZOOM'
