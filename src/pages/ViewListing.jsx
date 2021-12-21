@@ -34,6 +34,12 @@ import { styled } from '@mui/material'
 import { toBigNumber } from '../utils/BigNumbers'
 import { waitForTransaction } from 'utils/transactions'
 import { useGetZoomAllowanceQuery } from 'hooks/useProfile'
+import UserAllowance from '../components/UserAllowance'
+import Accordion from '@mui/material/Accordion'
+import AccordionSummary from '@mui/material/AccordionSummary'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import Typography from '@mui/material/Typography'
+import AccordionDetails from '@mui/material/AccordionDetails'
 
 const Container = styled('div')(({ theme }) => ({
   backgroundColor: 'white',
@@ -215,6 +221,10 @@ const ListingMetadataWrapper = styled('div')(({ theme }) => ({
     '.not-enough-zoom-msg': {
       color: '#ffa726',
     },
+  },
+
+  '& .offer-wrapper .zoom-allowance-accordion': {
+    marginBottom: '12px',
   },
 
   '& span': {
@@ -402,9 +412,23 @@ const ListingMetadata = ({
       </div>
       <div className="offer-wrapper">
         {!isZoomAllowanceEnough && listing.currency === 'ZOOM' && (
-          <p className="not-enough-zoom-msg">
-            Not enough Zoom set in allowance!
-          </p>
+          <>
+            <p className="not-enough-zoom-msg">
+              Not enough Zoom set in allowance!
+            </p>
+            <Accordion className={"zoom-allowance-accordion"}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+              >
+                <Typography variant="h8">Increase ZOOM Allowance</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <UserAllowance initial={minOfferAmount}/>
+              </AccordionDetails>
+            </Accordion>
+          </>
         )}
         {!isAuctionOver && (
           <OfferDialog
