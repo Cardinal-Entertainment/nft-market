@@ -15,13 +15,13 @@ const contract = new ethers.Contract(testBSC, contractJSON.abi, rpcProvider);
 const blocksPerRequest = 5000;
 
 async function watchEvents(eventsCol) {
-  const interface = new ethers.utils.Interface(contractJSON.abi);
+  const etherInterface = new ethers.utils.Interface(contractJSON.abi);
   const filter = {
     address: testBSC,
     topics: [ethers.utils.id('Bid(uint256,uint256,address,uint256[])')],
   };
   contract.provider.on(filter, async (log) => {
-    const { args } = interface.parseLog(log);
+    const { args } = etherInterface.parseLog(log);
     try {
       await eventsCol.insertOne({
         itemNumber: args[0].toNumber(),
@@ -30,7 +30,7 @@ async function watchEvents(eventsCol) {
         timestamp: Date.now() / 1000,
       });
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   });
 }
@@ -67,7 +67,6 @@ async function getLogs(firstBlock, eventsCol) {
       blockToScrape += blocksPerRequest;
     }
 
-    console.log({ allEvents });
     await eventsCol.insertMany(allEvents);
   } catch (err) {
     console.error('ERROR:', err);

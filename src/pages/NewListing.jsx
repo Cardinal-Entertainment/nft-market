@@ -24,6 +24,7 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CheckCircle from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 import UserAllowance from '../components/UserAllowance'
 import Typography from '@mui/material/Typography'
 import { compareAsBigNumbers, toBigNumber } from '../utils/BigNumbers'
@@ -416,10 +417,12 @@ const NewListing = () => {
           <FlexColumn>
             <FlexRow>
               {
-                !exceedZoomAllowance && numberOfSelectedCards > 0 && 
+                !exceedZoomAllowance && numberOfSelectedCards > 0 ?
                 (
                   <CheckCircle color="success" />
-                )
+                ) : (
+                    <CancelIcon color="error" />
+                  )
               }
               <div className="zoom-burn-fee">
                 Zoom <StyledLogo src={zoomLogo} /> Burn Fee:

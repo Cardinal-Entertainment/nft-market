@@ -31,8 +31,9 @@ import { useQueryClient } from 'react-query'
 import { v4 as uuidv4 } from 'uuid'
 import { useFetchSingleListingQuery } from 'hooks/useListing'
 import { formatAddress } from 'utils/wallet'
-import { styled } from '@mui/material';
+import { styled } from '@mui/material'
 import { compareAsBigNumbers, toBigNumber } from '../utils/BigNumbers'
+import { waitForTransaction } from 'utils/transactions'
 
 const Container = styled('div')(({ theme }) => ({
   backgroundColor: 'white',
@@ -68,7 +69,7 @@ const Container = styled('div')(({ theme }) => ({
       flexWrap: 'wrap',
       [theme.breakpoints.down('md')]: {
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
       },
     },
   },
@@ -97,7 +98,6 @@ const HeaderRow = styled(FlexRow)(({ theme }) => ({
   },
 }))
 
-
 const ModalContent = styled('div')({
   position: 'absolute',
   display: 'flex',
@@ -115,7 +115,6 @@ const ModalContent = styled('div')({
     margin: '5px 0',
   },
 })
-
 
 const StyledLogo = styled('img')({
   width: '30px',
@@ -143,9 +142,9 @@ const ListingNFTWrapper = styled('div')({
     },
 
     '& img': {
-    width: '50px',
-    }
-  }
+      width: '50px',
+    },
+  },
 })
 
 const ListingMetadataWrapper = styled('div')(({ theme }) => ({
@@ -165,7 +164,7 @@ const ListingMetadataWrapper = styled('div')(({ theme }) => ({
 
     '& .auction-end h2': {
       textAlign: 'center',
-    }
+    },
   },
 
   '& .seller-date-wrapper': {
@@ -178,17 +177,17 @@ const ListingMetadataWrapper = styled('div')(({ theme }) => ({
 
     '& h1': {
       color: 'black',
-    }
+    },
   },
 
   '& .auction-end': {
     marginTop: '12px',
 
     '& h2': {
-        color: 'gray',
-        fontWeight: 'normal',
-        margin: '0',
-      },
+      color: 'gray',
+      fontWeight: 'normal',
+      margin: '0',
+    },
   },
 
   '& .price-wrapper': {
@@ -207,7 +206,7 @@ const ListingMetadataWrapper = styled('div')(({ theme }) => ({
 
     '& .current-price': {
       color: '#357439',
-    }
+    },
   },
 
   '& .offer-wrapper': {
@@ -219,9 +218,9 @@ const ListingMetadataWrapper = styled('div')(({ theme }) => ({
     marginRight: '24px',
 
     '& a': {
-      marginLeft: '8px !important'
-    }
-  }
+      marginLeft: '8px !important',
+    },
+  },
 }))
 
 const ItemHistoryWrapper = styled('div')(({ theme }) => ({
@@ -249,13 +248,12 @@ const ItemHistoryWrapper = styled('div')(({ theme }) => ({
   '& .bid-table-header th': {
     fontWeight: 'bold',
     fontSize: '1.1rem',
-  }
+  },
 }))
-
 
 const handleSettle = async (history, marketContract, auctionId) => {
   const tx = await marketContract.settle(parseInt(auctionId))
-  await tx.wait()
+  await waitForTransaction(tx)
   history.push('/')
 }
 
@@ -309,7 +307,7 @@ const ListingMetadata = ({
   isBidInProgress,
   handleConfirmBid,
   isAuctionOver,
-  walletAddress
+  walletAddress,
 }) => {
   const shortWallet = formatAddress(listing.seller)
   const dateListed = moment(listing.auctionStart * 1000).format(
@@ -321,20 +319,18 @@ const ListingMetadata = ({
   const timezone = momentTimezone.tz(momentTimezone.tz.guess()).zoneAbbr()
   const highestBid = toBigNumber(listing.highestBid)
 
-/*
+  /*
   const minOfferAmount =
     Math.max(parseFloat(listing.highestBid), parseFloat(listing.minPrice)) +
     minIncrement
 */
-  let minOfferAmount =
-      ethers.utils.parseEther(listing.highestBid.toString()).gt(ethers.utils.parseEther(listing.minPrice.toString()))
-      ? ethers.utils.parseEther(listing.highestBid.toString())
-      : ethers.utils.parseEther(listing.minPrice.toString());
+  let minOfferAmount = ethers.utils
+    .parseEther(listing.highestBid.toString())
+    .gt(ethers.utils.parseEther(listing.minPrice.toString()))
+    ? ethers.utils.parseEther(listing.highestBid.toString())
+    : ethers.utils.parseEther(listing.minPrice.toString())
 
-      console.log("minOfferAmount before", minOfferAmount, minOfferAmount.toString(), minIncrement);
-      minOfferAmount = minOfferAmount.add(minIncrement);
-      console.log("minOfferAmount after", minOfferAmount.toString());
-
+  minOfferAmount = minOfferAmount.add(minIncrement)
 
   const maxOfferAmount =
     listing.currency === 'ZOOM' ? ethers.utils.parseEther(zoomBalance) : ethers.utils.parseEther(movrBalance.toString())
@@ -374,7 +370,8 @@ const ListingMetadata = ({
           )}
         </p>
         <p className="current-price">
-          Current Price: {ethers.utils.formatEther(highestBid)} {listing.currency}
+          Current Price: {ethers.utils.formatEther(highestBid)}{' '}
+          {listing.currency}
         </p>
       </div>
       <div className="offer-wrapper">
@@ -457,7 +454,6 @@ const ViewListing = () => {
   const [approvalModalOpen, setApprovalModalOpen] = useState(false)
   const [bidInProgress, setBidInProgress] = useState(false)
 
-
   const auctionId = parseInt(id)
 
   const {
@@ -473,7 +469,10 @@ const ViewListing = () => {
       const bid = data
       const currentListing = queryClient.getQueryData([
         QUERY_KEYS.listing,
-        { itemNumber: auctionId, marketContractAddress: MarketContract?.address },
+        {
+          itemNumber: auctionId,
+          marketContractAddress: MarketContract?.address,
+        },
       ])
       const randomId = uuidv4()
       const bidWithId = {
@@ -485,21 +484,33 @@ const ViewListing = () => {
         if (currentListing && currentListing.bids) {
           if (currentListing.bids.length > 0) {
             queryClient.setQueryData(
-              [QUERY_KEYS.listing,  { itemNumber: auctionId, marketContractAddress: MarketContract?.address }],
+              [
+                QUERY_KEYS.listing,
+                {
+                  itemNumber: auctionId,
+                  marketContractAddress: MarketContract?.address,
+                },
+              ],
               {
                 ...currentListing,
                 bids: [...currentListing.bids, bidWithId],
-                highestBid: bid.bidAmount
+                highestBid: bid.bidAmount,
               }
             )
           }
         } else {
           queryClient.setQueryData(
-            [QUERY_KEYS.listing,  { itemNumber: auctionId, marketContractAddress: MarketContract?.address }],
+            [
+              QUERY_KEYS.listing,
+              {
+                itemNumber: auctionId,
+                marketContractAddress: MarketContract?.address,
+              },
+            ],
             {
               ...currentListing,
               bids: [bidWithId],
-              highestBid: bid.bidAmount
+              highestBid: bid.bidAmount,
             }
           )
         }
@@ -538,12 +549,21 @@ const ViewListing = () => {
       const { currency, id } = auctionItem
       let currencyContract
 
-      const minAmount = ethers.utils.parseEther(auctionItem?.highestBid.toString()).add(minIncrement)
-        .gt(ethers.utils.parseEther(auctionItem?.minPrice.toString()).add(minIncrement)) ?
-        ethers.utils.parseEther(auctionItem?.highestBid.toString()).add(minIncrement) :
-        ethers.utils.parseEther(auctionItem?.minPrice.toString()).add(minIncrement)
-      
-      console.log("Pre:", amount);
+      const minAmount = ethers.utils
+        .parseEther(auctionItem?.highestBid.toString())
+        .add(minIncrement)
+        .gt(
+          ethers.utils
+            .parseEther(auctionItem?.minPrice.toString())
+            .add(minIncrement)
+        )
+        ? ethers.utils
+            .parseEther(auctionItem?.highestBid.toString())
+            .add(minIncrement)
+        : ethers.utils
+            .parseEther(auctionItem?.minPrice.toString())
+            .add(minIncrement)
+
       if (ethers.utils.parseEther(amount.toString()).lt(minAmount)) {
         throw new Error(`Invalid amount valid : ${amount}`)
       }
@@ -570,8 +590,16 @@ const ViewListing = () => {
       }
 
       setBidInProgress(true)
-      const bidTx = await contracts.MarketContract.bid(parseInt(id), toBigNumber(amount))
+      const bidTx = await contracts.MarketContract.bid(parseInt(id), toBigNumber(amount), {value: toBigNumber(amount)})
       await bidTx.wait()
+
+      // const bidTx = await contracts.MarketContract.bid(
+      //   parseInt(itemNumber),
+      //   weiAmount,
+      //   {value:movrValue}
+      // );
+      // await bidTx.wait();
+      //
       setBidInProgress(false)
     }
 
