@@ -303,6 +303,7 @@ const ListingMetadata = ({
   minIncrement,
   zoomBalance,
   wmovrBalance,
+  movrBalance,
   isBidInProgress,
   handleConfirmBid,
   isAuctionOver,
@@ -316,10 +317,7 @@ const ListingMetadata = ({
   const auctionEndDate = localAuctionEnd.format('MMMM D, YYYY')
   const auctionEndTime = localAuctionEnd.format('h:mm:ss A')
   const timezone = momentTimezone.tz(momentTimezone.tz.guess()).zoneAbbr()
-  const highestBid =
-    compareAsBigNumbers(listing.highestBid, listing.minPrice) === 1
-      ? toBigNumber(listing.highestBid)
-      : toBigNumber(listing.minPrice)
+  const highestBid = toBigNumber(listing.highestBid)
 
   /*
   const minOfferAmount =
@@ -335,17 +333,13 @@ const ListingMetadata = ({
   minOfferAmount = minOfferAmount.add(minIncrement)
 
   const maxOfferAmount =
-    listing.currency === 'ZOOM'
-      ? ethers.utils.parseEther(zoomBalance)
-      : ethers.utils.parseEther(wmovrBalance)
+    listing.currency === 'ZOOM' ? ethers.utils.parseEther(zoomBalance) : ethers.utils.parseEther(movrBalance.toString())
+
+  console.log("maxOfferAmount", ethers.utils.formatEther(maxOfferAmount));
   const canBid =
     listing.currency === 'ZOOM'
-      ? ethers.utils
-          .parseEther(zoomBalance ? zoomBalance : '0')
-          .gt(minOfferAmount)
-      : ethers.utils
-          .parseEther(wmovrBalance ? wmovrBalance : '0')
-          .gt(minOfferAmount)
+      ? ethers.utils.parseEther(zoomBalance ? zoomBalance : "0").gt(minOfferAmount)
+      : ethers.utils.parseEther(movrBalance ? movrBalance.toString() : "0").gt(minOfferAmount)
 
   return (
     <ListingMetadataWrapper>
@@ -368,7 +362,7 @@ const ListingMetadata = ({
       </div>
       <div className="price-wrapper">
         <p className="min-price">
-          Minimum Price: {listing.minPrice} {listing.currency}
+          Minimum Price: {ethers.utils.formatEther(ethers.utils.parseEther(listing.minPrice.toString()))} {listing.currency}
           {listing.currency === 'ZOOM' ? (
             <StyledLogo src={zoomLogo} />
           ) : (
@@ -388,13 +382,8 @@ const ListingMetadata = ({
               currency={listing.currency}
               maxAmount={maxOfferAmount}
               onConfirm={handleConfirmBid}
-              disabled={
-                isBidInProgress ||
-                !canBid ||
-                isAuctionOver ||
-                listing.seller === walletAddress
-              }
-              />
+              disabled={isBidInProgress || !canBid || isAuctionOver || listing.seller === walletAddress}
+            />
           )
         }
       </div>
@@ -448,7 +437,7 @@ const ItemHistory = ({ bids }) => {
                           )}`
                         : ''}
                     </TableCell>
-                    <TableCell>{bid.bidAmount}</TableCell>
+                    <TableCell>{ethers.utils.formatEther(ethers.utils.parseEther(bid.bidAmount.toString()))}</TableCell>
                   </TableRow>
                 ))}
             </TableBody>
@@ -471,7 +460,7 @@ const ViewListing = () => {
     state: { contracts, wallet, zoomIncrement, wmovrIncrement },
   } = useContext(store)
 
-  const { zoomBalance, wmovrBalance } = wallet
+  const { zoomBalance, wmovrBalance, balance: movrBalance } = wallet
   const { MarketContract } = contracts
 
   const queryClient = useQueryClient()
@@ -590,20 +579,27 @@ const ViewListing = () => {
           throw new Error(`Unhandled currency type: ${currency}`)
       }
 
-      const approveTx = await currencyContract.approve(
-        marketContractAddress,
-        toBigNumber(amount)
-      )
+      if (currency === "ZOOM") {
+        const approveTx = await currencyContract.approve(
+          marketContractAddress,
+          toBigNumber(amount)
+        )
+        setApprovalModalOpen(true)
+        await approveTx.wait()
+        setApprovalModalOpen(false)
+      }
 
       setBidInProgress(true)
-      setApprovalModalOpen(true)
-      await waitForTransaction(approveTx)
-      setApprovalModalOpen(false)
-      const bidTx = await contracts.MarketContract.bid(
-        parseInt(id),
-        toBigNumber(amount)
-      )
-      await waitForTransaction(bidTx)
+      const bidTx = await contracts.MarketContract.bid(parseInt(id), toBigNumber(amount), {value: toBigNumber(amount)})
+      await bidTx.wait()
+
+      // const bidTx = await contracts.MarketContract.bid(
+      //   parseInt(itemNumber),
+      //   weiAmount,
+      //   {value:movrValue}
+      // );
+      // await bidTx.wait();
+      //
       setBidInProgress(false)
     }
 
@@ -637,6 +633,7 @@ const ViewListing = () => {
               minIncrement={minIncrement}
               zoomBalance={zoomBalance}
               wmovrBalance={wmovrBalance}
+              movrBalance={movrBalance}
               isBidInProgress={bidInProgress}
               listing={auctionItem}
               sellerUrl={sellerURL}

@@ -323,6 +323,8 @@ const AuctionItem = ({ content, archived }) => {
       throw new Error(`Invalid amount valid : ${amount}`)
     }
 
+    let movrValue = 0;
+
     switch (currency) {
       case 'ZOOM':
         currencyContract = contracts.ZoomContract
@@ -336,21 +338,26 @@ const AuctionItem = ({ content, archived }) => {
 
     const weiAmount = ethers.utils.parseEther(amount.toString())
 
-    const approveTx = await currencyContract.approve(
-      marketContractAddress,
-      weiAmount
-    )
-    setApprovalModalOpen(true)
-    await waitForTransaction(approveTx)
-    setApprovalModalOpen(false)
-    setBidInProgress(true)
+    if (currency === "ZOOM") {
+      const approveTx = await currencyContract.approve(
+        marketContractAddress,
+      );
+      setApprovalModalOpen(true);
+      await approveTx.wait();
+      setApprovalModalOpen(false);
+    }else{
+      movrValue = weiAmount
+    }
+
+    setBidInProgress(true);
     const bidTx = await contracts.MarketContract.bid(
       parseInt(itemNumber),
-      weiAmount
-    )
-    await waitForTransaction(bidTx)
-    setBidInProgress(false)
-  }
+      weiAmount,
+      {value:movrValue}
+    );
+    await bidTx.wait();
+    setBidInProgress(false);
+  };
 
   const toggleFavorite = () => {
     setFavorite(!favorite)
@@ -434,7 +441,7 @@ const AuctionItem = ({ content, archived }) => {
                 loading="lazy"
               />
               <span>
-                {Math.round(parseFloat(highestBid) * 10000) / 10000 + ' '}
+                {ethers.utils.formatEther(ethers.utils.parseEther(auctionItem.highestBid.toString()))}
               </span>
               <span className={'meta-content-coin-text'}>{coinType}</span>
             </MetaContentBidAmount>
@@ -454,41 +461,27 @@ const AuctionItem = ({ content, archived }) => {
             <MetaContentTip>Remaining time</MetaContentTip>
           </MetaContentRow>
           <MetaContentButtonSection>
-            {
-              !archived && (
-                <OfferDialog
-                  currency={coinType}
-                  minAmount={
-                    ethers.utils
-                      .parseEther(auctionItem.highestBid.toString())
-                      .gt(ethers.utils.parseEther(auctionItem.minPrice.toString()))
-                      ? ethers.utils
-                        .parseEther(auctionItem.highestBid.toString())
-                        .add(minIncrement)
-                      : ethers.utils
-                        .parseEther(auctionItem.minPrice.toString())
-                        .add(minIncrement)
-                  }
-                  maxAmount={
-                    coinType === 'ZOOM'
-                      ? wallet.zoomBalance
-                      ? ethers.utils.parseEther(wallet.zoomBalance)
-                      : toBigNumber(0)
-                      : wallet.wmovrBalance
-                      ? ethers.utils.parseEther(wallet.wmovrBalance)
-                      : toBigNumber(0)
-                  }
-                  onConfirm={handleConfirmBid}
-                  disabled={
-                    moment().isAfter(moment.unix(auctionItem.auctionEnd)) ||
-                    bidInProgress ||
-                    auctionItem.lister === wallet.address
-                  }
-                  mylisting={auctionItem.lister === wallet.address}
-                  quickBid
-                />
-              )
-            }
+          {
+            !archived && (
+              <OfferDialog
+                currency={coinType}
+                minAmount={
+                  ethers.utils.parseEther(auctionItem.highestBid.toString()).gt(ethers.utils.parseEther(auctionItem.minPrice.toString()))
+                    ? ethers.utils.parseEther(auctionItem.highestBid.toString()).add(minIncrement)
+                    : ethers.utils.parseEther(auctionItem.minPrice.toString()).add(minIncrement)
+                }
+                maxAmount={
+                  coinType === 'ZOOM'
+                    ? (wallet.zoomBalance ? ethers.utils.parseEther(wallet.zoomBalance) : toBigNumber(0))
+                    : (wallet.balance ? toBigNumber(wallet.balance) : toBigNumber(0))
+                }
+                onConfirm={handleConfirmBid}
+                disabled={moment().isAfter(moment.unix(auctionItem.auctionEnd)) || bidInProgress || auctionItem.lister === wallet.address}
+                mylisting={auctionItem.lister === wallet.address}
+                quickBid
+              />
+            )
+          }
             <Button className={'button-more-info'} onClick={gotoAuction}>
               More Info
               <FontAwesomeIcon icon={faChevronRight} size="sm" />
