@@ -358,21 +358,21 @@ const AuctionItem = ({ content, archived }) => {
             <div className={'meta-header-title'} onClick={gotoAuction}>
               Auction #{itemNumber}
             </div>
-            {favorite ? (
-              <FontAwesomeIcon
-                icon={faHeartSolid}
-                color={'rgba(255, 0, 0, 0.87)'}
-                size="lg"
-                onClick={toggleFavorite}
-              />
-            ) : (
-              <FontAwesomeIcon
-                icon={faHeart}
-                color={'rgba(0, 0, 0, 0.87)'}
-                size="lg"
-                onClick={toggleFavorite}
-              />
-            )}
+            {/*{favorite ? (*/}
+            {/*  <FontAwesomeIcon*/}
+            {/*    icon={faHeartSolid}*/}
+            {/*    color={'rgba(255, 0, 0, 0.87)'}*/}
+            {/*    size="lg"*/}
+            {/*    onClick={toggleFavorite}*/}
+            {/*  />*/}
+            {/*) : (*/}
+            {/*  <FontAwesomeIcon*/}
+            {/*    icon={faHeart}*/}
+            {/*    color={'rgba(0, 0, 0, 0.87)'}*/}
+            {/*    size="lg"*/}
+            {/*    onClick={toggleFavorite}*/}
+            {/*  />*/}
+            {/*)}*/}
           </div>
           <div className={'meta-header-right'}>
             <div className={'meta-header-cards-tip'}>
