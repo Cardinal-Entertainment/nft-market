@@ -17,6 +17,7 @@ import {
 import { getWalletWMOVRBalance, getWalletZoomBalance } from '../utils/wallet'
 import watchMarketEvents from 'utils/setupWatcher'
 
+
 const isLocal = process.env.NODE_ENV === 'development'
 
 const ethChainParam = isLocal
@@ -58,7 +59,6 @@ const useBlockchain = () => {
     }
 
     const handleConnect = (connectInfo) => {
-      console.log({ connectInfo })
       dispatch(Actions.dAppStateChanged(DAPP_STATES.CONNECTED))
     }
 
@@ -67,7 +67,7 @@ const useBlockchain = () => {
         mustBeMetaMask: true,
       })
 
-      const provider = new ethers.providers.Web3Provider(metamaskProvider)      
+      const provider = new ethers.providers.Web3Provider(metamaskProvider)
       const signer = provider.getSigner()
       const [address, balance] = await Promise.all([
         signer.getAddress(),
@@ -247,8 +247,10 @@ const useBlockchain = () => {
           })
         })
 
-        const { ZoomContract, WMOVRContract } =
-          await loadContracts(signer, network.chainId)
+        const { ZoomContract, WMOVRContract } = await loadContracts(
+          signer,
+          network.chainId
+        )
 
         const zoomBalance = await getWalletZoomBalance(ZoomContract, address)
         const WMOVRBalance = await getWalletWMOVRBalance(WMOVRContract, address)
