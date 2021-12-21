@@ -27,7 +27,6 @@ const StyledDiv = styled('div')({
 });
 
 const Container = styled('div')(({ type, highlight }) => ({
-  color: 'white',
   display: 'flex',
   margin: '6px 0',
   transition: 'opacity 700ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
@@ -46,6 +45,15 @@ const Container = styled('div')(({ type, highlight }) => ({
       : type === 'myalert' && highlight !== 'true'
       ? '#ff59e8'
       : 'rgb(0, 30, 60)',
+
+  color:
+    type === 'myalert' && highlight === 'true'
+      ? '#000033'
+      : type !== 'myalert' && highlight === 'true'
+      ? '#000033'
+      : type === 'myalert' && highlight !== 'true'
+        ? '#000033'
+        : 'white',
 }));
 
 const ImgEvent = styled('div')({
