@@ -319,9 +319,7 @@ const ListingMetadata = ({
   const auctionEndDate = localAuctionEnd.format('MMMM D, YYYY')
   const auctionEndTime = localAuctionEnd.format('h:mm:ss A')
   const timezone = momentTimezone.tz(momentTimezone.tz.guess()).zoneAbbr()
-  const highestBid =
-    compareAsBigNumbers(listing.highestBid, listing.minPrice) === 1
-      ? toBigNumber(listing.highestBid) : toBigNumber(listing.minPrice)
+  const highestBid = toBigNumber(listing.highestBid)
 
 /*
   const minOfferAmount =
@@ -345,7 +343,7 @@ const ListingMetadata = ({
   const canBid =
     listing.currency === 'ZOOM'
       ? ethers.utils.parseEther(zoomBalance ? zoomBalance : "0").gt(minOfferAmount)
-      : ethers.utils.parseEther(wmovrBalance ? wmovrBalance : "0").gt(minOfferAmount)
+      : ethers.utils.parseEther(movrBalance ? movrBalance.toString() : "0").gt(minOfferAmount)
 
   return (
     <ListingMetadataWrapper>
