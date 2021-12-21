@@ -59,7 +59,6 @@ const useBlockchain = () => {
     }
 
     const handleConnect = (connectInfo) => {
-      console.log({ connectInfo })
       dispatch(Actions.dAppStateChanged(DAPP_STATES.CONNECTED))
     }
 
@@ -248,8 +247,10 @@ const useBlockchain = () => {
           })
         })
 
-        const { ZoomContract, WMOVRContract } =
-          await loadContracts(signer, network.chainId)
+        const { ZoomContract, WMOVRContract } = await loadContracts(
+          signer,
+          network.chainId
+        )
 
         const zoomBalance = await getWalletZoomBalance(ZoomContract, address)
         const WMOVRBalance = await getWalletWMOVRBalance(WMOVRContract, address)
