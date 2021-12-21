@@ -34,6 +34,7 @@ import { formatAddress } from 'utils/wallet'
 import { styled } from '@mui/material'
 import { compareAsBigNumbers, toBigNumber } from '../utils/BigNumbers'
 import { waitForTransaction } from 'utils/transactions'
+import { useGetZoomAllowanceQuery } from 'hooks/useProfile'
 
 const Container = styled('div')(({ theme }) => ({
   backgroundColor: 'white',
@@ -211,6 +212,10 @@ const ListingMetadataWrapper = styled('div')(({ theme }) => ({
 
   '& .offer-wrapper': {
     marginTop: '32px',
+
+    '.not-enough-zoom-msg': {
+      color: '#ffa726',
+    },
   },
 
   '& span': {
@@ -308,6 +313,7 @@ const ListingMetadata = ({
   handleConfirmBid,
   isAuctionOver,
   walletAddress,
+  zoomAllowance,
 }) => {
   const shortWallet = formatAddress(listing.seller)
   const dateListed = moment(listing.auctionStart * 1000).format(
@@ -331,15 +337,24 @@ const ListingMetadata = ({
     : ethers.utils.parseEther(listing.minPrice.toString())
 
   minOfferAmount = minOfferAmount.add(minIncrement)
+  const isZoomAllowanceEnough = zoomAllowance
+    ? minOfferAmount.lte(zoomAllowance)
+    : false
 
   const maxOfferAmount =
-    listing.currency === 'ZOOM' ? ethers.utils.parseEther(zoomBalance) : ethers.utils.parseEther(movrBalance.toString())
+    listing.currency === 'ZOOM'
+      ? ethers.utils.parseEther(zoomBalance)
+      : ethers.utils.parseEther(movrBalance.toString())
 
-  console.log("maxOfferAmount", ethers.utils.formatEther(maxOfferAmount));
+  console.log('maxOfferAmount', ethers.utils.formatEther(maxOfferAmount))
   const canBid =
     listing.currency === 'ZOOM'
-      ? ethers.utils.parseEther(zoomBalance ? zoomBalance : "0").gt(minOfferAmount)
-      : ethers.utils.parseEther(movrBalance ? movrBalance.toString() : "0").gt(minOfferAmount)
+      ? ethers.utils
+          .parseEther(zoomBalance ? zoomBalance : '0')
+          .gt(minOfferAmount)
+      : ethers.utils
+          .parseEther(movrBalance ? movrBalance.toString() : '0')
+          .gt(minOfferAmount)
 
   return (
     <ListingMetadataWrapper>
@@ -362,7 +377,11 @@ const ListingMetadata = ({
       </div>
       <div className="price-wrapper">
         <p className="min-price">
-          Minimum Price: {ethers.utils.formatEther(ethers.utils.parseEther(listing.minPrice.toString()))} {listing.currency}
+          Minimum Price:{' '}
+          {ethers.utils.formatEther(
+            ethers.utils.parseEther(listing.minPrice.toString())
+          )}{' '}
+          {listing.currency}
           {listing.currency === 'ZOOM' ? (
             <StyledLogo src={zoomLogo} />
           ) : (
@@ -375,17 +394,26 @@ const ListingMetadata = ({
         </p>
       </div>
       <div className="offer-wrapper">
-        {
-          !isAuctionOver && (
-            <OfferDialog
-              minAmount={minOfferAmount}
-              currency={listing.currency}
-              maxAmount={maxOfferAmount}
-              onConfirm={handleConfirmBid}
-              disabled={isBidInProgress || !canBid || isAuctionOver || listing.seller === walletAddress}
-            />
-          )
-        }
+        {!isZoomAllowanceEnough && listing.currency === 'ZOOM' && (
+          <p className="not-enough-zoom-msg">
+            Not enough Zoom set in allowance!
+          </p>
+        )}
+        {!isAuctionOver && (
+          <OfferDialog
+            minAmount={minOfferAmount}
+            currency={listing.currency}
+            maxAmount={maxOfferAmount}
+            onConfirm={handleConfirmBid}
+            disabled={
+              isBidInProgress ||
+              !canBid ||
+              isAuctionOver ||
+              listing.seller === walletAddress ||
+              (!isZoomAllowanceEnough && listing.currency === 'ZOOM')
+            }
+          />
+        )}
       </div>
     </ListingMetadataWrapper>
   )
@@ -437,7 +465,11 @@ const ItemHistory = ({ bids }) => {
                           )}`
                         : ''}
                     </TableCell>
-                    <TableCell>{ethers.utils.formatEther(ethers.utils.parseEther(bid.bidAmount.toString()))}</TableCell>
+                    <TableCell>
+                      {ethers.utils.formatEther(
+                        ethers.utils.parseEther(bid.bidAmount.toString())
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
             </TableBody>
@@ -523,6 +555,11 @@ const ViewListing = () => {
   const { isLoading: isFetchingListing, data: auctionItem } =
     useFetchSingleListingQuery(auctionId, MarketContract)
 
+  const { data: currentZoomAllowance } = useGetZoomAllowanceQuery(
+    wallet.address,
+    contracts.ZoomContract
+  )
+
   if (isFetchingListing) {
     return (
       <LoadingModal text="Loading auction item..." open={isFetchingListing} />
@@ -547,7 +584,6 @@ const ViewListing = () => {
 
     const handleConfirmBid = async (amount) => {
       const { currency, id } = auctionItem
-      let currencyContract
 
       const minAmount = ethers.utils
         .parseEther(auctionItem?.highestBid.toString())
@@ -568,30 +604,34 @@ const ViewListing = () => {
         throw new Error(`Invalid amount valid : ${amount}`)
       }
 
-      switch (currency) {
-        case 'ZOOM':
-          currencyContract = contracts.ZoomContract
-          break
-        case 'WMOVR':
-          currencyContract = contracts.WMOVRContract
-          break
-        default:
-          throw new Error(`Unhandled currency type: ${currency}`)
-      }
+      // switch (currency) {
+      //   case 'ZOOM':
+      //     currencyContract = contracts.ZoomContract
+      //     break
+      //   case 'WMOVR':
+      //     currencyContract = contracts.WMOVRContract
+      //     break
+      //   default:
+      //     throw new Error(`Unhandled currency type: ${currency}`)
+      // }
 
-      if (currency === "ZOOM") {
-        const approveTx = await currencyContract.approve(
-          marketContractAddress,
-          toBigNumber(amount)
-        )
-        setApprovalModalOpen(true)
-        await approveTx.wait()
-        setApprovalModalOpen(false)
-      }
+      // if (currency === "ZOOM") {
+      //   const approveTx = await currencyContract.approve(
+      //     marketContractAddress,
+      //     toBigNumber(amount)
+      //   )
+      //   setApprovalModalOpen(true)
+      //   await approveTx.wait()
+      //   setApprovalModalOpen(false)
+      // }
 
       setBidInProgress(true)
-      const bidTx = await contracts.MarketContract.bid(parseInt(id), toBigNumber(amount), {value: toBigNumber(amount)})
-      await bidTx.wait()
+      const bidTx = await contracts.MarketContract.bid(
+        parseInt(id),
+        toBigNumber(amount),
+        { value: currency === 'WMOVR' ? toBigNumber(amount) : 0 }
+      )
+      await waitForTransaction(bidTx)
 
       // const bidTx = await contracts.MarketContract.bid(
       //   parseInt(itemNumber),
@@ -640,6 +680,7 @@ const ViewListing = () => {
               handleConfirmBid={handleConfirmBid}
               isAuctionOver={isOver}
               walletAddress={wallet.address}
+              zoomAllowance={currentZoomAllowance}
             />
           </div>
 

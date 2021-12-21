@@ -23,6 +23,7 @@ import OfferDialog from './OfferDialog'
 import { useFetchBids } from 'hooks/useBids'
 import { toBigNumber } from '../utils/BigNumbers'
 import { waitForTransaction } from 'utils/transactions'
+import { useGetZoomAllowanceQuery } from 'hooks/useProfile'
 
 const Container = styled(Grid)({
   display: 'flex',
@@ -253,6 +254,20 @@ const AuctionItem = ({ content, archived }) => {
       : 0
 
   const { data } = useFetchBids(itemNumber)
+  const minOfferAmount = ethers.utils
+    .parseEther(auctionItem?.highestBid.toString())
+    .add(minIncrement)
+    .gt(
+      ethers.utils
+        .parseEther(auctionItem?.minPrice.toString())
+        .add(minIncrement)
+    )
+    ? ethers.utils
+        .parseEther(auctionItem?.highestBid.toString())
+        .add(minIncrement)
+    : ethers.utils
+        .parseEther(auctionItem?.minPrice.toString())
+        .add(minIncrement)
 
   useEffect(() => {
     const updateRemainingTime = () => {
@@ -293,7 +308,6 @@ const AuctionItem = ({ content, archived }) => {
   const handleConfirmBid = async (amount) => {
     const { itemNumber } = auctionItem
     let { currency } = auctionItem
-    let currencyContract
 
     if (currency === undefined) {
       currency =
@@ -304,60 +318,21 @@ const AuctionItem = ({ content, archived }) => {
           : ''
     }
 
-    const minAmount = ethers.utils
-      .parseEther(auctionItem?.highestBid.toString())
-      .add(minIncrement)
-      .gt(
-        ethers.utils
-          .parseEther(auctionItem?.minPrice.toString())
-          .add(minIncrement)
-      )
-      ? ethers.utils
-          .parseEther(auctionItem?.highestBid.toString())
-          .add(minIncrement)
-      : ethers.utils
-          .parseEther(auctionItem?.minPrice.toString())
-          .add(minIncrement)
-
-    if (ethers.utils.parseEther(amount.toString()).lt(minAmount)) {
+    if (ethers.utils.parseEther(amount.toString()).lt(minOfferAmount)) {
       throw new Error(`Invalid amount valid : ${amount}`)
-    }
-
-    let movrValue = 0;
-
-    switch (currency) {
-      case 'ZOOM':
-        currencyContract = contracts.ZoomContract
-        break
-      case 'WMOVR':
-        currencyContract = contracts.WMOVRContract
-        break
-      default:
-        throw new Error(`Unhandled currency type: ${currency}`)
     }
 
     const weiAmount = ethers.utils.parseEther(amount.toString())
 
-    if (currency === "ZOOM") {
-      const approveTx = await currencyContract.approve(
-        marketContractAddress,
-      );
-      setApprovalModalOpen(true);
-      await approveTx.wait();
-      setApprovalModalOpen(false);
-    }else{
-      movrValue = weiAmount
-    }
-
-    setBidInProgress(true);
+    setBidInProgress(true)
     const bidTx = await contracts.MarketContract.bid(
       parseInt(itemNumber),
       weiAmount,
-      {value:movrValue}
-    );
-    await bidTx.wait();
-    setBidInProgress(false);
-  };
+      { value: currency === 'WMOVR' ? weiAmount : 0 }
+    )
+    await waitForTransaction(bidTx);
+    setBidInProgress(false)
+  }
 
   const toggleFavorite = () => {
     setFavorite(!favorite)
@@ -366,6 +341,15 @@ const AuctionItem = ({ content, archived }) => {
   const gotoAuction = () => {
     history.push(`/listing/${auctionItem.itemNumber}`)
   }
+
+  const { data: zoomAllowance } = useGetZoomAllowanceQuery(
+    wallet.address,
+    contracts.ZoomContract
+  )
+
+  const isAllowanceEnough = zoomAllowance
+    ? zoomAllowance.gte(minOfferAmount)
+    : false
 
   return (
     <Container key={auctionItem._id} container>
@@ -441,7 +425,9 @@ const AuctionItem = ({ content, archived }) => {
                 loading="lazy"
               />
               <span>
-                {ethers.utils.formatEther(ethers.utils.parseEther(auctionItem.highestBid.toString()))}
+                {ethers.utils.formatEther(
+                  ethers.utils.parseEther(auctionItem.highestBid.toString())
+                )}
               </span>
               <span className={'meta-content-coin-text'}>{coinType}</span>
             </MetaContentBidAmount>
@@ -461,27 +447,30 @@ const AuctionItem = ({ content, archived }) => {
             <MetaContentTip>Remaining time</MetaContentTip>
           </MetaContentRow>
           <MetaContentButtonSection>
-          {
-            !archived && (
+            {!archived && (
               <OfferDialog
                 currency={coinType}
-                minAmount={
-                  ethers.utils.parseEther(auctionItem.highestBid.toString()).gt(ethers.utils.parseEther(auctionItem.minPrice.toString()))
-                    ? ethers.utils.parseEther(auctionItem.highestBid.toString()).add(minIncrement)
-                    : ethers.utils.parseEther(auctionItem.minPrice.toString()).add(minIncrement)
-                }
+                minAmount={minOfferAmount}
                 maxAmount={
                   coinType === 'ZOOM'
-                    ? (wallet.zoomBalance ? ethers.utils.parseEther(wallet.zoomBalance) : toBigNumber(0))
-                    : (wallet.balance ? toBigNumber(wallet.balance) : toBigNumber(0))
+                    ? wallet.zoomBalance
+                      ? ethers.utils.parseEther(wallet.zoomBalance)
+                      : toBigNumber(0)
+                    : wallet.balance
+                    ? toBigNumber(wallet.balance)
+                    : toBigNumber(0)
                 }
                 onConfirm={handleConfirmBid}
-                disabled={moment().isAfter(moment.unix(auctionItem.auctionEnd)) || bidInProgress || auctionItem.lister === wallet.address}
+                disabled={
+                  moment().isAfter(moment.unix(auctionItem.auctionEnd)) ||
+                  bidInProgress ||
+                  auctionItem.lister === wallet.address ||
+                  (coinType === 'ZOOM' && !isAllowanceEnough)
+                }
                 mylisting={auctionItem.lister === wallet.address}
                 quickBid
               />
-            )
-          }
+            )}
             <Button className={'button-more-info'} onClick={gotoAuction}>
               More Info
               <FontAwesomeIcon icon={faChevronRight} size="sm" />
