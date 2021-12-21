@@ -253,6 +253,14 @@ const ItemHistoryWrapper = styled('div')(({ theme }) => ({
     fontWeight: 'bold',
     fontSize: '1.1rem',
   },
+
+  '& .highest-bid': {
+    background: '#238636'
+  },
+
+  '& .highest-bid td': {
+    color: 'white'
+  },
 }))
 
 const handleSettle = async (history, marketContract, auctionId) => {
@@ -419,6 +427,8 @@ const ListingMetadata = ({
 }
 
 const ItemHistory = ({ bids }) => {
+  const reversed = [...bids];
+  reversed.reverse();
   return (
     <ItemHistoryWrapper>
       <h2>Item History</h2>
@@ -446,10 +456,11 @@ const ItemHistory = ({ bids }) => {
             </TableHead>
             <TableBody>
               {bids &&
-                bids.map((bid) => (
+                reversed.map((bid, index) => (
                   <TableRow
                     key={bid._id}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                    className={index === 0 ? "highest-bid" : ""}
                   >
                     <TableCell>Bid</TableCell>
                     <TableCell>
