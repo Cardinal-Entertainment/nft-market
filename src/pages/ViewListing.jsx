@@ -337,7 +337,7 @@ const ListingMetadata = ({
 
 
   const maxOfferAmount =
-    listing.currency === 'ZOOM' ? ethers.utils.parseEther(zoomBalance) : ethers.utils.parseEther(wmovrBalance).add(ethers.utils.parseEther(movrBalance.toString()))
+    listing.currency === 'ZOOM' ? ethers.utils.parseEther(zoomBalance) : ethers.utils.parseEther(movrBalance.toString())
 
   console.log("maxOfferAmount", ethers.utils.formatEther(maxOfferAmount));
   const canBid =
