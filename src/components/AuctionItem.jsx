@@ -225,7 +225,7 @@ const CardsContainer = styled('div')(({ theme }) => ({
   },
 }))
 
-const AuctionItem = ({ content }) => {
+const AuctionItem = ({ content, archived }) => {
   const {
     state: { contracts, wallet, zoomIncrement, wmovrIncrement },
   } = useContext(store)
@@ -454,37 +454,41 @@ const AuctionItem = ({ content }) => {
             <MetaContentTip>Remaining time</MetaContentTip>
           </MetaContentRow>
           <MetaContentButtonSection>
-            <OfferDialog
-              currency={coinType}
-              minAmount={
-                ethers.utils
-                  .parseEther(auctionItem.highestBid.toString())
-                  .gt(ethers.utils.parseEther(auctionItem.minPrice.toString()))
-                  ? ethers.utils
+            {
+              !archived && (
+                <OfferDialog
+                  currency={coinType}
+                  minAmount={
+                    ethers.utils
                       .parseEther(auctionItem.highestBid.toString())
-                      .add(minIncrement)
-                  : ethers.utils
-                      .parseEther(auctionItem.minPrice.toString())
-                      .add(minIncrement)
-              }
-              maxAmount={
-                coinType === 'ZOOM'
-                  ? wallet.zoomBalance
-                    ? ethers.utils.parseEther(wallet.zoomBalance)
-                    : toBigNumber(0)
-                  : wallet.wmovrBalance
-                  ? ethers.utils.parseEther(wallet.wmovrBalance)
-                  : toBigNumber(0)
-              }
-              onConfirm={handleConfirmBid}
-              disabled={
-                moment().isAfter(moment.unix(auctionItem.auctionEnd)) ||
-                bidInProgress ||
-                auctionItem.lister === wallet.address
-              }
-              mylisting={auctionItem.lister === wallet.address}
-              quickBid
-            />
+                      .gt(ethers.utils.parseEther(auctionItem.minPrice.toString()))
+                      ? ethers.utils
+                        .parseEther(auctionItem.highestBid.toString())
+                        .add(minIncrement)
+                      : ethers.utils
+                        .parseEther(auctionItem.minPrice.toString())
+                        .add(minIncrement)
+                  }
+                  maxAmount={
+                    coinType === 'ZOOM'
+                      ? wallet.zoomBalance
+                      ? ethers.utils.parseEther(wallet.zoomBalance)
+                      : toBigNumber(0)
+                      : wallet.wmovrBalance
+                      ? ethers.utils.parseEther(wallet.wmovrBalance)
+                      : toBigNumber(0)
+                  }
+                  onConfirm={handleConfirmBid}
+                  disabled={
+                    moment().isAfter(moment.unix(auctionItem.auctionEnd)) ||
+                    bidInProgress ||
+                    auctionItem.lister === wallet.address
+                  }
+                  mylisting={auctionItem.lister === wallet.address}
+                  quickBid
+                />
+              )
+            }
             <Button className={'button-more-info'} onClick={gotoAuction}>
               More Info
               <FontAwesomeIcon icon={faChevronRight} size="sm" />

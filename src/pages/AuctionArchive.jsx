@@ -47,7 +47,7 @@ const AuctionArchive = () => {
           useWindow={false}
         >
           {auctionItems.map((auction) => (
-            <AuctionItem content={auction} key={auction._id} />
+            <AuctionItem content={auction} key={auction._id} archived={true}/>
           ))}
         </InfiniteScroll>
       )}
