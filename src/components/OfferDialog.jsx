@@ -99,7 +99,7 @@ const OfferDialog = ({
               onChange={handleAmountChanged}
               error={inputInvalid !== ''}
               helperText={inputInvalid}
-              inputProps={{ step: parseFloat(minIncrement), min: 0, max: parseFloat(ethers.utils.formatEther(maxAmount))}}
+              inputProps={{ step: parseFloat(minIncrement), min: 0}}
             />
             <span>{currency}</span>
           </FlexRow>
