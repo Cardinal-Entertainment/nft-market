@@ -27,7 +27,8 @@ const OfferDialog = ({
                        onConfirm,
                        disabled,
                        quickBid,
-                       mylisting
+                       mylisting,
+                       minIncrement
                      }) => {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState(ethers.utils.formatEther(minAmount));
@@ -62,6 +63,8 @@ const OfferDialog = ({
     }
   };
 
+  console.log("this is offer dialog");
+
   return (
     <div>
       <Button
@@ -85,22 +88,18 @@ const OfferDialog = ({
           </DialogContentText>
           <FlexRow>
             <TextField
+              style={{flex: 1}}
               autoFocus
               margin="dense"
               id="amount"
               label="Offer Amount"
               type="number"
               variant="standard"
-              value={input
-                // currency === 'ZOOM'
-                //   ? parseInt(input).toString()
-                //   : parseFloat(input).toFixed(4)
-              }
+              value={input}
               onChange={handleAmountChanged}
-              // onKeyDown={onKeyDown}
               error={inputInvalid !== ''}
               helperText={inputInvalid}
-              inputProps={{ step: currency === 'WMOVR' ? 0.0001 : 1 }}
+              inputProps={{ step: parseFloat(minIncrement), min: 0, max: parseFloat(ethers.utils.formatEther(maxAmount))}}
             />
             <span>{currency}</span>
           </FlexRow>
