@@ -125,7 +125,7 @@ const UserAllowance = ({ initial }) => {
   }
 
   return (
-    <UserAllowanceWrapper className={'helloworld'}>
+    <UserAllowanceWrapper>
       {isLoading ? (
         <CircularProgress></CircularProgress>
       ) : (

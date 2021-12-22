@@ -34,6 +34,12 @@ import { styled } from '@mui/material'
 import { toBigNumber } from '../utils/BigNumbers'
 import { waitForTransaction } from 'utils/transactions'
 import { useGetZoomAllowanceQuery } from 'hooks/useProfile'
+import UserAllowance from '../components/UserAllowance'
+import Accordion from '@mui/material/Accordion'
+import AccordionSummary from '@mui/material/AccordionSummary'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import Typography from '@mui/material/Typography'
+import AccordionDetails from '@mui/material/AccordionDetails'
 
 const Container = styled('div')(({ theme }) => ({
   backgroundColor: 'white',
@@ -217,6 +223,10 @@ const ListingMetadataWrapper = styled('div')(({ theme }) => ({
     },
   },
 
+  '& .offer-wrapper .zoom-allowance-accordion': {
+    marginBottom: '12px',
+  },
+
   '& span': {
     fontSize: '1.25rem',
     marginRight: '24px',
@@ -252,6 +262,14 @@ const ItemHistoryWrapper = styled('div')(({ theme }) => ({
   '& .bid-table-header th': {
     fontWeight: 'bold',
     fontSize: '1.1rem',
+  },
+
+  '& .highest-bid': {
+    background: '#238636'
+  },
+
+  '& .highest-bid td': {
+    color: 'white'
   },
 }))
 
@@ -394,9 +412,23 @@ const ListingMetadata = ({
       </div>
       <div className="offer-wrapper">
         {!isZoomAllowanceEnough && listing.currency === 'ZOOM' && (
-          <p className="not-enough-zoom-msg">
-            Not enough Zoom set in allowance!
-          </p>
+          <>
+            <p className="not-enough-zoom-msg">
+              Not enough Zoom set in allowance!
+            </p>
+            <Accordion className={"zoom-allowance-accordion"}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+              >
+                <Typography variant="h8">Increase ZOOM Allowance</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <UserAllowance initial={minOfferAmount}/>
+              </AccordionDetails>
+            </Accordion>
+          </>
         )}
         {!isAuctionOver && (
           <OfferDialog
@@ -419,6 +451,8 @@ const ListingMetadata = ({
 }
 
 const ItemHistory = ({ bids }) => {
+  const reversed = [...bids];
+  reversed.reverse();
   return (
     <ItemHistoryWrapper>
       <h2>Item History</h2>
@@ -446,10 +480,11 @@ const ItemHistory = ({ bids }) => {
             </TableHead>
             <TableBody>
               {bids &&
-                bids.map((bid) => (
+                reversed.map((bid, index) => (
                   <TableRow
                     key={bid._id}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                    className={index === 0 ? "highest-bid" : ""}
                   >
                     <TableCell>Bid</TableCell>
                     <TableCell>
