@@ -265,11 +265,11 @@ const ItemHistoryWrapper = styled('div')(({ theme }) => ({
   },
 
   '& .highest-bid': {
-    background: '#238636'
+    background: '#238636',
   },
 
   '& .highest-bid td': {
-    color: 'white'
+    color: 'white',
   },
 }))
 
@@ -363,7 +363,6 @@ const ListingMetadata = ({
       ? ethers.utils.parseEther(zoomBalance)
       : ethers.utils.parseEther(movrBalance.toString())
 
-  console.log('maxOfferAmount', ethers.utils.formatEther(maxOfferAmount))
   const canBid =
     listing.currency === 'ZOOM'
       ? ethers.utils
@@ -416,7 +415,7 @@ const ListingMetadata = ({
             <p className="not-enough-zoom-msg">
               Not enough Zoom set in allowance!
             </p>
-            <Accordion className={"zoom-allowance-accordion"}>
+            <Accordion className={'zoom-allowance-accordion'}>
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls="panel1a-content"
@@ -425,7 +424,7 @@ const ListingMetadata = ({
                 <Typography variant="h8">Increase ZOOM Allowance</Typography>
               </AccordionSummary>
               <AccordionDetails>
-                <UserAllowance initial={minOfferAmount}/>
+                <UserAllowance initial={minOfferAmount} />
               </AccordionDetails>
             </Accordion>
           </>
@@ -451,8 +450,8 @@ const ListingMetadata = ({
 }
 
 const ItemHistory = ({ bids }) => {
-  const reversed = [...bids];
-  reversed.reverse();
+  const reversed = [...bids]
+  reversed.reverse()
   return (
     <ItemHistoryWrapper>
       <h2>Item History</h2>
@@ -484,7 +483,7 @@ const ItemHistory = ({ bids }) => {
                   <TableRow
                     key={bid._id}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                    className={index === 0 ? "highest-bid" : ""}
+                    className={index === 0 ? 'highest-bid' : ''}
                   >
                     <TableCell>Bid</TableCell>
                     <TableCell>
@@ -617,35 +616,40 @@ const ViewListing = () => {
       auctionItem.currency === 'ZOOM' ? zoomIncrement : wmovrIncrement
 
     const handleConfirmBid = async (amount) => {
-      const { currency, id } = auctionItem
+      try {
+        setBidInProgress(true)
+        const { currency, id } = auctionItem
 
-      const minAmount = ethers.utils
-        .parseEther(auctionItem?.highestBid.toString())
-        .add(minIncrement)
-        .gt(
-          ethers.utils
-            .parseEther(auctionItem?.minPrice.toString())
-            .add(minIncrement)
+        const minAmount = ethers.utils
+          .parseEther(auctionItem?.highestBid.toString())
+          .add(minIncrement)
+          .gt(
+            ethers.utils
+              .parseEther(auctionItem?.minPrice.toString())
+              .add(minIncrement)
+          )
+          ? ethers.utils
+              .parseEther(auctionItem?.highestBid.toString())
+              .add(minIncrement)
+          : ethers.utils
+              .parseEther(auctionItem?.minPrice.toString())
+              .add(minIncrement)
+
+        if (ethers.utils.parseEther(amount.toString()).lt(minAmount)) {
+          throw new Error(`Invalid amount valid : ${amount}`)
+        }
+
+        const bidTx = await contracts.MarketContract.bid(
+          parseInt(id),
+          toBigNumber(amount),
+          { value: currency === 'WMOVR' ? toBigNumber(amount) : 0 }
         )
-        ? ethers.utils
-            .parseEther(auctionItem?.highestBid.toString())
-            .add(minIncrement)
-        : ethers.utils
-            .parseEther(auctionItem?.minPrice.toString())
-            .add(minIncrement)
-
-      if (ethers.utils.parseEther(amount.toString()).lt(minAmount)) {
-        throw new Error(`Invalid amount valid : ${amount}`)
+        await waitForTransaction(bidTx)
+      } catch (e) {
+        console.error("Failed to bid: ", e);
+      } finally {
+        setBidInProgress(false)
       }
-
-      setBidInProgress(true)
-      const bidTx = await contracts.MarketContract.bid(
-        parseInt(id),
-        toBigNumber(amount),
-        { value: currency === 'WMOVR' ? toBigNumber(amount) : 0 }
-      )
-      await waitForTransaction(bidTx)
-      setBidInProgress(false)
     }
 
     return (
