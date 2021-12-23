@@ -1,10 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faHeart, faClock } from '@fortawesome/free-regular-svg-icons'
-import {
-  faHeart as faHeartSolid,
-  faChevronRight,
-} from '@fortawesome/free-solid-svg-icons'
+import { faClock } from '@fortawesome/free-regular-svg-icons'
+import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
 import movrLogo from '../assets/movr_logo.png'
 import zoomCoin from '../assets/zoombies_coin.svg'
 import { Button, CircularProgress, Modal, styled, Grid } from '@mui/material'
@@ -324,36 +321,37 @@ const AuctionItem = ({ content, archived }) => {
         .add(minIncrement)
 
   const handleConfirmBid = async (amount) => {
-    const { itemNumber } = auctionItem
-    let { currency } = auctionItem
+    try {
+      setBidInProgress(true)
+      const { itemNumber } = auctionItem
+      let { currency } = auctionItem
 
-    if (currency === undefined) {
-      currency =
-        auctionItem.saleToken === zoomContractAddress
-          ? 'ZOOM'
-          : auctionItem.saleToken === wmovrContractAddress
-          ? 'WMOVR'
-          : ''
+      if (currency === undefined) {
+        currency =
+          auctionItem.saleToken === zoomContractAddress
+            ? 'ZOOM'
+            : auctionItem.saleToken === wmovrContractAddress
+            ? 'WMOVR'
+            : ''
+      }
+
+      if (ethers.utils.parseEther(amount.toString()).lt(minOfferAmount)) {
+        throw new Error(`Invalid amount valid : ${amount}`)
+      }
+
+      const weiAmount = ethers.utils.parseEther(amount.toString())
+
+      const bidTx = await contracts.MarketContract.bid(
+        parseInt(itemNumber),
+        weiAmount,
+        { value: currency === 'WMOVR' ? weiAmount : 0 }
+      )
+      await waitForTransaction(bidTx)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setBidInProgress(false)
     }
-
-    if (ethers.utils.parseEther(amount.toString()).lt(minOfferAmount)) {
-      throw new Error(`Invalid amount valid : ${amount}`)
-    }
-
-    const weiAmount = ethers.utils.parseEther(amount.toString())
-
-    setBidInProgress(true)
-    const bidTx = await contracts.MarketContract.bid(
-      parseInt(itemNumber),
-      weiAmount,
-      { value: currency === 'WMOVR' ? weiAmount : 0 }
-    )
-    await waitForTransaction(bidTx);
-    setBidInProgress(false)
-  }
-
-  const toggleFavorite = () => {
-    setFavorite(!favorite)
   }
 
   const gotoAuction = () => {
