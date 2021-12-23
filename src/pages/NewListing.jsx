@@ -28,6 +28,8 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import UserAllowance from '../components/UserAllowance'
 import Typography from '@mui/material/Typography'
 import { compareAsBigNumbers, toBigNumber } from '../utils/BigNumbers'
+import AntSwitch from '../components/AntSwitch'
+import Stack from '@mui/material/Stack';
 
 const Container = styled.div`
   flex: 1;
@@ -387,8 +389,14 @@ const NewListing = () => {
             </Select>
           </InputContainer>
         </FlexRow>
+        <span>Auction End:</span>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Typography>Instant</Typography>
+          <AntSwitch defaultChecked inputProps={{ 'aria-label': 'ant design' }} />
+          <Typography>Normal</Typography>
+        </Stack>
+
         <FlexRow>
-          <span>Auction End:</span>
           <DateTimePicker
             renderInput={(props) => <TextField {...props} />}
             value={dateTime}
