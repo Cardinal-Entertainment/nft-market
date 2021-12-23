@@ -283,7 +283,6 @@ const AuctionItem = ({ content, archived }) => {
     state: { contracts, wallet, zoomIncrement, wmovrIncrement },
   } = useContext(store)
   const history = useHistory()
-  const [favorite, setFavorite] = useState(false)
   const [bidInProgress, setBidInProgress] = useState(false)
   const [approvalModalOpen, setApprovalModalOpen] = useState(false)
 

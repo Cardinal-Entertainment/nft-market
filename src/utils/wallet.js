@@ -60,3 +60,8 @@ export const addAssetToMetamask = async (tokenSymbol, address) => {
 export const formatAddress = (address) => {
   return address ? `${address.substr(0, 10)}...${address.substr(34)}` : '';
 };
+
+export const isMetamaskInstalled = () => {
+  const { ethereum } = window;
+  return Boolean(ethereum && ethereum.isMetaMask);
+}

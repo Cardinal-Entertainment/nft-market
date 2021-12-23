@@ -13,11 +13,13 @@ import {
   faShoppingBag,
 } from '@fortawesome/free-solid-svg-icons'
 
-import { formatAddress } from '../utils/wallet'
+import { setupEthers, setupEthListeners } from '../hooks/useBlockchain'
+import { formatAddress, isMetamaskInstalled } from '../utils/wallet'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { styled as styled1 } from '@mui/material/styles'
 import NotificationAddon from './NotificationAddon'
 import WrapMovrMenu from './WrapMovrMenu'
+import { Button } from '@mui/material'
 
 const Container = styled1('div')({
   width: '300px',
@@ -33,6 +35,16 @@ const Container = styled1('div')({
     '& .select': {
       color: 'white',
       backgroundColor: '#1976d2',
+    },
+  },
+
+  '.connect-button': {
+    display: 'flex',
+    justifyContent: 'center',
+    padding: '12px',
+
+    button: {
+      width: '100%',
     },
   },
 })
@@ -53,6 +65,20 @@ const NavItem = styled1('div')(({ color }) => ({
   fontSize: '18px',
   height: '50px',
   position: 'relative',
+
+  '#download-metamask': {
+    width: '100%',
+    color: 'white',
+    textDecoration: 'none',
+    textAlign: 'center',
+  },
+
+  ':hover': {
+    color: '#03c1e8',
+    cursor: 'pointer',
+    backgroundColor: 'rgba(165, 160, 163, 0.2)',
+    borderRadius: '5px',
+  },
 
   '& span': {
     display: 'flex',
@@ -129,15 +155,118 @@ const ButtonGroupContainer = styled1('div')({
   },
 })
 
+const onConnect = async (dispatch) => {
+  await setupEthers(dispatch)
+  await setupEthListeners(dispatch)
+}
+
+const renderUserBalanceSection = (
+  hasMetamask,
+  dispatch,
+  theme,
+  shortWallet,
+  address,
+  balance,
+  zoomBalance,
+  wmovrBalance
+) => {
+  if (!hasMetamask) {
+    return (
+      <NavItem color="white">
+        <a
+          id="download-metamask"
+          href="https://metamask.io/download.html"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Click here to install Metamask!
+        </a>
+      </NavItem>
+    )
+  }
+
+  if (!address) {
+    return (
+      <div className="connect-button">
+        <Button onClick={() => onConnect(dispatch)} variant="contained">
+          Connect
+        </Button>
+      </div>
+    )
+  }
+
+  return (
+    <UserBalances>
+      <NavItem color={theme.colors.metamaskOrange}>
+        <Tooltip
+          title={<TooltipContent>{address}</TooltipContent>}
+          arrow
+          placement="right"
+        >
+          <span>
+            <img src={metamaskLogo} alt="metamask logo" />
+            {shortWallet}
+          </span>
+        </Tooltip>
+      </NavItem>
+      <NavItem color="white">
+        <Tooltip
+          title={
+            <TooltipContent>
+              {Number(wmovrBalance || 0) / 1} WMOVR
+            </TooltipContent>
+          }
+          arrow
+          placement="right"
+        >
+          <span>
+            <img src={movrLogo} alt="movr logo" />
+            {Number(wmovrBalance || 0).toFixed(4)} WMOVR
+          </span>
+        </Tooltip>
+      </NavItem>
+      <NavItem color="white">
+        <Tooltip
+          title={<TooltipContent>{balance} MOVR</TooltipContent>}
+          arrow
+          placement="right"
+        >
+          <span>
+            <img src={movrLogo} alt="movr logo" />
+            {Number(balance).toFixed(4)} MOVR
+          </span>
+        </Tooltip>
+      </NavItem>
+      <NavItem color="white">
+        <Tooltip
+          title={
+            <TooltipContent>
+              {zoomBalance?.toLocaleString()} ZOOM Tokens
+            </TooltipContent>
+          }
+          arrow
+          placement="right"
+        >
+          <span>
+            <img className="zoom" src={zoomCoin} alt="zoom coin logo" />
+            {Number(Number(zoomBalance || 0).toFixed(4)).toLocaleString()} ZOOM
+          </span>
+        </Tooltip>
+      </NavItem>
+    </UserBalances>
+  )
+}
+
 const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
   const theme = useTheme()
 
-  const { state } = useContext(store)
+  const { state, dispatch } = useContext(store)
   const {
     wallet: { address, balance, zoomBalance, wmovrBalance },
   } = state
 
   const shortWallet = formatAddress(address)
+  const isExtensionInstalled = isMetamaskInstalled()
 
   return (
     <Container>
@@ -211,67 +340,16 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
           </>
         )}
       </NavigationSection>
-      <UserBalances>
-        <NavItem color={theme.colors.metamaskOrange}>
-          <Tooltip
-            title={<TooltipContent>{address}</TooltipContent>}
-            arrow
-            placement="right"
-          >
-            <span>
-              <img src={metamaskLogo} alt="metamask logo" />
-              {shortWallet}
-            </span>
-          </Tooltip>
-        </NavItem>
-        <NavItem color="white">
-          <Tooltip
-            title={
-              <TooltipContent>
-                {Number(wmovrBalance || 0) / 1} WMOVR
-              </TooltipContent>
-            }
-            arrow
-            placement="right"
-          >
-            <span>
-              <img src={movrLogo} alt="movr logo" />
-              {Number(wmovrBalance || 0).toFixed(4)} WMOVR
-            </span>
-          </Tooltip>
-        </NavItem>
-        <NavItem color="white">
-          <Tooltip
-            title={<TooltipContent>{balance} MOVR</TooltipContent>}
-            arrow
-            placement="right"
-          >
-            <span>
-              <img src={movrLogo} alt="movr logo" />
-              {Number(balance).toFixed(4)} MOVR
-            </span>
-          </Tooltip>
-        </NavItem>
-        <NavItem color="white">
-          <Tooltip
-            title={
-              <TooltipContent>
-                {zoomBalance?.toLocaleString()} ZOOM Tokens
-              </TooltipContent>
-            }
-            arrow
-            placement="right"
-          >
-            <span>
-              <img className="zoom" src={zoomCoin} alt="zoom coin logo" />
-              {Number(
-                Number(zoomBalance || 0).toFixed(4)
-              ).toLocaleString()}{' '}
-              ZOOM
-            </span>
-          </Tooltip>
-        </NavItem>
-      </UserBalances>
+      {renderUserBalanceSection(
+        isExtensionInstalled,
+        dispatch,
+        theme,
+        shortWallet,
+        address,
+        balance,
+        zoomBalance,
+        wmovrBalance
+      )}
       <ButtonGroupContainer>
         <NavItemLiveFeeds>
           <NavItem
