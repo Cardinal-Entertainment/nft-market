@@ -34,10 +34,6 @@ const OfferDialog = ({
   const [input, setInput] = useState(ethers.utils.formatEther(minAmount));
   const [inputInvalid, setInputInvalid] = useState('');
 
-  useEffect(() => {
-    setInput(ethers.utils.formatEther(minAmount));
-  }, [minAmount]);
-
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -62,8 +58,6 @@ const OfferDialog = ({
       setOpen(false);
     }
   };
-
-  console.log("this is offer dialog");
 
   return (
     <div>
