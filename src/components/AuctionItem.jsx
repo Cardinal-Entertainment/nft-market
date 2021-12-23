@@ -200,6 +200,11 @@ const MetaContentButtonSection = styled('div')({
     padding: '6px 8px',
   },
 
+  '& .button-bid.button-readonly': {
+    backgroundColor: '#D400BD',
+    color: 'rgba(0,0,0,.26)'
+  },
+
   '& .button-more-info': {
     display: 'flex',
     alignItems: 'center',
@@ -364,6 +369,26 @@ const AuctionItem = ({ content, archived }) => {
     ? zoomAllowance.gte(minOfferAmount)
     : false
 
+  let offerToolTip;
+  if (moment().isAfter(moment.unix(auctionItem.auctionEnd))) {
+    offerToolTip = "This Auction is ended."
+  }
+  if (bidInProgress) {
+    offerToolTip = "Your bid is in processing."
+  }
+  if (auctionItem.lister === wallet.address) {
+    offerToolTip = "This is your auction."
+  }
+  if (coinType === 'ZOOM' && !isAllowanceEnough) {
+    offerToolTip = "You have not approved enough ZOOM, go to Profile page"
+  }
+  if (coinType === "ZOOM" && (wallet.zoomBalance ? ethers.utils.parseEther(wallet.zoomBalance).lt(minOfferAmount) : true)) {
+    offerToolTip = "You do not have enough ZOOM tokens"
+  }
+  if (coinType === "WMOVR" && (wallet.balance ? ethers.utils.parseEther(wallet.balance.toString()).lt(minOfferAmount) : true)) {
+    offerToolTip = "You do not have enough MOVR"
+  }
+
   return (
     <Container key={auctionItem._id} container>
       <MetaDiv>
@@ -472,8 +497,11 @@ const AuctionItem = ({ content, archived }) => {
                   moment().isAfter(moment.unix(auctionItem.auctionEnd)) ||
                   bidInProgress ||
                   auctionItem.lister === wallet.address ||
-                  (coinType === 'ZOOM' && !isAllowanceEnough)
+                  (coinType === 'ZOOM' && !isAllowanceEnough) ||
+                  (coinType === "WMOVR" && (wallet.balance ? ethers.utils.parseEther(wallet.balance.toString()).lt(minOfferAmount) : true)) ||
+                  (coinType === "ZOOM" && (wallet.zoomBalance ? ethers.utils.parseEther(wallet.zoomBalance).lt(minOfferAmount) : true))
                 }
+                tooltip={offerToolTip}
                 mylisting={auctionItem.lister === wallet.address}
                 minIncrement={ethers.utils.formatEther(minIncrement)}
                 quickBid

@@ -44,7 +44,7 @@ const Home = () => {
     rarity: '', // 'epic', 'rare', 'uncommon', 'common'
     token: '', // the token's contract address
     keyword: '', // search keyword,
-    sortField: '', //sort by key
+    sortField: 'auctionEnd', //sort by key
   });
 
   const { data, isLoading, hasNextPage, fetchNextPage } =

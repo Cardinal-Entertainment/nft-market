@@ -373,6 +373,26 @@ const ListingMetadata = ({
           .parseEther(movrBalance ? movrBalance.toString() : '0')
           .gt(minOfferAmount)
 
+  let offerToolTip;
+  if (isAuctionOver) {
+    offerToolTip = "This Auction is ended."
+  }
+  if (isBidInProgress) {
+    offerToolTip = "Your bid is in processing."
+  }
+  if (listing.seller === walletAddress) {
+    offerToolTip = "This is your auction."
+  }
+  if (listing.currency === 'ZOOM' && !isZoomAllowanceEnough) {
+    offerToolTip = "You have not approved enough ZOOM, go to Profile page."
+  }
+  if (listing.currency === "ZOOM" && (zoomBalance ? ethers.utils.parseEther(zoomBalance).lt(minOfferAmount) : true)) {
+    offerToolTip = "You do not have enough ZOOM tokens."
+  }
+  if (listing.currency === "WMOVR" && (movrBalance ? ethers.utils.parseEther(movrBalance.toString()).lt(minOfferAmount) : true)) {
+    offerToolTip = "You do not have enough MOVR."
+  }
+
   return (
     <ListingMetadataWrapper>
       <div className="seller-date-wrapper">
@@ -444,6 +464,7 @@ const ListingMetadata = ({
               listing.seller === walletAddress ||
               (!isZoomAllowanceEnough && listing.currency === 'ZOOM')
             }
+            tooltip={offerToolTip}
           />
         )}
       </div>
