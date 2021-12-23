@@ -13,9 +13,9 @@ import { CircularProgress, Modal, Paper } from '@mui/material'
 import OfferDialog from 'components/OfferDialog'
 import {
   EVENT_TYPES,
-  QUERY_KEYS,
+  QUERY_KEYS, wmovrContractAddress,
   ZoombiesStableEndpoint,
-  ZoombiesTestingEndpoint,
+  ZoombiesTestingEndpoint, zoomContractAddress
 } from '../constants'
 import { ethers } from 'ethers'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -213,6 +213,16 @@ const ListingMetadataWrapper = styled('div')(({ theme }) => ({
     '& .current-price': {
       color: '#357439',
     },
+
+    '& .currency-label': {
+      display: 'flex',
+
+      '& .currency-logo': {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }
+    }
   },
 
   '& .offer-wrapper': {
@@ -324,7 +334,6 @@ const ListingMetadata = ({
   sellerUrl,
   minIncrement,
   zoomBalance,
-  wmovrBalance,
   movrBalance,
   isBidInProgress,
   handleConfirmBid,
@@ -341,6 +350,26 @@ const ListingMetadata = ({
   const auctionEndTime = localAuctionEnd.format('h:mm:ss A')
   const timezone = momentTimezone.tz(momentTimezone.tz.guess()).zoneAbbr()
   const highestBid = toBigNumber(listing.highestBid)
+
+  const [auctionCurrency, setAuctionCurrency] = useState('')
+
+  const { state } = useContext(store);
+  const { contracts } = state;
+
+  useEffect(() => {
+    console.log("listing.saleToken", listing.saleToken);
+    const getTokenName = async ( saleToken ) => {
+      if (saleToken === zoomContractAddress) {
+        return await contracts.ZoomContract.name();
+      } else if (saleToken === wmovrContractAddress) {
+        return await contracts.WMOVRContract.name();
+      }
+    };
+
+    getTokenName(listing.saleToken).then( (name) => {
+      setAuctionCurrency(name)
+    })
+  }, [contracts.ZoomContract, contracts.WMOVRContract, listing.saleToken]);
 
   /*
   const minOfferAmount =
@@ -412,20 +441,27 @@ const ListingMetadata = ({
         </h2>
       </div>
       <div className="price-wrapper">
+        <div className={"currency-label"}>
+          <p>
+            Auction currency: {auctionCurrency}
+          </p>
+          <div className={"currency-logo"}>
+            {listing.currency === 'ZOOM' ? (
+              <StyledLogo src={zoomLogo} />
+            ) : (
+              <StyledLogo src={movrLogo} />
+            )}
+          </div>
+        </div>
         <p className="min-price">
-          Minimum Price:{' '}
+          Minimum Bid:{' '}
           {ethers.utils.formatEther(
             ethers.utils.parseEther(listing.minPrice.toString())
           )}{' '}
           {listing.currency}
-          {listing.currency === 'ZOOM' ? (
-            <StyledLogo src={zoomLogo} />
-          ) : (
-            <StyledLogo src={movrLogo} />
-          )}
         </p>
         <p className="current-price">
-          Current Price: {ethers.utils.formatEther(highestBid)}{' '}
+          Current Bid: {ethers.utils.formatEther(highestBid)}{' '}
           {listing.currency}
         </p>
       </div>
