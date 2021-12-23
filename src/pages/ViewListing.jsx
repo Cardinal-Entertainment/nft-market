@@ -436,6 +436,7 @@ const ListingMetadata = ({
             currency={listing.currency}
             maxAmount={maxOfferAmount}
             onConfirm={handleConfirmBid}
+            minIncrement={ethers.utils.formatEther(minIncrement)}
             disabled={
               isBidInProgress ||
               !canBid ||
