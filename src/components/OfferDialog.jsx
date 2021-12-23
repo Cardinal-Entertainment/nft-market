@@ -8,6 +8,15 @@ import DialogTitle from '@mui/material/DialogTitle';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components/macro';
 import { ethers } from 'ethers'
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
+import { styled as styled1 } from '@mui/material/styles'
+
+const Container = styled.div`
+  .button-readonly {
+    background: rgba(0, 0, 0, 0.12);
+    color: rgba(0, 0, 0, 0.26);
+  }
+`;
 
 const FlexRow = styled.div`
   display: flex;
@@ -20,22 +29,29 @@ const FlexRow = styled.div`
   }
 `;
 
+const CustomWidthTooltip = styled1(({ className, ...props }) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))({
+  [`& .${tooltipClasses.tooltip}`]: {
+    maxWidth: 200,
+    fontSize: '16px'
+  },
+});
+
 const OfferDialog = ({
                        currency,
                        minAmount,
                        maxAmount,
                        onConfirm,
                        disabled,
+                       tooltip,
                        quickBid,
-                       mylisting
+                       mylisting,
+                       minIncrement
                      }) => {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState(ethers.utils.formatEther(minAmount));
   const [inputInvalid, setInputInvalid] = useState('');
-
-  useEffect(() => {
-    setInput(ethers.utils.formatEther(minAmount));
-  }, [minAmount]);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -62,21 +78,52 @@ const OfferDialog = ({
     }
   };
 
-  return (
-    <div>
-      <Button
-        variant="contained"
-        onClick={handleClickOpen}
-        disabled={disabled}
-        className={quickBid ? 'button-bid' : ''}
-      >
-        {
-          mylisting ? 'My Listing' :
-            (quickBid
-              ? `Quick bid (${ethers.utils.formatEther(minAmount)} ${currency})` : 'Make Offer')
-        }
+  let offerButtonClassName = "";
+  if (quickBid && disabled) {
+    offerButtonClassName = "button-bid button-readonly";
+  } else if (quickBid && !disabled) {
+    offerButtonClassName = "button-bid";
+  } else if (!quickBid && disabled) {
+    offerButtonClassName = "button-readonly";
+  } else {
+    offerButtonClassName = "";
+  }
 
-      </Button>
+  return (
+    <Container>
+      {
+        disabled ? (
+          <CustomWidthTooltip
+            title={tooltip}
+            arrow
+            placement="top"
+          >
+            <Button
+              variant="contained"
+              onClick={!disabled ? handleClickOpen : null}
+              className={offerButtonClassName}
+            >
+              {
+                mylisting ? 'My Listing' :
+                  (quickBid
+                    ? `Quick bid (${ethers.utils.formatEther(minAmount)} ${currency})` : 'Make Offer')
+              }
+            </Button>
+          </CustomWidthTooltip>
+        ) : (
+          <Button
+            variant="contained"
+            onClick={!disabled ? handleClickOpen : null}
+            className={offerButtonClassName}
+          >
+            {
+              mylisting ? 'My Listing' :
+                (quickBid
+                  ? `Quick bid (${ethers.utils.formatEther(minAmount)} ${currency})` : 'Make Offer')
+            }
+          </Button>
+        )
+      }
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Make Offer</DialogTitle>
         <DialogContent>
@@ -85,22 +132,18 @@ const OfferDialog = ({
           </DialogContentText>
           <FlexRow>
             <TextField
+              style={{flex: 1}}
               autoFocus
               margin="dense"
               id="amount"
               label="Offer Amount"
               type="number"
               variant="standard"
-              value={input
-                // currency === 'ZOOM'
-                //   ? parseInt(input).toString()
-                //   : parseFloat(input).toFixed(4)
-              }
+              value={input}
               onChange={handleAmountChanged}
-              // onKeyDown={onKeyDown}
               error={inputInvalid !== ''}
               helperText={inputInvalid}
-              inputProps={{ step: currency === 'WMOVR' ? 0.0001 : 1 }}
+              inputProps={{ step: parseFloat(minIncrement), min: 0}}
             />
             <span>{currency}</span>
           </FlexRow>
@@ -117,7 +160,7 @@ const OfferDialog = ({
           </Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </Container>
   );
 };
 

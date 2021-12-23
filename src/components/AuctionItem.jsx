@@ -197,6 +197,11 @@ const MetaContentButtonSection = styled('div')({
     padding: '6px 8px',
   },
 
+  '& .button-bid.button-readonly': {
+    backgroundColor: '#D400BD',
+    color: 'rgba(0,0,0,.26)'
+  },
+
   '& .button-more-info': {
     display: 'flex',
     alignItems: 'center',
@@ -222,12 +227,63 @@ const CardsContainer = styled('div')(({ theme }) => ({
   },
 }))
 
+const DownCounter = ( { timestamp } ) => {
+
+  const [remainingTime, setRemainingTime] = useState('')
+
+  const formatTwoPlace = (value) => {
+    if (value > 9) {
+      return value
+    } else {
+      return '0' + value
+    }
+  }
+
+  useEffect(() => {
+    const updateRemainingTime = () => {
+      const timeDiff = moment.unix(timestamp).diff(moment()) / 1000
+
+      const remainingDays = Math.floor(timeDiff / (3600 * 24))
+      const remainingHours = Math.floor((timeDiff % (3600 * 24)) / 3600)
+      const remainingMinutes = Math.floor((timeDiff % 3600) / 60)
+      const remainingSeconds = Math.floor(timeDiff % 60)
+
+      setRemainingTime(
+        formatTwoPlace(remainingDays) +
+        'd ' +
+        formatTwoPlace(remainingHours) +
+        'h ' +
+        formatTwoPlace(remainingMinutes) +
+        'm ' +
+        formatTwoPlace(remainingSeconds) +
+        's '
+      )
+    }
+
+    const interval = setInterval(() => {
+      updateRemainingTime()
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [timestamp])
+
+  return (
+    <span className={'meta-content-remaining-time'}>
+      {moment().isBefore(moment.unix(timestamp))
+        ? remainingTime
+        : moment
+          .unix(timestamp)
+          .format('MM/DD/YYYY, h:mm:ss A')}
+    </span>
+  )
+}
+
 const AuctionItem = ({ content, archived }) => {
   const {
     state: { contracts, wallet, zoomIncrement, wmovrIncrement },
   } = useContext(store)
   const history = useHistory()
-  const [remainingTime, setRemainingTime] = useState('')
+  const [favorite, setFavorite] = useState(false)
   const [bidInProgress, setBidInProgress] = useState(false)
   const [approvalModalOpen, setApprovalModalOpen] = useState(false)
 
@@ -263,42 +319,6 @@ const AuctionItem = ({ content, archived }) => {
     : ethers.utils
         .parseEther(auctionItem?.minPrice.toString())
         .add(minIncrement)
-
-  useEffect(() => {
-    const updateRemainingTime = () => {
-      const timeDiff = moment.unix(auctionItem.auctionEnd).diff(moment()) / 1000
-
-      const remainingDays = Math.floor(timeDiff / (3600 * 24))
-      const remainingHours = Math.floor((timeDiff % (3600 * 24)) / 3600)
-      const remainingMinutes = Math.floor((timeDiff % 3600) / 60)
-      const remainingSeconds = Math.floor(timeDiff % 60)
-
-      setRemainingTime(
-        formatTwoPlace(remainingDays) +
-          'd ' +
-          formatTwoPlace(remainingHours) +
-          'h ' +
-          formatTwoPlace(remainingMinutes) +
-          'm ' +
-          formatTwoPlace(remainingSeconds) +
-          's '
-      )
-    }
-
-    const interval = setInterval(() => {
-      updateRemainingTime()
-    }, 1000)
-
-    return () => clearInterval(interval)
-  }, [auctionItem.auctionEnd])
-
-  const formatTwoPlace = (value) => {
-    if (value > 9) {
-      return value
-    } else {
-      return '0' + value
-    }
-  }
 
   const handleConfirmBid = async (amount) => {
     try {
@@ -346,6 +366,26 @@ const AuctionItem = ({ content, archived }) => {
   const isAllowanceEnough = zoomAllowance
     ? zoomAllowance.gte(minOfferAmount)
     : false
+
+  let offerToolTip;
+  if (moment().isAfter(moment.unix(auctionItem.auctionEnd))) {
+    offerToolTip = "This Auction is ended."
+  }
+  if (bidInProgress) {
+    offerToolTip = "Your bid is in processing."
+  }
+  if (auctionItem.lister === wallet.address) {
+    offerToolTip = "This is your auction."
+  }
+  if (coinType === 'ZOOM' && !isAllowanceEnough) {
+    offerToolTip = "You have not approved enough ZOOM, go to Profile page"
+  }
+  if (coinType === "ZOOM" && (wallet.zoomBalance ? ethers.utils.parseEther(wallet.zoomBalance).lt(minOfferAmount) : true)) {
+    offerToolTip = "You do not have enough ZOOM tokens"
+  }
+  if (coinType === "WMOVR" && (wallet.balance ? ethers.utils.parseEther(wallet.balance.toString()).lt(minOfferAmount) : true)) {
+    offerToolTip = "You do not have enough MOVR"
+  }
 
   return (
     <Container key={auctionItem._id} container>
@@ -432,13 +472,7 @@ const AuctionItem = ({ content, archived }) => {
           <MetaContentRow>
             <MetaContentTime>
               <FontAwesomeIcon icon={faClock} size="lg" />
-              <span className={'meta-content-remaining-time'}>
-                {moment().isBefore(moment.unix(auctionItem.auctionEnd))
-                  ? remainingTime
-                  : moment
-                      .unix(auctionItem.auctionEnd)
-                      .format('MM/DD/YYYY, h:mm:ss A')}
-              </span>
+              <DownCounter timestamp={auctionItem.auctionEnd}/>
             </MetaContentTime>
             <MetaContentTip>Remaining time</MetaContentTip>
           </MetaContentRow>
@@ -461,9 +495,13 @@ const AuctionItem = ({ content, archived }) => {
                   moment().isAfter(moment.unix(auctionItem.auctionEnd)) ||
                   bidInProgress ||
                   auctionItem.lister === wallet.address ||
-                  (coinType === 'ZOOM' && !isAllowanceEnough)
+                  (coinType === 'ZOOM' && !isAllowanceEnough) ||
+                  (coinType === "WMOVR" && (wallet.balance ? ethers.utils.parseEther(wallet.balance.toString()).lt(minOfferAmount) : true)) ||
+                  (coinType === "ZOOM" && (wallet.zoomBalance ? ethers.utils.parseEther(wallet.zoomBalance).lt(minOfferAmount) : true))
                 }
+                tooltip={offerToolTip}
                 mylisting={auctionItem.lister === wallet.address}
+                minIncrement={ethers.utils.formatEther(minIncrement)}
                 quickBid
               />
             )}
@@ -490,7 +528,6 @@ const AuctionItem = ({ content, archived }) => {
             <CircularProgress />
           )}
         </CardsContainer>
-        {/*{auctionItem.cards && <Pagination count={Math.ceil(auctionItem.cards.length / 20)} className={"pagination-bar"} variant="outlined" shape="rounded" onChange={handleCardsTablePageChanged}/>}*/}
       </DetailCardsDiv>
 
       <Modal
