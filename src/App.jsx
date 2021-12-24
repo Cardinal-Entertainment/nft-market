@@ -1,4 +1,3 @@
-import useBlockchain from './hooks/useBlockchain'
 import zoomTokenLogo from './assets/zoombies_coin.svg'
 import liveFeedIcon from './assets/live-feed.png'
 import React, { useContext, useEffect, useState } from 'react'
@@ -28,7 +27,6 @@ import {
 import { useFetchProfileQuery } from './hooks/useProfile'
 import { store } from 'store/store'
 import NotificationAddon from './components/NotificationAddon'
-import LoadingModal from './components/LoadingModal'
 
 const Container = styled('div')({
   height: '100vh',
@@ -118,10 +116,6 @@ const NavbarContainer = styled('div')(({ theme }) => ({
 }))
 
 const App = () => {
-  const {
-    selectors: { isApprovalModalOpen },
-    actions: { setIsApprovalModalOpen },
-  } = useBlockchain()
 
   const isDesktop = useMediaQuery('(min-width:1024px)')
   const [isLiveFeedOpen, setIsLiveFeedOpen] = useState(false)
@@ -375,11 +369,6 @@ const App = () => {
           )}
         </Body>
         <Footer />
-        <LoadingModal
-          text="Waiting for Approval..."
-          open={isApprovalModalOpen}
-          onClose={() => setIsApprovalModalOpen(false)}
-        />
       </Router>
     </Container>
   )

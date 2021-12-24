@@ -86,6 +86,14 @@ const StateProvider = ({ children }) => {
           zoomIncrement: payload.zoomIncrement,
           wmovrIncrement: payload.wmovrIncrement,
         };
+      case ActionTypes.CLEAR_WALLET:
+        Object.keys(state.contracts).forEach(key => {
+          const contract = state.contracts[key];
+          if (contract) {
+            contract.provider.removeAllListeners();
+          }
+        })
+        return initialState;
       default:
         throw new Error(`Unhandled action type: ${type}`);
     }

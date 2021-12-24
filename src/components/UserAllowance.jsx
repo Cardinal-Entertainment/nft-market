@@ -117,7 +117,6 @@ const UserAllowance = ({ initial }) => {
         ethers.utils.parseEther(zoomAllowance.toString())
       )
     } catch (e) {
-      debugger
       console.error(e)
     } finally {
       setIsSettingAllowance(false)
