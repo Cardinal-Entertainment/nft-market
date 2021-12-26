@@ -7,6 +7,7 @@ import zoomCoin from '../assets/zoombies_coin.svg'
 import { Button, CircularProgress, Modal, styled, Grid } from '@mui/material'
 import {
   cardImageBaseURL,
+  QUERY_KEYS,
   wmovrContractAddress,
   zoomContractAddress,
 } from '../constants'
@@ -19,7 +20,11 @@ import OfferDialog from './OfferDialog'
 import { useFetchBids } from 'hooks/useBids'
 import { toBigNumber } from '../utils/BigNumbers'
 import { waitForTransaction } from 'utils/transactions'
-import { useGetZoomAllowanceQuery } from 'hooks/useProfile'
+import {
+  useCheckIsItemSettledQuery,
+  useGetZoomAllowanceQuery,
+} from 'hooks/useProfile'
+import { useQueryClient } from 'react-query'
 
 const Container = styled(Grid)({
   display: 'flex',
@@ -199,7 +204,7 @@ const MetaContentButtonSection = styled('div')({
 
   '& .button-bid.button-readonly': {
     backgroundColor: '#D400BD',
-    color: 'rgba(0,0,0,.26)'
+    color: 'rgba(0,0,0,.26)',
   },
 
   '& .button-more-info': {
@@ -207,6 +212,11 @@ const MetaContentButtonSection = styled('div')({
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: '#474747',
+  },
+
+  '& .settle-button': {
+    paddingLeft: '8px',
+    marginBottom: '4px',
   },
 })
 
@@ -227,8 +237,7 @@ const CardsContainer = styled('div')(({ theme }) => ({
   },
 }))
 
-const DownCounter = ( { timestamp } ) => {
-
+const DownCounter = ({ timestamp }) => {
   const [remainingTime, setRemainingTime] = useState('')
 
   const formatTwoPlace = (value) => {
@@ -250,13 +259,13 @@ const DownCounter = ( { timestamp } ) => {
 
       setRemainingTime(
         formatTwoPlace(remainingDays) +
-        'd ' +
-        formatTwoPlace(remainingHours) +
-        'h ' +
-        formatTwoPlace(remainingMinutes) +
-        'm ' +
-        formatTwoPlace(remainingSeconds) +
-        's '
+          'd ' +
+          formatTwoPlace(remainingHours) +
+          'h ' +
+          formatTwoPlace(remainingMinutes) +
+          'm ' +
+          formatTwoPlace(remainingSeconds) +
+          's '
       )
     }
 
@@ -271,11 +280,32 @@ const DownCounter = ( { timestamp } ) => {
     <span className={'meta-content-remaining-time'}>
       {moment().isBefore(moment.unix(timestamp))
         ? remainingTime
-        : moment
-          .unix(timestamp)
-          .format('MM/DD/YYYY, h:mm:ss A')}
+        : moment.unix(timestamp).format('MM/DD/YYYY, h:mm:ss A')}
     </span>
   )
+}
+
+const handleSettle = async (
+  marketContract,
+  auctionId,
+  event,
+  setIsSettling,
+  queryClient
+) => {
+  event.stopPropagation()
+  try {
+    setIsSettling(true)
+    const tx = await marketContract.settle(parseInt(auctionId))
+    await waitForTransaction(tx)
+    setIsSettling(false)
+    queryClient.setQueryData(
+      [QUERY_KEYS.isSettled, { itemNumber: auctionId, marketContract: marketContract.address }],
+      true
+    )
+  } catch (err) {
+    console.error(err)
+    setIsSettling(false)
+  }
 }
 
 const AuctionItem = ({ content, archived }) => {
@@ -285,6 +315,7 @@ const AuctionItem = ({ content, archived }) => {
   const history = useHistory()
   const [bidInProgress, setBidInProgress] = useState(false)
   const [approvalModalOpen, setApprovalModalOpen] = useState(false)
+  const [isSettling, setIsSettling] = useState(false)
 
   const theme = useTheme()
 
@@ -366,25 +397,47 @@ const AuctionItem = ({ content, archived }) => {
     ? zoomAllowance.gte(minOfferAmount)
     : false
 
-  let offerToolTip;
+  let offerToolTip
   if (moment().isAfter(moment.unix(auctionItem.auctionEnd))) {
-    offerToolTip = "This Auction is ended."
+    offerToolTip = 'This Auction is ended.'
   }
   if (bidInProgress) {
-    offerToolTip = "Your bid is in processing."
+    offerToolTip = 'Your bid is in processing.'
   }
   if (auctionItem.lister === wallet.address) {
-    offerToolTip = "This is your auction."
+    offerToolTip = 'This is your auction.'
   }
   if (coinType === 'ZOOM' && !isAllowanceEnough) {
-    offerToolTip = "You have not approved enough ZOOM, go to Profile page"
+    offerToolTip = 'You have not approved enough ZOOM, go to Profile page'
   }
-  if (coinType === "ZOOM" && (wallet.zoomBalance ? ethers.utils.parseEther(wallet.zoomBalance).lt(minOfferAmount) : true)) {
-    offerToolTip = "You do not have enough ZOOM tokens"
+  if (
+    coinType === 'ZOOM' &&
+    (wallet.zoomBalance
+      ? ethers.utils.parseEther(wallet.zoomBalance).lt(minOfferAmount)
+      : true)
+  ) {
+    offerToolTip = 'You do not have enough ZOOM tokens'
   }
-  if (coinType === "WMOVR" && (wallet.balance ? ethers.utils.parseEther(wallet.balance.toString()).lt(minOfferAmount) : true)) {
-    offerToolTip = "You do not have enough MOVR"
+  if (
+    coinType === 'WMOVR' &&
+    (wallet.balance
+      ? ethers.utils.parseEther(wallet.balance.toString()).lt(minOfferAmount)
+      : true)
+  ) {
+    offerToolTip = 'You do not have enough MOVR'
   }
+
+  const now = moment().unix()
+  const end = auctionItem.auctionEnd
+  const isOver = end < now
+  const isWinner = auctionItem.highestBidder === wallet.address
+  const isOwner = wallet.address === auctionItem.lister
+  const { isLoading: isCheckingSettled, data: isSettled } =
+    useCheckIsItemSettledQuery(itemNumber, contracts.MarketContract)
+
+  const canSettle = isOver && (isWinner || isOwner) && isSettled === false
+
+  const queryClient = useQueryClient()
 
   return (
     <Container key={auctionItem._id} container>
@@ -471,7 +524,7 @@ const AuctionItem = ({ content, archived }) => {
           <MetaContentRow>
             <MetaContentTime>
               <FontAwesomeIcon icon={faClock} size="lg" />
-              <DownCounter timestamp={auctionItem.auctionEnd}/>
+              <DownCounter timestamp={auctionItem.auctionEnd} />
             </MetaContentTime>
             <MetaContentTip>Remaining time</MetaContentTip>
           </MetaContentRow>
@@ -495,8 +548,18 @@ const AuctionItem = ({ content, archived }) => {
                   bidInProgress ||
                   auctionItem.lister === wallet.address ||
                   (coinType === 'ZOOM' && !isAllowanceEnough) ||
-                  (coinType === "WMOVR" && (wallet.balance ? ethers.utils.parseEther(wallet.balance.toString()).lt(minOfferAmount) : true)) ||
-                  (coinType === "ZOOM" && (wallet.zoomBalance ? ethers.utils.parseEther(wallet.zoomBalance).lt(minOfferAmount) : true))
+                  (coinType === 'WMOVR' &&
+                    (wallet.balance
+                      ? ethers.utils
+                          .parseEther(wallet.balance.toString())
+                          .lt(minOfferAmount)
+                      : true)) ||
+                  (coinType === 'ZOOM' &&
+                    (wallet.zoomBalance
+                      ? ethers.utils
+                          .parseEther(wallet.zoomBalance)
+                          .lt(minOfferAmount)
+                      : true))
                 }
                 tooltip={offerToolTip}
                 mylisting={auctionItem.lister === wallet.address}
@@ -504,6 +567,32 @@ const AuctionItem = ({ content, archived }) => {
                 quickBid
               />
             )}
+            {archived &&
+              (isCheckingSettled ? (
+                <CircularProgress size={20}></CircularProgress>
+              ) : canSettle ? (
+                <Button
+                  disabled={isSettling}
+                  onClick={(e) =>
+                    handleSettle(
+                      contracts.MarketContract,
+                      auctionItem.itemNumber,
+                      e,
+                      setIsSettling,
+                      queryClient
+                    )
+                  }
+                  className="settle-button"
+                  color="success"
+                  variant="contained"
+                >
+                  {isSettling ? (
+                    <CircularProgress size={20}></CircularProgress>
+                  ) : (
+                    'Settle'
+                  )}
+                </Button>
+              ) : null)}
             <Button className={'button-more-info'} onClick={gotoAuction}>
               More Info
               <FontAwesomeIcon icon={faChevronRight} size="sm" />

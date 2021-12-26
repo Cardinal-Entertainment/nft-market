@@ -2,19 +2,19 @@ import {
   zoomContractAddress,
   wmovrContractAddress,
   apiEndpoint,
-} from '../constants';
-import axios from 'axios';
+} from '../constants'
+import axios from 'axios'
 
 export const getTokenSymbol = (saleToken) => {
   switch (saleToken) {
     case zoomContractAddress:
-      return 'ZOOM';
+      return 'ZOOM'
     case wmovrContractAddress:
-      return 'WMOVR';
+      return 'WMOVR'
     default:
-      return 'Unknown';
+      return 'Unknown'
   }
-};
+}
 
 /**
  *
@@ -26,7 +26,7 @@ export const getTokenSymbol = (saleToken) => {
  */
 export const getAuctionItem = async (auctionId, zoombiesContract) => {
   try {
-    const item = await axios.get(`${apiEndpoint}/item/${auctionId}`);
+    const item = await axios.get(`${apiEndpoint}/item/${auctionId}`)
     // const item = await axios.get(`http://localhost:3001/item/${auctionId}`)
     const {
       tokenIds,
@@ -37,9 +37,9 @@ export const getAuctionItem = async (auctionId, zoombiesContract) => {
       minPrice,
       auctionStart,
       auctionEnd,
-    } = item.data;
+    } = item.data
 
-    const currency = getTokenSymbol(saleToken);
+    const currency = getTokenSymbol(saleToken)
 
     return {
       id: auctionId,
@@ -52,14 +52,14 @@ export const getAuctionItem = async (auctionId, zoombiesContract) => {
       highestBidder,
       seller,
       saleToken,
-    };
+    }
   } catch (err) {
-    console.error(err);
+    console.error(err)
   }
-};
+}
 
 export const getOffers = async (auctionId) => {
-  const res = await axios.get(`${apiEndpoint}/bids/${auctionId}`);
+  const res = await axios.get(`${apiEndpoint}/bids/${auctionId}`)
   // const res = await axios.get(`http://localhost:3001/bids/${auctionId}`)
 
   return res.data.map((offer) => ({
@@ -67,5 +67,24 @@ export const getOffers = async (auctionId) => {
     from: offer.bidder,
     amount: offer.bidAmount,
     status: 'Bid',
-  }));
-};
+  }))
+}
+
+export const isItemSettled = async (itemNumber, marketContract) => {
+  if (!marketContract) {
+    return null
+  }
+  try {
+    const itemFromChain = await marketContract.getListItem(itemNumber)
+    const isItemSettled =
+      itemFromChain === undefined ||
+      itemFromChain.seller === '0x0000000000000000000000000000000000000000'
+        ? true
+        : false
+
+    return isItemSettled
+  } catch (err) {
+    console.error(err)
+    return false
+  }
+}

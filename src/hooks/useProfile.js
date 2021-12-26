@@ -3,6 +3,7 @@ import axios from 'axios'
 import { ethers } from 'ethers'
 import { apiEndpoint, marketContractAddress, QUERY_KEYS } from '../constants'
 import { getCardData } from 'utils/cardsUtil'
+import { isItemSettled } from 'utils/auction'
 
 const getUserProfiles = async (userAddress) => {
   if (!ethers.utils.isAddress(userAddress)) {
@@ -84,20 +85,33 @@ export const useFetchUserNFTQuery = (
     },
   })
 
-
-  const getUserZoomAllowance = async (zoomTokenContract, ownerAddress) => {
-    if (zoomTokenContract) {
-      return await zoomTokenContract.allowance(ownerAddress, marketContractAddress);
-    } else {
-      return 0;
-    }
+const getUserZoomAllowance = async (zoomTokenContract, ownerAddress) => {
+  if (zoomTokenContract) {
+    return await zoomTokenContract.allowance(
+      ownerAddress,
+      marketContractAddress
+    )
+  } else {
+    return 0
   }
+}
 
-  export const useGetZoomAllowanceQuery = (
-    userAddress,
-    zoomTokenContract
-  ) => useQuery({
-    queryKey: [QUERY_KEYS.zoomAllowance, { zoomTokenContract: zoomTokenContract?.address, userAddress }],
+export const useGetZoomAllowanceQuery = (userAddress, zoomTokenContract) =>
+  useQuery({
+    queryKey: [
+      QUERY_KEYS.zoomAllowance,
+      { zoomTokenContract: zoomTokenContract?.address, userAddress },
+    ],
     queryFn: () => getUserZoomAllowance(zoomTokenContract, userAddress),
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
+  })
+
+export const useCheckIsItemSettledQuery = (itemNumber, marketContract) =>
+  useQuery({
+    queryKey: [
+      QUERY_KEYS.isSettled,
+      { marketContract: marketContract?.address, itemNumber },
+    ],
+    queryFn: () => isItemSettled(itemNumber, marketContract),
+    refetchOnWindowFocus: false,
   })

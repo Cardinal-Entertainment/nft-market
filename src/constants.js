@@ -30,5 +30,6 @@ export const QUERY_KEYS = {
   bids: 'fetchBids',
   profile: 'fetchUserProfile',
   userNFT: 'fetchUserNFT',
-  zoomAllowance: 'fetchUserZoomAllowance'
+  zoomAllowance: 'fetchUserZoomAllowance',
+  isSettled: 'checkIsItemSettled'
 };
