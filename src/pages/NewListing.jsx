@@ -223,6 +223,7 @@ const NewListing = () => {
   const [selectedCurrency, setSelectedCurrency] = useState(CURRENCY_TYPES.WMOVR)
   const [selectedCards, setSelectedCards] = useState({})
   const [isApprovedForAll, setIsApprovedForAll] = useState(false)
+  const [instantAuction, setInstantAuction] = useState(true)
 
   const {
     state: { contracts, wallet },
@@ -264,7 +265,7 @@ const NewListing = () => {
     setCreateInProgress(true)
     try {
       await contracts.MarketContract.listItem(
-        parseInt((new Date(dateTime).getTime() / 1000).toFixed(0)),
+        instantAuction ? 0 : parseInt((new Date(dateTime).getTime() / 1000).toFixed(0)),
         ethers.utils.parseEther(listPrice),
         Object.keys(selectedCards).map((id) => parseInt(id)),
         zoombiesContractAddress,
@@ -322,6 +323,10 @@ const NewListing = () => {
     } else {
       setListPrice(value)
     }
+  }
+
+  const auctionModeChanged = ( event ) => {
+    setInstantAuction(!event.target.checked)
   }
 
   const { isLoading, data } = useFetchUserNFTQuery(
@@ -389,18 +394,18 @@ const NewListing = () => {
             </Select>
           </InputContainer>
         </FlexRow>
-        <span>Auction End:</span>
+        <span>Auction Expires at</span>
         <Stack direction="row" spacing={1} alignItems="center">
-          <Typography>Instant</Typography>
-          <AntSwitch defaultChecked inputProps={{ 'aria-label': 'ant design' }} />
-          <Typography>Normal</Typography>
+          <span>Instant</span>
+          <AntSwitch defaultChecked={false} onChange={auctionModeChanged} inputProps={{ 'aria-label': 'ant design' }} />
+          <span>Choose</span>
         </Stack>
-
         <FlexRow>
           <DateTimePicker
             renderInput={(props) => <TextField {...props} />}
             value={dateTime}
             onChange={setDateTime}
+            disabled={instantAuction}
             minDateTime={new Date(new Date().getTime() + 3600000)}
             maxDateTime={new Date(new Date().getTime() + 86400000 * 14)}
             onError={handeDateError}
@@ -477,7 +482,7 @@ const NewListing = () => {
             disabled={
               !numberOfSelectedCards ||
               createInProgress ||
-              isDateError ||
+                (isDateError && !instantAuction) ||
               listPrice === '' ||
               parseFloat(listPrice) <= 0 ||
               !haveEnoughZoom ||
