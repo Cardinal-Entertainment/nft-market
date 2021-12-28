@@ -417,7 +417,7 @@ const ListingMetadata = ({
   if (listing.currency === "ZOOM" && (zoomBalance ? ethers.utils.parseEther(zoomBalance).lt(minOfferAmount) : true)) {
     offerToolTip = "You do not have enough ZOOM tokens."
   }
-  if (listing.currency === "WMOVR" && (movrBalance ? ethers.utils.parseEther(movrBalance.toString()).lt(minOfferAmount) : true)) {
+  if (listing.currency === "MOVR" && (movrBalance ? ethers.utils.parseEther(movrBalance.toString()).lt(minOfferAmount) : true)) {
     offerToolTip = "You do not have enough MOVR."
   }
 
@@ -700,7 +700,7 @@ const ViewListing = () => {
         const bidTx = await contracts.MarketContract.bid(
           parseInt(id),
           toBigNumber(amount),
-          { value: currency === 'WMOVR' ? toBigNumber(amount) : 0 }
+          { value: currency === 'MOVR' ? toBigNumber(amount) : 0 }
         )
         await waitForTransaction(bidTx)
       } catch (e) {

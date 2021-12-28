@@ -1,11 +1,7 @@
 import { Button, Menu, MenuItem } from '@mui/material';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
-import WrapDialog from './WrapDialog';
 import {
-  unWrapMOVR,
-  wrapMOVR,
-  getWalletWMOVRBalance,
   addAssetToMetamask,
 } from '../utils/wallet';
 import { store } from 'store/store';
@@ -18,37 +14,13 @@ const Container = styled.div`
   }
 `;
 
-const handleUnwrapMOVR = async (amount, WMOVRContract) => {
-  try {
-    if (amount > 0) {
-      await unWrapMOVR(WMOVRContract, amount.toString());
-    }
-  } catch (e) {
-    console.error('Failed to unwrap movr: ', e);
-  }
-};
-
-const handleWrapMOVR = async (amount, WMOVRContract) => {
-  try {
-    if (amount > 0) {
-      await wrapMOVR(WMOVRContract, amount.toString());
-    }
-  } catch (e) {
-    console.error('Failed to wrap movr: ', e);
-  }
-};
-
 const WrapMovrMenu = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [isWrapMovrModalOpen, setIsWrapMovrModalOpen] = useState(false);
-  const [isUnWrapMovrModalOpen, setIsUnWrapMovrModalOpen] = useState(false);
-  const [WMOVRBalance, setWMOVRBalance] = useState(null);
 
   const { state } = useContext(store);
 
   const {
-    wallet: { address, balance },
     contracts,
   } = state;
 
@@ -61,20 +33,6 @@ const WrapMovrMenu = () => {
     setAnchorEl(null);
     setIsMenuOpen(false);
   };
-
-  useEffect(() => {
-    const getUserWMOVRBalance = async () => {
-      if (contracts.WMOVRContract && address) {
-        const balance = await getWalletWMOVRBalance(
-          contracts.WMOVRContract,
-          address
-        );
-        setWMOVRBalance(balance);
-      }
-    };
-
-    getUserWMOVRBalance();
-  }, [address, contracts.WMOVRContract]);
 
   return (
     <Container>
@@ -90,7 +48,7 @@ const WrapMovrMenu = () => {
           flex: 'auto',
         }}
       >
-        WRAP MOVR
+        Add Coins to Metamask
       </Button>
       <Menu
         anchorEl={anchorEl}
@@ -111,24 +69,12 @@ const WrapMovrMenu = () => {
         }}
       >
         <MenuItem
-          selected={isUnWrapMovrModalOpen}
-          onClick={() => setIsUnWrapMovrModalOpen(true)}
-        >
-          UNWRAP WMOVR
-        </MenuItem>
-        <MenuItem
-          selected={isWrapMovrModalOpen}
-          onClick={() => setIsWrapMovrModalOpen(true)}
-        >
-          WRAP WMOVR
-        </MenuItem>
-        <MenuItem
           onClick={() => {
-            addAssetToMetamask('WMOVR', contracts.WMOVRContract.address);
+            addAssetToMetamask('MOVR', contracts.WMOVRContract.address);
             handleClose();
           }}
         >
-          Add WMOVR to Metamask
+          Add MOVR to Metamask
         </MenuItem>
         <MenuItem
           onClick={() => {
@@ -139,26 +85,6 @@ const WrapMovrMenu = () => {
           Add ZOOM to Metamask
         </MenuItem>
       </Menu>
-      <WrapDialog
-        currency={'WMOVR'}
-        maxAmount={WMOVRBalance}
-        onConfirm={handleUnwrapMOVR}
-        disabled={WMOVRBalance <= 0}
-        open={isUnWrapMovrModalOpen}
-        handleClose={() => {
-          setIsUnWrapMovrModalOpen(false);
-        }}
-      />
-      <WrapDialog
-        currency={'MOVR'}
-        maxAmount={balance}
-        onConfirm={handleWrapMOVR}
-        disabled={balance <= 0}
-        open={isWrapMovrModalOpen}
-        handleClose={() => {
-          setIsWrapMovrModalOpen(false);
-        }}
-      />
     </Container>
   );
 };
