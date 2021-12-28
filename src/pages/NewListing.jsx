@@ -28,6 +28,8 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import UserAllowance from '../components/UserAllowance'
 import Typography from '@mui/material/Typography'
 import { compareAsBigNumbers, toBigNumber } from '../utils/BigNumbers'
+import AntSwitch from '../components/AntSwitch'
+import Stack from '@mui/material/Stack';
 
 const Container = styled.div`
   flex: 1;
@@ -221,6 +223,7 @@ const NewListing = () => {
   const [selectedCurrency, setSelectedCurrency] = useState(CURRENCY_TYPES.WMOVR)
   const [selectedCards, setSelectedCards] = useState({})
   const [isApprovedForAll, setIsApprovedForAll] = useState(false)
+  const [instantAuction, setInstantAuction] = useState(false)
 
   const {
     state: { contracts, wallet },
@@ -262,7 +265,7 @@ const NewListing = () => {
     setCreateInProgress(true)
     try {
       await contracts.MarketContract.listItem(
-        parseInt((new Date(dateTime).getTime() / 1000).toFixed(0)),
+        instantAuction ? 0 : parseInt((new Date(dateTime).getTime() / 1000).toFixed(0)),
         ethers.utils.parseEther(listPrice),
         Object.keys(selectedCards).map((id) => parseInt(id)),
         zoombiesContractAddress,
@@ -320,6 +323,10 @@ const NewListing = () => {
     } else {
       setListPrice(value)
     }
+  }
+
+  const auctionModeChanged = ( event ) => {
+    setInstantAuction(!event.target.checked)
   }
 
   const { isLoading, data } = useFetchUserNFTQuery(
@@ -387,16 +394,26 @@ const NewListing = () => {
             </Select>
           </InputContainer>
         </FlexRow>
+        <span>Auction Expires</span>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <span>Now</span>
+          <AntSwitch defaultChecked={true} onChange={auctionModeChanged} inputProps={{ 'aria-label': 'ant design' }} />
+          <span>Future</span>
+        </Stack>
         <FlexRow>
-          <span>Auction End:</span>
-          <DateTimePicker
-            renderInput={(props) => <TextField {...props} />}
-            value={dateTime}
-            onChange={setDateTime}
-            minDateTime={new Date(new Date().getTime() + 3600000)}
-            maxDateTime={new Date(new Date().getTime() + 86400000 * 14)}
-            onError={handeDateError}
-          />
+        {
+          !instantAuction && (
+            <DateTimePicker
+              renderInput={(props) => <TextField {...props} />}
+              value={dateTime}
+              onChange={setDateTime}
+              disabled={instantAuction}
+              minDateTime={new Date(new Date().getTime() + 3600000)}
+              maxDateTime={new Date(new Date().getTime() + 86400000 * 14)}
+              onError={handeDateError}
+            />
+          )
+        }
         </FlexRow>
         <FlexRow>
           <span>Select NFTs below from your Crypt to add to the listing:</span>
@@ -469,7 +486,7 @@ const NewListing = () => {
             disabled={
               !numberOfSelectedCards ||
               createInProgress ||
-              isDateError ||
+                (isDateError && !instantAuction) ||
               listPrice === '' ||
               parseFloat(listPrice) <= 0 ||
               !haveEnoughZoom ||
