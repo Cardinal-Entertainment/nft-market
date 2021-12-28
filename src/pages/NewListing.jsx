@@ -394,11 +394,11 @@ const NewListing = () => {
             </Select>
           </InputContainer>
         </FlexRow>
-        <span>Auction Expires at</span>
+        <span>Auction Expires</span>
         <Stack direction="row" spacing={1} alignItems="center">
-          <span>Instant</span>
+          <span>Now</span>
           <AntSwitch defaultChecked={false} onChange={auctionModeChanged} inputProps={{ 'aria-label': 'ant design' }} />
-          <span>Choose</span>
+          <span>Future</span>
         </Stack>
         <FlexRow>
           <DateTimePicker
