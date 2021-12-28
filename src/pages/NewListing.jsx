@@ -223,7 +223,7 @@ const NewListing = () => {
   const [selectedCurrency, setSelectedCurrency] = useState(CURRENCY_TYPES.WMOVR)
   const [selectedCards, setSelectedCards] = useState({})
   const [isApprovedForAll, setIsApprovedForAll] = useState(false)
-  const [instantAuction, setInstantAuction] = useState(true)
+  const [instantAuction, setInstantAuction] = useState(false)
 
   const {
     state: { contracts, wallet },
@@ -397,19 +397,23 @@ const NewListing = () => {
         <span>Auction Expires</span>
         <Stack direction="row" spacing={1} alignItems="center">
           <span>Now</span>
-          <AntSwitch defaultChecked={false} onChange={auctionModeChanged} inputProps={{ 'aria-label': 'ant design' }} />
+          <AntSwitch defaultChecked={true} onChange={auctionModeChanged} inputProps={{ 'aria-label': 'ant design' }} />
           <span>Future</span>
         </Stack>
         <FlexRow>
-          <DateTimePicker
-            renderInput={(props) => <TextField {...props} />}
-            value={dateTime}
-            onChange={setDateTime}
-            disabled={instantAuction}
-            minDateTime={new Date(new Date().getTime() + 3600000)}
-            maxDateTime={new Date(new Date().getTime() + 86400000 * 14)}
-            onError={handeDateError}
-          />
+        {
+          !instantAuction && (
+            <DateTimePicker
+              renderInput={(props) => <TextField {...props} />}
+              value={dateTime}
+              onChange={setDateTime}
+              disabled={instantAuction}
+              minDateTime={new Date(new Date().getTime() + 3600000)}
+              maxDateTime={new Date(new Date().getTime() + 86400000 * 14)}
+              onError={handeDateError}
+            />
+          )
+        }
         </FlexRow>
         <FlexRow>
           <span>Select NFTs below from your Crypt to add to the listing:</span>
