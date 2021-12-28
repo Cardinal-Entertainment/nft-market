@@ -27,6 +27,7 @@ import {
 import { useFetchProfileQuery } from './hooks/useProfile'
 import { store } from 'store/store'
 import NotificationAddon from './components/NotificationAddon'
+import { setupEthers, setupEthListeners } from 'hooks/useBlockchain'
 
 const Container = styled('div')({
   height: '100vh',
@@ -116,10 +117,18 @@ const NavbarContainer = styled('div')(({ theme }) => ({
 }))
 
 const App = () => {
-
   const isDesktop = useMediaQuery('(min-width:1024px)')
   const [isLiveFeedOpen, setIsLiveFeedOpen] = useState(false)
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
+  const { dispatch } = useContext(store)
+
+  useEffect(() => {
+    const setupWallet = async () => {
+      await setupEthers(dispatch)
+      await setupEthListeners(dispatch)
+    }
+    setupWallet();
+  }, [dispatch])
 
   const queryClient = useQueryClient()
 

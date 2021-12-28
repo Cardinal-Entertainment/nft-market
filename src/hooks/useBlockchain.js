@@ -228,12 +228,14 @@ const handleDisconnected = (dispatch) => {
 }
 
 export const setupEthListeners = (dispatch) => {
-  window.ethereum.on('connected', () => handleConnected(dispatch))
-  window.ethereum.on('disconnect', () => handleDisconnected(dispatch))
-  window.ethereum.on('accountsChanged', (accounts) =>
-    handleAccountsChanged(accounts, dispatch)
-  )
-  window.ethereum.on('chainChanged', (chainId) => {
-    window.location.reload()
-  })
+  if (window.ethereum) {
+    window.ethereum.on('connected', () => handleConnected(dispatch))
+    window.ethereum.on('disconnect', () => handleDisconnected(dispatch))
+    window.ethereum.on('accountsChanged', (accounts) =>
+      handleAccountsChanged(accounts, dispatch)
+    )
+    window.ethereum.on('chainChanged', (chainId) => {
+      window.location.reload()
+    })
+  }
 }

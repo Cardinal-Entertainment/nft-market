@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useQuery } from 'react-query'
 import axios from 'axios'
 import { apiEndpoint, QUERY_KEYS } from '../constants'
-import { getTokenSymbol } from '../utils/auction'
+import { getTokenSymbol, isItemSettled } from '../utils/auction'
 
 export const LISTING_PARAMS = {
   status: {
@@ -42,10 +42,10 @@ const getSingleAuction = async (itemNumber, marketContract) => {
   if (!marketContract) {
     return null
   }
-  const [listingResponse, bidsResponse, itemFromChain] = await Promise.all([
+  const [listingResponse, bidsResponse, settled] = await Promise.all([
     await axios.get(`${apiEndpoint}/item/${itemNumber}`),
     await axios.get(`${apiEndpoint}/bids/${itemNumber}`),
-    await marketContract.getListItem(itemNumber),
+    await isItemSettled(itemNumber, marketContract),
   ])
 
   if (listingResponse.status === 200 && bidsResponse.status === 200) {
@@ -53,19 +53,13 @@ const getSingleAuction = async (itemNumber, marketContract) => {
 
     const currency = getTokenSymbol(saleToken)
 
-    const isItemSettled =
-      itemFromChain === undefined ||
-      itemFromChain.seller === '0x0000000000000000000000000000000000000000'
-        ? true
-        : false
-
     return {
       id: itemNumber,
       seller: lister,
       currency,
       bids: bidsResponse.data,
       ...listingResponse.data,
-      isItemSettled,
+      isItemSettled: settled,
     }
   }
 

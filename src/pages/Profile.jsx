@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import styled from 'styled-components'
 import Accordion from '@mui/material/Accordion'
 import AccordionSummary from '@mui/material/AccordionSummary'
@@ -9,9 +9,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { DataGrid } from '@mui/x-data-grid'
 import UserAllowance from '../components/UserAllowance'
 
-import {
-  useFetchProfileQuery,
-} from 'hooks/useProfile'
+import { useCheckIsItemSettledQuery, useFetchProfileQuery } from 'hooks/useProfile'
 import { store } from 'store/store'
 
 import { getCardSummary } from 'utils/cardsUtil'
@@ -19,13 +17,13 @@ import { getStatus } from 'utils/listingUtil'
 
 import moment from 'moment'
 
-import {
-  zoomContractAddress,
-  wmovrContractAddress,
-} from '../constants'
+import { zoomContractAddress, wmovrContractAddress, QUERY_KEYS } from '../constants'
 
 import { useHistory } from 'react-router'
 import LoadingModal from 'components/LoadingModal'
+import { Button, CircularProgress } from '@mui/material'
+import { waitForTransaction } from 'utils/transactions'
+import { useQueryClient } from 'react-query'
 
 const Container = styled.div`
   display: flex;
@@ -52,13 +50,16 @@ const UserProfileWrapper = styled.div`
     border: 1px solid white;
     margin-bottom: 24px;
   }
-  
+
   .div-allowance-accordion .MuiAccordion-region {
     display: flex;
     align-items: center;
     justify-content: center;
   }
-  
+
+  .data-grid-rows {
+    cursor: pointer;
+  }
 `
 
 const UserBidsWrapper = styled.div`
@@ -85,6 +86,87 @@ const UserBidsWrapper = styled.div`
 `
 
 const UserListingsWrapper = styled.div``
+
+const handleSettle = async (
+  marketContract,
+  auctionId,
+  event,
+  setIsSettling,
+  queryClient
+) => {
+  event.stopPropagation()
+  try {
+    setIsSettling(true)
+    const tx = await marketContract.settle(parseInt(auctionId))
+    await waitForTransaction(tx)
+    setIsSettling(false)
+    queryClient.setQueryData(
+      [QUERY_KEYS.isSettled, { itemNumber: auctionId, marketContract: marketContract.address }],
+      true
+    )
+  } catch (err) {
+    console.error(err)
+    setIsSettling(false)
+  }
+}
+
+const StatusColumn = ({ auctionItem }) => {
+  const [isSettling, setIsSettling] = useState(false)
+
+  const {
+    state: { wallet, contracts },
+  } = useContext(store)
+  const now = moment().unix()
+  const end = moment(auctionItem.auctionEnd).unix()
+  const isOver = end < now
+  const isWinner = auctionItem.highestBidder === wallet.address
+  const isOwner = wallet.address === auctionItem.seller
+  const {
+    isLoading: isCheckingSettled,
+    data: isSettled
+  } = useCheckIsItemSettledQuery(auctionItem.itemNumber, contracts.MarketContract)
+  const canSettle = isOver && (isWinner || isOwner) && isSettled === false
+  const queryClient = useQueryClient()
+
+  if (isCheckingSettled) {
+    return <CircularProgress size={20}></CircularProgress>
+  }
+
+  if (!isCheckingSettled && canSettle) {
+    return (
+      <Button
+        style={{
+          borderRadius: 10,
+        }}
+        variant="contained"
+        color="success"
+        disabled={isSettling}
+        onClick={(e) =>
+          handleSettle(
+            contracts.MarketContract,
+            auctionItem.itemNumber,
+            e,
+            setIsSettling,
+            queryClient
+          )
+        }
+      >
+        {isSettling ? (
+          <CircularProgress size={20}></CircularProgress>
+        ) : (
+          'Settle'
+        )}
+      </Button>
+    )
+  }
+
+  return (
+    <Chip
+      label={getStatus(auctionItem.auctionEnd, auctionItem.highestBidder).label}
+      color={getStatus(auctionItem.auctionEnd, auctionItem.highestBidder).color}
+    />
+  )
+}
 
 const bidListingColumns = [
   {
@@ -126,12 +208,14 @@ const bidListingColumns = [
     field: 'status',
     headerName: 'Status',
     minWidth: 160,
-    renderCell: (params) => (
-      <Chip
-        label={getStatus(params.row.auctionEnd, params.row.highestBidder).label}
-        color={getStatus(params.row.auctionEnd, params.row.highestBidder).color}
-      />
-    ),
+    renderCell: (params) => {
+      return <StatusColumn auctionItem={params.row} />
+    },
+    // TODO: disable sorting for status column until figure out sortComparator
+    // sortComparator:  (v1, v2, param1, param2) => {
+    //   console.log()
+    // }
+    sortable: false,
   },
 ]
 
@@ -177,12 +261,7 @@ const userListingColumns = [
     field: 'status',
     headerName: 'Status',
     minWidth: 160,
-    renderCell: (params) => (
-      <Chip
-        label={getStatus(params.row.auctionEnd, params.row.highestBidder).label}
-        color={getStatus(params.row.auctionEnd, params.row.highestBidder).color}
-      />
-    ),
+    renderCell: (params) => <StatusColumn auctionItem={params.row} />,
   },
 ]
 
@@ -223,6 +302,7 @@ const UserBids = ({ bidCount, bids }) => {
         itemNumber: bid.bidListing.itemNumber,
         userBid: bid.bidAmount,
         cards: bid.bidListing.cards,
+        seller: bid.bidListing.lister,
       }
     })
 
@@ -272,6 +352,7 @@ const UserListings = ({ listingCount, listings }) => {
       id: listing._id,
       itemNumber: listing.itemNumber,
       cards: listing.cards,
+      seller: listing.lister,
     }
   })
 
@@ -287,6 +368,9 @@ const UserListings = ({ listingCount, listings }) => {
         onRowClick={(params) => {
           handleRowClick(params, history)
         }}
+        classes={{
+          row: 'data-grid-rows',
+        }}
       ></DataGrid>
     </div>
   )
@@ -295,7 +379,7 @@ const UserListings = ({ listingCount, listings }) => {
 const UserProfile = ({ data }) => {
   return (
     <UserProfileWrapper>
-      <Accordion className={"div-allowance-accordion"}>
+      <Accordion className={'div-allowance-accordion'}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1a-content"
@@ -304,7 +388,7 @@ const UserProfile = ({ data }) => {
           <Typography variant="h4">Set ZOOM Allowance</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <UserAllowance/>
+          <UserAllowance />
         </AccordionDetails>
       </Accordion>
       <Accordion>
