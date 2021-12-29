@@ -10,7 +10,7 @@ export const getTokenSymbol = (saleToken) => {
     case zoomContractAddress:
       return 'ZOOM'
     case wmovrContractAddress:
-      return 'WMOVR'
+      return 'MOVR'
     default:
       return 'Unknown'
   }

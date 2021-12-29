@@ -201,7 +201,7 @@ const Filterbar = ({ onFilterChanged, filters, totalCount }) => {
             displayEmpty
           >
             <MenuItem value={''}>Coin Type</MenuItem>
-            <MenuItem value={wmovrContractAddress}>WMOVR</MenuItem>
+            <MenuItem value={wmovrContractAddress}>MOVR</MenuItem>
             <MenuItem value={zoomContractAddress}>ZOOM</MenuItem>
           </StyledSelect>
 

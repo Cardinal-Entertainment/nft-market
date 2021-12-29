@@ -27,7 +27,7 @@ export const addAssetToMetamask = async (tokenSymbol, address) => {
   const tokenDecimals = 18;
 
   let tokenImage = '';
-  if (tokenSymbol === 'WMOVR') {
+  if (tokenSymbol === 'MOVR') {
     tokenImage = 'https://zoombies.world/images/mr-icon.png';
   } else if (tokenSymbol === 'ZOOM') {
     tokenImage = 'https://zoombies.world/images/zoombies_coin.svg';

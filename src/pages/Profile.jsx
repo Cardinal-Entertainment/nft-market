@@ -289,7 +289,7 @@ const UserBids = ({ bidCount, bids }) => {
       if (saleToken === zoomContractAddress) {
         currency = 'ZOOM'
       } else if (saleToken === wmovrContractAddress) {
-        currency = 'WMOVR'
+        currency = 'MOVR'
       }
 
       return {
@@ -340,7 +340,7 @@ const UserListings = ({ listingCount, listings }) => {
     if (saleToken === zoomContractAddress) {
       currency = 'ZOOM'
     } else if (saleToken === wmovrContractAddress) {
-      currency = 'WMOVR'
+      currency = 'MOVR'
     }
 
     return {
