@@ -47,7 +47,8 @@ const OfferDialog = ({
                        tooltip,
                        quickBid,
                        mylisting,
-                       minIncrement
+                       minIncrement,
+                       timestamp
                      }) => {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState(ethers.utils.formatEther(minAmount));
@@ -89,6 +90,12 @@ const OfferDialog = ({
     offerButtonClassName = "";
   }
 
+  let buttonText = '';
+  if (timestamp === 0) { // quick buy
+    buttonText = 'Quick buy';
+  } else {
+    buttonText = quickBid ? `Quick bid (${ethers.utils.formatEther(minAmount)} ${currency})` : 'Make Offer';
+  }
   return (
     <Container>
       {
@@ -104,9 +111,7 @@ const OfferDialog = ({
               className={offerButtonClassName}
             >
               {
-                mylisting ? 'My Listing' :
-                  (quickBid
-                    ? `Quick bid (${ethers.utils.formatEther(minAmount)} ${currency})` : 'Make Offer')
+                mylisting ? 'My Listing' : buttonText
               }
             </Button>
           </CustomWidthTooltip>
@@ -117,9 +122,7 @@ const OfferDialog = ({
             className={offerButtonClassName}
           >
             {
-              mylisting ? 'My Listing' :
-                (quickBid
-                  ? `Quick bid (${ethers.utils.formatEther(minAmount)} ${currency})` : 'Make Offer')
+              mylisting ? 'My Listing' : buttonText
             }
           </Button>
         )

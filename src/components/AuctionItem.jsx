@@ -280,7 +280,7 @@ const DownCounter = ({ timestamp }) => {
     <span className={'meta-content-remaining-time'}>
       {moment().isBefore(moment.unix(timestamp))
         ? remainingTime
-        : moment.unix(timestamp).format('MM/DD/YYYY, h:mm:ss A')}
+        : (timestamp > 0 ? moment.unix(timestamp).format('MM/DD/YYYY, h:mm:ss A') : 'Quick buy' )}
     </span>
   )
 }
@@ -565,6 +565,7 @@ const AuctionItem = ({ content, archived }) => {
                 mylisting={auctionItem.lister === wallet.address}
                 minIncrement={ethers.utils.formatEther(minIncrement)}
                 quickBid
+                timestamp={auctionItem.timestamp}
               />
             )}
             {archived &&
