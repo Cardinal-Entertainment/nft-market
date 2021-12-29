@@ -14,11 +14,10 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 
 import { setupEthers, setupEthListeners } from '../hooks/useBlockchain'
-import { formatAddress, isMetamaskInstalled } from '../utils/wallet'
+import { addAssetToMetamask, formatAddress, isMetamaskInstalled } from '../utils/wallet'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { styled as styled1 } from '@mui/material/styles'
 import NotificationAddon from './NotificationAddon'
-import WrapMovrMenu from './WrapMovrMenu'
 import { Button } from '@mui/material'
 
 const Container = styled1('div')({
@@ -211,22 +210,6 @@ const renderUserBalanceSection = (
       </NavItem>
       <NavItem color="white">
         <Tooltip
-          title={
-            <TooltipContent>
-              {Number(wmovrBalance || 0) / 1} WMOVR
-            </TooltipContent>
-          }
-          arrow
-          placement="right"
-        >
-          <span>
-            <img src={movrLogo} alt="movr logo" />
-            {Number(wmovrBalance || 0).toFixed(4)} WMOVR
-          </span>
-        </Tooltip>
-      </NavItem>
-      <NavItem color="white">
-        <Tooltip
           title={<TooltipContent>{balance} MOVR</TooltipContent>}
           arrow
           placement="right"
@@ -263,6 +246,7 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
   const { state, dispatch } = useContext(store)
   const {
     wallet: { address, balance, zoomBalance, wmovrBalance },
+    contracts
   } = state
 
   const shortWallet = formatAddress(address)
@@ -381,7 +365,21 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
             Help
           </NavItem>
         </NavLink>
-        <WrapMovrMenu></WrapMovrMenu>
+        <Button
+          onClick={() => {
+            addAssetToMetamask('ZOOM', contracts.ZoomContract.address);
+          }}
+          aria-controls="basic-menu"
+          aria-haspopup="true"
+          variant="contained"
+          style={{
+            width: '100%',
+            height: '40px',
+            flex: 'auto',
+          }}
+        >
+          Add ZOOM to Metamask
+        </Button>
       </ButtonGroupContainer>
     </Container>
   )
