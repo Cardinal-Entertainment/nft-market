@@ -158,7 +158,7 @@ const App = () => {
             liveFeedItem.saleToken === zoomContractAddress
               ? 'ZOOM'
               : liveFeedItem.saleToken === wmovrContractAddress
-              ? 'WMOVR'
+              ? 'MOVR'
               : '',
           ...liveFeedItem,
         },

@@ -325,7 +325,7 @@ const AuctionItem = ({ content, archived }) => {
     auctionItem.saleToken === zoomContractAddress
       ? 'ZOOM'
       : auctionItem.saleToken === wmovrContractAddress
-      ? 'WMOVR'
+      ? 'MOVR'
       : ''
   const minIncrement =
     auctionItem.saleToken === zoomContractAddress
@@ -361,7 +361,7 @@ const AuctionItem = ({ content, archived }) => {
           auctionItem.saleToken === zoomContractAddress
             ? 'ZOOM'
             : auctionItem.saleToken === wmovrContractAddress
-            ? 'WMOVR'
+            ? 'MOVR'
             : ''
       }
 
@@ -374,7 +374,7 @@ const AuctionItem = ({ content, archived }) => {
       const bidTx = await contracts.MarketContract.bid(
         parseInt(itemNumber),
         weiAmount,
-        { value: currency === 'WMOVR' ? weiAmount : 0 }
+        { value: currency === 'MOVR' ? weiAmount : 0 }
       )
       await waitForTransaction(bidTx)
     } catch (e) {
@@ -419,7 +419,7 @@ const AuctionItem = ({ content, archived }) => {
     offerToolTip = 'You do not have enough ZOOM tokens'
   }
   if (
-    coinType === 'WMOVR' &&
+    coinType === 'MOVR' &&
     (wallet.balance
       ? ethers.utils.parseEther(wallet.balance.toString()).lt(minOfferAmount)
       : true)
@@ -509,7 +509,7 @@ const AuctionItem = ({ content, archived }) => {
               <img
                 className={'meta-content-coin-icon'}
                 src={coinType === 'ZOOM' ? zoomCoin : movrLogo}
-                alt="WMOVR"
+                alt={coinType}
                 loading="lazy"
               />
               <span>
@@ -548,7 +548,7 @@ const AuctionItem = ({ content, archived }) => {
                   bidInProgress ||
                   auctionItem.lister === wallet.address ||
                   (coinType === 'ZOOM' && !isAllowanceEnough) ||
-                  (coinType === 'WMOVR' &&
+                  (coinType === 'MOVR' &&
                     (wallet.balance
                       ? ethers.utils
                           .parseEther(wallet.balance.toString())

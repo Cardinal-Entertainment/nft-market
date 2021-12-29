@@ -151,17 +151,17 @@ const StyledLogo = styled.img`
 `
 
 const CURRENCY_TYPES = {
-  WMOVR: 'WMOVR',
+  MOVR: 'MOVR',
   ZOOM: 'ZOOM',
 }
 
 const tokenAddresses = {
   1285: {
-    [CURRENCY_TYPES.WMOVR]: '0x98878B06940aE243284CA214f92Bb71a2b032B8A',
+    [CURRENCY_TYPES.MOVR]: '0x98878B06940aE243284CA214f92Bb71a2b032B8A',
     [CURRENCY_TYPES.ZOOM]: '0x8bd5180Ccdd7AE4aF832c8C03e21Ce8484A128d4',
   },
   1287: {
-    [CURRENCY_TYPES.WMOVR]: '0x372d0695E75563D9180F8CE31c9924D7e8aaac47',
+    [CURRENCY_TYPES.MOVR]: '0x372d0695E75563D9180F8CE31c9924D7e8aaac47',
     [CURRENCY_TYPES.ZOOM]: '0x8e21404bAd3A1d2327cc6D2B2118f47911a1f316',
   },
 }
@@ -220,7 +220,7 @@ const NewListing = () => {
   )
   const [listPrice, setListPrice] = useState('0')
   const [createInProgress, setCreateInProgress] = useState(false)
-  const [selectedCurrency, setSelectedCurrency] = useState(CURRENCY_TYPES.WMOVR)
+  const [selectedCurrency, setSelectedCurrency] = useState(CURRENCY_TYPES.MOVR)
   const [selectedCards, setSelectedCards] = useState({})
   const [isApprovedForAll, setIsApprovedForAll] = useState(false)
   const [instantAuction, setInstantAuction] = useState(false)
@@ -312,7 +312,7 @@ const NewListing = () => {
     const value = e.target.value
 
     let isDecimalOverflow = false
-    if (selectedCurrency === 'WMOVR' && value.toString().includes('.')) {
+    if (selectedCurrency === 'MOVR' && value.toString().includes('.')) {
       if (value.toString().split('.')[1].length > 4) {
         isDecimalOverflow = true
       }
@@ -380,7 +380,7 @@ const NewListing = () => {
               onChange={handleAmountChanged}
               onKeyDown={onKeyDown}
               min={0}
-              step={selectedCurrency === 'WMOVR' ? 0.0001 : 1}
+              step={selectedCurrency === 'MOVR' ? 0.0001 : 1}
             />
             <Select
               value={selectedCurrency}
