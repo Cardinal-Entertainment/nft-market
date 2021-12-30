@@ -529,7 +529,7 @@ const AuctionItem = ({ content, archived }) => {
             <MetaContentTip>Remaining time</MetaContentTip>
           </MetaContentRow>
           <MetaContentButtonSection>
-            {!archived && (
+            {(!archived || (archived && (auctionItem.auctionEnd === 0 && !isSettled))) && (
               <OfferDialog
                 currency={coinType}
                 minAmount={minOfferAmount}
@@ -544,7 +544,7 @@ const AuctionItem = ({ content, archived }) => {
                 }
                 onConfirm={handleConfirmBid}
                 disabled={
-                  moment().isAfter(moment.unix(auctionItem.auctionEnd)) ||
+                  ((moment().isAfter(moment.unix(auctionItem.auctionEnd)) && auctionItem.auctionEnd > 0) || (auctionItem.auctionEnd === 0 && isSettled) ) ||
                   bidInProgress ||
                   auctionItem.lister === wallet.address ||
                   (coinType === 'ZOOM' && !isAllowanceEnough) ||
