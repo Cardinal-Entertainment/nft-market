@@ -487,7 +487,8 @@ const ListingMetadata = ({
             </Accordion>
           </>
         )}
-        {!isAuctionOver && (
+        {((!isAuctionOver && listing.auctionEnd > 0) ||
+          (listing.auctionEnd === 0 && !listing.isItemSettled)) && (
           <OfferDialog
             minAmount={minOfferAmount}
             currency={listing.currency}
@@ -497,7 +498,7 @@ const ListingMetadata = ({
             disabled={
               isBidInProgress ||
               !canBid ||
-              isAuctionOver ||
+              ((isAuctionOver && listing.auctionEnd > 0) || (listing.isItemSettled && listing.auctionEnd === 0)) ||
               listing.seller === walletAddress ||
               (!isZoomAllowanceEnough && listing.currency === 'ZOOM')
             }
