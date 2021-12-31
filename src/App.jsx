@@ -238,6 +238,17 @@ const App = () => {
           newAuction['type'] = 'new'
         }
 
+        // const currentProfileData = queryClient.getQueryData([
+        //   QUERY_KEYS.profile,
+        //   { userAddress: address },
+        // ]);
+        // if (newAuction.lister === address && currentProfileData) {
+        //   currentProfileData.listings = [data, ...currentProfileData.listings]
+        //   queryClient.setQueryData(
+        //     [QUERY_KEYS.profile, { address }],
+        //     [currentProfileData]
+        //   );
+        // }
         addLiveFeedItem(newAuction, filterKey)
       }
     )

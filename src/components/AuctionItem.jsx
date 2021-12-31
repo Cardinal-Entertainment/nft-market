@@ -280,7 +280,7 @@ const DownCounter = ({ timestamp }) => {
     <span className={'meta-content-remaining-time'}>
       {moment().isBefore(moment.unix(timestamp))
         ? remainingTime
-        : moment.unix(timestamp).format('MM/DD/YYYY, h:mm:ss A')}
+        : (timestamp > 0 ? moment.unix(timestamp).format('MM/DD/YYYY, h:mm:ss A') : 'Quick buy' )}
     </span>
   )
 }
@@ -529,7 +529,7 @@ const AuctionItem = ({ content, archived }) => {
             <MetaContentTip>Remaining time</MetaContentTip>
           </MetaContentRow>
           <MetaContentButtonSection>
-            {!archived && (
+            {(!archived || (archived && (auctionItem.auctionEnd === 0 && !isSettled))) && (
               <OfferDialog
                 currency={coinType}
                 minAmount={minOfferAmount}
@@ -544,7 +544,7 @@ const AuctionItem = ({ content, archived }) => {
                 }
                 onConfirm={handleConfirmBid}
                 disabled={
-                  moment().isAfter(moment.unix(auctionItem.auctionEnd)) ||
+                  ((moment().isAfter(moment.unix(auctionItem.auctionEnd)) && auctionItem.auctionEnd > 0) || (auctionItem.auctionEnd === 0 && isSettled) ) ||
                   bidInProgress ||
                   auctionItem.lister === wallet.address ||
                   (coinType === 'ZOOM' && !isAllowanceEnough) ||
@@ -565,6 +565,7 @@ const AuctionItem = ({ content, archived }) => {
                 mylisting={auctionItem.lister === wallet.address}
                 minIncrement={ethers.utils.formatEther(minIncrement)}
                 quickBid
+                timestamp={auctionItem.timestamp}
               />
             )}
             {archived &&

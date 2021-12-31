@@ -201,7 +201,7 @@ const bidListingColumns = [
   {
     field: 'auctionEnd',
     headerName: 'End Time',
-    valueFormatter: (params) => params.value.format('MM/DD/YYYY, h:mm:ss A'),
+    valueFormatter: (params) => params.value === 0 ? 'Quick buy' : params.value.format('MM/DD/YYYY, h:mm:ss A'),
     minWidth: 230,
   },
   {
@@ -254,7 +254,7 @@ const userListingColumns = [
   {
     field: 'auctionEnd',
     headerName: 'End Time',
-    valueFormatter: (params) => params.value.format('MM/DD/YYYY, h:mm:ss A'),
+    valueFormatter: (params) => params.value === 0 ? 'Quick buy' : params.value.format('MM/DD/YYYY, h:mm:ss A'),
     minWidth: 230,
   },
   {
@@ -293,7 +293,7 @@ const UserBids = ({ bidCount, bids }) => {
       }
 
       return {
-        auctionEnd: moment.unix(bid.bidListing.auctionEnd),
+        auctionEnd: bid.bidListing.auctionEnd > 0 ? moment.unix(bid.bidListing.auctionEnd) : 0,
         highestBidder: bid.bidListing.highestBidder,
         highestBid: bid.bidListing.highestBid,
         minPrice: bid.bidListing.minPrice,
@@ -344,7 +344,7 @@ const UserListings = ({ listingCount, listings }) => {
     }
 
     return {
-      auctionEnd: moment.unix(listing.auctionEnd),
+      auctionEnd: listing.auctionEnd > 0 ? moment.unix(listing.auctionEnd) : 0,
       highestBidder: listing.highestBidder,
       highestBid: listing.highestBid,
       minPrice: listing.minPrice,
