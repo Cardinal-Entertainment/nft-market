@@ -3,12 +3,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faClock } from '@fortawesome/free-regular-svg-icons'
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
 import movrLogo from '../assets/movr_logo.png'
+import usdtLogo from '../assets/usdt.svg'
 import zoomCoin from '../assets/zoombies_coin.svg'
 import { Button, CircularProgress, Modal, styled, Grid } from '@mui/material'
 import {
   cardImageBaseURL,
   QUERY_KEYS,
   wmovrContractAddress,
+  usdtContractAddress,
   zoomContractAddress,
 } from '../constants'
 import { useTheme } from 'styled-components'
@@ -310,7 +312,7 @@ const handleSettle = async (
 
 const AuctionItem = ({ content, archived }) => {
   const {
-    state: { contracts, wallet, zoomIncrement, wmovrIncrement },
+    state: { contracts, wallet, zoomIncrement, wmovrIncrement, usdtIncrement },
   } = useContext(store)
   const history = useHistory()
   const [bidInProgress, setBidInProgress] = useState(false)
@@ -326,12 +328,16 @@ const AuctionItem = ({ content, archived }) => {
       ? 'ZOOM'
       : auctionItem.saleToken === wmovrContractAddress
       ? 'MOVR'
-      : ''
+      : auctionItem.saleToken === usdtContractAddress
+      ? 'USDT'
+        : ''
   const minIncrement =
     auctionItem.saleToken === zoomContractAddress
       ? zoomIncrement
       : auctionItem.saleToken === wmovrContractAddress
       ? wmovrIncrement
+      : auctionItem.saleToken === usdtContractAddress
+      ? usdtIncrement
       : 0
 
   const { data } = useFetchBids(itemNumber)
@@ -362,7 +368,9 @@ const AuctionItem = ({ content, archived }) => {
             ? 'ZOOM'
             : auctionItem.saleToken === wmovrContractAddress
             ? 'MOVR'
-            : ''
+            : auctionItem.saleToken === usdtContractAddress
+            ? 'USDT'
+            :  ''
       }
 
       if (ethers.utils.parseEther(amount.toString()).lt(minOfferAmount)) {
@@ -425,6 +433,15 @@ const AuctionItem = ({ content, archived }) => {
       : true)
   ) {
     offerToolTip = 'You do not have enough MOVR'
+  }
+
+  if (
+    coinType === 'USDT' &&
+    (wallet.usdtBalance
+      ? ethers.utils.parseEther(wallet.usdtBalance.toString()).lt(minOfferAmount)
+      : true)
+  ) {
+    offerToolTip = 'You do not have enough USDT'
   }
 
   const now = moment().unix()
@@ -508,7 +525,7 @@ const AuctionItem = ({ content, archived }) => {
             <MetaContentBidAmount>
               <img
                 className={'meta-content-coin-icon'}
-                src={coinType === 'ZOOM' ? zoomCoin : movrLogo}
+                src={coinType === 'ZOOM' ? zoomCoin : ( coinType === 'USDT' ? usdtLogo : movrLogo)}
                 alt={coinType}
                 loading="lazy"
               />
@@ -538,9 +555,11 @@ const AuctionItem = ({ content, archived }) => {
                     ? wallet.zoomBalance
                       ? ethers.utils.parseEther(wallet.zoomBalance)
                       : toBigNumber(0)
-                    : wallet.balance
-                    ? toBigNumber(wallet.balance)
-                    : toBigNumber(0)
+                    : (
+                        coinType === 'USDT' ?
+                        wallet.usdtBalance ? toBigNumber(wallet.usdtBalance): toBigNumber(0) :
+                        wallet.balance ? toBigNumber(wallet.balance) : toBigNumber(0)
+                    )
                 }
                 onConfirm={handleConfirmBid}
                 disabled={
@@ -553,6 +572,12 @@ const AuctionItem = ({ content, archived }) => {
                       ? ethers.utils
                           .parseEther(wallet.balance.toString())
                           .lt(minOfferAmount)
+                      : true)) ||
+                  (coinType === 'USDT' &&
+                    (wallet.usdtBalance
+                      ? ethers.utils
+                        .parseEther(wallet.usdtBalance.toString())
+                        .lt(minOfferAmount)
                       : true)) ||
                   (coinType === 'ZOOM' &&
                     (wallet.zoomBalance

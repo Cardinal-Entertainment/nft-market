@@ -1,6 +1,7 @@
 import {
   zoomContractAddress,
   wmovrContractAddress,
+  usdtContractAddress,
   apiEndpoint,
 } from '../constants'
 import axios from 'axios'
@@ -11,6 +12,8 @@ export const getTokenSymbol = (saleToken) => {
       return 'ZOOM'
     case wmovrContractAddress:
       return 'MOVR'
+    case usdtContractAddress:
+      return 'USDT'
     default:
       return 'Unknown'
   }

@@ -22,6 +22,7 @@ import {
   EVENT_TYPES,
   QUERY_KEYS,
   wmovrContractAddress,
+  usdtContractAddress,
   zoomContractAddress,
 } from './constants'
 import { useFetchProfileQuery } from './hooks/useProfile'
@@ -159,6 +160,8 @@ const App = () => {
               ? 'ZOOM'
               : liveFeedItem.saleToken === wmovrContractAddress
               ? 'MOVR'
+              : liveFeedItem.saleToken === usdtContractAddress
+              ? 'USDT'
               : '',
           ...liveFeedItem,
         },

@@ -17,7 +17,7 @@ import { getStatus } from 'utils/listingUtil'
 
 import moment from 'moment'
 
-import { zoomContractAddress, wmovrContractAddress, QUERY_KEYS } from '../constants'
+import { zoomContractAddress, wmovrContractAddress, usdtContractAddress, QUERY_KEYS } from '../constants'
 
 import { useHistory } from 'react-router'
 import LoadingModal from 'components/LoadingModal'
@@ -290,6 +290,8 @@ const UserBids = ({ bidCount, bids }) => {
         currency = 'ZOOM'
       } else if (saleToken === wmovrContractAddress) {
         currency = 'MOVR'
+      } else if (saleToken === usdtContractAddress) {
+        currency = 'USDT'
       }
 
       return {
@@ -341,6 +343,8 @@ const UserListings = ({ listingCount, listings }) => {
       currency = 'ZOOM'
     } else if (saleToken === wmovrContractAddress) {
       currency = 'MOVR'
+    } else if (saleToken === usdtContractAddress) {
+      currency = 'USDT'
     }
 
     return {

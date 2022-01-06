@@ -2,6 +2,7 @@ import React, { useContext } from 'react'
 import { useTheme } from 'styled-components'
 import metamaskLogo from '../assets/metamask-face.png'
 import movrLogo from '../assets/movr_logo.png'
+import usdtLogo from '../assets/usdt.svg'
 import zoomCoin from '../assets/zoombies_coin.svg'
 import Tooltip from '@mui/material/Tooltip'
 import { store } from 'store/store'
@@ -167,7 +168,8 @@ const renderUserBalanceSection = (
   address,
   balance,
   zoomBalance,
-  wmovrBalance
+  wmovrBalance,
+  usdtBalance
 ) => {
   if (!hasMetamask) {
     return (
@@ -217,6 +219,18 @@ const renderUserBalanceSection = (
           <span>
             <img src={movrLogo} alt="movr logo" />
             {Number(balance).toFixed(4)} MOVR
+          </span>
+        </Tooltip>
+      </NavItem>
+      <NavItem color="white">
+        <Tooltip
+          title={<TooltipContent>{usdtBalance} USDT</TooltipContent>}
+          arrow
+          placement="right"
+        >
+          <span>
+            <img src={usdtLogo} alt="usdt logo" />
+            {Number(usdtBalance).toFixed(4)} USDT
           </span>
         </Tooltip>
       </NavItem>

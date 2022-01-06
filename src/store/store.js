@@ -88,6 +88,7 @@ const StateProvider = ({ children }) => {
           ...state,
           zoomIncrement: payload.zoomIncrement,
           wmovrIncrement: payload.wmovrIncrement,
+          usdtIncrement: payload.usdtIncrement
         };
       case ActionTypes.CLEAR_WALLET:
         Object.keys(state.contracts).forEach(key => {
