@@ -1,0 +1,49 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "LibNote",
+  "sourceName": "contracts/mocks/dai.sol",
+  "abi": [
+    {
+      "anonymous": true,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes4",
+          "name": "sig",
+          "type": "bytes4"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "usr",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "arg1",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "arg2",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "LogNote",
+      "type": "event"
+    }
+  ],
+  "bytecode": "0x6080604052348015600f57600080fd5b50603e80601d6000396000f3fe6080604052600080fdfea265627a7a7231582070f0a7f69061e1ca4a2bb3ac86b9947521baffd43fc277de4477115e49c90c3964736f6c634300050c0032",
+  "deployedBytecode": "0x6080604052600080fdfea265627a7a7231582070f0a7f69061e1ca4a2bb3ac86b9947521baffd43fc277de4477115e49c90c3964736f6c634300050c0032",
+  "linkReferences": {},
+  "deployedLinkReferences": {},
+  "metadata": "{\"compiler\":{\"version\":\"0.5.12+commit.7709ece9\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":true,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes4\",\"name\":\"sig\",\"type\":\"bytes4\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"usr\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"arg1\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"arg2\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"LogNote\",\"type\":\"event\"}],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{},\"notice\":\"/// /nix/store/8xb41r4qd0cjb63wcrxf1qmfg88p0961-dss-6fd7de0/src/lib.sol\"}},\"settings\":{\"compilationTarget\":{\"contracts/mocks/dai.sol\":\"LibNote\"},\"evmVersion\":\"petersburg\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/mocks/dai.sol\":{\"keccak256\":\"0xc6594e1b6e3389d285e68057b2f94e9a81c1c3fb6c1747c8ac810606b0d2a929\",\"urls\":[\"bzz-raw://d008b3e7d6cfd4b33e094c1a09f750da7ab6c947410bce6e2d6d306a3a57fb0d\",\"dweb:/ipfs/QmTw7qkp6JCcYPKSW1uMWzXq5TaZojprxJw4QVNk2oqkuu\"]}},\"version\":1}"
+}
