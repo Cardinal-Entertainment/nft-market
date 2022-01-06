@@ -12,8 +12,9 @@ import {
   zoomContractAddress,
   marketContractAddress,
   wmovrContractAddress,
+  usdtContractAddress
 } from '../constants'
-import { getWalletWMOVRBalance, getWalletZoomBalance } from '../utils/wallet'
+import { getWalletUSDTBalance, getWalletWMOVRBalance, getWalletZoomBalance } from '../utils/wallet'
 import watchMarketEvents from 'utils/setupWatcher'
 
 const isLocal = process.env.NODE_ENV === 'development'
@@ -71,6 +72,12 @@ const loadContracts = async (signer, chainId, dispatch) => {
     signer
   )
 
+  const USDTContract = new ethers.Contract(
+    usdtContractAddress,
+    wrapped_movr_json.abi,
+    signer
+  )
+
   ZoomContract.provider.on('block', async () => {
     if (signer) {
       const address = await signer.getAddress()
@@ -109,6 +116,25 @@ const loadContracts = async (signer, chainId, dispatch) => {
     }
   })
 
+  USDTContract.provider.on('block', async () => {
+    if (signer) {
+      const address = await signer.getAddress()
+      const bal = await getWalletUSDTBalance(USDTContract, address)
+
+      dispatch(
+        Actions.walletChanged({
+          usdtBalance: bal,
+        })
+      )
+    } else {
+      dispatch(
+        Actions.walletChanged({
+          usdtBalance: 0,
+        })
+      )
+    }
+  })
+
   watchMarketEvents(MarketContract, marketContractAddress, ZoombiesContract)
 
   dispatch(
@@ -118,6 +144,7 @@ const loadContracts = async (signer, chainId, dispatch) => {
         ZoombiesContract,
         MarketContract,
         WMOVRContract,
+        USDTContract,
         GlobalContract: null,
       },
       signer: signer,
@@ -135,6 +162,7 @@ const loadContracts = async (signer, chainId, dispatch) => {
     ZoombiesContract,
     MarketContract,
     WMOVRContract,
+    USDTContract
   }
 }
 
@@ -184,7 +212,7 @@ export const setupEthers = async (dispatch) => {
         })
       })
 
-      const { ZoomContract, WMOVRContract } = await loadContracts(
+      const { ZoomContract, WMOVRContract, USDTContract } = await loadContracts(
         signer,
         network.chainId,
         dispatch
@@ -192,11 +220,13 @@ export const setupEthers = async (dispatch) => {
 
       const zoomBalance = await getWalletZoomBalance(ZoomContract, address)
       const WMOVRBalance = await getWalletWMOVRBalance(WMOVRContract, address)
+      const usdtBalance = await getWalletUSDTBalance(USDTContract, address)
 
       dispatch(
         Actions.walletChanged({
           zoomBalance: zoomBalance,
           wmovrBalance: WMOVRBalance,
+          usdtBalance: usdtBalance
         })
       )
     } else {

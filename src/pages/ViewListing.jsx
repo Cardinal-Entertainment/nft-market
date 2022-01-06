@@ -13,9 +13,12 @@ import { CircularProgress, Modal, Paper } from '@mui/material'
 import OfferDialog from 'components/OfferDialog'
 import {
   EVENT_TYPES,
-  QUERY_KEYS, wmovrContractAddress,
+  QUERY_KEYS,
+  wmovrContractAddress,
+  usdtContractAddress,
   ZoombiesStableEndpoint,
-  ZoombiesTestingEndpoint, zoomContractAddress
+  ZoombiesTestingEndpoint,
+  zoomContractAddress
 } from '../constants'
 import { ethers } from 'ethers'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -25,6 +28,7 @@ import momentTimezone from 'moment-timezone'
 import LazyLoad from 'react-lazyload'
 import zoomLogo from '../assets/zoombies_coin.svg'
 import movrLogo from '../assets/movr_logo.png'
+import usdtLogo from '../assets/usdt.svg'
 import LoadingModal from 'components/LoadingModal'
 import { useQueryClient } from 'react-query'
 import { v4 as uuidv4 } from 'uuid'
@@ -335,6 +339,7 @@ const ListingMetadata = ({
   minIncrement,
   zoomBalance,
   movrBalance,
+  usdtBalance,
   isBidInProgress,
   handleConfirmBid,
   isAuctionOver,
@@ -365,13 +370,15 @@ const ListingMetadata = ({
         return await contracts.ZoomContract.name();
       } else if (saleToken === wmovrContractAddress) {
         return await contracts.WMOVRContract.name();
+      } else if (saleToken === usdtContractAddress) {
+        return await contracts.USDTContract.name();
       }
     };
 
     getTokenName(listing.saleToken).then( (name) => {
       setAuctionCurrency(name)
     })
-  }, [contracts.ZoomContract, contracts.WMOVRContract, listing.saleToken]);
+  }, [contracts.ZoomContract, contracts.WMOVRContract, contracts.USDTContract, listing.saleToken]);
 
   /*
   const minOfferAmount =
@@ -392,16 +399,26 @@ const ListingMetadata = ({
   const maxOfferAmount =
     listing.currency === 'ZOOM'
       ? ethers.utils.parseEther(zoomBalance)
-      : ethers.utils.parseEther(movrBalance.toString())
+      : (
+          listing.currency === 'USDT' ?
+          ethers.utils.parseEther(usdtBalance.toString()) :
+          ethers.utils.parseEther(movrBalance.toString())
+        )
 
   const canBid =
     listing.currency === 'ZOOM'
       ? ethers.utils
           .parseEther(zoomBalance ? zoomBalance : '0')
           .gt(minOfferAmount)
-      : ethers.utils
-          .parseEther(movrBalance ? movrBalance.toString() : '0')
-          .gt(minOfferAmount)
+      : (
+        listing.currency === 'USDT' ?
+          ethers.utils
+            .parseEther(usdtBalance ? usdtBalance.toString() : '0')
+            .gt(minOfferAmount) :
+          ethers.utils
+            .parseEther(movrBalance ? movrBalance.toString() : '0')
+            .gt(minOfferAmount)
+      )
 
   let offerToolTip;
   if (isAuctionOver) {
@@ -421,6 +438,9 @@ const ListingMetadata = ({
   }
   if (listing.currency === "MOVR" && (movrBalance ? ethers.utils.parseEther(movrBalance.toString()).lt(minOfferAmount) : true)) {
     offerToolTip = "You do not have enough MOVR."
+  }
+  if (listing.currency === "USDT" && (usdtBalance ? ethers.utils.parseEther(usdtBalance.toString()).lt(minOfferAmount) : true)) {
+    offerToolTip = "You do not have enough USDT."
   }
 
   return (
@@ -451,7 +471,9 @@ const ListingMetadata = ({
             {listing.currency === 'ZOOM' ? (
               <StyledLogo src={zoomLogo} />
             ) : (
-              <StyledLogo src={movrLogo} />
+              listing.currency === 'USDT' ?
+                <StyledLogo src={usdtLogo} /> :
+                <StyledLogo src={movrLogo} />
             )}
           </div>
         </div>
@@ -583,10 +605,10 @@ const ViewListing = () => {
   const auctionId = parseInt(id)
 
   const {
-    state: { contracts, wallet, zoomIncrement, wmovrIncrement },
+    state: { contracts, wallet, zoomIncrement, wmovrIncrement, usdtIncrement },
   } = useContext(store)
 
-  const { zoomBalance, wmovrBalance, balance: movrBalance } = wallet
+  const { zoomBalance, wmovrBalance, balance: movrBalance, usdtBalance } = wallet
   const { MarketContract } = contracts
 
   const queryClient = useQueryClient()
@@ -674,7 +696,7 @@ const ViewListing = () => {
         : `${ZoombiesStableEndpoint}/my-zoombies-nfts/${auctionItem?.seller}`
 
     const minIncrement =
-      auctionItem.currency === 'ZOOM' ? zoomIncrement : wmovrIncrement
+      auctionItem.currency === 'ZOOM' ? zoomIncrement : (auctionItem.currency === 'USDT' ? usdtIncrement : wmovrIncrement)
 
     const handleConfirmBid = async (amount) => {
       try {
@@ -743,6 +765,7 @@ const ViewListing = () => {
               minIncrement={minIncrement}
               zoomBalance={zoomBalance}
               wmovrBalance={wmovrBalance}
+              usdtBalance={usdtBalance}
               movrBalance={movrBalance}
               isBidInProgress={bidInProgress}
               listing={auctionItem}

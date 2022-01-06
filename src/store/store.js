@@ -17,12 +17,14 @@ const initialState = {
     chainId: null,
     zoomBalance: null,
     wmovrBalance: null,
+    usdtBalance: null,
   },
   contracts: {
     ZoomContract: null,
     ZoombiesContract: null,
     MarketContract: null,
     WMOVRContract: null,
+    USDTContract: null,
     GlobalContract: null,
   },
   signer: null,
@@ -32,6 +34,7 @@ const initialState = {
   myNewEventsCount: 0,
   zoomIncrement: toBigNumber(25000), //this is ether units, convert to BigNumber and use wei
   wmovrIncrement: toBigNumber(0.02), //this is ether units, convert to BigNumber and use wei
+  usdtIncrement: toBigNumber(1), //this is ether units, convert to BigNumber and use wei
 };
 
 const store = createContext(initialState);

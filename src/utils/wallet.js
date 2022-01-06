@@ -10,6 +10,12 @@ export const getWalletWMOVRBalance = async (wmovrContract, address) => {
   return ethers.utils.formatEther(wmovrBalance);
 };
 
+export const getWalletUSDTBalance = async (contract, address) => {
+  const balance = await contract.balanceOf(address);
+
+  return ethers.utils.formatEther(balance);
+};
+
 export const getWalletZoomBalance = async (zoomContract, address) => {
   const zoomBalance = await zoomContract.balanceOf(address);
   return ethers.utils.formatEther(zoomBalance);

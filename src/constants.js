@@ -11,6 +11,9 @@ export const zoombiesContractAddress =
 export const wmovrContractAddress =
   '0x372d0695E75563D9180F8CE31c9924D7e8aaac47';
 
+export const usdtContractAddress =
+  '0x0b77D7BDd78b2a4C2c50980968166D99e321DfB6';
+
 export const cardImageBaseURL = 'https://moonbase.zoombies.world/nft-image';
 export const apiEndpoint = 'https://api.zoombies.world';
 
