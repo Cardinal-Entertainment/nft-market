@@ -13,6 +13,7 @@ import iconWin from '../assets/win.png';
 import iconSold from '../assets/sold.png';
 import wmovrCoin from '../assets/movr_logo.png';
 import usdtCoin from '../assets/usdt.svg';
+import daiCoin from '../assets/dai.png';
 import zoomCoin from '../assets/zoombies_coin.svg';
 
 import moment from 'moment';
@@ -275,7 +276,7 @@ const LiveFeedItem = (props, ref) => {
                   Min Price:{' '}
                   <img
                     className="content-coin"
-                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : wmovrCoin)}
+                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : (currency === 'DAI' ? daiCoin : wmovrCoin))}
                     alt={currency}
                   />
                   <span className={'span-amount'}>{minPrice}</span> {currency}
@@ -296,7 +297,7 @@ const LiveFeedItem = (props, ref) => {
                   Min Price:{' '}
                   <img
                     className="content-coin"
-                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : wmovrCoin)}
+                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : (currency === 'DAI' ? daiCoin : wmovrCoin))}
                     alt={currency}
                   />
                   <span className={'span-amount'}>{minPrice}</span> {currency}
@@ -317,7 +318,7 @@ const LiveFeedItem = (props, ref) => {
                   Bid Amount:{' '}
                   <img
                     className="content-coin"
-                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : wmovrCoin)}
+                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : (currency === 'DAI' ? daiCoin : wmovrCoin))}
                     alt={currency}
                   />
                   <span className={'span-amount'}>{bidAmount}</span> {currency}
@@ -332,7 +333,7 @@ const LiveFeedItem = (props, ref) => {
                   Bid Amount:{' '}
                   <img
                     className="content-coin"
-                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : wmovrCoin)}
+                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : (currency === 'DAI' ? daiCoin : wmovrCoin))}
                     alt={currency}
                   />
                   <span className={'span-amount'}>{bidAmount}</span> {currency}
@@ -347,7 +348,7 @@ const LiveFeedItem = (props, ref) => {
                   Bid Amount:{' '}
                   <img
                     className="content-coin"
-                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : wmovrCoin)}
+                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : (currency === 'DAI' ? daiCoin : wmovrCoin))}
                     alt={currency}
                   />
                   <span className={'span-amount'}>{bidAmount}</span> {currency}
@@ -363,7 +364,7 @@ const LiveFeedItem = (props, ref) => {
                   Amount:{' '}
                   <img
                     className="content-coin"
-                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : wmovrCoin)}
+                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : (currency === 'DAI' ? daiCoin : wmovrCoin))}
                     alt={currency}
                   />
                   <span className={'span-amount'}>{bidAmount}</span> {currency}
@@ -379,7 +380,7 @@ const LiveFeedItem = (props, ref) => {
                   Amount:{' '}
                   <img
                     className="content-coin"
-                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : wmovrCoin)}
+                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : (currency === 'DAI' ? daiCoin : wmovrCoin))}
                     alt={currency}
                   />
                   <span className={'span-amount'}>{bidAmount}</span> {currency}
@@ -395,7 +396,7 @@ const LiveFeedItem = (props, ref) => {
                   Amount:{' '}
                   <img
                     className="content-coin"
-                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : wmovrCoin)}
+                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : (currency === 'DAI' ? daiCoin : wmovrCoin))}
                     alt={currency}
                   />
                   <span className={'span-amount'}>{bidAmount}</span> {currency}
@@ -413,7 +414,7 @@ const LiveFeedItem = (props, ref) => {
                   Amount:{' '}
                   <img
                     className="content-coin"
-                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : wmovrCoin)}
+                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : (currency === 'DAI' ? daiCoin : wmovrCoin))}
                     alt={currency}
                   />
                   <span className={'span-amount'}>{bidAmount}</span> {currency}
@@ -428,7 +429,7 @@ const LiveFeedItem = (props, ref) => {
                   Amount:{' '}
                   <img
                     className="content-coin"
-                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : wmovrCoin)}
+                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : (currency === 'DAI' ? daiCoin : wmovrCoin))}
                     alt={currency}
                   />
                   <span className={'span-amount'}>{bidAmount}</span> {currency}

@@ -5,7 +5,7 @@ import InputBase from '@mui/material/InputBase';
 import MenuItem from '@mui/material/MenuItem';
 import SearchIcon from '@mui/icons-material/Search';
 import { alpha, Select, Grid } from '@mui/material';
-import { wmovrContractAddress, zoomContractAddress, usdtContractAddress } from '../constants';
+import { wmovrContractAddress, zoomContractAddress, daiContractAddress } from '../constants';
 
 const Container = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -203,7 +203,7 @@ const Filterbar = ({ onFilterChanged, filters, totalCount }) => {
             <MenuItem value={''}>Coin Type</MenuItem>
             <MenuItem value={wmovrContractAddress}>MOVR</MenuItem>
             <MenuItem value={zoomContractAddress}>ZOOM</MenuItem>
-            <MenuItem value={usdtContractAddress}>USDT</MenuItem>
+            <MenuItem value={daiContractAddress}>DAI</MenuItem>
           </StyledSelect>
 
           <StyledSelect

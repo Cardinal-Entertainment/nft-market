@@ -5,6 +5,7 @@ import zoombies_market_place_json from '../contracts/ZoombiesMarketPlace.json'
 import zoombies_json from '../contracts/Zoombies.json'
 import zoom_token_json from '../contracts/ZoomToken.json'
 import wrapped_movr_json from '../contracts/WrappedMovr.json'
+import anyERC20JSON from '../contracts/AnyERC20.json'
 import { DAPP_STATES } from 'store/store'
 import Actions from 'store/actions'
 
@@ -12,9 +13,10 @@ import {
   zoomContractAddress,
   marketContractAddress,
   wmovrContractAddress,
-  usdtContractAddress
+  usdtContractAddress,
+  daiContractAddress
 } from '../constants'
-import { getWalletUSDTBalance, getWalletWMOVRBalance, getWalletZoomBalance } from '../utils/wallet'
+import { getWalletUSDTBalance, getWalletWMOVRBalance, getWalletZoomBalance, getWalletDAIBalance } from '../utils/wallet'
 import watchMarketEvents from 'utils/setupWatcher'
 
 const isLocal = process.env.NODE_ENV === 'development'
@@ -78,6 +80,12 @@ const loadContracts = async (signer, chainId, dispatch) => {
     signer
   )
 
+  const DAIContract = new ethers.Contract(
+    daiContractAddress,
+    anyERC20JSON.abi,
+    signer
+  )
+
   ZoomContract.provider.on('block', async () => {
     if (signer) {
       const address = await signer.getAddress()
@@ -135,6 +143,25 @@ const loadContracts = async (signer, chainId, dispatch) => {
     }
   })
 
+  DAIContract.provider.on('block', async () => {
+    if (signer) {
+      const address = await signer.getAddress()
+      const bal = await getWalletDAIBalance(DAIContract, address)
+
+      dispatch(
+        Actions.walletChanged({
+          daiBalance: bal,
+        })
+      )
+    } else {
+      dispatch(
+        Actions.walletChanged({
+          daiBalance: 0,
+        })
+      )
+    }
+  })
+
   watchMarketEvents(MarketContract, marketContractAddress, ZoombiesContract)
 
   dispatch(
@@ -145,6 +172,7 @@ const loadContracts = async (signer, chainId, dispatch) => {
         MarketContract,
         WMOVRContract,
         USDTContract,
+        DAIContract,
         GlobalContract: null,
       },
       signer: signer,
@@ -162,7 +190,8 @@ const loadContracts = async (signer, chainId, dispatch) => {
     ZoombiesContract,
     MarketContract,
     WMOVRContract,
-    USDTContract
+    USDTContract,
+    DAIContract
   }
 }
 
@@ -212,7 +241,7 @@ export const setupEthers = async (dispatch) => {
         })
       })
 
-      const { ZoomContract, WMOVRContract, USDTContract } = await loadContracts(
+      const { ZoomContract, WMOVRContract, USDTContract, DAIContract } = await loadContracts(
         signer,
         network.chainId,
         dispatch
@@ -221,12 +250,14 @@ export const setupEthers = async (dispatch) => {
       const zoomBalance = await getWalletZoomBalance(ZoomContract, address)
       const WMOVRBalance = await getWalletWMOVRBalance(WMOVRContract, address)
       const usdtBalance = await getWalletUSDTBalance(USDTContract, address)
+      const daiBalance = await getWalletDAIBalance(DAIContract, address)
 
       dispatch(
         Actions.walletChanged({
           zoomBalance: zoomBalance,
           wmovrBalance: WMOVRBalance,
-          usdtBalance: usdtBalance
+          usdtBalance: usdtBalance,
+          daiBalance: daiBalance
         })
       )
     } else {

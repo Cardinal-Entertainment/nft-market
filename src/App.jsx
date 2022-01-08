@@ -23,6 +23,7 @@ import {
   QUERY_KEYS,
   wmovrContractAddress,
   usdtContractAddress,
+  daiContractAddress,
   zoomContractAddress,
 } from './constants'
 import { useFetchProfileQuery } from './hooks/useProfile'
@@ -162,6 +163,8 @@ const App = () => {
               ? 'MOVR'
               : liveFeedItem.saleToken === usdtContractAddress
               ? 'USDT'
+              : liveFeedItem.saleToken === daiContractAddress
+              ? 'DAI'
               : '',
           ...liveFeedItem,
         },

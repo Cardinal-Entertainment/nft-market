@@ -16,6 +16,7 @@ import {
   QUERY_KEYS,
   wmovrContractAddress,
   usdtContractAddress,
+  daiContractAddress,
   ZoombiesStableEndpoint,
   ZoombiesTestingEndpoint,
   zoomContractAddress
@@ -28,6 +29,7 @@ import momentTimezone from 'moment-timezone'
 import LazyLoad from 'react-lazyload'
 import zoomLogo from '../assets/zoombies_coin.svg'
 import movrLogo from '../assets/movr_logo.png'
+import daiLogo from '../assets/dai.png'
 import usdtLogo from '../assets/usdt.svg'
 import LoadingModal from 'components/LoadingModal'
 import { useQueryClient } from 'react-query'
@@ -340,6 +342,7 @@ const ListingMetadata = ({
   zoomBalance,
   movrBalance,
   usdtBalance,
+  daiBalance,
   isBidInProgress,
   handleConfirmBid,
   isAuctionOver,
@@ -372,13 +375,15 @@ const ListingMetadata = ({
         return await contracts.WMOVRContract.name();
       } else if (saleToken === usdtContractAddress) {
         return await contracts.USDTContract.name();
+      } else if (saleToken === daiContractAddress) {
+        return await contracts.DAIContract.name();
       }
     };
 
     getTokenName(listing.saleToken).then( (name) => {
       setAuctionCurrency(name)
     })
-  }, [contracts.ZoomContract, contracts.WMOVRContract, contracts.USDTContract, listing.saleToken]);
+  }, [contracts.ZoomContract, contracts.WMOVRContract, contracts.USDTContract, contracts.DAIContract, listing.saleToken]);
 
   /*
   const minOfferAmount =
@@ -402,7 +407,9 @@ const ListingMetadata = ({
       : (
           listing.currency === 'USDT' ?
           ethers.utils.parseEther(usdtBalance.toString()) :
-          ethers.utils.parseEther(movrBalance.toString())
+            listing.currency === 'DAI' ?
+              ethers.utils.parseEther(daiBalance.toString()) :
+              ethers.utils.parseEther(movrBalance.toString())
         )
 
   const canBid =
@@ -415,9 +422,15 @@ const ListingMetadata = ({
           ethers.utils
             .parseEther(usdtBalance ? usdtBalance.toString() : '0')
             .gt(minOfferAmount) :
-          ethers.utils
-            .parseEther(movrBalance ? movrBalance.toString() : '0')
-            .gt(minOfferAmount)
+          (
+            listing.currency === 'DAI' ?
+              ethers.utils
+                .parseEther(daiBalance ? daiBalance.toString() : '0')
+                .gt(minOfferAmount) :
+              ethers.utils
+                .parseEther(movrBalance ? movrBalance.toString() : '0')
+                .gt(minOfferAmount)
+          )
       )
 
   let offerToolTip;
@@ -441,6 +454,9 @@ const ListingMetadata = ({
   }
   if (listing.currency === "USDT" && (usdtBalance ? ethers.utils.parseEther(usdtBalance.toString()).lt(minOfferAmount) : true)) {
     offerToolTip = "You do not have enough USDT."
+  }
+  if (listing.currency === "DAI" && (daiBalance ? ethers.utils.parseEther(daiBalance.toString()).lt(minOfferAmount) : true)) {
+    offerToolTip = "You do not have enough DAI."
   }
 
   return (
@@ -473,7 +489,10 @@ const ListingMetadata = ({
             ) : (
               listing.currency === 'USDT' ?
                 <StyledLogo src={usdtLogo} /> :
-                <StyledLogo src={movrLogo} />
+                (listing.currency === 'DAI' ?
+                    <StyledLogo src={daiLogo} /> :
+                    <StyledLogo src={movrLogo} />
+                )
             )}
           </div>
         </div>
@@ -605,10 +624,10 @@ const ViewListing = () => {
   const auctionId = parseInt(id)
 
   const {
-    state: { contracts, wallet, zoomIncrement, wmovrIncrement, usdtIncrement },
+    state: { contracts, wallet, zoomIncrement, wmovrIncrement, usdtIncrement, daiIncrement },
   } = useContext(store)
 
-  const { zoomBalance, wmovrBalance, balance: movrBalance, usdtBalance } = wallet
+  const { zoomBalance, wmovrBalance, balance: movrBalance, usdtBalance, daiBalance } = wallet
   const { MarketContract } = contracts
 
   const queryClient = useQueryClient()
@@ -696,7 +715,7 @@ const ViewListing = () => {
         : `${ZoombiesStableEndpoint}/my-zoombies-nfts/${auctionItem?.seller}`
 
     const minIncrement =
-      auctionItem.currency === 'ZOOM' ? zoomIncrement : (auctionItem.currency === 'USDT' ? usdtIncrement : wmovrIncrement)
+      auctionItem.currency === 'ZOOM' ? zoomIncrement : (auctionItem.currency === 'USDT' ? usdtIncrement : (auctionItem.currency === 'DAI' ? daiIncrement : wmovrIncrement))
 
     const handleConfirmBid = async (amount) => {
       try {
@@ -767,6 +786,7 @@ const ViewListing = () => {
               wmovrBalance={wmovrBalance}
               usdtBalance={usdtBalance}
               movrBalance={movrBalance}
+              daiBalance={daiBalance}
               isBidInProgress={bidInProgress}
               listing={auctionItem}
               sellerUrl={sellerURL}

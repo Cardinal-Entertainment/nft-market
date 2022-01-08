@@ -17,13 +17,14 @@ import { getStatus } from 'utils/listingUtil'
 
 import moment from 'moment'
 
-import { zoomContractAddress, wmovrContractAddress, usdtContractAddress, QUERY_KEYS } from '../constants'
+import { QUERY_KEYS } from '../constants'
 
 import { useHistory } from 'react-router'
 import LoadingModal from 'components/LoadingModal'
 import { Button, CircularProgress } from '@mui/material'
 import { waitForTransaction } from 'utils/transactions'
 import { useQueryClient } from 'react-query'
+import { getTokenSymbol } from '../utils/auction'
 
 const Container = styled.div`
   display: flex;
@@ -285,14 +286,7 @@ const UserBids = ({ bidCount, bids }) => {
   } else {
     const formattedBids = bids.map((bid) => {
       const saleToken = bid.bidListing.saleToken
-      let currency
-      if (saleToken === zoomContractAddress) {
-        currency = 'ZOOM'
-      } else if (saleToken === wmovrContractAddress) {
-        currency = 'MOVR'
-      } else if (saleToken === usdtContractAddress) {
-        currency = 'USDT'
-      }
+      let currency = getTokenSymbol(saleToken)
 
       return {
         auctionEnd: bid.bidListing.auctionEnd > 0 ? moment.unix(bid.bidListing.auctionEnd) : 0,
@@ -338,14 +332,7 @@ const UserListings = ({ listingCount, listings }) => {
 
   const formattedListings = listings.map((listing) => {
     const saleToken = listing.saleToken
-    let currency
-    if (saleToken === zoomContractAddress) {
-      currency = 'ZOOM'
-    } else if (saleToken === wmovrContractAddress) {
-      currency = 'MOVR'
-    } else if (saleToken === usdtContractAddress) {
-      currency = 'USDT'
-    }
+    let currency = getTokenSymbol(saleToken)
 
     return {
       auctionEnd: listing.auctionEnd > 0 ? moment.unix(listing.auctionEnd) : 0,

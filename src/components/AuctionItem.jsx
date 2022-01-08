@@ -4,6 +4,7 @@ import { faClock } from '@fortawesome/free-regular-svg-icons'
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
 import movrLogo from '../assets/movr_logo.png'
 import usdtLogo from '../assets/usdt.svg'
+import daiLogo from '../assets/dai.png'
 import zoomCoin from '../assets/zoombies_coin.svg'
 import { Button, CircularProgress, Modal, styled, Grid } from '@mui/material'
 import {
@@ -11,6 +12,7 @@ import {
   QUERY_KEYS,
   wmovrContractAddress,
   usdtContractAddress,
+  daiContractAddress,
   zoomContractAddress,
 } from '../constants'
 import { useTheme } from 'styled-components'
@@ -27,6 +29,7 @@ import {
   useGetZoomAllowanceQuery,
 } from 'hooks/useProfile'
 import { useQueryClient } from 'react-query'
+import { getTokenSymbol } from '../utils/auction'
 
 const Container = styled(Grid)({
   display: 'flex',
@@ -312,7 +315,7 @@ const handleSettle = async (
 
 const AuctionItem = ({ content, archived }) => {
   const {
-    state: { contracts, wallet, zoomIncrement, wmovrIncrement, usdtIncrement },
+    state: { contracts, wallet, zoomIncrement, wmovrIncrement, usdtIncrement, daiIncrement },
   } = useContext(store)
   const history = useHistory()
   const [bidInProgress, setBidInProgress] = useState(false)
@@ -323,22 +326,24 @@ const AuctionItem = ({ content, archived }) => {
 
   const auctionItem = content
   const { itemNumber } = auctionItem
-  const coinType =
-    auctionItem.saleToken === zoomContractAddress
-      ? 'ZOOM'
-      : auctionItem.saleToken === wmovrContractAddress
-      ? 'MOVR'
-      : auctionItem.saleToken === usdtContractAddress
-      ? 'USDT'
-        : ''
-  const minIncrement =
-    auctionItem.saleToken === zoomContractAddress
-      ? zoomIncrement
-      : auctionItem.saleToken === wmovrContractAddress
-      ? wmovrIncrement
-      : auctionItem.saleToken === usdtContractAddress
-      ? usdtIncrement
-      : 0
+
+  const coinType = getTokenSymbol(auctionItem.saleToken)
+
+  const getTokenMinIncrement = (saleToken) => {
+    if (saleToken === zoomContractAddress) {
+      return zoomIncrement
+    } else if (saleToken === wmovrContractAddress) {
+      return wmovrIncrement
+    } else if (saleToken === usdtContractAddress) {
+      return usdtIncrement
+    } else if (saleToken === daiContractAddress) {
+      return daiIncrement
+    } else {
+      return 0
+    }
+  }
+
+  const minIncrement = getTokenMinIncrement(auctionItem.saleToken)
 
   const { data } = useFetchBids(itemNumber)
   const minOfferAmount = ethers.utils
@@ -363,14 +368,7 @@ const AuctionItem = ({ content, archived }) => {
       let { currency } = auctionItem
 
       if (currency === undefined) {
-        currency =
-          auctionItem.saleToken === zoomContractAddress
-            ? 'ZOOM'
-            : auctionItem.saleToken === wmovrContractAddress
-            ? 'MOVR'
-            : auctionItem.saleToken === usdtContractAddress
-            ? 'USDT'
-            :  ''
+        currency = getTokenSymbol(auctionItem.saleToken)
       }
 
       if (ethers.utils.parseEther(amount.toString()).lt(minOfferAmount)) {
@@ -442,6 +440,15 @@ const AuctionItem = ({ content, archived }) => {
       : true)
   ) {
     offerToolTip = 'You do not have enough USDT'
+  }
+
+  if (
+    coinType === 'DAI' &&
+    (wallet.daiBalance
+      ? ethers.utils.parseEther(wallet.daiBalance.toString()).lt(minOfferAmount)
+      : true)
+  ) {
+    offerToolTip = 'You do not have enough DAI'
   }
 
   const now = moment().unix()
@@ -525,7 +532,7 @@ const AuctionItem = ({ content, archived }) => {
             <MetaContentBidAmount>
               <img
                 className={'meta-content-coin-icon'}
-                src={coinType === 'ZOOM' ? zoomCoin : ( coinType === 'USDT' ? usdtLogo : movrLogo)}
+                src={coinType === 'ZOOM' ? zoomCoin : ( coinType === 'USDT' ? usdtLogo : (coinType === 'DAI' ? daiLogo : movrLogo))}
                 alt={coinType}
                 loading="lazy"
               />
@@ -577,6 +584,12 @@ const AuctionItem = ({ content, archived }) => {
                     (wallet.usdtBalance
                       ? ethers.utils
                         .parseEther(wallet.usdtBalance.toString())
+                        .lt(minOfferAmount)
+                      : true)) ||
+                  (coinType === 'DAI' &&
+                    (wallet.daiBalance
+                      ? ethers.utils
+                        .parseEther(wallet.daiBalance.toString())
                         .lt(minOfferAmount)
                       : true)) ||
                   (coinType === 'ZOOM' &&
