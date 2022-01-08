@@ -13,7 +13,7 @@ import {
   wmovrContractAddress,
   usdtContractAddress,
   daiContractAddress,
-  zoomContractAddress,
+  zoomContractAddress, marketContractAddress
 } from '../constants'
 import { useTheme } from 'styled-components'
 import moment from 'moment'
@@ -25,8 +25,9 @@ import { useFetchBids } from 'hooks/useBids'
 import { toBigNumber } from '../utils/BigNumbers'
 import { waitForTransaction } from 'utils/transactions'
 import {
+  getUserTokenAllowance,
   useCheckIsItemSettledQuery,
-  useGetZoomAllowanceQuery,
+  useGetZoomAllowanceQuery
 } from 'hooks/useProfile'
 import { useQueryClient } from 'react-query'
 import { getTokenSymbol } from '../utils/auction'
@@ -87,6 +88,7 @@ const MetaDiv = styled(Grid)(({ theme }) => ({
   '& .meta-content-coin-icon': {
     width: '24px',
     height: '24px',
+    paddingRight: '4px'
   },
   [theme.breakpoints.down('sm')]: {
     width: '100%',
@@ -377,6 +379,25 @@ const AuctionItem = ({ content, archived }) => {
 
       const weiAmount = ethers.utils.parseEther(amount.toString())
 
+      if (currency !== 'ZOOM' && currency !== 'MOVR') {
+        let tokenContract
+        if (auctionItem.saleToken === daiContractAddress) {
+          tokenContract = contracts.DAIContract
+        } else if (auctionItem.saleToken === usdtContractAddress) {
+          tokenContract = contracts.USDTContract
+        }
+        const allowance = await getUserTokenAllowance(tokenContract, wallet.address)
+        if (allowance.lt(weiAmount)) {
+          if (auctionItem.saleToken === daiContractAddress) {
+            const approveTx = await contracts.DAIContract.approve(marketContractAddress, weiAmount)
+            await waitForTransaction(approveTx)
+          } else if (auctionItem.saleToken === usdtContractAddress) {
+            const approveTx = await contracts.USDTContract.approve(marketContractAddress, weiAmount)
+            await waitForTransaction(approveTx)
+          }
+        }
+      }
+
       const bidTx = await contracts.MarketContract.bid(
         parseInt(itemNumber),
         weiAmount,
@@ -565,7 +586,11 @@ const AuctionItem = ({ content, archived }) => {
                     : (
                         coinType === 'USDT' ?
                         wallet.usdtBalance ? toBigNumber(wallet.usdtBalance): toBigNumber(0) :
-                        wallet.balance ? toBigNumber(wallet.balance) : toBigNumber(0)
+                          (
+                            coinType === 'DAI' ?
+                              wallet.daiBalance ? toBigNumber(wallet.daiBalance): toBigNumber(0) :
+                              wallet.balance ? toBigNumber(wallet.balance) : toBigNumber(0)
+                          )
                     )
                 }
                 onConfirm={handleConfirmBid}

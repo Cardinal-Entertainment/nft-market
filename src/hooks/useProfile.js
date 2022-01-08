@@ -4,6 +4,7 @@ import { ethers } from 'ethers'
 import { apiEndpoint, marketContractAddress, QUERY_KEYS } from '../constants'
 import { getCardData } from 'utils/cardsUtil'
 import { isItemSettled } from 'utils/auction'
+import { toBigNumber } from '../utils/BigNumbers'
 
 const getUserProfiles = async (userAddress) => {
   if (!ethers.utils.isAddress(userAddress)) {
@@ -85,14 +86,14 @@ export const useFetchUserNFTQuery = (
     },
   })
 
-const getUserZoomAllowance = async (zoomTokenContract, ownerAddress) => {
-  if (zoomTokenContract) {
-    return await zoomTokenContract.allowance(
+export const getUserTokenAllowance = async (tokenContract, ownerAddress) => {
+  if (tokenContract) {
+    return await tokenContract.allowance(
       ownerAddress,
       marketContractAddress
     )
   } else {
-    return 0
+    return toBigNumber(0)
   }
 }
 
@@ -102,7 +103,7 @@ export const useGetZoomAllowanceQuery = (userAddress, zoomTokenContract) =>
       QUERY_KEYS.zoomAllowance,
       { zoomTokenContract: zoomTokenContract?.address, userAddress },
     ],
-    queryFn: () => getUserZoomAllowance(zoomTokenContract, userAddress),
+    queryFn: () => getUserTokenAllowance(zoomTokenContract, userAddress),
     refetchOnWindowFocus: false,
   })
 

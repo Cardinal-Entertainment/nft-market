@@ -19,7 +19,7 @@ import {
   daiContractAddress,
   ZoombiesStableEndpoint,
   ZoombiesTestingEndpoint,
-  zoomContractAddress
+  zoomContractAddress, marketContractAddress
 } from '../constants'
 import { ethers } from 'ethers'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -39,7 +39,7 @@ import { formatAddress } from 'utils/wallet'
 import { styled } from '@mui/material'
 import { toBigNumber } from '../utils/BigNumbers'
 import { waitForTransaction } from 'utils/transactions'
-import { useGetZoomAllowanceQuery } from 'hooks/useProfile'
+import { getUserTokenAllowance, useGetZoomAllowanceQuery } from 'hooks/useProfile'
 import UserAllowance from '../components/UserAllowance'
 import Accordion from '@mui/material/Accordion'
 import AccordionSummary from '@mui/material/AccordionSummary'
@@ -367,7 +367,6 @@ const ListingMetadata = ({
   const { contracts } = state;
 
   useEffect(() => {
-    console.log("listing.saleToken", listing.saleToken);
     const getTokenName = async ( saleToken ) => {
       if (saleToken === zoomContractAddress) {
         return await contracts.ZoomContract.name();
@@ -739,6 +738,26 @@ const ViewListing = () => {
 
         if (ethers.utils.parseEther(amount.toString()).lt(minAmount)) {
           throw new Error(`Invalid amount valid : ${amount}`)
+        }
+
+
+        if (currency !== 'ZOOM' && currency !== 'MOVR') {
+          let tokenContract
+          if (auctionItem.saleToken === daiContractAddress) {
+            tokenContract = contracts.DAIContract
+          } else if (auctionItem.saleToken === usdtContractAddress) {
+            tokenContract = contracts.USDTContract
+          }
+          const allowance = await getUserTokenAllowance(tokenContract, wallet.address)
+          if (allowance.lt(toBigNumber(amount))) {
+            if (auctionItem.saleToken === daiContractAddress) {
+              const approveTx = await contracts.DAIContract.approve(marketContractAddress, toBigNumber(amount))
+              await waitForTransaction(approveTx)
+            } else if (auctionItem.saleToken === usdtContractAddress) {
+              const approveTx = await contracts.USDTContract.approve(marketContractAddress, toBigNumber(amount))
+              await waitForTransaction(approveTx)
+            }
+          }
         }
 
         const bidTx = await contracts.MarketContract.bid(
