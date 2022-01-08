@@ -28,7 +28,7 @@ const ethChainParam = isLocal
         decimals: 18,
       },
       rpcUrls: [
-        'https://moonbase-alpha-api.bwarelabs.com/d6e703e6-a9d9-41bd-ab0a-5b96fae88395',
+        'https://moonbeam-alpha.api.onfinality.io/public',
       ],
       blockExplorerUrls: [
         'https://moonbase-blockscout.testnet.moonbeam.network/',
