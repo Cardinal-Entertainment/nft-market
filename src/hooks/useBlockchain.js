@@ -31,7 +31,7 @@ const ethChainParam = isLocal
         'https://moonbase-alpha-api.bwarelabs.com/d6e703e6-a9d9-41bd-ab0a-5b96fae88395',
       ],
       blockExplorerUrls: [
-        'https://moonbase-blockscout.testnet.moonbeam.network/',
+        'https://moonbeam-alpha.api.onfinality.io/public/',
       ],
     }
   : {
