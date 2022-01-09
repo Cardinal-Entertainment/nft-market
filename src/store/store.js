@@ -17,12 +17,16 @@ const initialState = {
     chainId: null,
     zoomBalance: null,
     wmovrBalance: null,
+    usdtBalance: null,
+    daiBalance: null
   },
   contracts: {
     ZoomContract: null,
     ZoombiesContract: null,
     MarketContract: null,
     WMOVRContract: null,
+    USDTContract: null,
+    DAIContract: null,
     GlobalContract: null,
   },
   signer: null,
@@ -32,6 +36,8 @@ const initialState = {
   myNewEventsCount: 0,
   zoomIncrement: toBigNumber(25000), //this is ether units, convert to BigNumber and use wei
   wmovrIncrement: toBigNumber(0.02), //this is ether units, convert to BigNumber and use wei
+  usdtIncrement: toBigNumber(1), //this is ether units, convert to BigNumber and use wei
+  daiIncrement: toBigNumber(1), //this is ether units, convert to BigNumber and use wei
 };
 
 const store = createContext(initialState);
@@ -85,6 +91,8 @@ const StateProvider = ({ children }) => {
           ...state,
           zoomIncrement: payload.zoomIncrement,
           wmovrIncrement: payload.wmovrIncrement,
+          usdtIncrement: payload.usdtIncrement,
+          daiIncrement: payload.daiIncrement
         };
       case ActionTypes.CLEAR_WALLET:
         Object.keys(state.contracts).forEach(key => {

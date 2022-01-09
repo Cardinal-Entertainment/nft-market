@@ -167,7 +167,9 @@ const renderUserBalanceSection = (
   address,
   balance,
   zoomBalance,
-  wmovrBalance
+  wmovrBalance,
+  usdtBalance,
+  daiBalance,
 ) => {
   if (!hasMetamask) {
     return (
@@ -220,6 +222,18 @@ const renderUserBalanceSection = (
           </span>
         </Tooltip>
       </NavItem>
+      {/*<NavItem color="white">*/}
+      {/*  <Tooltip*/}
+      {/*    title={<TooltipContent>{usdtBalance} USDT</TooltipContent>}*/}
+      {/*    arrow*/}
+      {/*    placement="right"*/}
+      {/*  >*/}
+      {/*    <span>*/}
+      {/*      <img src={usdtLogo} alt="usdt logo" />*/}
+      {/*      {Number(usdtBalance).toFixed(4)} USDT*/}
+      {/*    </span>*/}
+      {/*  </Tooltip>*/}
+      {/*</NavItem>*/}
       <NavItem color="white">
         <Tooltip
           title={
@@ -245,7 +259,7 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
 
   const { state, dispatch } = useContext(store)
   const {
-    wallet: { address, balance, zoomBalance, wmovrBalance },
+    wallet: { address, balance, zoomBalance, wmovrBalance, daiBalance },
     contracts
   } = state
 
@@ -332,7 +346,8 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
         address,
         balance,
         zoomBalance,
-        wmovrBalance
+        wmovrBalance,
+        daiBalance
       )}
       <ButtonGroupContainer>
         <NavItemLiveFeeds>

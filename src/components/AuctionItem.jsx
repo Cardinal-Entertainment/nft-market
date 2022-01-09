@@ -3,13 +3,17 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faClock } from '@fortawesome/free-regular-svg-icons'
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
 import movrLogo from '../assets/movr_logo.png'
+import usdtLogo from '../assets/usdt.svg'
+import daiLogo from '../assets/dai.png'
 import zoomCoin from '../assets/zoombies_coin.svg'
 import { Button, CircularProgress, Modal, styled, Grid } from '@mui/material'
 import {
   cardImageBaseURL,
   QUERY_KEYS,
   wmovrContractAddress,
-  zoomContractAddress,
+  usdtContractAddress,
+  daiContractAddress,
+  zoomContractAddress, marketContractAddress
 } from '../constants'
 import { useTheme } from 'styled-components'
 import moment from 'moment'
@@ -21,10 +25,12 @@ import { useFetchBids } from 'hooks/useBids'
 import { toBigNumber } from '../utils/BigNumbers'
 import { waitForTransaction } from 'utils/transactions'
 import {
+  getUserTokenAllowance,
   useCheckIsItemSettledQuery,
-  useGetZoomAllowanceQuery,
+  useGetZoomAllowanceQuery
 } from 'hooks/useProfile'
 import { useQueryClient } from 'react-query'
+import { getTokenSymbol } from '../utils/auction'
 
 const Container = styled(Grid)({
   display: 'flex',
@@ -82,6 +88,7 @@ const MetaDiv = styled(Grid)(({ theme }) => ({
   '& .meta-content-coin-icon': {
     width: '24px',
     height: '24px',
+    paddingRight: '4px'
   },
   [theme.breakpoints.down('sm')]: {
     width: '100%',
@@ -310,7 +317,7 @@ const handleSettle = async (
 
 const AuctionItem = ({ content, archived }) => {
   const {
-    state: { contracts, wallet, zoomIncrement, wmovrIncrement },
+    state: { contracts, wallet, zoomIncrement, wmovrIncrement, usdtIncrement, daiIncrement },
   } = useContext(store)
   const history = useHistory()
   const [bidInProgress, setBidInProgress] = useState(false)
@@ -321,18 +328,24 @@ const AuctionItem = ({ content, archived }) => {
 
   const auctionItem = content
   const { itemNumber } = auctionItem
-  const coinType =
-    auctionItem.saleToken === zoomContractAddress
-      ? 'ZOOM'
-      : auctionItem.saleToken === wmovrContractAddress
-      ? 'MOVR'
-      : ''
-  const minIncrement =
-    auctionItem.saleToken === zoomContractAddress
-      ? zoomIncrement
-      : auctionItem.saleToken === wmovrContractAddress
-      ? wmovrIncrement
-      : 0
+
+  const coinType = getTokenSymbol(auctionItem.saleToken)
+
+  const getTokenMinIncrement = (saleToken) => {
+    if (saleToken === zoomContractAddress) {
+      return zoomIncrement
+    } else if (saleToken === wmovrContractAddress) {
+      return wmovrIncrement
+    } else if (saleToken === usdtContractAddress) {
+      return usdtIncrement
+    } else if (saleToken === daiContractAddress) {
+      return daiIncrement
+    } else {
+      return 0
+    }
+  }
+
+  const minIncrement = getTokenMinIncrement(auctionItem.saleToken)
 
   const { data } = useFetchBids(itemNumber)
   const minOfferAmount = ethers.utils
@@ -357,12 +370,7 @@ const AuctionItem = ({ content, archived }) => {
       let { currency } = auctionItem
 
       if (currency === undefined) {
-        currency =
-          auctionItem.saleToken === zoomContractAddress
-            ? 'ZOOM'
-            : auctionItem.saleToken === wmovrContractAddress
-            ? 'MOVR'
-            : ''
+        currency = getTokenSymbol(auctionItem.saleToken)
       }
 
       if (ethers.utils.parseEther(amount.toString()).lt(minOfferAmount)) {
@@ -370,6 +378,25 @@ const AuctionItem = ({ content, archived }) => {
       }
 
       const weiAmount = ethers.utils.parseEther(amount.toString())
+
+      if (currency !== 'ZOOM' && currency !== 'MOVR') {
+        let tokenContract
+        if (auctionItem.saleToken === daiContractAddress) {
+          tokenContract = contracts.DAIContract
+        } else if (auctionItem.saleToken === usdtContractAddress) {
+          tokenContract = contracts.USDTContract
+        }
+        const allowance = await getUserTokenAllowance(tokenContract, wallet.address)
+        if (allowance.lt(weiAmount)) {
+          if (auctionItem.saleToken === daiContractAddress) {
+            const approveTx = await contracts.DAIContract.approve(marketContractAddress, weiAmount)
+            await waitForTransaction(approveTx)
+          } else if (auctionItem.saleToken === usdtContractAddress) {
+            const approveTx = await contracts.USDTContract.approve(marketContractAddress, weiAmount)
+            await waitForTransaction(approveTx)
+          }
+        }
+      }
 
       const bidTx = await contracts.MarketContract.bid(
         parseInt(itemNumber),
@@ -425,6 +452,24 @@ const AuctionItem = ({ content, archived }) => {
       : true)
   ) {
     offerToolTip = 'You do not have enough MOVR'
+  }
+
+  if (
+    coinType === 'USDT' &&
+    (wallet.usdtBalance
+      ? ethers.utils.parseEther(wallet.usdtBalance.toString()).lt(minOfferAmount)
+      : true)
+  ) {
+    offerToolTip = 'You do not have enough USDT'
+  }
+
+  if (
+    coinType === 'DAI' &&
+    (wallet.daiBalance
+      ? ethers.utils.parseEther(wallet.daiBalance.toString()).lt(minOfferAmount)
+      : true)
+  ) {
+    offerToolTip = 'You do not have enough DAI'
   }
 
   const now = moment().unix()
@@ -508,7 +553,7 @@ const AuctionItem = ({ content, archived }) => {
             <MetaContentBidAmount>
               <img
                 className={'meta-content-coin-icon'}
-                src={coinType === 'ZOOM' ? zoomCoin : movrLogo}
+                src={coinType === 'ZOOM' ? zoomCoin : ( coinType === 'USDT' ? usdtLogo : (coinType === 'DAI' ? daiLogo : movrLogo))}
                 alt={coinType}
                 loading="lazy"
               />
@@ -538,9 +583,15 @@ const AuctionItem = ({ content, archived }) => {
                     ? wallet.zoomBalance
                       ? ethers.utils.parseEther(wallet.zoomBalance)
                       : toBigNumber(0)
-                    : wallet.balance
-                    ? toBigNumber(wallet.balance)
-                    : toBigNumber(0)
+                    : (
+                        coinType === 'USDT' ?
+                        wallet.usdtBalance ? toBigNumber(wallet.usdtBalance): toBigNumber(0) :
+                          (
+                            coinType === 'DAI' ?
+                              wallet.daiBalance ? toBigNumber(wallet.daiBalance): toBigNumber(0) :
+                              wallet.balance ? toBigNumber(wallet.balance) : toBigNumber(0)
+                          )
+                    )
                 }
                 onConfirm={handleConfirmBid}
                 disabled={
@@ -553,6 +604,18 @@ const AuctionItem = ({ content, archived }) => {
                       ? ethers.utils
                           .parseEther(wallet.balance.toString())
                           .lt(minOfferAmount)
+                      : true)) ||
+                  (coinType === 'USDT' &&
+                    (wallet.usdtBalance
+                      ? ethers.utils
+                        .parseEther(wallet.usdtBalance.toString())
+                        .lt(minOfferAmount)
+                      : true)) ||
+                  (coinType === 'DAI' &&
+                    (wallet.daiBalance
+                      ? ethers.utils
+                        .parseEther(wallet.daiBalance.toString())
+                        .lt(minOfferAmount)
                       : true)) ||
                   (coinType === 'ZOOM' &&
                     (wallet.zoomBalance
