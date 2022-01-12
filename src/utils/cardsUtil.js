@@ -1,3 +1,5 @@
+import { zoombiesContractAddress } from '../constants'
+
 export const getCardType = async (cardId) => {
   try {
     const response = await fetch(
@@ -19,40 +21,52 @@ export const RARITY_CLASSES = {
   Diamond: 'card-bg card-bg-1',
 };
 
-export const getCardData = async (tokenId, zoombiesContract) => {
-  const [cardTypeId, editionNumber] = await zoombiesContract.getNFTData(
-    tokenId
-  );
-  const cardData = await getCardType(cardTypeId);
+export const getCardData = async (tokenId, nftContract) => {
+  if (nftContract.address === zoombiesContractAddress) { // In case of Zoombies - call nftContract.getNFTData
+    const [cardTypeId, editionNumber] = await nftContract.getNFTData(
+      tokenId
+    );
+    const cardData = await getCardType(cardTypeId);
 
-  cardData.id = tokenId;
-  let newAttr = {};
+    cardData.id = tokenId;
+    let newAttr = {};
 
-  cardData.attributes.forEach((attribute) => {
-    newAttr[attribute.trait_type] = attribute.value;
-  });
+    cardData.attributes.forEach((attribute) => {
+      newAttr[attribute.trait_type] = attribute.value;
+    });
 
-  cardData.attributes = newAttr;
-  cardData.attributes.edition_current = parseInt(editionNumber);
-  if (cardData.attributes.edition_total === 0) {
-    //unlimited
-    cardData.attributes.edition_label =
-      '#' + cardData.attributes.edition_current;
+    cardData.attributes = newAttr;
+    cardData.attributes.edition_current = parseInt(editionNumber);
+    if (cardData.attributes.edition_total === 0) {
+      //unlimited
+      cardData.attributes.edition_label =
+        '#' + cardData.attributes.edition_current;
+    } else {
+      cardData.attributes.edition_label =
+        '#' +
+        cardData.attributes.edition_current +
+        ' of ' +
+        cardData.attributes.edition_total;
+    }
+
+    cardData.attributes.rarityValue = cardData.attributes.rarity;
+    cardData.attributes.rarity = RARITY_CLASSES[cardData.attributes.rarity];
+
+    newAttr = { ...newAttr, ...cardData };
+    newAttr["isNotZoombies"] = false;
+    delete newAttr.attributes;
+
+    return newAttr;
   } else {
-    cardData.attributes.edition_label =
-      '#' +
-      cardData.attributes.edition_current +
-      ' of ' +
-      cardData.attributes.edition_total;
+    const tokenURL = await nftContract.tokenURI(79);
+    console.log("tokenInfo", tokenURL)
+
+    const response = await fetch(tokenURL);
+    let json = await response.json()
+    json["id"] = tokenId
+    json["isNotZoombies"] = true
+    return json
   }
-
-  cardData.attributes.rarityValue = cardData.attributes.rarity;
-  cardData.attributes.rarity = RARITY_CLASSES[cardData.attributes.rarity];
-
-  newAttr = { ...newAttr, ...cardData };
-  delete newAttr.attributes;
-
-  return newAttr;
 };
 
 export const getCardSummary = (cards) => {

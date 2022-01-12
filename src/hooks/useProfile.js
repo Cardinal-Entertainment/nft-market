@@ -31,17 +31,17 @@ export const useFetchProfileQuery = (userAddress) =>
     },
   })
 
-const getUserNFTs = async (userAddress, zoombiesContract, marketContract) => {
+const getUserNFTs = async (userAddress, nftContract, marketContract) => {
   try {
-    if (!zoombiesContract || !userAddress || !marketContract) {
+    if (!nftContract || !userAddress || !marketContract) {
       return null
     }
 
-    const nftsCount = await zoombiesContract.balanceOf(userAddress)
+    const nftsCount = await nftContract.balanceOf(userAddress)
 
     const tokensOfOwner = []
     for (let i = 0; i < nftsCount; i++) {
-      const nftTokenId = await zoombiesContract.tokenOfOwnerByIndex(
+      const nftTokenId = await nftContract.tokenOfOwnerByIndex(
         userAddress,
         i
       )
@@ -49,9 +49,13 @@ const getUserNFTs = async (userAddress, zoombiesContract, marketContract) => {
       tokensOfOwner.push(nftTokenId)
     }
 
+    console.log("nftsCount", nftsCount)
+    console.log("tokensOfOwner", tokensOfOwner)
+
     const cards = await Promise.all(
-      tokensOfOwner.map((token) =>
-        getCardData(parseInt(token), zoombiesContract)
+      tokensOfOwner.map((token) => {
+          return getCardData(parseInt(token), nftContract)
+        }
       )
     )
 
@@ -68,7 +72,7 @@ const getUserNFTs = async (userAddress, zoombiesContract, marketContract) => {
 
 export const useFetchUserNFTQuery = (
   userAddress,
-  zoombiesContract,
+  nftContract,
   marketContract
 ) =>
   useQuery({
@@ -76,11 +80,11 @@ export const useFetchUserNFTQuery = (
       QUERY_KEYS.userNFT,
       {
         userAddress,
-        zoombiesContract: zoombiesContract?.address,
+        nftContract: nftContract?.address,
         marketContract: marketContract?.address,
       },
     ],
-    queryFn: () => getUserNFTs(userAddress, zoombiesContract, marketContract),
+    queryFn: () => getUserNFTs(userAddress, nftContract, marketContract),
     ...{
       refetchOnWindowFocus: false,
     },

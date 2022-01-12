@@ -671,7 +671,7 @@ const AuctionItem = ({ content, archived }) => {
             auctionItem.cards.map((card) => (
               <CardImage
                 key={card.id}
-                src={cardImageBaseURL + '/' + card.id}
+                src={card.isNotZoombies ? card.image : cardImageBaseURL + '/' + card.id}
                 alt={'CARD ' + card.id}
                 loading="lazy"
               />
