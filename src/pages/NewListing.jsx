@@ -226,6 +226,7 @@ const renderUserNFTs = (
           src={card.isNotZoombies ? card.image : `${cardImageBaseURL}/${card.id}`}
           alt={`Token #${card.id}`}
         />
+        <div>ID: {card.id}</div>
         <input type="checkbox" checked={!!selectedCards[card.id]} readOnly />
       </CardWrapper>
     </LazyLoad>
