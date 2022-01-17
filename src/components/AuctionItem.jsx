@@ -130,6 +130,7 @@ const MetaContent = styled('div')({
 const CardImage = styled('img')({
   width: '177px',
   height: '270px',
+  objectFit: 'contain'
 })
 
 const MetaContentBidAmount = styled('div')({

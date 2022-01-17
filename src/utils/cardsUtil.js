@@ -58,11 +58,8 @@ export const getCardData = async (tokenId, nftContract) => {
 
     return newAttr;
   } else {
-    const tokenURL = await nftContract.tokenURI(81);
+    const tokenURL = await nftContract.tokenURI(tokenId);
     console.log("url1", tokenURL)
-
-    const tokenURL1 = await nftContract.tokenURI(80);
-    console.log("url2", tokenURL1)
 
     const response = await fetch(tokenURL);
     let json = await response.json()

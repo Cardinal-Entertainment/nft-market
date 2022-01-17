@@ -292,6 +292,10 @@ const NewListing = () => {
     setCreateInProgress(true)
     try {
       console.log("currency", getCurrencyAddress(selectedCurrency, wallet.chainId));
+      const ids = Object.keys(selectedCards).map((id) => parseInt(id));
+      console.log("selectedCards", ids)
+      console.log("selectedNFT", selectedNFT)
+
       await contracts.MarketContract.listItem(
         instantAuction ? 0 : parseInt((new Date(dateTime).getTime() / 1000).toFixed(0)),
         ethers.utils.parseEther(listPrice),
