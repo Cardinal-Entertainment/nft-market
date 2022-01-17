@@ -24,7 +24,7 @@ import {
   wmovrContractAddress,
   usdtContractAddress,
   daiContractAddress,
-  zoomContractAddress,
+  zoomContractAddress, ZoombiesTestingEndpoint, ZoombiesStableEndpoint
 } from './constants'
 import { useFetchProfileQuery } from './hooks/useProfile'
 import { store } from 'store/store'
@@ -75,6 +75,10 @@ const Header = styled('div')(({ theme }) => ({
       width: '25px',
     },
   },
+
+  '& .header-logo-zoom': {
+    cursor: 'pointer'
+  }
 }))
 
 const Footer = styled('div')({
@@ -136,7 +140,7 @@ const App = () => {
 
   const { state } = useContext(store)
   const {
-    wallet: { address },
+    wallet: { address, chainId },
     contracts: { MarketContract },
   } = state
 
@@ -353,7 +357,13 @@ const App = () => {
       <Router>
         <Header>
           <img alt="MOVR Token" src="https://zoombies.world/images/mr-icon.png" />
-          <h1>Zoom </h1> <img src={zoomTokenLogo} alt={'ZOOM token'} />
+          <h1>Zoom </h1> <img src={zoomTokenLogo} className={"header-logo-zoom"} alt={'ZOOM token'}  onClick={() => {
+            if (chainId === 1287) {
+              window.open(ZoombiesTestingEndpoint, "_blank");
+            } else if (chainId === 1285) {
+              window.open(ZoombiesStableEndpoint, "_blank");
+            }
+          }}/>
           <h1>Market</h1> <TitleLabelText>Never pay commission!</TitleLabelText>
           {isDesktop ? <LiveFeedButton /> : <MobileHamburgerMenu />}
         </Header>
