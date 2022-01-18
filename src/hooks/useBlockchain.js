@@ -172,9 +172,7 @@ const loadContracts = async (signer, chainId, dispatch) => {
     }
   })
 
-  nftContracts.forEach((contract) => {
-    watchMarketEvents(MarketContract, marketContractAddress, contract)
-  })
+  await watchMarketEvents(MarketContract, marketContractAddress, nftContracts)
 
   dispatch(
     Actions.contractsLoaded({
