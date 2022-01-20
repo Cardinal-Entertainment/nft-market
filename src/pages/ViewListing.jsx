@@ -19,7 +19,7 @@ import {
   daiContractAddress,
   ZoombiesStableEndpoint,
   ZoombiesTestingEndpoint,
-  zoomContractAddress, marketContractAddress
+  zoomContractAddress, marketContractAddress, cardImageBaseURL, gNFTAddresses
 } from '../constants'
 import { ethers } from 'ethers'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -302,7 +302,7 @@ const ListingNFTs = ({ cards }) => {
       <div className="enlarged-nft">
         <LazyLoad once={true} resize={true}>
           <img
-            src={`https://moonbase.zoombies.world/nft-image/${enlargedCard.id}`}
+            src={enlargedCard.isNotZoombies ? enlargedCard.image : `${cardImageBaseURL}/${enlargedCard.id}`}
             alt={`Token #${enlargedCard.id}`}
             loading="lazy"
           />
@@ -323,7 +323,7 @@ const ListingNFTs = ({ cards }) => {
               onClick={() => setEnlargedCard(card)}
             >
               <img
-                src={`https://moonbase.zoombies.world/nft-image/${card.id}`}
+                src={card.isNotZoombies ? card.image : `${cardImageBaseURL}/${card.id}`}
                 alt={`Token #${card.id}`}
                 loading="lazy"
               />
@@ -458,6 +458,10 @@ const ListingMetadata = ({
     offerToolTip = "You do not have enough DAI."
   }
 
+  const contract = gNFTAddresses.find((e) => {
+    return e.address === listing.nftToken
+  })
+
   return (
     <ListingMetadataWrapper>
       <div className="seller-date-wrapper">
@@ -470,7 +474,7 @@ const ListingMetadata = ({
         <span>Date Listed: {dateListed}</span>
       </div>
       <div className="nft-count">
-        <h1>{listing.cards.length} Zoombies NFTs</h1>
+        <h1>{listing.cards.length} {contract.name ? contract.name : 'Unknown'}  NFTs</h1>
       </div>
       <div className="auction-end">
         <h2>

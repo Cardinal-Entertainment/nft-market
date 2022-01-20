@@ -22,12 +22,11 @@ const initialState = {
   },
   contracts: {
     ZoomContract: null,
-    ZoombiesContract: null,
     MarketContract: null,
     WMOVRContract: null,
     USDTContract: null,
     DAIContract: null,
-    GlobalContract: null,
+    nftContracts: []
   },
   signer: null,
   events: [],

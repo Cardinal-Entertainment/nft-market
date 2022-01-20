@@ -13,7 +13,7 @@ import {
   wmovrContractAddress,
   usdtContractAddress,
   daiContractAddress,
-  zoomContractAddress, marketContractAddress
+  zoomContractAddress, marketContractAddress, zoombiesContractAddress
 } from '../constants'
 import { useTheme } from 'styled-components'
 import moment from 'moment'
@@ -130,6 +130,7 @@ const MetaContent = styled('div')({
 const CardImage = styled('img')({
   width: '177px',
   height: '270px',
+  objectFit: 'contain'
 })
 
 const MetaContentBidAmount = styled('div')({
@@ -510,38 +511,45 @@ const AuctionItem = ({ content, archived }) => {
           </div>
           <div className={'meta-header-right'}>
             <div className={'meta-header-cards-tip'}>
-              <span style={{ color: theme.colors.epic }}>
-                {
-                  auctionItem.cards.filter((card) => {
-                    return card.rarity.toLowerCase() === 'epic'
-                  }).length
-                }
-                E
-              </span>
-              <span style={{ color: theme.colors.rare }}>
-                {
-                  auctionItem.cards.filter((card) => {
-                    return card.rarity.toLowerCase() === 'rare'
-                  }).length
-                }
-                R
-              </span>
-              <span style={{ color: theme.colors.uncommon }}>
-                {
-                  auctionItem.cards.filter((card) => {
-                    return card.rarity.toLowerCase() === 'uncommon'
-                  }).length
-                }
-                U
-              </span>
-              <span style={{ color: theme.colors.common }}>
-                {
-                  auctionItem.cards.filter((card) => {
-                    return card.rarity.toLowerCase() === 'common'
-                  }).length
-                }
-                C
-              </span>
+              {
+                auctionItem.saleToken !== zoombiesContractAddress ? '' : (
+                  <>
+                    <span style={{ color: theme.colors.epic }}>
+                    {
+                      auctionItem.cards.filter((card) => {
+                        return card.rarity.toLowerCase() === 'epic'
+                      }).length
+                    }
+                      E
+                    </span>
+                        <span style={{ color: theme.colors.rare }}>
+                      {
+                        auctionItem.cards.filter((card) => {
+                          return card.rarity.toLowerCase() === 'rare'
+                        }).length
+                      }
+                          R
+                    </span>
+                        <span style={{ color: theme.colors.uncommon }}>
+                      {
+                        auctionItem.cards.filter((card) => {
+                          return card.rarity.toLowerCase() === 'uncommon'
+                        }).length
+                      }
+                          U
+                    </span>
+                        <span style={{ color: theme.colors.common }}>
+                      {
+                        auctionItem.cards.filter((card) => {
+                          return card.rarity.toLowerCase() === 'common'
+                        }).length
+                      }
+                          C
+                    </span>
+                  </>
+                )
+              }
+
             </div>
             <div className={'meta-header-bids'}>
               {data?.length > 0 ? data.length : 'No'} bids
@@ -671,7 +679,7 @@ const AuctionItem = ({ content, archived }) => {
             auctionItem.cards.map((card) => (
               <CardImage
                 key={card.id}
-                src={cardImageBaseURL + '/' + card.id}
+                src={card.isNotZoombies ? card.image : cardImageBaseURL + '/' + card.id}
                 alt={'CARD ' + card.id}
                 loading="lazy"
               />

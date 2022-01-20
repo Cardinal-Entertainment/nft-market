@@ -56,16 +56,24 @@ async function bidEventCallback(eventLogs, collectionName) {
   PubSub.publish(EVENT_TYPES.Bid, bidEvent)
 }
 
-async function itemListedCallback(eventLogs, collectionName, zoombiesContract) {
+async function itemListedCallback(eventLogs, collectionName, nftContracts) {
   const { args } = marketInterface.parseLog(eventLogs)
   const itemNumber = args.itemNumber.toNumber()
   const tokenIds = args.tokenIds.map((tokenId) => {
     return tokenId.toNumber()
   })
 
+  const contract = nftContracts.find((e) => {
+    return e.address === args.nftToken
+  })
+
+  if (!contract) {
+    return
+  }
+
   const minPrice = Number(ethers.utils.formatEther(args.minPrice))
   const cards = await Promise.all(
-    tokenIds.map((tokenId) => getCardData(tokenId, zoombiesContract))
+    tokenIds.map((tokenId) => getCardData(tokenId, contract))
   )
 
   const itemListedEvent = {
@@ -87,7 +95,7 @@ async function itemListedCallback(eventLogs, collectionName, zoombiesContract) {
   PubSub.publish(EVENT_TYPES.ItemListed, itemListedEvent)
 }
 
-async function settledCallback(eventLogs, collectionName, zoombiesContract) {
+async function settledCallback(eventLogs, collectionName, nftContract) {
   const { args } = marketInterface.parseLog(eventLogs)
   const itemNumber = args.itemNumber.toNumber()
 
@@ -117,7 +125,7 @@ async function settledCallback(eventLogs, collectionName, zoombiesContract) {
 async function watchMarketEvents(
   marketContract,
   marketContractAddress,
-  zoombiesContract
+  nftContracts
 ) {
   for (const event of eventsToScrape) {
     console.log(`Start watching ${event.filterString}`)
@@ -126,7 +134,7 @@ async function watchMarketEvents(
       marketContract,
       event.filterString,
       (log) => {
-        event.callbackFunc(log, event.uniqueIdentifiers, zoombiesContract)
+        event.callbackFunc(log, event.uniqueIdentifiers, nftContracts)
       }
     )
   }

@@ -2,7 +2,8 @@ import { ethers } from 'ethers'
 import detectEthereumProvider from '@metamask/detect-provider'
 
 import zoombies_market_place_json from '../contracts/ZoombiesMarketPlace.json'
-import zoombies_json from '../contracts/Zoombies.json'
+// import zoombies_json from '../contracts/Zoombies.json'
+import anyNFTJson from '../contracts/AnyNFT.json'
 import zoom_token_json from '../contracts/ZoomToken.json'
 import wrapped_movr_json from '../contracts/WrappedMovr.json'
 import anyERC20JSON from '../contracts/AnyERC20.json'
@@ -14,7 +15,8 @@ import {
   marketContractAddress,
   wmovrContractAddress,
   usdtContractAddress,
-  daiContractAddress
+  daiContractAddress,
+  gNFTAddresses
 } from '../constants'
 import { getWalletUSDTBalance, getWalletWMOVRBalance, getWalletZoomBalance, getWalletDAIBalance } from '../utils/wallet'
 import watchMarketEvents from 'utils/setupWatcher'
@@ -50,11 +52,19 @@ const ethChainParam = isLocal
     }
 
 const loadContracts = async (signer, chainId, dispatch) => {
-  const ZoombiesContract = new ethers.Contract(
-    zoombies_json.networks[chainId].address,
-    zoombies_json.abi,
-    signer
-  )
+
+  let nftContracts = []
+
+  for (const nft of gNFTAddresses) {
+
+    const contract = new ethers.Contract(
+      nft.address,
+      nft.abiJSON ? nft.abiJSON.abi : anyNFTJson.abi,
+      signer
+    );
+
+    nftContracts.push(contract)
+  }
 
   const ZoomContract = new ethers.Contract(
     zoomContractAddress,
@@ -162,18 +172,17 @@ const loadContracts = async (signer, chainId, dispatch) => {
     }
   })
 
-  watchMarketEvents(MarketContract, marketContractAddress, ZoombiesContract)
+  await watchMarketEvents(MarketContract, marketContractAddress, nftContracts)
 
   dispatch(
     Actions.contractsLoaded({
       contracts: {
         ZoomContract,
-        ZoombiesContract,
         MarketContract,
         WMOVRContract,
         USDTContract,
         DAIContract,
-        GlobalContract: null,
+        nftContracts
       },
       signer: signer,
     })
@@ -187,11 +196,11 @@ const loadContracts = async (signer, chainId, dispatch) => {
 
   return {
     ZoomContract,
-    ZoombiesContract,
     MarketContract,
     WMOVRContract,
     USDTContract,
-    DAIContract
+    DAIContract,
+    nftContracts
   }
 }
 

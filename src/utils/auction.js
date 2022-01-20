@@ -26,11 +26,11 @@ export const getTokenSymbol = (saleToken) => {
  *
  * @param {number} auctionId
  * @param marketContract
- * @param  zoombiesContract
+ * @param  nftContract
  *
  * @returns Array of cards for an auction listing.
  */
-export const getAuctionItem = async (auctionId, zoombiesContract) => {
+export const getAuctionItem = async (auctionId, nftContract) => {
   try {
     const item = await axios.get(`${apiEndpoint}/item/${auctionId}`)
     // const item = await axios.get(`http://localhost:3001/item/${auctionId}`)
