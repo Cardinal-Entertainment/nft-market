@@ -86,7 +86,7 @@ const HelpPage = () => {
 
       <h2>Bidding on a listing</h2>
       <p>
-        To bid on a listing, click the “Quick Bid” button and enter the amount you would like to bid.
+        To bid on a listing, click the “Buy now” button and enter the amount you would like to bid.
       </p>
 
       <h2>Notifications / Alerts</h2>
