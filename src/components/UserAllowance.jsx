@@ -150,14 +150,6 @@ const UserAllowance = ({ initial }) => {
             fullWidth
             onChange={handleInputChange}
             onBlur={handleBlur}
-            error={
-              compareAsBigNumbers(parseInt(zoomBalance), zoomAllowance) === -1
-            }
-            helperText={
-              compareAsBigNumbers(parseInt(zoomBalance), zoomAllowance) === -1
-                ? 'Exceeds your ZOOM balance'
-                : null
-            }
             variant={'standard'}
             inputProps={{
               step: 500,
