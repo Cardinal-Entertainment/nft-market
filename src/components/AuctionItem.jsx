@@ -289,7 +289,7 @@ const DownCounter = ({ timestamp }) => {
     <span className={'meta-content-remaining-time'}>
       {moment().isBefore(moment.unix(timestamp))
         ? remainingTime
-        : (timestamp > 0 ? moment.unix(timestamp).format('MM/DD/YYYY, h:mm:ss A') : 'Quick buy' )}
+        : (timestamp > 0 ? moment.unix(timestamp).format('MM/DD/YYYY, h:mm:ss A') : 'Buy now' )}
     </span>
   )
 }
