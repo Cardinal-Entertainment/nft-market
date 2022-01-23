@@ -157,6 +157,14 @@ const ListingNFTWrapper = styled('div')({
       width: '50px',
     },
   },
+
+  '& .enlarged-nft': {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: '8px'
+  }
 })
 
 const ListingMetadataWrapper = styled('div')(({ theme }) => ({
@@ -295,7 +303,7 @@ const handleSettle = async (history, marketContract, auctionId) => {
   history.push('/')
 }
 
-const ListingNFTs = ({ cards }) => {
+const ListingNFTs = (({ cards }) => {
   const [enlargedCard, setEnlargedCard] = useState(cards[0])
   return (
     <ListingNFTWrapper>
@@ -307,6 +315,7 @@ const ListingNFTs = ({ cards }) => {
             loading="lazy"
           />
         </LazyLoad>
+        ID: {enlargedCard.id}
       </div>
       <div className="nft-previews">
         {cards.map((card) => (
@@ -333,7 +342,7 @@ const ListingNFTs = ({ cards }) => {
       </div>
     </ListingNFTWrapper>
   )
-}
+})
 
 const ListingMetadata = ({
   listing,
