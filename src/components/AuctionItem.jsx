@@ -637,7 +637,7 @@ const AuctionItem = ({ content, archived }) => {
                 mylisting={auctionItem.lister === wallet.address}
                 minIncrement={ethers.utils.formatEther(minIncrement)}
                 quickBid
-                timestamp={auctionItem.timestamp}
+                timestamp={auctionItem.auctionEnd}
               />
             )}
             {archived &&
