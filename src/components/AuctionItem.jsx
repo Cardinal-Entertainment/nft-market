@@ -580,7 +580,7 @@ const AuctionItem = ({ content, archived }) => {
               <FontAwesomeIcon icon={faClock} size="lg" />
               <DownCounter timestamp={auctionItem.auctionEnd} />
             </MetaContentTime>
-            <MetaContentTip>Remaining time</MetaContentTip>
+            <MetaContentTip>{!archived ? 'Remaining time' : 'Auction Ended'}</MetaContentTip>
           </MetaContentRow>
           <MetaContentButtonSection>
             {(!archived || (archived && (auctionItem.auctionEnd === 0 && !isSettled))) && (
