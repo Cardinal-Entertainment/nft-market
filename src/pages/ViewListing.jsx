@@ -509,7 +509,7 @@ const ListingMetadata = ({
           </div>
         </div>
         <p className="min-price">
-          Minimum Bid:{' '}
+          Opening Bid:{' '}
           {ethers.utils.formatEther(
             ethers.utils.parseEther(listing.minPrice.toString())
           )}{' '}
