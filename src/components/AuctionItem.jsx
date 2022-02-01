@@ -289,7 +289,7 @@ const DownCounter = ({ timestamp }) => {
     <span className={'meta-content-remaining-time'}>
       {moment().isBefore(moment.unix(timestamp))
         ? remainingTime
-        : (timestamp > 0 ? moment.unix(timestamp).format('MM/DD/YYYY, h:mm:ss A') : 'Quick buy' )}
+        : (timestamp > 0 ? moment.unix(timestamp).format('MM/DD/YYYY, h:mm:ss A') : 'Buy now' )}
     </span>
   )
 }
@@ -580,7 +580,7 @@ const AuctionItem = ({ content, archived }) => {
               <FontAwesomeIcon icon={faClock} size="lg" />
               <DownCounter timestamp={auctionItem.auctionEnd} />
             </MetaContentTime>
-            <MetaContentTip>Remaining time</MetaContentTip>
+            <MetaContentTip>{!archived ? 'Remaining time' : 'Auction Ended'}</MetaContentTip>
           </MetaContentRow>
           <MetaContentButtonSection>
             {(!archived || (archived && (auctionItem.auctionEnd === 0 && !isSettled))) && (
@@ -637,7 +637,7 @@ const AuctionItem = ({ content, archived }) => {
                 mylisting={auctionItem.lister === wallet.address}
                 minIncrement={ethers.utils.formatEther(minIncrement)}
                 quickBid
-                timestamp={auctionItem.timestamp}
+                timestamp={auctionItem.auctionEnd}
               />
             )}
             {archived &&

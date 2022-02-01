@@ -91,10 +91,11 @@ const OfferDialog = ({
   }
 
   let buttonText = '';
-  if (timestamp === 0) { // quick buy
-    buttonText = 'Quick buy';
+
+  if (timestamp === 0) { // Buy now
+    buttonText = `Buy now (${ethers.utils.formatEther(minAmount)} ${currency})`;
   } else {
-    buttonText = quickBid ? `Buy now (${ethers.utils.formatEther(minAmount)} ${currency})` : 'Make Offer';
+    buttonText = quickBid ? `Quick bid (${ethers.utils.formatEther(minAmount)} ${currency})` : 'Make Offer';
   }
   return (
     <Container>

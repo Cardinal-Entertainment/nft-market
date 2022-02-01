@@ -202,7 +202,7 @@ const bidListingColumns = [
   {
     field: 'auctionEnd',
     headerName: 'End Time',
-    valueFormatter: (params) => params.value === 0 ? 'Quick buy' : params.value.format('MM/DD/YYYY, h:mm:ss A'),
+    valueFormatter: (params) => params.value === 0 ? 'Buy now' : params.value.format('MM/DD/YYYY, h:mm:ss A'),
     minWidth: 230,
   },
   {
@@ -255,7 +255,7 @@ const userListingColumns = [
   {
     field: 'auctionEnd',
     headerName: 'End Time',
-    valueFormatter: (params) => params.value === 0 ? 'Quick buy' : params.value.format('MM/DD/YYYY, h:mm:ss A'),
+    valueFormatter: (params) => params.value === 0 ? 'Buy now' : params.value.format('MM/DD/YYYY, h:mm:ss A'),
     minWidth: 230,
   },
   {
