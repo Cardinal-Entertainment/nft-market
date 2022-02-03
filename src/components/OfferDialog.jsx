@@ -16,6 +16,14 @@ const Container = styled.div`
     background: rgba(0, 0, 0, 0.12);
     color: rgba(0, 0, 0, 0.26);
   }
+  .button-mylisting {
+    background: rgba(40, 162, 184, 1);
+    color: rgba(0, 0, 0, 1);
+  }
+  .button-buynow {
+    background: rgba(198, 232, 4, 1);
+    color: rgba(0, 0, 0, 1);
+  }
 `;
 
 const FlexRow = styled.div`
@@ -81,9 +89,11 @@ const OfferDialog = ({
 
   let offerButtonClassName = "";
   if (quickBid && disabled) {
-    offerButtonClassName = "button-bid button-readonly";
-  } else if (quickBid && !disabled) {
+    offerButtonClassName = "button-bid button-mylisting";
+  } else if ((quickBid && timestamp !== 0) && !disabled) {
     offerButtonClassName = "button-bid";
+  } else if (timestamp === 0 && !disabled) {
+    offerButtonClassName = "button-bid button-buynow";
   } else if (!quickBid && disabled) {
     offerButtonClassName = "button-readonly";
   } else {
