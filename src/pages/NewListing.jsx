@@ -433,7 +433,9 @@ const NewListing = () => {
             </Select>
           </InputContainer>
         </FlexRow>
-        <span>Auction Expires</span>
+        <Tooltip title="Auctions can expire upon first bid, or at a future date" placement="right-start" arrow>
+          <h3>Auction Expires</h3>
+        </Tooltip>
         <Stack direction="row" spacing={1} alignItems="center">
           <span>Now</span>
           <AntSwitch defaultChecked={true} onChange={auctionModeChanged} inputProps={{ 'aria-label': 'ant design' }} />
