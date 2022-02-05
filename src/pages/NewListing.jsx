@@ -24,6 +24,7 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CheckCircle from '@mui/icons-material/CheckCircle';
+import Tooltip from '@mui/material/Tooltip';
 import CancelIcon from '@mui/icons-material/Cancel';
 import UserAllowance from '../components/UserAllowance'
 import Typography from '@mui/material/Typography'
@@ -454,18 +455,19 @@ const NewListing = () => {
         }
         </FlexRow>
         <FlexRow>
-          <span>Select NFTs below from your Crypt to add to the listing:</span>
+          <h3>Approve then select NFTs from your wallet to add to the auction:</h3>
         </FlexRow>
         <FlexRow>
           {
             isApprovedForAll ?
               (<><CheckCircle color="success" />NFT listing Approved</>):
-              (<Button
+              (<Tooltip title="Approval only required once" placement="right" arrow>
+                <Button
                 variant="contained"
                 color="error"
                 onClick={requestApproveAllNFT}>
                 Approve Market to list NFTs
-              </Button>)
+              </Button></Tooltip>)
           }
         </FlexRow>
         <FlexRow>
