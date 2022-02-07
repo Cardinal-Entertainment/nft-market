@@ -368,7 +368,17 @@ const ListingMetadata = ({
   const timezone = momentTimezone.tz(momentTimezone.tz.guess()).zoneAbbr()
   const highestBid = toBigNumber(listing.highestBid)
 
-  const auctionEndText = listing.auctionEnd === 0 ? "This auction will end immediately once someone places a bid." : `Auction ends ${auctionEndDate} at ${auctionEndTime} ${timezone}`;
+  console.log("localAuctionEnd", Date.now() >= localAuctionEnd);
+
+  const auctionEndText =
+    listing.auctionEnd === 0
+     ? ( Date.now() >= localAuctionEnd ?
+       "This auction has CLOSED" :
+       "This auction will end immediately once someone places a bid.")
+
+     : ( Date.now() >= localAuctionEnd ?
+       `Auction CLOSED: ${auctionEndDate} at ${auctionEndTime} ${timezone}`:
+       `Auction ends: ${auctionEndDate} at ${auctionEndTime} ${timezone}`)
 
   const [auctionCurrency, setAuctionCurrency] = useState('')
 
