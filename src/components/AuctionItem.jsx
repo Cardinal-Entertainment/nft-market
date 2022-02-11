@@ -13,7 +13,9 @@ import {
   wmovrContractAddress,
   usdtContractAddress,
   daiContractAddress,
-  zoomContractAddress, marketContractAddress, zoombiesContractAddress
+  zoomContractAddress,
+  marketContractAddress,
+  zoombiesContractAddress,
 } from '../constants'
 import { useTheme } from 'styled-components'
 import moment from 'moment'
@@ -27,7 +29,7 @@ import { waitForTransaction } from 'utils/transactions'
 import {
   getUserTokenAllowance,
   useCheckIsItemSettledQuery,
-  useGetZoomAllowanceQuery
+  useGetZoomAllowanceQuery,
 } from 'hooks/useProfile'
 import { useQueryClient } from 'react-query'
 import { getTokenSymbol } from '../utils/auction'
@@ -88,7 +90,7 @@ const MetaDiv = styled(Grid)(({ theme }) => ({
   '& .meta-content-coin-icon': {
     width: '24px',
     height: '24px',
-    paddingRight: '4px'
+    paddingRight: '4px',
   },
   [theme.breakpoints.down('sm')]: {
     width: '100%',
@@ -131,7 +133,7 @@ const CardImage = styled('img')({
   width: '177px',
   height: '270px',
   objectFit: 'contain',
-  margin: '0 2px'
+  margin: '0 2px',
 })
 
 const MetaContentBidAmount = styled('div')({
@@ -289,7 +291,9 @@ const DownCounter = ({ timestamp }) => {
     <span className={'meta-content-remaining-time'}>
       {moment().isBefore(moment.unix(timestamp))
         ? remainingTime
-        : (timestamp > 0 ? moment.unix(timestamp).format('MM/DD/YYYY, h:mm:ss A') : 'Buy now' )}
+        : timestamp > 0
+        ? moment.unix(timestamp).format('MM/DD/YYYY, h:mm:ss A')
+        : 'Buy now'}
     </span>
   )
 }
@@ -308,7 +312,10 @@ const handleSettle = async (
     await waitForTransaction(tx)
     setIsSettling(false)
     queryClient.setQueryData(
-      [QUERY_KEYS.isSettled, { itemNumber: auctionId, marketContract: marketContract.address }],
+      [
+        QUERY_KEYS.isSettled,
+        { itemNumber: auctionId, marketContract: marketContract.address },
+      ],
       true
     )
   } catch (err) {
@@ -319,7 +326,14 @@ const handleSettle = async (
 
 const AuctionItem = ({ content, archived }) => {
   const {
-    state: { contracts, wallet, zoomIncrement, wmovrIncrement, usdtIncrement, daiIncrement },
+    state: {
+      contracts,
+      wallet,
+      zoomIncrement,
+      wmovrIncrement,
+      usdtIncrement,
+      daiIncrement,
+    },
   } = useContext(store)
   const history = useHistory()
   const [bidInProgress, setBidInProgress] = useState(false)
@@ -388,13 +402,22 @@ const AuctionItem = ({ content, archived }) => {
         } else if (auctionItem.saleToken === usdtContractAddress) {
           tokenContract = contracts.USDTContract
         }
-        const allowance = await getUserTokenAllowance(tokenContract, wallet.address)
+        const allowance = await getUserTokenAllowance(
+          tokenContract,
+          wallet.address
+        )
         if (allowance.lt(weiAmount)) {
           if (auctionItem.saleToken === daiContractAddress) {
-            const approveTx = await contracts.DAIContract.approve(marketContractAddress, weiAmount)
+            const approveTx = await contracts.DAIContract.approve(
+              marketContractAddress,
+              weiAmount
+            )
             await waitForTransaction(approveTx)
           } else if (auctionItem.saleToken === usdtContractAddress) {
-            const approveTx = await contracts.USDTContract.approve(marketContractAddress, weiAmount)
+            const approveTx = await contracts.USDTContract.approve(
+              marketContractAddress,
+              weiAmount
+            )
             await waitForTransaction(approveTx)
           }
         }
@@ -459,7 +482,9 @@ const AuctionItem = ({ content, archived }) => {
   if (
     coinType === 'USDT' &&
     (wallet.usdtBalance
-      ? ethers.utils.parseEther(wallet.usdtBalance.toString()).lt(minOfferAmount)
+      ? ethers.utils
+          .parseEther(wallet.usdtBalance.toString())
+          .lt(minOfferAmount)
       : true)
   ) {
     offerToolTip = 'You do not have enough USDT'
@@ -512,45 +537,44 @@ const AuctionItem = ({ content, archived }) => {
           </div>
           <div className={'meta-header-right'}>
             <div className={'meta-header-cards-tip'}>
-              {
-                auctionItem.saleToken !== zoombiesContractAddress ? '' : (
-                  <>
-                    <span style={{ color: theme.colors.epic }}>
+              {auctionItem.saleToken !== zoombiesContractAddress ? (
+                ''
+              ) : (
+                <>
+                  <span style={{ color: theme.colors.epic }}>
                     {
                       auctionItem.cards.filter((card) => {
                         return card.rarity.toLowerCase() === 'epic'
                       }).length
                     }
-                      E
-                    </span>
-                        <span style={{ color: theme.colors.rare }}>
-                      {
-                        auctionItem.cards.filter((card) => {
-                          return card.rarity.toLowerCase() === 'rare'
-                        }).length
-                      }
-                          R
-                    </span>
-                        <span style={{ color: theme.colors.uncommon }}>
-                      {
-                        auctionItem.cards.filter((card) => {
-                          return card.rarity.toLowerCase() === 'uncommon'
-                        }).length
-                      }
-                          U
-                    </span>
-                        <span style={{ color: theme.colors.common }}>
-                      {
-                        auctionItem.cards.filter((card) => {
-                          return card.rarity.toLowerCase() === 'common'
-                        }).length
-                      }
-                          C
-                    </span>
-                  </>
-                )
-              }
-
+                    E
+                  </span>
+                  <span style={{ color: theme.colors.rare }}>
+                    {
+                      auctionItem.cards.filter((card) => {
+                        return card.rarity.toLowerCase() === 'rare'
+                      }).length
+                    }
+                    R
+                  </span>
+                  <span style={{ color: theme.colors.uncommon }}>
+                    {
+                      auctionItem.cards.filter((card) => {
+                        return card.rarity.toLowerCase() === 'uncommon'
+                      }).length
+                    }
+                    U
+                  </span>
+                  <span style={{ color: theme.colors.common }}>
+                    {
+                      auctionItem.cards.filter((card) => {
+                        return card.rarity.toLowerCase() === 'common'
+                      }).length
+                    }
+                    C
+                  </span>
+                </>
+              )}
             </div>
             <div className={'meta-header-bids'}>
               {data?.length > 0 ? data.length : 'No'} bids
@@ -558,32 +582,46 @@ const AuctionItem = ({ content, archived }) => {
           </div>
         </MetaHeader>
         <MetaContent>
-          <MetaContentRow>
-            <MetaContentBidAmount>
-              <img
-                className={'meta-content-coin-icon'}
-                src={coinType === 'ZOOM' ? zoomCoin : ( coinType === 'USDT' ? usdtLogo : (coinType === 'DAI' ? daiLogo : movrLogo))}
-                alt={coinType}
-                loading="lazy"
-              />
-              <span>
-                {ethers.utils.formatEther(
-                  ethers.utils.parseEther(auctionItem.highestBid.toString())
-                )}
-              </span>
-              <span className={'meta-content-coin-text'}>{coinType}</span>
-            </MetaContentBidAmount>
-            <MetaContentTip>Highest Bid</MetaContentTip>
-          </MetaContentRow>
+          {auctionItem.auctionEnd !== 0 && (
+            <MetaContentRow>
+              <MetaContentBidAmount>
+                <img
+                  className={'meta-content-coin-icon'}
+                  src={
+                    coinType === 'ZOOM'
+                      ? zoomCoin
+                      : coinType === 'USDT'
+                      ? usdtLogo
+                      : coinType === 'DAI'
+                      ? daiLogo
+                      : movrLogo
+                  }
+                  alt={coinType}
+                  loading="lazy"
+                />
+                <span>
+                  {ethers.utils.formatEther(
+                    ethers.utils.parseEther(auctionItem.highestBid.toString())
+                  )}
+                </span>
+                <span className={'meta-content-coin-text'}>{coinType}</span>
+              </MetaContentBidAmount>
+              <MetaContentTip>Highest Bid</MetaContentTip>
+            </MetaContentRow>
+          )}
+
           <MetaContentRow>
             <MetaContentTime>
               <FontAwesomeIcon icon={faClock} size="lg" />
               <DownCounter timestamp={auctionItem.auctionEnd} />
             </MetaContentTime>
-            <MetaContentTip>{!archived ? 'Remaining time' : 'Auction Ended'}</MetaContentTip>
+            <MetaContentTip>
+              {!archived ? 'Remaining time' : 'Auction Ended'}
+            </MetaContentTip>
           </MetaContentRow>
           <MetaContentButtonSection>
-            {(!archived || (archived && (auctionItem.auctionEnd === 0 && !isSettled))) && (
+            {(!archived ||
+              (archived && auctionItem.auctionEnd === 0 && !isSettled)) && (
               <OfferDialog
                 currency={coinType}
                 minAmount={minOfferAmount}
@@ -592,19 +630,23 @@ const AuctionItem = ({ content, archived }) => {
                     ? wallet.zoomBalance
                       ? ethers.utils.parseEther(wallet.zoomBalance)
                       : toBigNumber(0)
-                    : (
-                        coinType === 'USDT' ?
-                        wallet.usdtBalance ? toBigNumber(wallet.usdtBalance): toBigNumber(0) :
-                          (
-                            coinType === 'DAI' ?
-                              wallet.daiBalance ? toBigNumber(wallet.daiBalance): toBigNumber(0) :
-                              wallet.balance ? toBigNumber(wallet.balance) : toBigNumber(0)
-                          )
-                    )
+                    : coinType === 'USDT'
+                    ? wallet.usdtBalance
+                      ? toBigNumber(wallet.usdtBalance)
+                      : toBigNumber(0)
+                    : coinType === 'DAI'
+                    ? wallet.daiBalance
+                      ? toBigNumber(wallet.daiBalance)
+                      : toBigNumber(0)
+                    : wallet.balance
+                    ? toBigNumber(wallet.balance)
+                    : toBigNumber(0)
                 }
                 onConfirm={handleConfirmBid}
                 disabled={
-                  ((moment().isAfter(moment.unix(auctionItem.auctionEnd)) && auctionItem.auctionEnd > 0) || (auctionItem.auctionEnd === 0 && isSettled) ) ||
+                  (moment().isAfter(moment.unix(auctionItem.auctionEnd)) &&
+                    auctionItem.auctionEnd > 0) ||
+                  (auctionItem.auctionEnd === 0 && isSettled) ||
                   bidInProgress ||
                   auctionItem.lister === wallet.address ||
                   (coinType === 'ZOOM' && !isAllowanceEnough) ||
@@ -617,14 +659,14 @@ const AuctionItem = ({ content, archived }) => {
                   (coinType === 'USDT' &&
                     (wallet.usdtBalance
                       ? ethers.utils
-                        .parseEther(wallet.usdtBalance.toString())
-                        .lt(minOfferAmount)
+                          .parseEther(wallet.usdtBalance.toString())
+                          .lt(minOfferAmount)
                       : true)) ||
                   (coinType === 'DAI' &&
                     (wallet.daiBalance
                       ? ethers.utils
-                        .parseEther(wallet.daiBalance.toString())
-                        .lt(minOfferAmount)
+                          .parseEther(wallet.daiBalance.toString())
+                          .lt(minOfferAmount)
                       : true)) ||
                   (coinType === 'ZOOM' &&
                     (wallet.zoomBalance
@@ -680,7 +722,11 @@ const AuctionItem = ({ content, archived }) => {
             auctionItem.cards.map((card) => (
               <CardImage
                 key={card.id}
-                src={card.isNotZoombies ? card.image : cardImageBaseURL + '/' + card.id}
+                src={
+                  card.isNotZoombies
+                    ? card.image
+                    : cardImageBaseURL + '/' + card.id
+                }
                 alt={'CARD ' + card.id}
                 loading="lazy"
               />
