@@ -23,6 +23,8 @@
     "classnames": "^2.3.1",
     "date-fns": "^2.25.0",
     "ethers": "^5.4.7",
+    "graphql": "^16.3.0",
+    "graphql-request": "^4.2.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "pubsub-js": "^1.9.4",

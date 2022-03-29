@@ -19,7 +19,10 @@ import {
   daiContractAddress,
   ZoombiesStableEndpoint,
   ZoombiesTestingEndpoint,
-  zoomContractAddress, marketContractAddress, cardImageBaseURL, gNFTAddresses
+  zoomContractAddress,
+  marketContractAddress,
+  cardImageBaseURL,
+  gNFTAddresses,
 } from '../constants'
 import { ethers } from 'ethers'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -39,7 +42,10 @@ import { formatAddress } from 'utils/wallet'
 import { styled } from '@mui/material'
 import { toBigNumber } from '../utils/BigNumbers'
 import { waitForTransaction } from 'utils/transactions'
-import { getUserTokenAllowance, useGetZoomAllowanceQuery } from 'hooks/useProfile'
+import {
+  getUserTokenAllowance,
+  useGetZoomAllowanceQuery,
+} from 'hooks/useProfile'
 import UserAllowance from '../components/UserAllowance'
 import Accordion from '@mui/material/Accordion'
 import AccordionSummary from '@mui/material/AccordionSummary'
@@ -163,8 +169,8 @@ const ListingNFTWrapper = styled('div')({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: '8px'
-  }
+    marginBottom: '8px',
+  },
 })
 
 const ListingMetadataWrapper = styled('div')(({ theme }) => ({
@@ -234,9 +240,9 @@ const ListingMetadataWrapper = styled('div')(({ theme }) => ({
       '& .currency-logo': {
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
-      }
-    }
+        justifyContent: 'center',
+      },
+    },
   },
 
   '& .offer-wrapper': {
@@ -303,14 +309,18 @@ const handleSettle = async (history, marketContract, auctionId) => {
   history.push('/')
 }
 
-const ListingNFTs = (({ cards }) => {
+const ListingNFTs = ({ cards }) => {
   const [enlargedCard, setEnlargedCard] = useState(cards[0])
   return (
     <ListingNFTWrapper>
       <div className="enlarged-nft">
         <LazyLoad once={true} resize={true}>
           <img
-            src={enlargedCard.isNotZoombies ? enlargedCard.image : `${cardImageBaseURL}/${enlargedCard.id}`}
+            src={
+              enlargedCard.isNotZoombies
+                ? enlargedCard.image
+                : `${cardImageBaseURL}/${enlargedCard.id}`
+            }
             alt={`Token #${enlargedCard.id}`}
             loading="lazy"
           />
@@ -332,7 +342,11 @@ const ListingNFTs = (({ cards }) => {
               onClick={() => setEnlargedCard(card)}
             >
               <img
-                src={card.isNotZoombies ? card.image : `${cardImageBaseURL}/${card.id}`}
+                src={
+                  card.isNotZoombies
+                    ? card.image
+                    : `${cardImageBaseURL}/${card.id}`
+                }
                 alt={`Token #${card.id}`}
                 loading="lazy"
               />
@@ -342,7 +356,7 @@ const ListingNFTs = (({ cards }) => {
       </div>
     </ListingNFTWrapper>
   )
-})
+}
 
 const ListingMetadata = ({
   listing,
@@ -368,40 +382,45 @@ const ListingMetadata = ({
   const timezone = momentTimezone.tz(momentTimezone.tz.guess()).zoneAbbr()
   const highestBid = toBigNumber(listing.highestBid)
 
-  console.log("highestBid", listing);
+  console.log('highestBid', listing)
 
   const auctionEndText =
     listing.auctionEnd === 0 //instantBid
-     ? ( (listing.bids.length >  0 || listing.isItemSettled) ? //Auction achive view
-       "This auction has CLOSED" :
-       "This auction will end immediately once someone places a bid.")
-
-     : ( Date.now() >= localAuctionEnd ? //Auction achive view
-       `Auction CLOSED: ${auctionEndDate} at ${auctionEndTime} ${timezone}`:
-       `Auction ends: ${auctionEndDate} at ${auctionEndTime} ${timezone}`)
+      ? listing.bids.length > 0 || listing.isItemSettled //Auction achive view
+        ? 'This auction has CLOSED'
+        : 'This auction will end immediately once someone places a bid.'
+      : Date.now() >= localAuctionEnd //Auction achive view
+      ? `Auction CLOSED: ${auctionEndDate} at ${auctionEndTime} ${timezone}`
+      : `Auction ends: ${auctionEndDate} at ${auctionEndTime} ${timezone}`
 
   const [auctionCurrency, setAuctionCurrency] = useState('')
 
-  const { state } = useContext(store);
-  const { contracts } = state;
+  const { state } = useContext(store)
+  const { contracts } = state
 
   useEffect(() => {
-    const getTokenName = async ( saleToken ) => {
+    const getTokenName = async (saleToken) => {
       if (saleToken === zoomContractAddress) {
-        return await contracts.ZoomContract.name();
+        return await contracts.ZoomContract.name()
       } else if (saleToken === wmovrContractAddress) {
-        return await contracts.WMOVRContract.name();
+        return await contracts.WMOVRContract.name()
       } else if (saleToken === usdtContractAddress) {
-        return await contracts.USDTContract.name();
+        return await contracts.USDTContract.name()
       } else if (saleToken === daiContractAddress) {
-        return await contracts.DAIContract.name();
+        return await contracts.DAIContract.name()
       }
-    };
+    }
 
-    getTokenName(listing.saleToken).then( (name) => {
+    getTokenName(listing.saleToken).then((name) => {
       setAuctionCurrency(name)
     })
-  }, [contracts.ZoomContract, contracts.WMOVRContract, contracts.USDTContract, contracts.DAIContract, listing.saleToken]);
+  }, [
+    contracts.ZoomContract,
+    contracts.WMOVRContract,
+    contracts.USDTContract,
+    contracts.DAIContract,
+    listing.saleToken,
+  ])
 
   /*
   const minOfferAmount =
@@ -422,59 +441,73 @@ const ListingMetadata = ({
   const maxOfferAmount =
     listing.currency === 'ZOOM'
       ? ethers.utils.parseEther(zoomBalance)
-      : (
-          listing.currency === 'USDT' ?
-          ethers.utils.parseEther(usdtBalance.toString()) :
-            listing.currency === 'DAI' ?
-              ethers.utils.parseEther(daiBalance.toString()) :
-              ethers.utils.parseEther(movrBalance.toString())
-        )
+      : listing.currency === 'USDT'
+      ? ethers.utils.parseEther(usdtBalance.toString())
+      : listing.currency === 'DAI'
+      ? ethers.utils.parseEther(daiBalance.toString())
+      : ethers.utils.parseEther(movrBalance.toString())
 
   const canBid =
     listing.currency === 'ZOOM'
       ? ethers.utils
           .parseEther(zoomBalance ? zoomBalance : '0')
           .gt(minOfferAmount)
-      : (
-        listing.currency === 'USDT' ?
-          ethers.utils
-            .parseEther(usdtBalance ? usdtBalance.toString() : '0')
-            .gt(minOfferAmount) :
-          (
-            listing.currency === 'DAI' ?
-              ethers.utils
-                .parseEther(daiBalance ? daiBalance.toString() : '0')
-                .gt(minOfferAmount) :
-              ethers.utils
-                .parseEther(movrBalance ? movrBalance.toString() : '0')
-                .gt(minOfferAmount)
-          )
-      )
+      : listing.currency === 'USDT'
+      ? ethers.utils
+          .parseEther(usdtBalance ? usdtBalance.toString() : '0')
+          .gt(minOfferAmount)
+      : listing.currency === 'DAI'
+      ? ethers.utils
+          .parseEther(daiBalance ? daiBalance.toString() : '0')
+          .gt(minOfferAmount)
+      : ethers.utils
+          .parseEther(movrBalance ? movrBalance.toString() : '0')
+          .gt(minOfferAmount)
 
-  let offerToolTip;
+  let offerToolTip
   if (isAuctionOver) {
-    offerToolTip = "This Auction is ended."
+    offerToolTip = 'This Auction is ended.'
   }
   if (isBidInProgress) {
-    offerToolTip = "Your bid is in processing."
+    offerToolTip = 'Your bid is in processing.'
   }
   if (listing.seller === walletAddress) {
-    offerToolTip = "This is your auction."
+    offerToolTip = 'This is your auction.'
   }
   if (listing.currency === 'ZOOM' && !isZoomAllowanceEnough) {
-    offerToolTip = "You have not approved enough ZOOM, go to Profile page."
+    offerToolTip = 'You have not approved enough ZOOM, go to Profile page.'
   }
-  if (listing.currency === "ZOOM" && (zoomBalance ? ethers.utils.parseEther(zoomBalance).lt(minOfferAmount) : true)) {
-    offerToolTip = "You do not have enough ZOOM tokens."
+  if (
+    listing.currency === 'ZOOM' &&
+    (zoomBalance
+      ? ethers.utils.parseEther(zoomBalance).lt(minOfferAmount)
+      : true)
+  ) {
+    offerToolTip = 'You do not have enough ZOOM tokens.'
   }
-  if (listing.currency === "MOVR" && (movrBalance ? ethers.utils.parseEther(movrBalance.toString()).lt(minOfferAmount) : true)) {
-    offerToolTip = "You do not have enough MOVR."
+  if (
+    listing.currency === 'MOVR' &&
+    (movrBalance
+      ? ethers.utils.parseEther(movrBalance.toString()).lt(minOfferAmount)
+      : true)
+  ) {
+    offerToolTip = 'You do not have enough MOVR.'
   }
-  if (listing.currency === "USDT" && (usdtBalance ? ethers.utils.parseEther(usdtBalance.toString()).lt(minOfferAmount) : true)) {
-    offerToolTip = "You do not have enough USDT."
+  if (
+    listing.currency === 'USDT' &&
+    (usdtBalance
+      ? ethers.utils.parseEther(usdtBalance.toString()).lt(minOfferAmount)
+      : true)
+  ) {
+    offerToolTip = 'You do not have enough USDT.'
   }
-  if (listing.currency === "DAI" && (daiBalance ? ethers.utils.parseEther(daiBalance.toString()).lt(minOfferAmount) : true)) {
-    offerToolTip = "You do not have enough DAI."
+  if (
+    listing.currency === 'DAI' &&
+    (daiBalance
+      ? ethers.utils.parseEther(daiBalance.toString()).lt(minOfferAmount)
+      : true)
+  ) {
+    offerToolTip = 'You do not have enough DAI.'
   }
 
   const contract = gNFTAddresses.find((e) => {
@@ -493,28 +526,26 @@ const ListingMetadata = ({
         <span>Date Listed: {dateListed}</span>
       </div>
       <div className="nft-count">
-        <h1>{listing.cards.length} {contract.name ? contract.name : 'Unknown'}  NFTs</h1>
+        <h1>
+          {listing.cards.length} {contract.name ? contract.name : 'Unknown'}{' '}
+          NFTs
+        </h1>
       </div>
       <div className="auction-end">
-        <h2>
-          {auctionEndText}
-        </h2>
+        <h2>{auctionEndText}</h2>
       </div>
       <div className="price-wrapper">
-        <div className={"currency-label"}>
-          <p>
-            Auction currency: {auctionCurrency}
-          </p>
-          <div className={"currency-logo"}>
+        <div className={'currency-label'}>
+          <p>Auction currency: {auctionCurrency}</p>
+          <div className={'currency-logo'}>
             {listing.currency === 'ZOOM' ? (
               <StyledLogo src={zoomLogo} />
+            ) : listing.currency === 'USDT' ? (
+              <StyledLogo src={usdtLogo} />
+            ) : listing.currency === 'DAI' ? (
+              <StyledLogo src={daiLogo} />
             ) : (
-              listing.currency === 'USDT' ?
-                <StyledLogo src={usdtLogo} /> :
-                (listing.currency === 'DAI' ?
-                    <StyledLogo src={daiLogo} /> :
-                    <StyledLogo src={movrLogo} />
-                )
+              <StyledLogo src={movrLogo} />
             )}
           </div>
         </div>
@@ -526,8 +557,7 @@ const ListingMetadata = ({
           {listing.currency}
         </p>
         <p className="current-price">
-          Current Bid: {ethers.utils.formatEther(highestBid)}{' '}
-          {listing.currency}
+          Current Bid: {ethers.utils.formatEther(highestBid)} {listing.currency}
         </p>
       </div>
       <div className="offer-wrapper">
@@ -561,7 +591,8 @@ const ListingMetadata = ({
             disabled={
               isBidInProgress ||
               !canBid ||
-              ((isAuctionOver && listing.auctionEnd > 0) || (listing.isItemSettled && listing.auctionEnd === 0)) ||
+              (isAuctionOver && listing.auctionEnd > 0) ||
+              (listing.isItemSettled && listing.auctionEnd === 0) ||
               listing.seller === walletAddress ||
               (!isZoomAllowanceEnough && listing.currency === 'ZOOM')
             }
@@ -646,11 +677,24 @@ const ViewListing = () => {
   const auctionId = parseInt(id)
 
   const {
-    state: { contracts, wallet, zoomIncrement, wmovrIncrement, usdtIncrement, daiIncrement },
+    state: {
+      contracts,
+      wallet,
+      zoomIncrement,
+      wmovrIncrement,
+      usdtIncrement,
+      daiIncrement,
+    },
   } = useContext(store)
 
-  const { zoomBalance, wmovrBalance, balance: movrBalance, usdtBalance, daiBalance } = wallet
-  const { MarketContract } = contracts
+  const {
+    zoomBalance,
+    wmovrBalance,
+    balance: movrBalance,
+    usdtBalance,
+    daiBalance,
+  } = wallet
+  const { MarketContract, ReadOnlyMarketContract } = contracts
 
   const queryClient = useQueryClient()
   useEffect(() => {
@@ -660,7 +704,7 @@ const ViewListing = () => {
         QUERY_KEYS.listing,
         {
           itemNumber: auctionId,
-          marketContractAddress: MarketContract?.address,
+          marketContractAddress: ReadOnlyMarketContract?.address,
         },
       ])
       const randomId = uuidv4()
@@ -677,7 +721,7 @@ const ViewListing = () => {
                 QUERY_KEYS.listing,
                 {
                   itemNumber: auctionId,
-                  marketContractAddress: MarketContract?.address,
+                  marketContractAddress: ReadOnlyMarketContract?.address,
                 },
               ],
               {
@@ -693,7 +737,7 @@ const ViewListing = () => {
               QUERY_KEYS.listing,
               {
                 itemNumber: auctionId,
-                marketContractAddress: MarketContract?.address,
+                marketContractAddress: ReadOnlyMarketContract?.address,
               },
             ],
             {
@@ -707,10 +751,10 @@ const ViewListing = () => {
     })
 
     return () => PubSub.unsubscribe(token)
-  }, [queryClient, auctionId, MarketContract])
+  }, [queryClient, auctionId, ReadOnlyMarketContract])
 
   const { isLoading: isFetchingListing, data: auctionItem } =
-    useFetchSingleListingQuery(auctionId, MarketContract)
+    useFetchSingleListingQuery(auctionId, ReadOnlyMarketContract)
 
   const { data: currentZoomAllowance } = useGetZoomAllowanceQuery(
     wallet.address,
@@ -737,7 +781,13 @@ const ViewListing = () => {
         : `${ZoombiesStableEndpoint}/my-zoombies-nfts/${auctionItem?.seller}`
 
     const minIncrement =
-      auctionItem.currency === 'ZOOM' ? zoomIncrement : (auctionItem.currency === 'USDT' ? usdtIncrement : (auctionItem.currency === 'DAI' ? daiIncrement : wmovrIncrement))
+      auctionItem.currency === 'ZOOM'
+        ? zoomIncrement
+        : auctionItem.currency === 'USDT'
+        ? usdtIncrement
+        : auctionItem.currency === 'DAI'
+        ? daiIncrement
+        : wmovrIncrement
 
     const handleConfirmBid = async (amount) => {
       try {
@@ -763,7 +813,6 @@ const ViewListing = () => {
           throw new Error(`Invalid amount valid : ${amount}`)
         }
 
-
         if (currency !== 'ZOOM' && currency !== 'MOVR') {
           let tokenContract
           if (auctionItem.saleToken === daiContractAddress) {
@@ -771,13 +820,22 @@ const ViewListing = () => {
           } else if (auctionItem.saleToken === usdtContractAddress) {
             tokenContract = contracts.USDTContract
           }
-          const allowance = await getUserTokenAllowance(tokenContract, wallet.address)
+          const allowance = await getUserTokenAllowance(
+            tokenContract,
+            wallet.address
+          )
           if (allowance.lt(toBigNumber(amount))) {
             if (auctionItem.saleToken === daiContractAddress) {
-              const approveTx = await contracts.DAIContract.approve(marketContractAddress, toBigNumber(amount))
+              const approveTx = await contracts.DAIContract.approve(
+                marketContractAddress,
+                toBigNumber(amount)
+              )
               await waitForTransaction(approveTx)
             } else if (auctionItem.saleToken === usdtContractAddress) {
-              const approveTx = await contracts.USDTContract.approve(marketContractAddress, toBigNumber(amount))
+              const approveTx = await contracts.USDTContract.approve(
+                marketContractAddress,
+                toBigNumber(amount)
+              )
               await waitForTransaction(approveTx)
             }
           }
@@ -790,7 +848,7 @@ const ViewListing = () => {
         )
         await waitForTransaction(bidTx)
       } catch (e) {
-        console.error("Failed to bid: ", e);
+        console.error('Failed to bid: ', e)
       } finally {
         setBidInProgress(false)
       }

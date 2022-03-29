@@ -505,7 +505,7 @@ const AuctionItem = ({ content, archived }) => {
   const isWinner = auctionItem.highestBidder === wallet.address
   const isOwner = wallet.address === auctionItem.lister
   const { isLoading: isCheckingSettled, data: isSettled } =
-    useCheckIsItemSettledQuery(itemNumber, contracts.MarketContract)
+    useCheckIsItemSettledQuery(itemNumber, contracts.ReadOnlyMarketContract)
 
   const canSettle = isOver && (isWinner || isOwner) && isSettled === false
 

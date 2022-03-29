@@ -24,7 +24,9 @@ import {
   wmovrContractAddress,
   usdtContractAddress,
   daiContractAddress,
-  zoomContractAddress, ZoombiesTestingEndpoint, ZoombiesStableEndpoint
+  zoomContractAddress,
+  ZoombiesTestingEndpoint,
+  ZoombiesStableEndpoint,
 } from './constants'
 import { useFetchProfileQuery } from './hooks/useProfile'
 import { store } from 'store/store'
@@ -77,8 +79,8 @@ const Header = styled('div')(({ theme }) => ({
   },
 
   '& .header-logo-zoom': {
-    cursor: 'pointer'
-  }
+    cursor: 'pointer',
+  },
 }))
 
 const Footer = styled('div')({
@@ -133,7 +135,7 @@ const App = () => {
       await setupEthers(dispatch)
       await setupEthListeners(dispatch)
     }
-    setupWallet();
+    setupWallet()
   }, [dispatch])
 
   const queryClient = useQueryClient()
@@ -141,7 +143,7 @@ const App = () => {
   const { state } = useContext(store)
   const {
     wallet: { address, chainId },
-    contracts: { MarketContract },
+    contracts: { ReadOnlyMarketContract },
   } = state
 
   const { data: myAuctions } = useFetchProfileQuery(address)
@@ -273,7 +275,7 @@ const App = () => {
         (listing) => listing.itemNumber === bid.itemNumber
       )
       if (listingItem === undefined) {
-        listingItem = await MarketContract.getListItem(bid.itemNumber)
+        listingItem = await ReadOnlyMarketContract.getListItem(bid.itemNumber)
       }
 
       bid['type'] = bidType
@@ -309,7 +311,7 @@ const App = () => {
       PubSub.unsubscribe(tokenBid)
       PubSub.unsubscribe(tokenSettled)
     }
-  }, [queryClient, isDesktop, address, myAuctions, MarketContract])
+  }, [queryClient, isDesktop, address, myAuctions, ReadOnlyMarketContract])
 
   const LiveFeedButton = () => {
     return (
@@ -356,14 +358,23 @@ const App = () => {
     <Container>
       <Router>
         <Header>
-          <img alt="MOVR Token" src="https://zoombies.world/images/mr-icon.png" />
-          <h1>Zoom </h1> <img src={zoomTokenLogo} className={"header-logo-zoom"} alt={'ZOOM token'}  onClick={() => {
-            if (chainId === 1287) {
-              window.open(ZoombiesTestingEndpoint, "_blank");
-            } else if (chainId === 1285) {
-              window.open(ZoombiesStableEndpoint, "_blank");
-            }
-          }}/>
+          <img
+            alt="MOVR Token"
+            src="https://zoombies.world/images/mr-icon.png"
+          />
+          <h1>Zoom </h1>{' '}
+          <img
+            src={zoomTokenLogo}
+            className={'header-logo-zoom'}
+            alt={'ZOOM token'}
+            onClick={() => {
+              if (chainId === 1287) {
+                window.open(ZoombiesTestingEndpoint, '_blank')
+              } else if (chainId === 1285) {
+                window.open(ZoombiesStableEndpoint, '_blank')
+              }
+            }}
+          />
           <h1>Market</h1> <TitleLabelText>Never pay commission!</TitleLabelText>
           {isDesktop ? <LiveFeedButton /> : <MobileHamburgerMenu />}
         </Header>

@@ -15,22 +15,26 @@ import {
   marketContractAddress,
   gNFTAddresses,
   ZoombiesStableEndpoint,
-  ZoombiesTestingEndpoint, cardImageBaseURL
+  ZoombiesTestingEndpoint,
+  cardImageBaseURL,
 } from '../constants'
-import { useFetchUserNFTQuery, useGetZoomAllowanceQuery } from 'hooks/useProfile'
+import {
+  useFetchUserNFTQuery,
+  useGetZoomAllowanceQuery,
+} from 'hooks/useProfile'
 import zoomLogo from '../assets/zoombies_coin.svg'
-import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import CheckCircle from '@mui/icons-material/CheckCircle';
-import Tooltip from '@mui/material/Tooltip';
-import CancelIcon from '@mui/icons-material/Cancel';
+import Accordion from '@mui/material/Accordion'
+import AccordionSummary from '@mui/material/AccordionSummary'
+import AccordionDetails from '@mui/material/AccordionDetails'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import CheckCircle from '@mui/icons-material/CheckCircle'
+import Tooltip from '@mui/material/Tooltip'
+import CancelIcon from '@mui/icons-material/Cancel'
 import UserAllowance from '../components/UserAllowance'
 import Typography from '@mui/material/Typography'
 import { compareAsBigNumbers, toBigNumber } from '../utils/BigNumbers'
 import AntSwitch from '../components/AntSwitch'
-import Stack from '@mui/material/Stack';
+import Stack from '@mui/material/Stack'
 
 const Container = styled.div`
   flex: 1;
@@ -169,7 +173,7 @@ const CURRENCY_TYPES = {
   MOVR: 'MOVR',
   ZOOM: 'ZOOM',
   // USDT: 'USDT',
-  DAI: 'DAI'
+  DAI: 'DAI',
 }
 
 const tokenAddresses = {
@@ -224,7 +228,9 @@ const renderUserNFTs = (
     <LazyLoad key={card.id} once={true} resize={true}>
       <CardWrapper onClick={() => handleCardClicked(card.id)} key={card.id}>
         <img
-          src={card.isNotZoombies ? card.image : `${cardImageBaseURL}/${card.id}`}
+          src={
+            card.isNotZoombies ? card.image : `${cardImageBaseURL}/${card.id}`
+          }
           alt={`Token #${card.id}`}
         />
         <div>ID: {card.id}</div>
@@ -243,7 +249,9 @@ const NewListing = () => {
   const [listPrice, setListPrice] = useState('0')
   const [createInProgress, setCreateInProgress] = useState(false)
   const [selectedCurrency, setSelectedCurrency] = useState(CURRENCY_TYPES.MOVR)
-  const [selectedNFT, setSelectedNFT] = useState(!gNFTAddresses.isEmpty ? gNFTAddresses[0].address : '')
+  const [selectedNFT, setSelectedNFT] = useState(
+    !gNFTAddresses.isEmpty ? gNFTAddresses[0].address : ''
+  )
   const [selectedCards, setSelectedCards] = useState({})
   const [isApprovedForAll, setIsApprovedForAll] = useState(false)
   const [instantAuction, setInstantAuction] = useState(false)
@@ -254,19 +262,24 @@ const NewListing = () => {
 
   useEffect(() => {
     const getIsApprovedForAll = async () => {
-      if (contracts.nftContracts != null && !contracts.nftContracts.isEmpty) {
-        const contract = contracts.nftContracts.find((e) => {
-          return e.address === selectedNFT
-        })
-        if (contract) {
-          const approved = await contract.isApprovedForAll(wallet.address, marketContractAddress);
-          setIsApprovedForAll(approved);
+      if (
+        contracts.nftContracts &&
+        Object.keys(contracts.nftContracts).length > 0
+      ) {
+        const readOnlyContract = contracts.nftContracts[selectedNFT]?.readOnly
+
+        if (readOnlyContract) {
+          const approved = await readOnlyContract.isApprovedForAll(
+            wallet.address,
+            marketContractAddress
+          )
+          setIsApprovedForAll(approved)
         }
       }
     }
 
-    getIsApprovedForAll().then();
-  }, [wallet.address, contracts.nftContracts, selectedNFT]);
+    getIsApprovedForAll().then()
+  }, [wallet.address, contracts.nftContracts, selectedNFT])
 
   const handleCardClicked = (cardId) => {
     if (selectedCards[cardId]) {
@@ -292,13 +305,10 @@ const NewListing = () => {
   const createListing = async () => {
     setCreateInProgress(true)
     try {
-      console.log("currency", getCurrencyAddress(selectedCurrency, wallet.chainId));
-      const ids = Object.keys(selectedCards).map((id) => parseInt(id));
-      console.log("selectedCards", ids)
-      console.log("selectedNFT", selectedNFT)
-
       await contracts.MarketContract.listItem(
-        instantAuction ? 0 : parseInt((new Date(dateTime).getTime() / 1000).toFixed(0)),
+        instantAuction
+          ? 0
+          : parseInt((new Date(dateTime).getTime() / 1000).toFixed(0)),
         ethers.utils.parseEther(listPrice),
         Object.keys(selectedCards).map((id) => parseInt(id)),
         selectedNFT,
@@ -314,17 +324,20 @@ const NewListing = () => {
   }
 
   const approveContract = async () => {
-    if (contracts.nftContracts && !contracts.nftContracts.isEmpty) {
+    if (
+      contracts.nftContracts &&
+      Object.keys(contracts.nftContracts).length > 0
+    ) {
       for (const contract of contracts.nftContracts) {
         if (contract != null) {
-          const marketIsApproved = await contract.isApprovedForAll(
+          const marketIsApproved = await contract.readOnly.isApprovedForAll(
             wallet.address,
             marketContractAddress
           )
 
           if (!marketIsApproved) {
             setIsApprovedForAll(false)
-            await contract.setApprovalForAll(marketContractAddress, true)
+            await contract.signed.setApprovalForAll(marketContractAddress, true)
             setIsApprovedForAll(true)
           }
         }
@@ -333,7 +346,7 @@ const NewListing = () => {
   }
 
   const requestApproveAllNFT = async () => {
-    await approveContract();
+    await approveContract()
   }
 
   const onKeyDown = (e) => {
@@ -362,27 +375,29 @@ const NewListing = () => {
     }
   }
 
-  const auctionModeChanged = ( event ) => {
+  const auctionModeChanged = (event) => {
     setInstantAuction(!event.target.checked)
   }
 
   const { isLoading, data } = useFetchUserNFTQuery(
     wallet.address,
-    contracts.nftContracts.find((e) => {
-      return e.address === selectedNFT
-    }),
-    contracts.MarketContract
+    contracts.nftContracts[selectedNFT]?.readOnly,
+    contracts.ReadOnlyMarketContract
   )
 
   const numberOfSelectedCards = Object.keys(selectedCards).length || 0
-  const haveEnoughZoom = compareAsBigNumbers(parseInt(wallet?.zoomBalance), numberOfSelectedCards * data?.zoomBurnFee) === 1
+  const haveEnoughZoom =
+    compareAsBigNumbers(
+      parseInt(wallet?.zoomBalance),
+      numberOfSelectedCards * data?.zoomBurnFee
+    ) === 1
 
-  const { data: currentAllowance, isLoading: isLoadingAllowance } = useGetZoomAllowanceQuery(
-    wallet.address,
-    contracts.ZoomContract
-  )
+  const { data: currentAllowance, isLoading: isLoadingAllowance } =
+    useGetZoomAllowanceQuery(wallet.address, contracts.ZoomContract)
 
-  const exceedZoomAllowance = toBigNumber(data?.zoomBurnFee ? numberOfSelectedCards * data?.zoomBurnFee : 0).gt(currentAllowance ? currentAllowance : toBigNumber(0))
+  const exceedZoomAllowance = toBigNumber(
+    data?.zoomBurnFee ? numberOfSelectedCards * data?.zoomBurnFee : 0
+  ).gt(currentAllowance ? currentAllowance : toBigNumber(0))
 
   return (
     <Container>
@@ -402,10 +417,18 @@ const NewListing = () => {
                 <li>Set a sell price</li>
                 <li>Set auction end date ( under 2 weeks )</li>
                 <li>Select 1 or bundle NFTs (up to 20) for auction</li>
-                <li>Approve the market to list NFTs on your behalf ( one-time )</li>
-                <li>Approve the market to burn your ZOOM listing Fee ( base fee X num. of NFTs)</li>
+                <li>
+                  Approve the market to list NFTs on your behalf ( one-time )
+                </li>
+                <li>
+                  Approve the market to burn your ZOOM listing Fee ( base fee X
+                  num. of NFTs)
+                </li>
                 <li>List your NFTs for auction</li>
-                <li>Check back after your auction close date for the Highest Bid ! settle auction and collect bid with Zero sales Fee !</li>
+                <li>
+                  Check back after your auction close date for the Highest Bid !
+                  settle auction and collect bid with Zero sales Fee !
+                </li>
               </ol>
             </AccordionDetails>
           </Accordion>
@@ -433,17 +456,24 @@ const NewListing = () => {
             </Select>
           </InputContainer>
         </FlexRow>
-        <Tooltip title="Auctions can expire upon first bid, or at a future date" placement="right-start" arrow>
+        <Tooltip
+          title="Auctions can expire upon first bid, or at a future date"
+          placement="right-start"
+          arrow
+        >
           <h3>Auction Expires</h3>
         </Tooltip>
         <Stack direction="row" spacing={1} alignItems="center">
           <span>Now</span>
-          <AntSwitch defaultChecked={true} onChange={auctionModeChanged} inputProps={{ 'aria-label': 'ant design' }} />
+          <AntSwitch
+            defaultChecked={true}
+            onChange={auctionModeChanged}
+            inputProps={{ 'aria-label': 'ant design' }}
+          />
           <span>Future</span>
         </Stack>
         <FlexRow>
-        {
-          !instantAuction && (
+          {!instantAuction && (
             <DateTimePicker
               renderInput={(props) => <TextField {...props} />}
               value={dateTime}
@@ -453,81 +483,94 @@ const NewListing = () => {
               maxDateTime={new Date(new Date().getTime() + 86400000 * 14)}
               onError={handeDateError}
             />
-          )
-        }
+          )}
         </FlexRow>
         <FlexRow>
-          <h3>Approve then select NFTs from your wallet to add to the auction:</h3>
+          <h3>
+            Approve then select NFTs from your wallet to add to the auction:
+          </h3>
         </FlexRow>
         <FlexRow>
-          {
-            isApprovedForAll ?
-              (<><CheckCircle color="success" />NFT listing Approved</>):
-              (<Tooltip title="Approval only required once" placement="right" arrow>
-                <Button
+          {isApprovedForAll ? (
+            <>
+              <CheckCircle color="success" />
+              NFT listing Approved
+            </>
+          ) : (
+            <Tooltip
+              title="Approval only required once"
+              placement="right"
+              arrow
+            >
+              <Button
                 variant="contained"
                 color="error"
-                onClick={requestApproveAllNFT}>
+                onClick={requestApproveAllNFT}
+              >
                 Approve Market to list NFTs
-              </Button></Tooltip>)
-          }
+              </Button>
+            </Tooltip>
+          )}
         </FlexRow>
         <FlexRow>
           <FlexColumn>
             <FlexRow>
-              {
-                !exceedZoomAllowance && numberOfSelectedCards > 0 ?
-                (
-                  <CheckCircle color="success" />
-                ) : (
-                    <CancelIcon color="error" />
-                  )
-              }
+              {!exceedZoomAllowance && numberOfSelectedCards > 0 ? (
+                <CheckCircle color="success" />
+              ) : (
+                <CancelIcon color="error" />
+              )}
               <div className="zoom-burn-fee">
                 Zoom <StyledLogo src={zoomLogo} /> Burn Fee:
                 {data && data.zoomBurnFee
-                  ? ` ${ethers.utils.formatEther(toBigNumber(data.zoomBurnFee * numberOfSelectedCards))}`
+                  ? ` ${ethers.utils.formatEther(
+                      toBigNumber(data.zoomBurnFee * numberOfSelectedCards)
+                    )}`
                   : 0}{' '}
-                { currentAllowance !== undefined ? `(Allowance : ${ethers.utils.formatEther(currentAllowance)})` : ''}
+                {currentAllowance !== undefined
+                  ? `(Allowance : ${ethers.utils.formatEther(
+                      currentAllowance
+                    )})`
+                  : ''}
               </div>
             </FlexRow>
-            {
-              exceedZoomAllowance &&
-              (
-                <Accordion>
-                  <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="panel1a-content"
-                    id="panel1a-header"
-                  >
-                    <Typography variant="h8">Increase ZOOM Allowance</Typography>
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <UserAllowance initial={toBigNumber(data.zoomBurnFee ? data.zoomBurnFee * numberOfSelectedCards : 0)}/>
-                  </AccordionDetails>
-                </Accordion>
-              )
-            }
+            {exceedZoomAllowance && (
+              <Accordion>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1a-content"
+                  id="panel1a-header"
+                >
+                  <Typography variant="h8">Increase ZOOM Allowance</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <UserAllowance
+                    initial={toBigNumber(
+                      data.zoomBurnFee
+                        ? data.zoomBurnFee * numberOfSelectedCards
+                        : 0
+                    )}
+                  />
+                </AccordionDetails>
+              </Accordion>
+            )}
           </FlexColumn>
         </FlexRow>
         <NFTSelect
           value={selectedNFT}
           onChange={(e) => {
-              setSelectedCards({})
-              setSelectedNFT(e.target.value)
-            }
-          }
+            setSelectedCards({})
+            setSelectedNFT(e.target.value)
+          }}
         >
-          {
-            gNFTAddresses.map((contract) => (
-              <MenuItem value={contract.address} key={contract.address}>
-                <ListItemIcon>
-                  <SelectItemImg src={contract.icon}/>
-                </ListItemIcon>
-                <ListItemText primary={contract.name} />
-              </MenuItem>
-            ))
-          }
+          {gNFTAddresses.map((contract) => (
+            <MenuItem value={contract.address} key={contract.address}>
+              <ListItemIcon>
+                <SelectItemImg src={contract.icon} />
+              </ListItemIcon>
+              <ListItemText primary={contract.name} />
+            </MenuItem>
+          ))}
         </NFTSelect>
         <NFTContainer>
           {isLoading || isLoadingAllowance ? (
@@ -547,7 +590,7 @@ const NewListing = () => {
             disabled={
               !numberOfSelectedCards ||
               createInProgress ||
-                (isDateError && !instantAuction) ||
+              (isDateError && !instantAuction) ||
               listPrice === '' ||
               parseFloat(listPrice) <= 0 ||
               !haveEnoughZoom ||
