@@ -3,7 +3,7 @@ import nextGemLogo from "./assets/NextGem.png";
 
 export const marketContractJSON = require('./contracts/ZoombiesMarketPlace.json');
 export const marketContractAddress =
-  '0x25EdB1cb586fE53973b7e761C8eC711a89B8ACdF';
+  '0xd00d7b22deD10Fde1c94Be9E6D55D7190CCADD7F';
 
 export const zoomContractAddress = '0x8e21404bAd3A1d2327cc6D2B2118f47911a1f316';
 
