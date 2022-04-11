@@ -8,7 +8,7 @@ const marketInterface = new ethers.utils.Interface(marketContractJSON.abi)
 
 async function watchEvents(
   marketContractAddress,
-  marketContract,
+  provider,
   filterString,
   eventCallback
 ) {
@@ -18,7 +18,7 @@ async function watchEvents(
       topics: [ethers.utils.id(filterString)],
     }
 
-    marketContract.provider.on(eventFilter, (log) => {
+    provider.on(eventFilter, (log) => {
       eventCallback(log)
     })
   } catch (err) {
@@ -63,17 +63,13 @@ async function itemListedCallback(eventLogs, collectionName, nftContracts) {
     return tokenId.toNumber()
   })
 
-  const contract = nftContracts.find((e) => {
-    return e.address === args.nftToken
-  })
+  const readOnlyContract = nftContracts[args.nftToken]?.readOnly
 
-  if (!contract) {
-    return
-  }
+  if (!readOnlyContract) return
 
   const minPrice = Number(ethers.utils.formatEther(args.minPrice))
   const cards = await Promise.all(
-    tokenIds.map((tokenId) => getCardData(tokenId, contract))
+    tokenIds.map((tokenId) => getCardData(tokenId, readOnlyContract))
   )
 
   const itemListedEvent = {
@@ -88,7 +84,7 @@ async function itemListedCallback(eventLogs, collectionName, nftContracts) {
     auctionStart: moment().unix(),
     highestBidder: null,
     cards,
-    zoomBurned: args.zoomBurned
+    zoomBurned: args.zoomBurned,
   }
 
   console.log('item-listed-scraper-event')
@@ -123,20 +119,15 @@ async function settledCallback(eventLogs, collectionName, nftContract) {
 }
 
 async function watchMarketEvents(
-  marketContract,
+  provider,
   marketContractAddress,
   nftContracts
 ) {
   for (const event of eventsToScrape) {
     console.log(`Start watching ${event.filterString}`)
-    watchEvents(
-      marketContractAddress,
-      marketContract,
-      event.filterString,
-      (log) => {
-        event.callbackFunc(log, event.uniqueIdentifiers, nftContracts)
-      }
-    )
+    watchEvents(marketContractAddress, provider, event.filterString, (log) => {
+      event.callbackFunc(log, event.uniqueIdentifiers, nftContracts)
+    })
   }
 }
 

@@ -9,7 +9,10 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { DataGrid } from '@mui/x-data-grid'
 import UserAllowance from '../components/UserAllowance'
 
-import { useCheckIsItemSettledQuery, useFetchProfileQuery } from 'hooks/useProfile'
+import {
+  useCheckIsItemSettledQuery,
+  useFetchProfileQuery,
+} from 'hooks/useProfile'
 import { store } from 'store/store'
 
 import { getCardSummary } from 'utils/cardsUtil'
@@ -102,7 +105,10 @@ const handleSettle = async (
     await waitForTransaction(tx)
     setIsSettling(false)
     queryClient.setQueryData(
-      [QUERY_KEYS.isSettled, { itemNumber: auctionId, marketContract: marketContract.address }],
+      [
+        QUERY_KEYS.isSettled,
+        { itemNumber: auctionId, marketContract: marketContract.address },
+      ],
       true
     )
   } catch (err) {
@@ -122,10 +128,11 @@ const StatusColumn = ({ auctionItem }) => {
   const isOver = end < now
   const isWinner = auctionItem.highestBidder === wallet.address
   const isOwner = wallet.address === auctionItem.seller
-  const {
-    isLoading: isCheckingSettled,
-    data: isSettled
-  } = useCheckIsItemSettledQuery(auctionItem.itemNumber, contracts.MarketContract)
+  const { isLoading: isCheckingSettled, data: isSettled } =
+    useCheckIsItemSettledQuery(
+      auctionItem.itemNumber,
+      contracts.ReadOnlyMarketContract
+    )
   const canSettle = isOver && (isWinner || isOwner) && isSettled === false
   const queryClient = useQueryClient()
 
@@ -202,7 +209,10 @@ const bidListingColumns = [
   {
     field: 'auctionEnd',
     headerName: 'End Time',
-    valueFormatter: (params) => params.value === 0 ? 'Buy now' : params.value.format('MM/DD/YYYY, h:mm:ss A'),
+    valueFormatter: (params) =>
+      params.value === 0
+        ? 'Buy now'
+        : params.value.format('MM/DD/YYYY, h:mm:ss A'),
     minWidth: 230,
   },
   {
@@ -255,7 +265,10 @@ const userListingColumns = [
   {
     field: 'auctionEnd',
     headerName: 'End Time',
-    valueFormatter: (params) => params.value === 0 ? 'Buy now' : params.value.format('MM/DD/YYYY, h:mm:ss A'),
+    valueFormatter: (params) =>
+      params.value === 0
+        ? 'Buy now'
+        : params.value.format('MM/DD/YYYY, h:mm:ss A'),
     minWidth: 230,
   },
   {
@@ -289,7 +302,10 @@ const UserBids = ({ bidCount, bids }) => {
       let currency = getTokenSymbol(saleToken)
 
       return {
-        auctionEnd: bid.bidListing.auctionEnd > 0 ? moment.unix(bid.bidListing.auctionEnd) : 0,
+        auctionEnd:
+          bid.bidListing.auctionEnd > 0
+            ? moment.unix(bid.bidListing.auctionEnd)
+            : 0,
         highestBidder: bid.bidListing.highestBidder,
         highestBid: bid.bidListing.highestBid,
         minPrice: bid.bidListing.minPrice,

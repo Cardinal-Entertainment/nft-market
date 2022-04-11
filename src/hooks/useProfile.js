@@ -41,22 +41,18 @@ const getUserNFTs = async (userAddress, nftContract, marketContract) => {
 
     const tokensOfOwner = []
     for (let i = 0; i < nftsCount; i++) {
-      const nftTokenId = await nftContract.tokenOfOwnerByIndex(
-        userAddress,
-        i
-      )
+      const nftTokenId = await nftContract.tokenOfOwnerByIndex(userAddress, i)
 
       tokensOfOwner.push(nftTokenId)
     }
 
-    console.log("nftsCount", nftsCount)
-    console.log("tokensOfOwner", tokensOfOwner)
+    // console.log("nftsCount", nftsCount)
+    // console.log("tokensOfOwner", tokensOfOwner)
 
     const cards = await Promise.all(
       tokensOfOwner.map((token) => {
-          return getCardData(parseInt(token), nftContract)
-        }
-      )
+        return getCardData(parseInt(token), nftContract)
+      })
     )
 
     const zoomBurnFee = await marketContract.zoomBurnFee()
@@ -92,10 +88,7 @@ export const useFetchUserNFTQuery = (
 
 export const getUserTokenAllowance = async (tokenContract, ownerAddress) => {
   if (tokenContract) {
-    return await tokenContract.allowance(
-      ownerAddress,
-      marketContractAddress
-    )
+    return await tokenContract.allowance(ownerAddress, marketContractAddress)
   } else {
     return toBigNumber(0)
   }
