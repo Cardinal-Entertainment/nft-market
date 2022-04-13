@@ -363,7 +363,7 @@ const AuctionItem = ({ content, archived }) => {
 
   const minIncrement = getTokenMinIncrement(auctionItem.saleToken)
 
-  const { data } = useFetchBids(itemNumber)
+  const { data } = useFetchBids(itemNumber, wallet.chainId)
   const minOfferAmount = ethers.utils
     .parseEther(auctionItem?.highestBid.toString())
     .add(minIncrement)

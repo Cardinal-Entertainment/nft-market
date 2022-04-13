@@ -6,13 +6,13 @@ import { getCardData } from 'utils/cardsUtil'
 import { isItemSettled } from 'utils/auction'
 import { toBigNumber } from '../utils/BigNumbers'
 
-const getUserProfiles = async (userAddress) => {
+const getUserProfiles = async (userAddress, chainId = 1287) => {
   if (!ethers.utils.isAddress(userAddress)) {
     //console.error('Address is invalid.');
     return null
   }
 
-  const response = await axios.get(`${apiEndpoint}/profile/${userAddress}`)
+  const response = await axios.get(`${apiEndpoint}/profile/${userAddress}?chainId=${chainId}`)
 
   if (response.status !== 200) {
     console.error(response.statusText)
@@ -22,10 +22,10 @@ const getUserProfiles = async (userAddress) => {
   return response.data
 }
 
-export const useFetchProfileQuery = (userAddress) =>
+export const useFetchProfileQuery = (userAddress, chainId) =>
   useQuery({
     queryKey: [QUERY_KEYS.profile, { userAddress }],
-    queryFn: () => getUserProfiles(userAddress),
+    queryFn: () => getUserProfiles(userAddress, chainId),
     ...{
       refetchOnWindowFocus: false,
     },

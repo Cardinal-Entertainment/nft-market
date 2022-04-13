@@ -42,6 +42,7 @@ export const daiContractAddress = '0xEc95c10d4DD55741DE9491751407DEA41A3eF5f1'
 
 export const cardImageBaseURL = 'https://moonbase.zoombies.world/nft-image'
 export const apiEndpoint = 'https://api.zoombies.world'
+// export const apiEndpoint = 'http://localhost:3001';
 
 export const ZoombiesTestingEndpoint = `https://moonbase.zoombies.world`
 export const ZoombiesStableEndpoint = 'https://movr.zoombies.world'
