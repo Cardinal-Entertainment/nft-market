@@ -1,8 +1,9 @@
 import PubSub from 'pubsub-js'
 import { ethers } from 'ethers'
 import moment from 'moment'
-import { marketContractJSON, EVENT_TYPES } from '../constants'
+import { EVENT_TYPES } from '../constants'
 import { getCardData } from './cardsUtil'
+import marketContractJSON from '../contracts/ZoombiesMarketPlace.json'
 
 const marketInterface = new ethers.utils.Interface(marketContractJSON.abi)
 

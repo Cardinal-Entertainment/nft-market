@@ -4,15 +4,12 @@ import { store } from 'store/store'
 import { useGetZoomAllowanceQuery } from '../hooks/useProfile'
 import { ethers } from 'ethers'
 import { useQueryClient } from 'react-query'
-import {
-  marketContractAddress,
-  maxZOOMAllowance,
-  QUERY_KEYS,
-} from '../constants'
+import { maxZOOMAllowance, NETWORKS, QUERY_KEYS } from '../constants'
 import Slider from '@mui/material/Slider'
 import { styled as muiStyled } from '@mui/material/styles'
 import { compareAsBigNumbers } from '../utils/BigNumbers'
 import { waitForTransaction } from 'utils/transactions'
+import { useParams } from 'react-router-dom'
 
 const UserAllowanceWrapper = muiStyled('div')(({ theme }) => ({
   display: 'flex',
@@ -46,6 +43,9 @@ const UserAllowance = ({ initial }) => {
     wallet.address,
     contracts.ZoomContract
   )
+
+  const { network } = useParams()
+  const marketAddress = NETWORKS[network].marketContractAddress
 
   const { zoomBalance } = wallet
   const [zoomAllowance, setZoomAllowance] = useState(0)
@@ -88,7 +88,7 @@ const UserAllowance = ({ initial }) => {
         ethers.utils.parseEther(zoomAllowance.toString()).lt(currentAllowance)
       ) {
         const tx = await contracts.ZoomContract.decreaseAllowance(
-          marketContractAddress,
+          marketAddress,
           currentAllowance.sub(
             ethers.utils.parseEther(zoomAllowance.toString())
           )
@@ -98,7 +98,7 @@ const UserAllowance = ({ initial }) => {
         ethers.utils.parseEther(zoomAllowance.toString()).gt(currentAllowance)
       ) {
         const tx = await contracts.ZoomContract.increaseAllowance(
-          marketContractAddress,
+          marketAddress,
           ethers.utils
             .parseEther(zoomAllowance.toString())
             .sub(currentAllowance)

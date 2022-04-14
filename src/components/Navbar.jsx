@@ -14,11 +14,16 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 
 import { setupEthers, setupEthListeners } from '../hooks/useBlockchain'
-import { addAssetToMetamask, formatAddress, isMetamaskInstalled } from '../utils/wallet'
+import {
+  addAssetToMetamask,
+  formatAddress,
+  isMetamaskInstalled,
+} from '../utils/wallet'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { styled as styled1 } from '@mui/material/styles'
 import NotificationAddon from './NotificationAddon'
 import { Button } from '@mui/material'
+import { getNetworkNameFromURL } from '../utils/networkUtil'
 
 const Container = styled1('div')({
   width: '300px',
@@ -169,7 +174,7 @@ const renderUserBalanceSection = (
   zoomBalance,
   wmovrBalance,
   usdtBalance,
-  daiBalance,
+  daiBalance
 ) => {
   if (!hasMetamask) {
     return (
@@ -260,18 +265,20 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
   const { state, dispatch } = useContext(store)
   const {
     wallet: { address, balance, zoomBalance, wmovrBalance, daiBalance },
-    contracts
+    contracts,
   } = state
 
   const shortWallet = formatAddress(address)
   const isExtensionInstalled = isMetamaskInstalled()
+
+  const networkName = getNetworkNameFromURL()
 
   return (
     <Container>
       <NavigationSection>
         <NavLink
           exact
-          to="/"
+          to={`/${networkName}`}
           activeClassName="active-link"
           className="page-links"
         >
@@ -288,7 +295,7 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
           exact
           activeClassName="active-link"
           className="page-links"
-          to="/new"
+          to={`/${networkName}/new`}
         >
           <NavItem color="white" onClick={hideNavbar}>
             <FontAwesomeIcon className="marketplace" icon={faEdit} size="lg" />
@@ -301,7 +308,7 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
               exact
               activeClassName="active-link"
               className="page-links"
-              to="/profile"
+              to={`/${networkName}/profile`}
             >
               <NavItem color="white" onClick={hideNavbar}>
                 <Tooltip
@@ -320,7 +327,7 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
               exact
               activeClassName="active-link"
               className="page-links"
-              to="/archives"
+              to={`/${networkName}/archives`}
             >
               <NavItem color="white" onClick={hideNavbar}>
                 <Tooltip
@@ -369,7 +376,7 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
           exact
           activeClassName="active-link"
           className="page-links"
-          to="/help"
+          to={`/${networkName}/help`}
         >
           <NavItem color="white" onClick={hideNavbar}>
             <FontAwesomeIcon
@@ -382,7 +389,7 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
         </NavLink>
         <Button
           onClick={() => {
-            addAssetToMetamask('ZOOM', contracts.ZoomContract.address);
+            addAssetToMetamask('ZOOM', contracts.ZoomContract.address)
           }}
           aria-controls="basic-menu"
           aria-haspopup="true"

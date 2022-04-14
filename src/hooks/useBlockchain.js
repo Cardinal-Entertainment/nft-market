@@ -2,22 +2,13 @@ import { ethers } from 'ethers'
 import detectEthereumProvider from '@metamask/detect-provider'
 
 import zoombies_market_place_json from '../contracts/ZoombiesMarketPlace.json'
-// import zoombies_json from '../contracts/Zoombies.json'
-import anyNFTJson from '../contracts/AnyNFT.json'
 import zoom_token_json from '../contracts/ZoomToken.json'
 import wrapped_movr_json from '../contracts/WrappedMovr.json'
 import anyERC20JSON from '../contracts/AnyERC20.json'
 import { DAPP_STATES } from 'store/store'
 import Actions from 'store/actions'
 
-import {
-  zoomContractAddress,
-  marketContractAddress,
-  wmovrContractAddress,
-  usdtContractAddress,
-  daiContractAddress,
-  gNFTAddresses,
-} from '../constants'
+import { NFT_CONTRACTS, NETWORKS, METAMASK_CHAIN_PARAMS } from '../constants'
 import {
   getWalletUSDTBalance,
   getWalletWMOVRBalance,
@@ -25,87 +16,68 @@ import {
   getWalletDAIBalance,
 } from '../utils/wallet'
 import watchMarketEvents from 'utils/setupWatcher'
-import { isLocal } from '../constants'
 import WebsocketProvider from 'utils/WebsocketProvider'
 
-const devChainParam = {
-  chainId: '0x507', // Moonbase Alpha's chainId is 1287, which is 0x507 in hex
-  chainName: 'Moonbase Alpha',
-  nativeCurrency: {
-    name: 'DEV',
-    symbol: 'DEV',
-    decimals: 18,
-  },
-  rpcUrls: ['https://rpc.api.moonbase.moonbeam.network'],
-  blockExplorerUrls: ['https://moonbase.moonscan.io/'],
-}
+const loadContracts = async (
+  signer,
+  dispatch,
+  websocketProvider,
+  chainName = 'moonbase-alpha'
+) => {
+  const network = NETWORKS[chainName]
+  const nftContracts = {}
 
-const prodChainParam = {
-  chainId: '0x505', // Moonriver's chainId is 1285, which is 0x505 in hex
-  chainName: 'Moonriver',
-  nativeCurrency: {
-    name: 'MOVR',
-    symbol: 'MOVR',
-    decimals: 18,
-  },
-  rpcUrls: ['https://rpc.moonriver.moonbeam.network'],
-  blockExplorerUrls: ['https://moonriver.moonscan.io/'],
-}
-
-const loadContracts = async (signer, chainId, dispatch, websocketProvider) => {
-  let nftContracts = {}
-
-  for (const nft of gNFTAddresses) {
-    const contract = new ethers.Contract(
-      nft.address,
-      nft.abiJSON ? nft.abiJSON.abi : anyNFTJson.abi,
+  for (const contract of NFT_CONTRACTS[chainName]) {
+    const signedContract = new ethers.Contract(
+      contract.address,
+      contract.abiJSON.abi,
       signer
     )
 
     const readOnlyContract = new ethers.Contract(
-      nft.address,
-      nft.abiJSON ? nft.abiJSON.abi : anyNFTJson.abi,
+      contract.address,
+      contract.abiJSON.abi,
       websocketProvider
     )
 
-    nftContracts[nft.address] = {
-      signed: contract,
+    nftContracts[contract.address] = {
+      signed: signedContract,
       readOnly: readOnlyContract,
     }
   }
 
   const ZoomContract = new ethers.Contract(
-    zoomContractAddress,
+    network.zoomContractAddress,
     zoom_token_json.abi,
     signer
   )
 
   const MarketContract = new ethers.Contract(
-    marketContractAddress,
+    network.marketContractAddress,
     zoombies_market_place_json.abi,
     signer
   )
 
   const ReadOnlyMarketContract = new ethers.Contract(
-    marketContractAddress,
+    network.marketContractAddress,
     zoombies_market_place_json.abi,
     websocketProvider
   )
 
   const WMOVRContract = new ethers.Contract(
-    wmovrContractAddress,
+    network.wmovrContractAddress,
     wrapped_movr_json.abi,
     signer
   )
 
   const USDTContract = new ethers.Contract(
-    usdtContractAddress,
+    network.usdtContractAddress,
     wrapped_movr_json.abi,
     signer
   )
 
   const DAIContract = new ethers.Contract(
-    daiContractAddress,
+    network.daiContractAddress,
     anyERC20JSON.abi,
     signer
   )
@@ -188,7 +160,7 @@ const loadContracts = async (signer, chainId, dispatch, websocketProvider) => {
 
   await watchMarketEvents(
     websocketProvider,
-    marketContractAddress,
+    network.marketContractAddress,
     nftContracts
   )
 
@@ -207,12 +179,6 @@ const loadContracts = async (signer, chainId, dispatch, websocketProvider) => {
     })
   )
 
-  dispatch(
-    Actions.walletChanged({
-      chainId,
-    })
-  )
-
   return {
     ZoomContract,
     MarketContract,
@@ -223,19 +189,21 @@ const loadContracts = async (signer, chainId, dispatch, websocketProvider) => {
   }
 }
 
-const setupMetamask = async () => {
+const setupMetamask = async (chainName = 'moonbase-alpha') => {
   try {
     const metamaskProvider = await detectEthereumProvider({
       mustBeMetaMask: true,
     })
 
     if (metamaskProvider) {
+      const metamaskParam = METAMASK_CHAIN_PARAMS[chainName]
+
       await metamaskProvider.request({
         method: 'eth_requestAccounts',
       })
       await metamaskProvider.request({
         method: 'wallet_addEthereumChain',
-        params: [isLocal ? devChainParam : prodChainParam],
+        params: [metamaskParam],
       })
 
       const etherWrapper = new ethers.providers.Web3Provider(window.ethereum)
@@ -243,16 +211,15 @@ const setupMetamask = async () => {
 
       const signer = etherWrapper.getSigner()
 
-      const [address, balance, network] = await Promise.all([
+      const [address, balance] = await Promise.all([
         signer.getAddress(),
         signer.getBalance(),
-        etherWrapper.getNetwork(),
       ])
 
       return {
         address,
         balance,
-        network,
+        network: NETWORKS[chainName],
         signer,
         provider: metamaskProvider,
       }
@@ -262,8 +229,12 @@ const setupMetamask = async () => {
   }
 }
 
-export const setupEthers = async (dispatch) => {
+export const setupEthers = async (dispatch, chainName = 'moonbase-alpha') => {
   try {
+    if (!(chainName in NETWORKS)) {
+      return
+    }
+
     const metamaskProviderData = await setupMetamask()
     if (!metamaskProviderData) {
       return
@@ -292,19 +263,18 @@ export const setupEthers = async (dispatch) => {
       })
     })
 
-    const websocketProvider = new WebsocketProvider(isLocal, (provider) => {
-      loadContracts(signer, network.chainId, dispatch, provider)
-    })
+    const websocketUrl = NETWORKS[chainName].websocketRPC
+    const websocketProvider = new WebsocketProvider(
+      websocketUrl,
+      (provider) => {
+        loadContracts(signer, dispatch, provider)
+      }
+    )
 
     websocketProvider.init()
 
     const { ZoomContract, WMOVRContract, USDTContract, DAIContract } =
-      await loadContracts(
-        signer,
-        network.chainId,
-        dispatch,
-        websocketProvider.provider
-      )
+      await loadContracts(signer, dispatch, websocketProvider.provider)
 
     const zoomBalance = await getWalletZoomBalance(ZoomContract, address)
     const WMOVRBalance = await getWalletWMOVRBalance(WMOVRContract, address)

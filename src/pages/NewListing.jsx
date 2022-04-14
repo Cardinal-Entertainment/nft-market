@@ -7,16 +7,16 @@ import DateTimePicker from '@mui/lab/DateTimePicker'
 import TextField from '@mui/material/TextField'
 import { store } from 'store/store'
 import { omit } from 'lodash'
-import { useHistory } from 'react-router-dom'
+import { useHistory, useParams } from 'react-router-dom'
 import { ethers } from 'ethers'
 import LazyLoad from 'react-lazyload'
 import { CircularProgress, ListItemIcon, ListItemText } from '@mui/material'
 import {
-  marketContractAddress,
   gNFTAddresses,
   ZoombiesStableEndpoint,
   ZoombiesTestingEndpoint,
   cardImageBaseURL,
+  NETWORKS,
 } from '../constants'
 import {
   useFetchUserNFTQuery,
@@ -260,6 +260,9 @@ const NewListing = () => {
     state: { contracts, wallet },
   } = useContext(store)
 
+  const { network } = useParams()
+  const marketAddress = NETWORKS[network].marketContractAddress
+
   useEffect(() => {
     const getIsApprovedForAll = async () => {
       if (
@@ -271,7 +274,7 @@ const NewListing = () => {
         if (readOnlyContract) {
           const approved = await readOnlyContract.isApprovedForAll(
             wallet.address,
-            marketContractAddress
+            marketAddress
           )
           setIsApprovedForAll(approved)
         }
@@ -279,7 +282,7 @@ const NewListing = () => {
     }
 
     getIsApprovedForAll().then()
-  }, [wallet.address, contracts.nftContracts, selectedNFT])
+  }, [wallet.address, contracts.nftContracts, selectedNFT, marketAddress])
 
   const handleCardClicked = (cardId) => {
     if (selectedCards[cardId]) {
@@ -315,7 +318,7 @@ const NewListing = () => {
         getCurrencyAddress(selectedCurrency, wallet.chainId)
       )
       setCreateInProgress(false)
-      history.push('/')
+      history.push(`/${network}`)
     } catch (err) {
       console.error(err)
     } finally {
@@ -332,12 +335,12 @@ const NewListing = () => {
         if (contract != null) {
           const marketIsApproved = await contract.readOnly.isApprovedForAll(
             wallet.address,
-            marketContractAddress
+            marketAddress
           )
 
           if (!marketIsApproved) {
             setIsApprovedForAll(false)
-            await contract.signed.setApprovalForAll(marketContractAddress, true)
+            await contract.signed.setApprovalForAll(marketAddress, true)
             setIsApprovedForAll(true)
           }
         }

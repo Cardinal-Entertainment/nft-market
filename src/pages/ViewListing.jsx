@@ -20,9 +20,9 @@ import {
   ZoombiesStableEndpoint,
   ZoombiesTestingEndpoint,
   zoomContractAddress,
-  marketContractAddress,
   cardImageBaseURL,
   gNFTAddresses,
+  NETWORKS,
 } from '../constants'
 import { ethers } from 'ethers'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -303,10 +303,10 @@ const ItemHistoryWrapper = styled('div')(({ theme }) => ({
   },
 }))
 
-const handleSettle = async (history, marketContract, auctionId) => {
+const handleSettle = async (history, marketContract, auctionId, network) => {
   const tx = await marketContract.settle(parseInt(auctionId))
   await waitForTransaction(tx)
-  history.push('/')
+  history.push(`/${network}`)
 }
 
 const ListingNFTs = ({ cards }) => {
@@ -670,7 +670,7 @@ const ItemHistory = ({ bids }) => {
 
 const ViewListing = () => {
   const history = useHistory()
-  const { id } = useParams()
+  const { id, network } = useParams()
   const [approvalModalOpen, setApprovalModalOpen] = useState(false)
   const [bidInProgress, setBidInProgress] = useState(false)
 
@@ -695,6 +695,7 @@ const ViewListing = () => {
     daiBalance,
   } = wallet
   const { MarketContract, ReadOnlyMarketContract } = contracts
+  const marketAddress = NETWORKS[network].marketContractAddress
 
   const queryClient = useQueryClient()
   useEffect(() => {
@@ -822,18 +823,19 @@ const ViewListing = () => {
           }
           const allowance = await getUserTokenAllowance(
             tokenContract,
-            wallet.address
+            wallet.address,
+            network
           )
           if (allowance.lt(toBigNumber(amount))) {
             if (auctionItem.saleToken === daiContractAddress) {
               const approveTx = await contracts.DAIContract.approve(
-                marketContractAddress,
+                marketAddress,
                 toBigNumber(amount)
               )
               await waitForTransaction(approveTx)
             } else if (auctionItem.saleToken === usdtContractAddress) {
               const approveTx = await contracts.USDTContract.approve(
-                marketContractAddress,
+                marketAddress,
                 toBigNumber(amount)
               )
               await waitForTransaction(approveTx)

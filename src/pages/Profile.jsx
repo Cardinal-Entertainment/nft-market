@@ -20,14 +20,15 @@ import { getStatus } from 'utils/listingUtil'
 
 import moment from 'moment'
 
-import { QUERY_KEYS } from '../constants'
+import { NETWORKS, QUERY_KEYS } from '../constants'
 
-import { useHistory } from 'react-router'
 import LoadingModal from 'components/LoadingModal'
 import { Button, CircularProgress } from '@mui/material'
 import { waitForTransaction } from 'utils/transactions'
 import { useQueryClient } from 'react-query'
 import { getTokenSymbol } from '../utils/auction'
+
+import { useParams, useHistory } from 'react-router-dom'
 
 const Container = styled.div`
   display: flex;
@@ -279,10 +280,10 @@ const userListingColumns = [
   },
 ]
 
-const handleRowClick = (params, history) => {
+const handleRowClick = (params, history, network) => {
   try {
     const itemNumber = parseInt(params.row.itemNumber)
-    history.push(`/listing/${itemNumber}`)
+    history.push(`/${network}/listing/${itemNumber}`)
   } catch (err) {
     console.error(`Failed to parse itemNumber: ${params.row.itemNumber}`)
   }
@@ -290,6 +291,8 @@ const handleRowClick = (params, history) => {
 
 const UserBids = ({ bidCount, bids }) => {
   const history = useHistory()
+  const { network } = useParams()
+
   if (bidCount === 0) {
     return (
       <div className="bid-empty">
@@ -328,7 +331,7 @@ const UserBids = ({ bidCount, bids }) => {
           rowsPerPageOptions={[10, 20, 50, 100]}
           autoHeight={true}
           onRowClick={(params) => {
-            handleRowClick(params, history)
+            handleRowClick(params, history, network)
           }}
         ></DataGrid>
       </div>
@@ -338,6 +341,8 @@ const UserBids = ({ bidCount, bids }) => {
 
 const UserListings = ({ listingCount, listings }) => {
   const history = useHistory()
+  const { network } = useParams()
+
   if (listingCount === 0) {
     return (
       <div className="listing-empty">
@@ -373,7 +378,7 @@ const UserListings = ({ listingCount, listings }) => {
         rowsPerPageOptions={[10, 20, 50, 100]}
         autoHeight={true}
         onRowClick={(params) => {
-          handleRowClick(params, history)
+          handleRowClick(params, history, network)
         }}
         classes={{
           row: 'data-grid-rows',

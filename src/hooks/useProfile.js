@@ -1,7 +1,7 @@
 import { useQuery } from 'react-query'
 import axios from 'axios'
 import { ethers } from 'ethers'
-import { apiEndpoint, marketContractAddress, QUERY_KEYS } from '../constants'
+import { apiEndpoint, NETWORKS, QUERY_KEYS } from '../constants'
 import { getCardData } from 'utils/cardsUtil'
 import { isItemSettled } from 'utils/auction'
 import { toBigNumber } from '../utils/BigNumbers'
@@ -12,7 +12,9 @@ const getUserProfiles = async (userAddress, chainId = 1287) => {
     return null
   }
 
-  const response = await axios.get(`${apiEndpoint}/profile/${userAddress}?chainId=${chainId}`)
+  const response = await axios.get(
+    `${apiEndpoint}/profile/${userAddress}?chainId=${chainId}`
+  )
 
   if (response.status !== 200) {
     console.error(response.statusText)
@@ -86,9 +88,14 @@ export const useFetchUserNFTQuery = (
     },
   })
 
-export const getUserTokenAllowance = async (tokenContract, ownerAddress) => {
+export const getUserTokenAllowance = async (
+  tokenContract,
+  ownerAddress,
+  chainName = 'moonbase-alpha'
+) => {
+  const marketAddress = NETWORKS[chainName].marketContractAddress
   if (tokenContract) {
-    return await tokenContract.allowance(ownerAddress, marketContractAddress)
+    return await tokenContract.allowance(ownerAddress, marketAddress)
   } else {
     return toBigNumber(0)
   }

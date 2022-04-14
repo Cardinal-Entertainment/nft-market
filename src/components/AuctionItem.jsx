@@ -14,12 +14,12 @@ import {
   usdtContractAddress,
   daiContractAddress,
   zoomContractAddress,
-  marketContractAddress,
   zoombiesContractAddress,
+  NETWORKS,
 } from '../constants'
 import { useTheme } from 'styled-components'
 import moment from 'moment'
-import { useHistory } from 'react-router-dom'
+import { useHistory, useParams } from 'react-router-dom'
 import { store } from '../store/store'
 import { ethers } from 'ethers'
 import OfferDialog from './OfferDialog'
@@ -347,6 +347,9 @@ const AuctionItem = ({ content, archived }) => {
 
   const coinType = getTokenSymbol(auctionItem.saleToken)
 
+  const { network } = useParams()
+  const marketAddress = NETWORKS[network].marketContractAddress
+
   const getTokenMinIncrement = (saleToken) => {
     if (saleToken === zoomContractAddress) {
       return zoomIncrement
@@ -404,18 +407,19 @@ const AuctionItem = ({ content, archived }) => {
         }
         const allowance = await getUserTokenAllowance(
           tokenContract,
-          wallet.address
+          wallet.address,
+          network
         )
         if (allowance.lt(weiAmount)) {
           if (auctionItem.saleToken === daiContractAddress) {
             const approveTx = await contracts.DAIContract.approve(
-              marketContractAddress,
+              marketAddress,
               weiAmount
             )
             await waitForTransaction(approveTx)
           } else if (auctionItem.saleToken === usdtContractAddress) {
             const approveTx = await contracts.USDTContract.approve(
-              marketContractAddress,
+              marketAddress,
               weiAmount
             )
             await waitForTransaction(approveTx)
@@ -437,7 +441,7 @@ const AuctionItem = ({ content, archived }) => {
   }
 
   const gotoAuction = () => {
-    history.push(`/listing/${auctionItem.itemNumber}`)
+    history.push(`/${network}/listing/${auctionItem.itemNumber}`)
   }
 
   const { data: zoomAllowance } = useGetZoomAllowanceQuery(

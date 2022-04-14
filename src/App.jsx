@@ -2,7 +2,12 @@ import zoomTokenLogo from './assets/zoombies_coin.svg'
 import liveFeedIcon from './assets/live-feed.png'
 import React, { useContext, useEffect, useState } from 'react'
 import Navbar from 'components/Navbar'
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+} from 'react-router-dom'
 import Home from 'pages/Home'
 import NewListing from 'pages/NewListing'
 import ViewListing from 'pages/ViewListing'
@@ -27,6 +32,7 @@ import {
   zoomContractAddress,
   ZoombiesTestingEndpoint,
   ZoombiesStableEndpoint,
+  NETWORK_NAMES,
 } from './constants'
 import { useFetchProfileQuery } from './hooks/useProfile'
 import { store } from 'store/store'
@@ -250,17 +256,6 @@ const App = () => {
           newAuction['type'] = 'new'
         }
 
-        // const currentProfileData = queryClient.getQueryData([
-        //   QUERY_KEYS.profile,
-        //   { userAddress: address },
-        // ]);
-        // if (newAuction.lister === address && currentProfileData) {
-        //   currentProfileData.listings = [data, ...currentProfileData.listings]
-        //   queryClient.setQueryData(
-        //     [QUERY_KEYS.profile, { address }],
-        //     [currentProfileData]
-        //   );
-        // }
         addLiveFeedItem(newAuction, filterKey)
       }
     )
@@ -354,6 +349,10 @@ const App = () => {
     )
   }
 
+  const supportedNetworkRegex = Object.keys(NETWORK_NAMES)
+    .map((network) => NETWORK_NAMES[network])
+    .join('|')
+
   return (
     <Container>
       <Router>
@@ -396,12 +395,43 @@ const App = () => {
           </Drawer>
           <Content>
             <Switch>
-              <Route path="/new" component={NewListing} />
-              <Route path="/listing/:id" component={ViewListing} />
-              <Route path="/help" component={HelpPage} />
-              <Route path="/profile" component={Profile} />
-              <Route path="/archives" component={AuctionArchive} />
-              <Route path="/" component={Home} />
+              <Route
+                path={`/:network(${supportedNetworkRegex})/new`}
+                component={NewListing}
+              />
+              <Route
+                path={`/:network(${supportedNetworkRegex})/listing/:id`}
+                component={ViewListing}
+              />
+              <Route
+                path={`/:network(${supportedNetworkRegex})/help`}
+                component={HelpPage}
+              />
+              <Route
+                path={`/:network(${supportedNetworkRegex})/profile`}
+                component={Profile}
+              />
+              <Route
+                path={`/:network(${supportedNetworkRegex})/archives`}
+                component={AuctionArchive}
+              />
+              <Route
+                path={`/:network(${supportedNetworkRegex})/`}
+                component={Home}
+              />
+              <Route exact path="/">
+                <Redirect to="/moonbase-alpha" />
+              </Route>
+              <Route path="*">
+                <h2
+                  style={{
+                    color: 'white',
+                    marginLeft: '12px',
+                  }}
+                >
+                  Please select a valid network
+                </h2>
+              </Route>
             </Switch>
           </Content>
           {isLiveFeedOpen && (
