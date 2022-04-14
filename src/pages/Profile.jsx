@@ -20,7 +20,7 @@ import { getStatus } from 'utils/listingUtil'
 
 import moment from 'moment'
 
-import { NETWORKS, QUERY_KEYS } from '../constants'
+import { QUERY_KEYS } from '../constants'
 
 import LoadingModal from 'components/LoadingModal'
 import { Button, CircularProgress } from '@mui/material'
