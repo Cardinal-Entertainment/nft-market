@@ -754,7 +754,7 @@ const ViewListing = () => {
   }, [queryClient, auctionId, ReadOnlyMarketContract])
 
   const { isLoading: isFetchingListing, data: auctionItem } =
-    useFetchSingleListingQuery(auctionId, ReadOnlyMarketContract)
+    useFetchSingleListingQuery(auctionId, ReadOnlyMarketContract, wallet.chainId)
 
   const { data: currentZoomAllowance } = useGetZoomAllowanceQuery(
     wallet.address,

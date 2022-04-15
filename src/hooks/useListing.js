@@ -16,15 +16,15 @@ const getAuctionListings = async (filters, nextOffset) => {
     cardRarity: filters.rarity || '',
     search: filters.keyword || '',
     sortBy: filters.sortField || '',
-    offset: nextOffset,
     limit: '5',
+    offset: nextOffset,
     status: filters.status || '',
+    chainId: '1287',
   })
 
   const listings = await axios.get(
     `${apiEndpoint}/listings?${params.toString()}`
   )
-  // const listings = await axios.get(`http://localhost:3001/listings?${params.toString()}`)
 
   const ar2 = listings.data.listings
   return {
@@ -38,13 +38,13 @@ const getAuctionListings = async (filters, nextOffset) => {
   }
 }
 
-const getSingleAuction = async (itemNumber, marketContract) => {
+const getSingleAuction = async (itemNumber, marketContract, chainId = 1287) => {
   if (!marketContract) {
     return null
   }
   const [listingResponse, bidsResponse, settled] = await Promise.all([
-    await axios.get(`${apiEndpoint}/item/${itemNumber}`),
-    await axios.get(`${apiEndpoint}/bids/${itemNumber}`),
+    await axios.get(`${apiEndpoint}/item/${itemNumber}?chainId=${chainId}`),
+    await axios.get(`${apiEndpoint}/bids/${itemNumber}?chainId=${chainId}`),
     await isItemSettled(itemNumber, marketContract),
   ])
 
@@ -80,13 +80,13 @@ export const useFetchListingQuery = (filters) => {
   )
 }
 
-export const useFetchSingleListingQuery = (itemNumber, marketContract) => {
+export const useFetchSingleListingQuery = (itemNumber, marketContract, chainId) => {
   return useQuery(
     [
       QUERY_KEYS.listing,
       { itemNumber, marketContractAddress: marketContract?.address },
     ],
-    () => getSingleAuction(itemNumber, marketContract),
+    () => getSingleAuction(itemNumber, marketContract, chainId),
     {
       refetchOnWindowFocus: false,
     }

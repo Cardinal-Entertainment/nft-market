@@ -146,7 +146,7 @@ const App = () => {
     contracts: { ReadOnlyMarketContract },
   } = state
 
-  const { data: myAuctions } = useFetchProfileQuery(address)
+  const { data: myAuctions } = useFetchProfileQuery(address, chainId)
 
   useEffect(() => {
     const addLiveFeedItem = (liveFeedItem, filterKey) => {

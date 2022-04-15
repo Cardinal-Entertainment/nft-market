@@ -438,7 +438,7 @@ const Profile = () => {
     state: { wallet },
   } = useContext(store)
 
-  const { isLoading, data } = useFetchProfileQuery(wallet.address)
+  const { isLoading, data } = useFetchProfileQuery(wallet.address, wallet.chainId)
 
   return (
     <Container>

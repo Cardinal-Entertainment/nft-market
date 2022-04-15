@@ -30,10 +30,9 @@ export const getTokenSymbol = (saleToken) => {
  *
  * @returns Array of cards for an auction listing.
  */
-export const getAuctionItem = async (auctionId, nftContract) => {
+export const getAuctionItem = async (auctionId, nftContract, chainId = 1287) => {
   try {
-    const item = await axios.get(`${apiEndpoint}/item/${auctionId}`)
-    // const item = await axios.get(`http://localhost:3001/item/${auctionId}`)
+    const item = await axios.get(`${apiEndpoint}/item/${auctionId}?chainId=${chainId}`)
     const {
       tokenIds,
       saleToken,
@@ -64,9 +63,8 @@ export const getAuctionItem = async (auctionId, nftContract) => {
   }
 }
 
-export const getOffers = async (auctionId) => {
-  const res = await axios.get(`${apiEndpoint}/bids/${auctionId}`)
-  // const res = await axios.get(`http://localhost:3001/bids/${auctionId}`)
+export const getOffers = async (auctionId, chainId = 1287) => {
+  const res = await axios.get(`${apiEndpoint}/bids/${auctionId}?chainId=${chainId}`)
 
   return res.data.map((offer) => ({
     date: offer.timestamp,
