@@ -81,20 +81,6 @@ export const zoombiesContractAddress = isLocal
   ? '0x3E7997B8D30AA6216102fb2e9206246e478d57d3'
   : ''
 
-export const gNFTAddresses = [
-  {
-    name: 'Zoombies',
-    address: zoombiesContractAddress,
-    icon: zoombiesLogo,
-    abiJSON: zoombiesContractJSON,
-  },
-  {
-    name: 'NextGem',
-    address: '0x4c0EaC154AE7cB755b260E835895e9F471B640f3',
-    icon: nextGemLogo,
-  },
-]
-
 export const wmovrContractAddress = '0x372d0695E75563D9180F8CE31c9924D7e8aaac47'
 
 export const usdtContractAddress = '0x0b77D7BDd78b2a4C2c50980968166D99e321DfB6'

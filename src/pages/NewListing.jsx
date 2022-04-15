@@ -12,11 +12,11 @@ import { ethers } from 'ethers'
 import LazyLoad from 'react-lazyload'
 import { CircularProgress, ListItemIcon, ListItemText } from '@mui/material'
 import {
-  gNFTAddresses,
   ZoombiesStableEndpoint,
   ZoombiesTestingEndpoint,
   cardImageBaseURL,
   NETWORKS,
+  NFT_CONTRACTS,
 } from '../constants'
 import {
   useFetchUserNFTQuery,
@@ -242,6 +242,11 @@ const renderUserNFTs = (
 
 const NewListing = () => {
   const history = useHistory()
+
+  const { network } = useParams()
+  const marketAddress = NETWORKS[network].marketContractAddress
+  const nftContracts = NFT_CONTRACTS[network]
+
   const [isDateError, setIsDateError] = useState(false)
   const [dateTime, setDateTime] = useState(
     new Date(new Date().getTime() + 86400000 * 3)
@@ -250,8 +255,9 @@ const NewListing = () => {
   const [createInProgress, setCreateInProgress] = useState(false)
   const [selectedCurrency, setSelectedCurrency] = useState(CURRENCY_TYPES.MOVR)
   const [selectedNFT, setSelectedNFT] = useState(
-    !gNFTAddresses.isEmpty ? gNFTAddresses[0].address : ''
+    !nftContracts.isEmpty ? nftContracts[0].address : ''
   )
+
   const [selectedCards, setSelectedCards] = useState({})
   const [isApprovedForAll, setIsApprovedForAll] = useState(false)
   const [instantAuction, setInstantAuction] = useState(false)
@@ -259,9 +265,6 @@ const NewListing = () => {
   const {
     state: { contracts, wallet },
   } = useContext(store)
-
-  const { network } = useParams()
-  const marketAddress = NETWORKS[network].marketContractAddress
 
   useEffect(() => {
     const getIsApprovedForAll = async () => {
@@ -566,7 +569,7 @@ const NewListing = () => {
             setSelectedNFT(e.target.value)
           }}
         >
-          {gNFTAddresses.map((contract) => (
+          {nftContracts.map((contract) => (
             <MenuItem value={contract.address} key={contract.address}>
               <ListItemIcon>
                 <SelectItemImg src={contract.icon} />

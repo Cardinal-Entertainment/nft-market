@@ -21,8 +21,8 @@ import {
   ZoombiesTestingEndpoint,
   zoomContractAddress,
   cardImageBaseURL,
-  gNFTAddresses,
   NETWORKS,
+  NFT_CONTRACTS,
 } from '../constants'
 import { ethers } from 'ethers'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -371,6 +371,7 @@ const ListingMetadata = ({
   isAuctionOver,
   walletAddress,
   zoomAllowance,
+  networkName,
 }) => {
   const shortWallet = formatAddress(listing.seller)
   const dateListed = moment(listing.auctionStart * 1000).format(
@@ -381,8 +382,6 @@ const ListingMetadata = ({
   const auctionEndTime = localAuctionEnd.format('h:mm:ss A')
   const timezone = momentTimezone.tz(momentTimezone.tz.guess()).zoneAbbr()
   const highestBid = toBigNumber(listing.highestBid)
-
-  console.log('highestBid', listing)
 
   const auctionEndText =
     listing.auctionEnd === 0 //instantBid
@@ -510,7 +509,7 @@ const ListingMetadata = ({
     offerToolTip = 'You do not have enough DAI.'
   }
 
-  const contract = gNFTAddresses.find((e) => {
+  const contract = NFT_CONTRACTS[networkName].find((e) => {
     return e.address === listing.nftToken
   })
 
@@ -897,6 +896,7 @@ const ViewListing = () => {
               isAuctionOver={isOver}
               walletAddress={wallet.address}
               zoomAllowance={currentZoomAllowance}
+              networkName={network}
             />
           </div>
 
