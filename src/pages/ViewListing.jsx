@@ -696,6 +696,7 @@ const ViewListing = () => {
   } = wallet
   const { MarketContract, ReadOnlyMarketContract } = contracts
   const marketAddress = NETWORKS[network].marketContractAddress
+  const chainId = NETWORKS[network].chainId
 
   const queryClient = useQueryClient()
   useEffect(() => {
@@ -755,7 +756,7 @@ const ViewListing = () => {
   }, [queryClient, auctionId, ReadOnlyMarketContract])
 
   const { isLoading: isFetchingListing, data: auctionItem } =
-    useFetchSingleListingQuery(auctionId, ReadOnlyMarketContract, wallet.chainId)
+    useFetchSingleListingQuery(auctionId, ReadOnlyMarketContract, chainId)
 
   const { data: currentZoomAllowance } = useGetZoomAllowanceQuery(
     wallet.address,
@@ -777,7 +778,7 @@ const ViewListing = () => {
     const canSettle =
       isOver && (isWinner || isOwner) && !auctionItem.isItemSettled
     const sellerURL =
-      wallet.chainId === 1287
+      chainId === 1287
         ? `${ZoombiesTestingEndpoint}/my-zoombies-nfts/${auctionItem?.seller}`
         : `${ZoombiesStableEndpoint}/my-zoombies-nfts/${auctionItem?.seller}`
 

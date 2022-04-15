@@ -9,7 +9,9 @@ export const LISTING_PARAMS = {
   },
 }
 
-const getAuctionListings = async (filters, nextOffset) => {
+const getAuctionListings = async (filters, nextOffset, chainId) => {
+  if (!chainId) return null
+
   const params = new URLSearchParams({
     cardOrigin: filters.cardType || '',
     saleToken: filters.token || '',
@@ -19,7 +21,7 @@ const getAuctionListings = async (filters, nextOffset) => {
     limit: '5',
     offset: nextOffset,
     status: filters.status || '',
-    chainId: '1287',
+    chainId: chainId,
   })
 
   const listings = await axios.get(
@@ -38,7 +40,7 @@ const getAuctionListings = async (filters, nextOffset) => {
   }
 }
 
-const getSingleAuction = async (itemNumber, marketContract, chainId = 1287) => {
+const getSingleAuction = async (itemNumber, marketContract, chainId) => {
   if (!marketContract) {
     return null
   }
@@ -66,10 +68,10 @@ const getSingleAuction = async (itemNumber, marketContract, chainId = 1287) => {
   throw new Error(`Failed to get auction: ${itemNumber}`)
 }
 
-export const useFetchListingQuery = (filters) => {
+export const useFetchListingQuery = (filters, chainId) => {
   return useInfiniteQuery(
-    [QUERY_KEYS.listings, { filters }],
-    ({ pageParam }) => getAuctionListings(filters, pageParam),
+    [QUERY_KEYS.listings, { filters, chainId }],
+    ({ pageParam }) => getAuctionListings(filters, pageParam, chainId),
     {
       getNextPageParam: (lastPage) => {
         if (lastPage.nextOffset > 0) return lastPage.nextOffset
@@ -80,11 +82,15 @@ export const useFetchListingQuery = (filters) => {
   )
 }
 
-export const useFetchSingleListingQuery = (itemNumber, marketContract, chainId) => {
+export const useFetchSingleListingQuery = (
+  itemNumber,
+  marketContract,
+  chainId
+) => {
   return useQuery(
     [
       QUERY_KEYS.listing,
-      { itemNumber, marketContractAddress: marketContract?.address },
+      { itemNumber, marketContractAddress: marketContract?.address, chainId },
     ],
     () => getSingleAuction(itemNumber, marketContract, chainId),
     {

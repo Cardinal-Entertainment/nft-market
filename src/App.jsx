@@ -33,11 +33,13 @@ import {
   ZoombiesTestingEndpoint,
   ZoombiesStableEndpoint,
   NETWORK_NAMES,
+  NETWORKS,
 } from './constants'
 import { useFetchProfileQuery } from './hooks/useProfile'
 import { store } from 'store/store'
 import NotificationAddon from './components/NotificationAddon'
 import { setupEthers, setupEthListeners } from 'hooks/useBlockchain'
+import { getNetworkNameFromURL } from 'utils/networkUtil'
 
 const Container = styled('div')({
   height: '100vh',
@@ -148,9 +150,15 @@ const App = () => {
 
   const { state } = useContext(store)
   const {
-    wallet: { address, chainId },
+    wallet: { address },
     contracts: { ReadOnlyMarketContract },
   } = state
+
+  const networkName = getNetworkNameFromURL()
+  const chainId =
+    networkName && networkName in NETWORKS
+      ? NETWORKS[networkName].chainId
+      : null
 
   const { data: myAuctions } = useFetchProfileQuery(address, chainId)
 

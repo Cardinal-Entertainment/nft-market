@@ -349,6 +349,7 @@ const AuctionItem = ({ content, archived }) => {
 
   const { network } = useParams()
   const marketAddress = NETWORKS[network].marketContractAddress
+  const chainId = NETWORKS[network].chainId
 
   const getTokenMinIncrement = (saleToken) => {
     if (saleToken === zoomContractAddress) {
@@ -366,7 +367,7 @@ const AuctionItem = ({ content, archived }) => {
 
   const minIncrement = getTokenMinIncrement(auctionItem.saleToken)
 
-  const { data } = useFetchBids(itemNumber, wallet.chainId)
+  const { data } = useFetchBids(itemNumber, chainId)
   const minOfferAmount = ethers.utils
     .parseEther(auctionItem?.highestBid.toString())
     .add(minIncrement)

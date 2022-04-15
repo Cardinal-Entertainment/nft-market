@@ -20,7 +20,7 @@ import { getStatus } from 'utils/listingUtil'
 
 import moment from 'moment'
 
-import { QUERY_KEYS } from '../constants'
+import { NETWORKS, QUERY_KEYS } from '../constants'
 
 import LoadingModal from 'components/LoadingModal'
 import { Button, CircularProgress } from '@mui/material'
@@ -443,7 +443,10 @@ const Profile = () => {
     state: { wallet },
   } = useContext(store)
 
-  const { isLoading, data } = useFetchProfileQuery(wallet.address, wallet.chainId)
+  const { network } = useParams()
+  const chainId = NETWORKS[network].chainId
+
+  const { isLoading, data } = useFetchProfileQuery(wallet.address, chainId)
 
   return (
     <Container>

@@ -6,9 +6,12 @@ import { getCardData } from 'utils/cardsUtil'
 import { isItemSettled } from 'utils/auction'
 import { toBigNumber } from '../utils/BigNumbers'
 
-const getUserProfiles = async (userAddress, chainId = 1287) => {
+const getUserProfiles = async (userAddress, chainId) => {
   if (!ethers.utils.isAddress(userAddress)) {
-    //console.error('Address is invalid.');
+    return null
+  }
+
+  if (!chainId) {
     return null
   }
 
@@ -26,7 +29,7 @@ const getUserProfiles = async (userAddress, chainId = 1287) => {
 
 export const useFetchProfileQuery = (userAddress, chainId) =>
   useQuery({
-    queryKey: [QUERY_KEYS.profile, { userAddress }],
+    queryKey: [QUERY_KEYS.profile, { userAddress, chainId }],
     queryFn: () => getUserProfiles(userAddress, chainId),
     ...{
       refetchOnWindowFocus: false,
@@ -47,9 +50,6 @@ const getUserNFTs = async (userAddress, nftContract, marketContract) => {
 
       tokensOfOwner.push(nftTokenId)
     }
-
-    // console.log("nftsCount", nftsCount)
-    // console.log("tokensOfOwner", tokensOfOwner)
 
     const cards = await Promise.all(
       tokensOfOwner.map((token) => {
