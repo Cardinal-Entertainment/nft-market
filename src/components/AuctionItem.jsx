@@ -601,12 +601,14 @@ const AuctionItem = ({ content, archived }) => {
                 />
                 <span>
                   {ethers.utils.formatEther(
-                    ethers.utils.parseEther(auctionItem.highestBid.toString())
+                    ethers.utils.parseEther(auctionItem.highestBid != 0 
+                      ? auctionItem.highestBid.toString()
+                      : auctionItem.minPrice.toString())
                   )}
                 </span>
                 <span className={'meta-content-coin-text'}>{coinType}</span>
               </MetaContentBidAmount>
-              <MetaContentTip>Highest Bid</MetaContentTip>
+              <MetaContentTip>{auctionItem.highestBid != 0 ? "Highest Bid" : "Min Price"}</MetaContentTip>
             </MetaContentRow>
           )}
 
