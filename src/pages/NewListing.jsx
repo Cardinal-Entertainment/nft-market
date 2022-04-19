@@ -388,7 +388,8 @@ const NewListing = () => {
   const { isLoading, data } = useFetchUserNFTQuery(
     wallet.address,
     contracts.nftContracts[selectedNFT]?.readOnly,
-    contracts.ReadOnlyMarketContract
+    contracts.ReadOnlyMarketContract,
+    network
   )
 
   const numberOfSelectedCards = Object.keys(selectedCards).length || 0

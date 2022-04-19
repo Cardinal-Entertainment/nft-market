@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useQuery } from 'react-query'
 import axios from 'axios'
-import { apiEndpoint, QUERY_KEYS } from '../constants'
+import { apiEndpoint, CHAIN_ID_TO_NETWORK, QUERY_KEYS } from '../constants'
 import { getTokenSymbol, isItemSettled } from '../utils/auction'
 
 export const LISTING_PARAMS = {
@@ -28,12 +28,14 @@ const getAuctionListings = async (filters, nextOffset, chainId) => {
     `${apiEndpoint}/listings?${params.toString()}`
   )
 
+  const networkName = CHAIN_ID_TO_NETWORK[chainId]
+
   const ar2 = listings.data.listings
   return {
     data: ar2.map((listing) => ({
       ...listing,
       id: listing._id,
-      currency: getTokenSymbol(listing.saleToken),
+      currency: getTokenSymbol(listing.saleToken, networkName),
     })),
     totalCount: parseInt(listings.data.count),
     nextOffset: parseInt(listings.data.nextOffset),
@@ -53,7 +55,8 @@ const getSingleAuction = async (itemNumber, marketContract, chainId) => {
   if (listingResponse.status === 200 && bidsResponse.status === 200) {
     const { saleToken, lister } = listingResponse.data
 
-    const currency = getTokenSymbol(saleToken)
+    const networkName = CHAIN_ID_TO_NETWORK[chainId]
+    const currency = getTokenSymbol(saleToken, networkName)
 
     return {
       id: itemNumber,

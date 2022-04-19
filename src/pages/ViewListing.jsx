@@ -14,12 +14,8 @@ import OfferDialog from 'components/OfferDialog'
 import {
   EVENT_TYPES,
   QUERY_KEYS,
-  wmovrContractAddress,
-  usdtContractAddress,
-  daiContractAddress,
   ZoombiesStableEndpoint,
   ZoombiesTestingEndpoint,
-  zoomContractAddress,
   cardImageBaseURL,
   NETWORKS,
   NFT_CONTRACTS,
@@ -397,6 +393,13 @@ const ListingMetadata = ({
   const { state } = useContext(store)
   const { contracts } = state
 
+  const {
+    zoomContractAddress,
+    wmovrContractAddress,
+    usdtContractAddress,
+    daiContractAddress
+  } = NETWORKS[networkName]
+
   useEffect(() => {
     const getTokenName = async (saleToken) => {
       if (saleToken === zoomContractAddress) {
@@ -419,6 +422,10 @@ const ListingMetadata = ({
     contracts.USDTContract,
     contracts.DAIContract,
     listing.saleToken,
+    zoomContractAddress,
+    wmovrContractAddress,
+    usdtContractAddress,
+    daiContractAddress
   ])
 
   /*
@@ -694,8 +701,12 @@ const ViewListing = () => {
     daiBalance,
   } = wallet
   const { MarketContract, ReadOnlyMarketContract } = contracts
-  const marketAddress = NETWORKS[network].marketContractAddress
-  const chainId = NETWORKS[network].chainId
+  const {
+    chainId,
+    marketContractAddress: marketAddress,
+    usdtContractAddress,
+    daiContractAddress
+  } = NETWORKS[network]
 
   const queryClient = useQueryClient()
   useEffect(() => {

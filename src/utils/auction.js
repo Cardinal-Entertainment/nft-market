@@ -1,11 +1,14 @@
 import {
-  zoomContractAddress,
-  wmovrContractAddress,
-  usdtContractAddress,
-  daiContractAddress,
+  NETWORKS,
 } from '../constants'
 
-export const getTokenSymbol = (saleToken) => {
+export const getTokenSymbol = (saleToken, networkName) => {
+  const {
+    zoomContractAddress,
+    wmovrContractAddress,
+    usdtContractAddress,
+    daiContractAddress
+  } = NETWORKS[networkName]
   switch (saleToken) {
     case zoomContractAddress:
       return 'ZOOM'

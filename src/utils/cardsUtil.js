@@ -1,4 +1,4 @@
-import { zoombiesContractAddress } from '../constants'
+import { NETWORKS } from '../constants'
 
 export const getCardType = async (cardId) => {
   try {
@@ -21,8 +21,8 @@ export const RARITY_CLASSES = {
   Diamond: 'card-bg card-bg-1',
 }
 
-export const getCardData = async (tokenId, nftContract) => {
-  if (nftContract.address === zoombiesContractAddress) {
+export const getCardData = async (tokenId, nftContract, networkName) => {
+  if (nftContract.address === NETWORKS[networkName].zoombiesContractAddress) {
     // In case of Zoombies - call nftContract.getNFTData
     const [cardTypeId, editionNumber] = await nftContract.getNFTData(tokenId)
     const cardData = await getCardType(cardTypeId)

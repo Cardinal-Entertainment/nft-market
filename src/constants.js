@@ -10,6 +10,12 @@ export const NETWORK_NAMES = {
   MOONRIVER: 'moonriver',
   MOONBEAM: 'moonbeam',
 }
+
+export const CHAIN_ID_TO_NETWORK = {
+  1287: NETWORK_NAMES.MOONBASE,
+  1285: NETWORK_NAMES.MOONRIVER
+}
+
 export const NETWORKS = {
   'moonbase-alpha': {
     name: NETWORK_NAMES.MOONBASE,
@@ -72,20 +78,6 @@ export const METAMASK_CHAIN_PARAMS = {
     blockExplorerUrls: ['https://moonriver.moonscan.io/'],
   },
 }
-
-export const zoomContractAddress = isLocal
-  ? '0x8e21404bAd3A1d2327cc6D2B2118f47911a1f316'
-  : ''
-
-export const zoombiesContractAddress = isLocal
-  ? '0x3E7997B8D30AA6216102fb2e9206246e478d57d3'
-  : ''
-
-export const wmovrContractAddress = '0x372d0695E75563D9180F8CE31c9924D7e8aaac47'
-
-export const usdtContractAddress = '0x0b77D7BDd78b2a4C2c50980968166D99e321DfB6'
-
-export const daiContractAddress = '0xEc95c10d4DD55741DE9491751407DEA41A3eF5f1'
 
 export const cardImageBaseURL = 'https://moonbase.zoombies.world/nft-image'
 export const apiEndpoint = 'https://api.zoombies.world'

@@ -26,10 +26,6 @@ import { v4 as uuidv4 } from 'uuid'
 import {
   EVENT_TYPES,
   QUERY_KEYS,
-  wmovrContractAddress,
-  usdtContractAddress,
-  daiContractAddress,
-  zoomContractAddress,
   ZoombiesTestingEndpoint,
   ZoombiesStableEndpoint,
   NETWORK_NAMES,
@@ -163,12 +159,13 @@ const App = () => {
   const { data: myAuctions } = useFetchProfileQuery(address, chainId)
 
   useEffect(() => {
-    const addLiveFeedItem = (liveFeedItem, filterKey) => {
+    const addLiveFeedItem = (liveFeedItem, filterKey, networkName) => {
       const liveFeeds = queryClient.getQueryData([
         QUERY_KEYS.liveFeeds,
         { filterKey },
       ])
       const uuid = uuidv4()
+      const network = NETWORKS[networkName]
 
       const newItem = {
         _id: uuid,
@@ -177,13 +174,13 @@ const App = () => {
         content: {
           blockNumber: uuid, //should be removed when settle eventscraper is completed
           currency:
-            liveFeedItem.saleToken === zoomContractAddress
+            liveFeedItem.saleToken === network.zoomContractAddress
               ? 'ZOOM'
-              : liveFeedItem.saleToken === wmovrContractAddress
+              : liveFeedItem.saleToken === network.wmovrContractAddress
               ? 'MOVR'
-              : liveFeedItem.saleToken === usdtContractAddress
+              : liveFeedItem.saleToken === network.usdtContractAddress
               ? 'USDT'
-              : liveFeedItem.saleToken === daiContractAddress
+              : liveFeedItem.saleToken === network.daiContractAddress
               ? 'DAI'
               : '',
           ...liveFeedItem,
@@ -264,7 +261,7 @@ const App = () => {
           newAuction['type'] = 'new'
         }
 
-        addLiveFeedItem(newAuction, filterKey)
+        addLiveFeedItem(newAuction, filterKey, newAuction.networkName)
       }
     )
 
@@ -288,7 +285,7 @@ const App = () => {
       } else {
         filterKey = 'MyAlerts'
       }
-      addLiveFeedItem(bid, filterKey)
+      addLiveFeedItem(bid, filterKey, bid.networkName)
     })
 
     const tokenSettled = PubSub.subscribe(
@@ -305,7 +302,7 @@ const App = () => {
         } else {
           filterKey = 'MyAlerts'
         }
-        addLiveFeedItem(settleData, filterKey)
+        addLiveFeedItem(settleData, filterKey, settleData.networkName)
       }
     )
 

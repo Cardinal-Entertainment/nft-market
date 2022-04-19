@@ -161,7 +161,8 @@ const loadContracts = async (
   await watchMarketEvents(
     websocketProvider,
     network.marketContractAddress,
-    nftContracts
+    nftContracts,
+    chainName
   )
 
   dispatch(

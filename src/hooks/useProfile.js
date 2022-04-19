@@ -36,7 +36,7 @@ export const useFetchProfileQuery = (userAddress, chainId) =>
     },
   })
 
-const getUserNFTs = async (userAddress, nftContract, marketContract) => {
+const getUserNFTs = async (userAddress, nftContract, marketContract, networkName) => {
   try {
     if (!nftContract || !userAddress || !marketContract) {
       return null
@@ -52,12 +52,14 @@ const getUserNFTs = async (userAddress, nftContract, marketContract) => {
     }
 
     const cards = await Promise.all(
-      tokensOfOwner.map((token) => {
-        return getCardData(parseInt(token), nftContract)
+      tokensOfOwner.slice(0, 30).map((token) => {
+        return getCardData(parseInt(token), nftContract, networkName)
       })
     )
 
     const zoomBurnFee = await marketContract.zoomBurnFee()
+
+
 
     return {
       userNFTs: cards,
@@ -71,7 +73,8 @@ const getUserNFTs = async (userAddress, nftContract, marketContract) => {
 export const useFetchUserNFTQuery = (
   userAddress,
   nftContract,
-  marketContract
+  marketContract,
+  networkName
 ) =>
   useQuery({
     queryKey: [
@@ -80,9 +83,10 @@ export const useFetchUserNFTQuery = (
         userAddress,
         nftContract: nftContract?.address,
         marketContract: marketContract?.address,
+        networkName
       },
     ],
-    queryFn: () => getUserNFTs(userAddress, nftContract, marketContract),
+    queryFn: () => getUserNFTs(userAddress, nftContract, marketContract, networkName),
     ...{
       refetchOnWindowFocus: false,
     },

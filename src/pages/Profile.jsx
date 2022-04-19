@@ -302,7 +302,7 @@ const UserBids = ({ bidCount, bids }) => {
   } else {
     const formattedBids = bids.map((bid) => {
       const saleToken = bid.bidListing.saleToken
-      let currency = getTokenSymbol(saleToken)
+      let currency = getTokenSymbol(saleToken, network)
 
       return {
         auctionEnd:
@@ -353,7 +353,7 @@ const UserListings = ({ listingCount, listings }) => {
 
   const formattedListings = listings.map((listing) => {
     const saleToken = listing.saleToken
-    let currency = getTokenSymbol(saleToken)
+    let currency = getTokenSymbol(saleToken, network)
 
     return {
       auctionEnd: listing.auctionEnd > 0 ? moment.unix(listing.auctionEnd) : 0,
