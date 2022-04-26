@@ -10,16 +10,11 @@ import { Button, CircularProgress, Modal, styled, Grid } from '@mui/material'
 import {
   cardImageBaseURL,
   QUERY_KEYS,
-  wmovrContractAddress,
-  usdtContractAddress,
-  daiContractAddress,
-  zoomContractAddress,
-  marketContractAddress,
-  zoombiesContractAddress,
+  NETWORKS,
 } from '../constants'
 import { useTheme } from 'styled-components'
 import moment from 'moment'
-import { useHistory } from 'react-router-dom'
+import { useHistory, useParams } from 'react-router-dom'
 import { store } from '../store/store'
 import { ethers } from 'ethers'
 import OfferDialog from './OfferDialog'
@@ -345,16 +340,21 @@ const AuctionItem = ({ content, archived }) => {
   const auctionItem = content
   const { itemNumber } = auctionItem
 
-  const coinType = getTokenSymbol(auctionItem.saleToken)
+  const { network } = useParams()
+  const marketAddress = NETWORKS[network].marketContractAddress
+  const chainId = NETWORKS[network].chainId
+
+
+  const coinType = getTokenSymbol(auctionItem.saleToken, network)
 
   const getTokenMinIncrement = (saleToken) => {
-    if (saleToken === zoomContractAddress) {
+    if (saleToken === NETWORKS[network].zoomContractAddress) {
       return zoomIncrement
-    } else if (saleToken === wmovrContractAddress) {
+    } else if (saleToken === NETWORKS[network].wmovrContractAddress) {
       return wmovrIncrement
-    } else if (saleToken === usdtContractAddress) {
+    } else if (saleToken === NETWORKS[network].usdtContractAddress) {
       return usdtIncrement
-    } else if (saleToken === daiContractAddress) {
+    } else if (saleToken === NETWORKS[network].daiContractAddress) {
       return daiIncrement
     } else {
       return 0
@@ -363,7 +363,7 @@ const AuctionItem = ({ content, archived }) => {
 
   const minIncrement = getTokenMinIncrement(auctionItem.saleToken)
 
-  const { data } = useFetchBids(itemNumber, wallet.chainId)
+  const { data } = useFetchBids(itemNumber, chainId)
   const minOfferAmount = ethers.utils
     .parseEther(auctionItem?.highestBid.toString())
     .add(minIncrement)
@@ -386,7 +386,7 @@ const AuctionItem = ({ content, archived }) => {
       let { currency } = auctionItem
 
       if (currency === undefined) {
-        currency = getTokenSymbol(auctionItem.saleToken)
+        currency = getTokenSymbol(auctionItem.saleToken, network)
       }
 
       if (ethers.utils.parseEther(amount.toString()).lt(minOfferAmount)) {
@@ -397,25 +397,26 @@ const AuctionItem = ({ content, archived }) => {
 
       if (currency !== 'ZOOM' && currency !== 'MOVR') {
         let tokenContract
-        if (auctionItem.saleToken === daiContractAddress) {
+        if (auctionItem.saleToken === NETWORKS[network].daiContractAddress) {
           tokenContract = contracts.DAIContract
-        } else if (auctionItem.saleToken === usdtContractAddress) {
+        } else if (auctionItem.saleToken === NETWORKS[network].usdtContractAddress) {
           tokenContract = contracts.USDTContract
         }
         const allowance = await getUserTokenAllowance(
           tokenContract,
-          wallet.address
+          wallet.address,
+          network
         )
         if (allowance.lt(weiAmount)) {
-          if (auctionItem.saleToken === daiContractAddress) {
+          if (auctionItem.saleToken === NETWORKS[network].daiContractAddress) {
             const approveTx = await contracts.DAIContract.approve(
-              marketContractAddress,
+              marketAddress,
               weiAmount
             )
             await waitForTransaction(approveTx)
-          } else if (auctionItem.saleToken === usdtContractAddress) {
+          } else if (auctionItem.saleToken === NETWORKS[network].usdtContractAddress) {
             const approveTx = await contracts.USDTContract.approve(
-              marketContractAddress,
+              marketAddress,
               weiAmount
             )
             await waitForTransaction(approveTx)
@@ -437,7 +438,7 @@ const AuctionItem = ({ content, archived }) => {
   }
 
   const gotoAuction = () => {
-    history.push(`/listing/${auctionItem.itemNumber}`)
+    history.push(`/${network}/listing/${auctionItem.itemNumber}`)
   }
 
   const { data: zoomAllowance } = useGetZoomAllowanceQuery(
@@ -519,25 +520,10 @@ const AuctionItem = ({ content, archived }) => {
             <div className={'meta-header-title'} onClick={gotoAuction}>
               Auction #{itemNumber}
             </div>
-            {/*{favorite ? (*/}
-            {/*  <FontAwesomeIcon*/}
-            {/*    icon={faHeartSolid}*/}
-            {/*    color={'rgba(255, 0, 0, 0.87)'}*/}
-            {/*    size="lg"*/}
-            {/*    onClick={toggleFavorite}*/}
-            {/*  />*/}
-            {/*) : (*/}
-            {/*  <FontAwesomeIcon*/}
-            {/*    icon={faHeart}*/}
-            {/*    color={'rgba(0, 0, 0, 0.87)'}*/}
-            {/*    size="lg"*/}
-            {/*    onClick={toggleFavorite}*/}
-            {/*  />*/}
-            {/*)}*/}
           </div>
           <div className={'meta-header-right'}>
             <div className={'meta-header-cards-tip'}>
-              {auctionItem.saleToken !== zoombiesContractAddress ? (
+              {auctionItem.saleToken !== NETWORKS[network].wmovrContractAddress ? (
                 ''
               ) : (
                 <>

@@ -1,8 +1,9 @@
 import PubSub from 'pubsub-js'
 import { ethers } from 'ethers'
 import moment from 'moment'
-import { marketContractJSON, EVENT_TYPES } from '../constants'
+import { EVENT_TYPES } from '../constants'
 import { getCardData } from './cardsUtil'
+import marketContractJSON from '../contracts/ZoombiesMarketPlace.json'
 
 const marketInterface = new ethers.utils.Interface(marketContractJSON.abi)
 
@@ -43,20 +44,21 @@ const eventsToScrape = [
   },
 ]
 
-async function bidEventCallback(eventLogs, collectionName) {
+async function bidEventCallback(eventLogs, collectionName, networkName) {
   const { args } = marketInterface.parseLog(eventLogs)
   const bidEvent = {
     itemNumber: args[0].toNumber(),
     bidAmount: Number(ethers.utils.formatEther(args[1].toString())),
     bidder: args[2],
     timestamp: moment().unix(),
+    networkName
   }
 
   console.log('bid-scraper-event')
   PubSub.publish(EVENT_TYPES.Bid, bidEvent)
 }
 
-async function itemListedCallback(eventLogs, collectionName, nftContracts) {
+async function itemListedCallback(eventLogs, collectionName, nftContracts, networkName) {
   const { args } = marketInterface.parseLog(eventLogs)
   const itemNumber = args.itemNumber.toNumber()
   const tokenIds = args.tokenIds.map((tokenId) => {
@@ -69,7 +71,7 @@ async function itemListedCallback(eventLogs, collectionName, nftContracts) {
 
   const minPrice = Number(ethers.utils.formatEther(args.minPrice))
   const cards = await Promise.all(
-    tokenIds.map((tokenId) => getCardData(tokenId, readOnlyContract))
+    tokenIds.map((tokenId) => getCardData(tokenId, readOnlyContract, networkName))
   )
 
   const itemListedEvent = {
@@ -85,13 +87,14 @@ async function itemListedCallback(eventLogs, collectionName, nftContracts) {
     highestBidder: null,
     cards,
     zoomBurned: args.zoomBurned,
+    networkName
   }
 
   console.log('item-listed-scraper-event')
   PubSub.publish(EVENT_TYPES.ItemListed, itemListedEvent)
 }
 
-async function settledCallback(eventLogs, collectionName, nftContract) {
+async function settledCallback(eventLogs, collectionName, nftContract, networkName) {
   const { args } = marketInterface.parseLog(eventLogs)
   const itemNumber = args.itemNumber.toNumber()
 
@@ -112,6 +115,7 @@ async function settledCallback(eventLogs, collectionName, nftContract) {
     saleToken: args.saleToken,
     nftToken: args.nftToken,
     royaltyReceiver: args.royaltyReceiver,
+    networkName
   }
 
   console.log('settled-event-scraper-event')
@@ -121,12 +125,13 @@ async function settledCallback(eventLogs, collectionName, nftContract) {
 async function watchMarketEvents(
   provider,
   marketContractAddress,
-  nftContracts
+  nftContracts,
+  networkName = 'moonbase-alpha'
 ) {
   for (const event of eventsToScrape) {
     console.log(`Start watching ${event.filterString}`)
     watchEvents(marketContractAddress, provider, event.filterString, (log) => {
-      event.callbackFunc(log, event.uniqueIdentifiers, nftContracts)
+      event.callbackFunc(log, event.uniqueIdentifiers, nftContracts, networkName)
     })
   }
 }

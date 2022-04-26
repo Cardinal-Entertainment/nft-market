@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useQuery } from 'react-query'
 import axios from 'axios'
-import { apiEndpoint, QUERY_KEYS } from '../constants'
+import { apiEndpoint, CHAIN_ID_TO_NETWORK, QUERY_KEYS } from '../constants'
 import { getTokenSymbol, isItemSettled } from '../utils/auction'
 
 export const LISTING_PARAMS = {
@@ -9,7 +9,9 @@ export const LISTING_PARAMS = {
   },
 }
 
-const getAuctionListings = async (filters, nextOffset) => {
+const getAuctionListings = async (filters, nextOffset, chainId) => {
+  if (!chainId) return null
+
   const params = new URLSearchParams({
     cardOrigin: filters.cardType || '',
     saleToken: filters.token || '',
@@ -19,26 +21,28 @@ const getAuctionListings = async (filters, nextOffset) => {
     limit: '5',
     offset: nextOffset,
     status: filters.status || '',
-    chainId: '1287',
+    chainId: chainId,
   })
 
   const listings = await axios.get(
     `${apiEndpoint}/listings?${params.toString()}`
   )
 
+  const networkName = CHAIN_ID_TO_NETWORK[chainId]
+
   const ar2 = listings.data.listings
   return {
     data: ar2.map((listing) => ({
       ...listing,
       id: listing._id,
-      currency: getTokenSymbol(listing.saleToken),
+      currency: getTokenSymbol(listing.saleToken, networkName),
     })),
     totalCount: parseInt(listings.data.count),
     nextOffset: parseInt(listings.data.nextOffset),
   }
 }
 
-const getSingleAuction = async (itemNumber, marketContract, chainId = 1287) => {
+const getSingleAuction = async (itemNumber, marketContract, chainId) => {
   if (!marketContract) {
     return null
   }
@@ -51,7 +55,8 @@ const getSingleAuction = async (itemNumber, marketContract, chainId = 1287) => {
   if (listingResponse.status === 200 && bidsResponse.status === 200) {
     const { saleToken, lister } = listingResponse.data
 
-    const currency = getTokenSymbol(saleToken)
+    const networkName = CHAIN_ID_TO_NETWORK[chainId]
+    const currency = getTokenSymbol(saleToken, networkName)
 
     return {
       id: itemNumber,
@@ -66,10 +71,10 @@ const getSingleAuction = async (itemNumber, marketContract, chainId = 1287) => {
   throw new Error(`Failed to get auction: ${itemNumber}`)
 }
 
-export const useFetchListingQuery = (filters) => {
+export const useFetchListingQuery = (filters, chainId) => {
   return useInfiniteQuery(
-    [QUERY_KEYS.listings, { filters }],
-    ({ pageParam }) => getAuctionListings(filters, pageParam),
+    [QUERY_KEYS.listings, { filters, chainId }],
+    ({ pageParam }) => getAuctionListings(filters, pageParam, chainId),
     {
       getNextPageParam: (lastPage) => {
         if (lastPage.nextOffset > 0) return lastPage.nextOffset
@@ -80,11 +85,15 @@ export const useFetchListingQuery = (filters) => {
   )
 }
 
-export const useFetchSingleListingQuery = (itemNumber, marketContract, chainId) => {
+export const useFetchSingleListingQuery = (
+  itemNumber,
+  marketContract,
+  chainId
+) => {
   return useQuery(
     [
       QUERY_KEYS.listing,
-      { itemNumber, marketContractAddress: marketContract?.address },
+      { itemNumber, marketContractAddress: marketContract?.address, chainId },
     ],
     () => getSingleAuction(itemNumber, marketContract, chainId),
     {
