@@ -14,15 +14,11 @@ import OfferDialog from 'components/OfferDialog'
 import {
   EVENT_TYPES,
   QUERY_KEYS,
-  wmovrContractAddress,
-  usdtContractAddress,
-  daiContractAddress,
   ZoombiesStableEndpoint,
   ZoombiesTestingEndpoint,
-  zoomContractAddress,
-  marketContractAddress,
   cardImageBaseURL,
-  gNFTAddresses,
+  NETWORKS,
+  NFT_CONTRACTS,
 } from '../constants'
 import { ethers } from 'ethers'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -303,10 +299,10 @@ const ItemHistoryWrapper = styled('div')(({ theme }) => ({
   },
 }))
 
-const handleSettle = async (history, marketContract, auctionId) => {
+const handleSettle = async (history, marketContract, auctionId, network) => {
   const tx = await marketContract.settle(parseInt(auctionId))
   await waitForTransaction(tx)
-  history.push('/')
+  history.push(`/${network}`)
 }
 
 const ListingNFTs = ({ cards }) => {
@@ -371,6 +367,7 @@ const ListingMetadata = ({
   isAuctionOver,
   walletAddress,
   zoomAllowance,
+  networkName,
 }) => {
   const shortWallet = formatAddress(listing.seller)
   const dateListed = moment(listing.auctionStart * 1000).format(
@@ -381,8 +378,6 @@ const ListingMetadata = ({
   const auctionEndTime = localAuctionEnd.format('h:mm:ss A')
   const timezone = momentTimezone.tz(momentTimezone.tz.guess()).zoneAbbr()
   const highestBid = toBigNumber(listing.highestBid)
-
-  console.log('highestBid', listing)
 
   const auctionEndText =
     listing.auctionEnd === 0 //instantBid
@@ -397,6 +392,13 @@ const ListingMetadata = ({
 
   const { state } = useContext(store)
   const { contracts } = state
+
+  const {
+    zoomContractAddress,
+    wmovrContractAddress,
+    usdtContractAddress,
+    daiContractAddress
+  } = NETWORKS[networkName]
 
   useEffect(() => {
     const getTokenName = async (saleToken) => {
@@ -420,6 +422,10 @@ const ListingMetadata = ({
     contracts.USDTContract,
     contracts.DAIContract,
     listing.saleToken,
+    zoomContractAddress,
+    wmovrContractAddress,
+    usdtContractAddress,
+    daiContractAddress
   ])
 
   /*
@@ -510,7 +516,7 @@ const ListingMetadata = ({
     offerToolTip = 'You do not have enough DAI.'
   }
 
-  const contract = gNFTAddresses.find((e) => {
+  const contract = NFT_CONTRACTS[networkName].find((e) => {
     return e.address === listing.nftToken
   })
 
@@ -670,7 +676,7 @@ const ItemHistory = ({ bids }) => {
 
 const ViewListing = () => {
   const history = useHistory()
-  const { id } = useParams()
+  const { id, network } = useParams()
   const [approvalModalOpen, setApprovalModalOpen] = useState(false)
   const [bidInProgress, setBidInProgress] = useState(false)
 
@@ -695,6 +701,12 @@ const ViewListing = () => {
     daiBalance,
   } = wallet
   const { MarketContract, ReadOnlyMarketContract } = contracts
+  const {
+    chainId,
+    marketContractAddress: marketAddress,
+    usdtContractAddress,
+    daiContractAddress
+  } = NETWORKS[network]
 
   const queryClient = useQueryClient()
   useEffect(() => {
@@ -754,7 +766,7 @@ const ViewListing = () => {
   }, [queryClient, auctionId, ReadOnlyMarketContract])
 
   const { isLoading: isFetchingListing, data: auctionItem } =
-    useFetchSingleListingQuery(auctionId, ReadOnlyMarketContract, wallet.chainId)
+    useFetchSingleListingQuery(auctionId, ReadOnlyMarketContract, chainId)
 
   const { data: currentZoomAllowance } = useGetZoomAllowanceQuery(
     wallet.address,
@@ -776,7 +788,7 @@ const ViewListing = () => {
     const canSettle =
       isOver && (isWinner || isOwner) && !auctionItem.isItemSettled
     const sellerURL =
-      wallet.chainId === 1287
+      chainId === 1287
         ? `${ZoombiesTestingEndpoint}/my-zoombies-nfts/${auctionItem?.seller}`
         : `${ZoombiesStableEndpoint}/my-zoombies-nfts/${auctionItem?.seller}`
 
@@ -822,18 +834,19 @@ const ViewListing = () => {
           }
           const allowance = await getUserTokenAllowance(
             tokenContract,
-            wallet.address
+            wallet.address,
+            network
           )
           if (allowance.lt(toBigNumber(amount))) {
             if (auctionItem.saleToken === daiContractAddress) {
               const approveTx = await contracts.DAIContract.approve(
-                marketContractAddress,
+                marketAddress,
                 toBigNumber(amount)
               )
               await waitForTransaction(approveTx)
             } else if (auctionItem.saleToken === usdtContractAddress) {
               const approveTx = await contracts.USDTContract.approve(
-                marketContractAddress,
+                marketAddress,
                 toBigNumber(amount)
               )
               await waitForTransaction(approveTx)
@@ -894,6 +907,7 @@ const ViewListing = () => {
               isAuctionOver={isOver}
               walletAddress={wallet.address}
               zoomAllowance={currentZoomAllowance}
+              networkName={network}
             />
           </div>
 

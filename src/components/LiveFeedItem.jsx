@@ -1,24 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { forwardRef } from 'react';
-import { styled } from '@mui/material';
+import React, { useEffect, useState } from 'react'
+import { forwardRef } from 'react'
+import { styled } from '@mui/material'
 
-import iconNew from '../assets/new.png';
-import iconMyNew from '../assets/mynew.png';
-import iconBid from '../assets/bid.png';
-import iconMyBid from '../assets/mybid.png';
-import iconMyBidOn from '../assets/mybidon.png';
-import iconMyOutBid from '../assets/myoutbid.png';
-import iconSettle from '../assets/settle.png';
-import iconWin from '../assets/win.png';
-import iconSold from '../assets/sold.png';
-import wmovrCoin from '../assets/movr_logo.png';
-import usdtCoin from '../assets/usdt.svg';
-import daiCoin from '../assets/dai.png';
-import zoomCoin from '../assets/zoombies_coin.svg';
+import iconNew from '../assets/new.png'
+import iconMyNew from '../assets/mynew.png'
+import iconBid from '../assets/bid.png'
+import iconMyBid from '../assets/mybid.png'
+import iconMyBidOn from '../assets/mybidon.png'
+import iconMyOutBid from '../assets/myoutbid.png'
+import iconSettle from '../assets/settle.png'
+import iconWin from '../assets/win.png'
+import iconSold from '../assets/sold.png'
+import wmovrCoin from '../assets/movr_logo.png'
+import usdtCoin from '../assets/usdt.svg'
+import daiCoin from '../assets/dai.png'
+import zoomCoin from '../assets/zoombies_coin.svg'
 
-import moment from 'moment';
-import { useHistory } from 'react-router-dom';
-import { formatAddress } from '../utils/wallet';
+import moment from 'moment'
+import { useHistory, useParams } from 'react-router-dom'
+import { formatAddress } from '../utils/wallet'
 
 const StyledDiv = styled('div')({
   // '& .container-highlight': {
@@ -26,7 +26,7 @@ const StyledDiv = styled('div')({
   // }
 
   animation: 'mymove 5s infinite',
-});
+})
 
 const Container = styled('div')(({ type, highlight }) => ({
   display: 'flex',
@@ -54,22 +54,22 @@ const Container = styled('div')(({ type, highlight }) => ({
       : type !== 'myalert' && highlight === 'true'
       ? '#000033'
       : type === 'myalert' && highlight !== 'true'
-        ? '#000033'
-        : 'white',
-}));
+      ? '#000033'
+      : 'white',
+}))
 
 const ImgEvent = styled('div')({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   marginRight: '12px',
-});
+})
 
 const Content = styled('div')({
   display: 'flex',
   flexDirection: 'column',
   flex: 'auto',
-});
+})
 
 const Header = styled('div')({
   display: 'flex',
@@ -88,7 +88,7 @@ const Header = styled('div')({
   '& .link-to-auction:hover': {
     cursor: 'pointer',
   },
-});
+})
 
 const ContentBody = styled('div')({
   display: 'flex',
@@ -122,10 +122,10 @@ const ContentBody = styled('div')({
     fontWeight: 'bold',
     padding: '0 4px',
   },
-});
+})
 
 const LiveFeedItem = (props, ref) => {
-  const { type, content, timestamp, highlight } = props;
+  const { type, content, timestamp, highlight } = props
   const {
     itemNumber,
     lister,
@@ -135,30 +135,29 @@ const LiveFeedItem = (props, ref) => {
     bidAmount,
     auctionEnd,
     currency,
-  } = content;
+  } = content
 
-  const listerAddress = formatAddress(lister);
-  const bidderAddress = formatAddress(bidder);
-  const winnerAddress = formatAddress(winner);
+  const listerAddress = formatAddress(lister)
+  const bidderAddress = formatAddress(bidder)
+  const winnerAddress = formatAddress(winner)
 
   const [elapsedTime, setElapsedTime] = useState(
     moment.unix(timestamp).fromNow()
-  );
-  const history = useHistory();
+  )
+  const history = useHistory()
+  const { network } = useParams()
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setElapsedTime(moment.unix(timestamp).fromNow());
-    }, 60000); //update every minute
+      setElapsedTime(moment.unix(timestamp).fromNow())
+    }, 60000) //update every minute
 
-    return () => clearInterval(interval);
-  }, [timestamp]);
-
-
+    return () => clearInterval(interval)
+  }, [timestamp])
 
   const gotoAuction = () => {
-    history.push(`/listing/${itemNumber}`);
-  };
+    history.push(`/${network}/listing/${itemNumber}`)
+  }
 
   return (
     <StyledDiv>
@@ -276,7 +275,15 @@ const LiveFeedItem = (props, ref) => {
                   Min Price:{' '}
                   <img
                     className="content-coin"
-                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : (currency === 'DAI' ? daiCoin : wmovrCoin))}
+                    src={
+                      currency === 'ZOOM'
+                        ? zoomCoin
+                        : currency === 'USDT'
+                        ? usdtCoin
+                        : currency === 'DAI'
+                        ? daiCoin
+                        : wmovrCoin
+                    }
                     alt={currency}
                   />
                   <span className={'span-amount'}>{minPrice}</span> {currency}
@@ -297,7 +304,15 @@ const LiveFeedItem = (props, ref) => {
                   Min Price:{' '}
                   <img
                     className="content-coin"
-                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : (currency === 'DAI' ? daiCoin : wmovrCoin))}
+                    src={
+                      currency === 'ZOOM'
+                        ? zoomCoin
+                        : currency === 'USDT'
+                        ? usdtCoin
+                        : currency === 'DAI'
+                        ? daiCoin
+                        : wmovrCoin
+                    }
                     alt={currency}
                   />
                   <span className={'span-amount'}>{minPrice}</span> {currency}
@@ -318,7 +333,15 @@ const LiveFeedItem = (props, ref) => {
                   Bid Amount:{' '}
                   <img
                     className="content-coin"
-                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : (currency === 'DAI' ? daiCoin : wmovrCoin))}
+                    src={
+                      currency === 'ZOOM'
+                        ? zoomCoin
+                        : currency === 'USDT'
+                        ? usdtCoin
+                        : currency === 'DAI'
+                        ? daiCoin
+                        : wmovrCoin
+                    }
                     alt={currency}
                   />
                   <span className={'span-amount'}>{bidAmount}</span> {currency}
@@ -333,7 +356,15 @@ const LiveFeedItem = (props, ref) => {
                   Bid Amount:{' '}
                   <img
                     className="content-coin"
-                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : (currency === 'DAI' ? daiCoin : wmovrCoin))}
+                    src={
+                      currency === 'ZOOM'
+                        ? zoomCoin
+                        : currency === 'USDT'
+                        ? usdtCoin
+                        : currency === 'DAI'
+                        ? daiCoin
+                        : wmovrCoin
+                    }
                     alt={currency}
                   />
                   <span className={'span-amount'}>{bidAmount}</span> {currency}
@@ -348,7 +379,15 @@ const LiveFeedItem = (props, ref) => {
                   Bid Amount:{' '}
                   <img
                     className="content-coin"
-                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : (currency === 'DAI' ? daiCoin : wmovrCoin))}
+                    src={
+                      currency === 'ZOOM'
+                        ? zoomCoin
+                        : currency === 'USDT'
+                        ? usdtCoin
+                        : currency === 'DAI'
+                        ? daiCoin
+                        : wmovrCoin
+                    }
                     alt={currency}
                   />
                   <span className={'span-amount'}>{bidAmount}</span> {currency}
@@ -364,7 +403,15 @@ const LiveFeedItem = (props, ref) => {
                   Amount:{' '}
                   <img
                     className="content-coin"
-                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : (currency === 'DAI' ? daiCoin : wmovrCoin))}
+                    src={
+                      currency === 'ZOOM'
+                        ? zoomCoin
+                        : currency === 'USDT'
+                        ? usdtCoin
+                        : currency === 'DAI'
+                        ? daiCoin
+                        : wmovrCoin
+                    }
                     alt={currency}
                   />
                   <span className={'span-amount'}>{bidAmount}</span> {currency}
@@ -380,7 +427,15 @@ const LiveFeedItem = (props, ref) => {
                   Amount:{' '}
                   <img
                     className="content-coin"
-                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : (currency === 'DAI' ? daiCoin : wmovrCoin))}
+                    src={
+                      currency === 'ZOOM'
+                        ? zoomCoin
+                        : currency === 'USDT'
+                        ? usdtCoin
+                        : currency === 'DAI'
+                        ? daiCoin
+                        : wmovrCoin
+                    }
                     alt={currency}
                   />
                   <span className={'span-amount'}>{bidAmount}</span> {currency}
@@ -396,7 +451,15 @@ const LiveFeedItem = (props, ref) => {
                   Amount:{' '}
                   <img
                     className="content-coin"
-                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : (currency === 'DAI' ? daiCoin : wmovrCoin))}
+                    src={
+                      currency === 'ZOOM'
+                        ? zoomCoin
+                        : currency === 'USDT'
+                        ? usdtCoin
+                        : currency === 'DAI'
+                        ? daiCoin
+                        : wmovrCoin
+                    }
                     alt={currency}
                   />
                   <span className={'span-amount'}>{bidAmount}</span> {currency}
@@ -414,7 +477,15 @@ const LiveFeedItem = (props, ref) => {
                   Amount:{' '}
                   <img
                     className="content-coin"
-                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : (currency === 'DAI' ? daiCoin : wmovrCoin))}
+                    src={
+                      currency === 'ZOOM'
+                        ? zoomCoin
+                        : currency === 'USDT'
+                        ? usdtCoin
+                        : currency === 'DAI'
+                        ? daiCoin
+                        : wmovrCoin
+                    }
                     alt={currency}
                   />
                   <span className={'span-amount'}>{bidAmount}</span> {currency}
@@ -429,7 +500,15 @@ const LiveFeedItem = (props, ref) => {
                   Amount:{' '}
                   <img
                     className="content-coin"
-                    src={currency === 'ZOOM' ? zoomCoin : (currency === 'USDT' ? usdtCoin : (currency === 'DAI' ? daiCoin : wmovrCoin))}
+                    src={
+                      currency === 'ZOOM'
+                        ? zoomCoin
+                        : currency === 'USDT'
+                        ? usdtCoin
+                        : currency === 'DAI'
+                        ? daiCoin
+                        : wmovrCoin
+                    }
                     alt={currency}
                   />
                   <span className={'span-amount'}>{bidAmount}</span> {currency}
@@ -442,7 +521,7 @@ const LiveFeedItem = (props, ref) => {
         </Content>
       </Container>
     </StyledDiv>
-  );
-};
+  )
+}
 
-export default forwardRef(LiveFeedItem);
+export default forwardRef(LiveFeedItem)

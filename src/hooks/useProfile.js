@@ -1,18 +1,23 @@
 import { useQuery } from 'react-query'
 import axios from 'axios'
 import { ethers } from 'ethers'
-import { apiEndpoint, marketContractAddress, QUERY_KEYS } from '../constants'
+import { apiEndpoint, NETWORKS, QUERY_KEYS } from '../constants'
 import { getCardData } from 'utils/cardsUtil'
 import { isItemSettled } from 'utils/auction'
 import { toBigNumber } from '../utils/BigNumbers'
 
-const getUserProfiles = async (userAddress, chainId = 1287) => {
+const getUserProfiles = async (userAddress, chainId) => {
   if (!ethers.utils.isAddress(userAddress)) {
-    //console.error('Address is invalid.');
     return null
   }
 
-  const response = await axios.get(`${apiEndpoint}/profile/${userAddress}?chainId=${chainId}`)
+  if (!chainId) {
+    return null
+  }
+
+  const response = await axios.get(
+    `${apiEndpoint}/profile/${userAddress}?chainId=${chainId}`
+  )
 
   if (response.status !== 200) {
     console.error(response.statusText)
@@ -24,14 +29,14 @@ const getUserProfiles = async (userAddress, chainId = 1287) => {
 
 export const useFetchProfileQuery = (userAddress, chainId) =>
   useQuery({
-    queryKey: [QUERY_KEYS.profile, { userAddress }],
+    queryKey: [QUERY_KEYS.profile, { userAddress, chainId }],
     queryFn: () => getUserProfiles(userAddress, chainId),
     ...{
       refetchOnWindowFocus: false,
     },
   })
 
-const getUserNFTs = async (userAddress, nftContract, marketContract) => {
+const getUserNFTs = async (userAddress, nftContract, marketContract, networkName) => {
   try {
     if (!nftContract || !userAddress || !marketContract) {
       return null
@@ -46,16 +51,15 @@ const getUserNFTs = async (userAddress, nftContract, marketContract) => {
       tokensOfOwner.push(nftTokenId)
     }
 
-    // console.log("nftsCount", nftsCount)
-    // console.log("tokensOfOwner", tokensOfOwner)
-
     const cards = await Promise.all(
-      tokensOfOwner.map((token) => {
-        return getCardData(parseInt(token), nftContract)
+      tokensOfOwner.slice(0, 30).map((token) => {
+        return getCardData(parseInt(token), nftContract, networkName)
       })
     )
 
     const zoomBurnFee = await marketContract.zoomBurnFee()
+
+
 
     return {
       userNFTs: cards,
@@ -69,7 +73,8 @@ const getUserNFTs = async (userAddress, nftContract, marketContract) => {
 export const useFetchUserNFTQuery = (
   userAddress,
   nftContract,
-  marketContract
+  marketContract,
+  networkName
 ) =>
   useQuery({
     queryKey: [
@@ -78,17 +83,23 @@ export const useFetchUserNFTQuery = (
         userAddress,
         nftContract: nftContract?.address,
         marketContract: marketContract?.address,
+        networkName
       },
     ],
-    queryFn: () => getUserNFTs(userAddress, nftContract, marketContract),
+    queryFn: () => getUserNFTs(userAddress, nftContract, marketContract, networkName),
     ...{
       refetchOnWindowFocus: false,
     },
   })
 
-export const getUserTokenAllowance = async (tokenContract, ownerAddress) => {
+export const getUserTokenAllowance = async (
+  tokenContract,
+  ownerAddress,
+  chainName = 'moonbase-alpha'
+) => {
+  const marketAddress = NETWORKS[chainName].marketContractAddress
   if (tokenContract) {
-    return await tokenContract.allowance(ownerAddress, marketContractAddress)
+    return await tokenContract.allowance(ownerAddress, marketAddress)
   } else {
     return toBigNumber(0)
   }

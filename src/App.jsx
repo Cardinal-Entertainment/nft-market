@@ -2,7 +2,12 @@ import zoomTokenLogo from './assets/zoombies_coin.svg'
 import liveFeedIcon from './assets/live-feed.png'
 import React, { useContext, useEffect, useState } from 'react'
 import Navbar from 'components/Navbar'
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Redirect,
+} from 'react-router-dom'
 import Home from 'pages/Home'
 import NewListing from 'pages/NewListing'
 import ViewListing from 'pages/ViewListing'
@@ -21,17 +26,16 @@ import { v4 as uuidv4 } from 'uuid'
 import {
   EVENT_TYPES,
   QUERY_KEYS,
-  wmovrContractAddress,
-  usdtContractAddress,
-  daiContractAddress,
-  zoomContractAddress,
   ZoombiesTestingEndpoint,
   ZoombiesStableEndpoint,
+  NETWORK_NAMES,
+  NETWORKS,
 } from './constants'
 import { useFetchProfileQuery } from './hooks/useProfile'
 import { store } from 'store/store'
 import NotificationAddon from './components/NotificationAddon'
 import { setupEthers, setupEthListeners } from 'hooks/useBlockchain'
+import { getNetworkNameFromURL } from 'utils/networkUtil'
 
 const Container = styled('div')({
   height: '100vh',
@@ -142,19 +146,26 @@ const App = () => {
 
   const { state } = useContext(store)
   const {
-    wallet: { address, chainId },
+    wallet: { address },
     contracts: { ReadOnlyMarketContract },
   } = state
+
+  const networkName = getNetworkNameFromURL()
+  const chainId =
+    networkName && networkName in NETWORKS
+      ? NETWORKS[networkName].chainId
+      : null
 
   const { data: myAuctions } = useFetchProfileQuery(address, chainId)
 
   useEffect(() => {
-    const addLiveFeedItem = (liveFeedItem, filterKey) => {
+    const addLiveFeedItem = (liveFeedItem, filterKey, networkName) => {
       const liveFeeds = queryClient.getQueryData([
         QUERY_KEYS.liveFeeds,
         { filterKey },
       ])
       const uuid = uuidv4()
+      const network = NETWORKS[networkName]
 
       const newItem = {
         _id: uuid,
@@ -163,13 +174,13 @@ const App = () => {
         content: {
           blockNumber: uuid, //should be removed when settle eventscraper is completed
           currency:
-            liveFeedItem.saleToken === zoomContractAddress
+            liveFeedItem.saleToken === network.zoomContractAddress
               ? 'ZOOM'
-              : liveFeedItem.saleToken === wmovrContractAddress
+              : liveFeedItem.saleToken === network.wmovrContractAddress
               ? 'MOVR'
-              : liveFeedItem.saleToken === usdtContractAddress
+              : liveFeedItem.saleToken === network.usdtContractAddress
               ? 'USDT'
-              : liveFeedItem.saleToken === daiContractAddress
+              : liveFeedItem.saleToken === network.daiContractAddress
               ? 'DAI'
               : '',
           ...liveFeedItem,
@@ -250,18 +261,7 @@ const App = () => {
           newAuction['type'] = 'new'
         }
 
-        // const currentProfileData = queryClient.getQueryData([
-        //   QUERY_KEYS.profile,
-        //   { userAddress: address },
-        // ]);
-        // if (newAuction.lister === address && currentProfileData) {
-        //   currentProfileData.listings = [data, ...currentProfileData.listings]
-        //   queryClient.setQueryData(
-        //     [QUERY_KEYS.profile, { address }],
-        //     [currentProfileData]
-        //   );
-        // }
-        addLiveFeedItem(newAuction, filterKey)
+        addLiveFeedItem(newAuction, filterKey, newAuction.networkName)
       }
     )
 
@@ -285,7 +285,7 @@ const App = () => {
       } else {
         filterKey = 'MyAlerts'
       }
-      addLiveFeedItem(bid, filterKey)
+      addLiveFeedItem(bid, filterKey, bid.networkName)
     })
 
     const tokenSettled = PubSub.subscribe(
@@ -302,7 +302,7 @@ const App = () => {
         } else {
           filterKey = 'MyAlerts'
         }
-        addLiveFeedItem(settleData, filterKey)
+        addLiveFeedItem(settleData, filterKey, settleData.networkName)
       }
     )
 
@@ -354,6 +354,10 @@ const App = () => {
     )
   }
 
+  const supportedNetworkRegex = Object.keys(NETWORK_NAMES)
+    .map((network) => NETWORK_NAMES[network])
+    .join('|')
+
   return (
     <Container>
       <Router>
@@ -396,12 +400,43 @@ const App = () => {
           </Drawer>
           <Content>
             <Switch>
-              <Route path="/new" component={NewListing} />
-              <Route path="/listing/:id" component={ViewListing} />
-              <Route path="/help" component={HelpPage} />
-              <Route path="/profile" component={Profile} />
-              <Route path="/archives" component={AuctionArchive} />
-              <Route path="/" component={Home} />
+              <Route
+                path={`/:network(${supportedNetworkRegex})/new`}
+                component={NewListing}
+              />
+              <Route
+                path={`/:network(${supportedNetworkRegex})/listing/:id`}
+                component={ViewListing}
+              />
+              <Route
+                path={`/:network(${supportedNetworkRegex})/help`}
+                component={HelpPage}
+              />
+              <Route
+                path={`/:network(${supportedNetworkRegex})/profile`}
+                component={Profile}
+              />
+              <Route
+                path={`/:network(${supportedNetworkRegex})/archives`}
+                component={AuctionArchive}
+              />
+              <Route
+                path={`/:network(${supportedNetworkRegex})/`}
+                component={Home}
+              />
+              <Route exact path="/">
+                <Redirect to="/moonbase-alpha" />
+              </Route>
+              <Route path="*">
+                <h2
+                  style={{
+                    color: 'white',
+                    marginLeft: '12px',
+                  }}
+                >
+                  Please select a valid network
+                </h2>
+              </Route>
             </Switch>
           </Content>
           {isLiveFeedOpen && (

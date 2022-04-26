@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import PubSub from 'pubsub-js';
-import styled from 'styled-components';
-import Filterbar from '../components/Filterbar';
-import InfiniteScroll from 'react-infinite-scroller';
-import AuctionItem from '../components/AuctionItem';
-import { useFetchListingQuery } from '../hooks/useListing';
-import LoadingModal from 'components/LoadingModal';
-import { EVENT_TYPES, QUERY_KEYS } from '../constants';
-import { useQueryClient } from 'react-query';
+import React, { useEffect, useState } from 'react'
+import PubSub from 'pubsub-js'
+import styled from 'styled-components'
+import Filterbar from '../components/Filterbar'
+import InfiniteScroll from 'react-infinite-scroller'
+import AuctionItem from '../components/AuctionItem'
+import { useFetchListingQuery } from '../hooks/useListing'
+import LoadingModal from 'components/LoadingModal'
+import { EVENT_TYPES, NETWORKS, QUERY_KEYS } from '../constants'
+import { useQueryClient } from 'react-query'
 import { v4 as uuidv4 } from 'uuid'
+import { useParams } from 'react-router-dom'
 
 const Container = styled.div`
   flex: auto;
@@ -36,7 +37,7 @@ const Container = styled.div`
       }
     }
   }
-`;
+`
 
 const Home = () => {
   const [filters, setFilters] = useState({
@@ -45,18 +46,23 @@ const Home = () => {
     token: '', // the token's contract address
     keyword: '', // search keyword,
     sortField: 'auctionEnd', //sort by key
-  });
+  })
 
-  const { data, isLoading, hasNextPage, fetchNextPage } =
-    useFetchListingQuery(filters);
+  const { network } = useParams()
+  const chainId = NETWORKS[network].chainId
+
+  const { data, isLoading, hasNextPage, fetchNextPage } = useFetchListingQuery(
+    filters,
+    chainId
+  )
 
   const handleFilterChanged = async (params) => {
-    setFilters({ ...filters, ...params });
-  };
+    setFilters({ ...filters, ...params })
+  }
 
   const totalCount =
-    data && data.pages.length > 0 ? data.pages[0].totalCount : 0;
-  const queryClient = useQueryClient();
+    data && data.pages.length > 0 ? data.pages[0].totalCount : 0
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     const token = PubSub.subscribe(EVENT_TYPES.ItemListed, (msg, data) => {
@@ -72,7 +78,7 @@ const Home = () => {
       const currentData = queryClient.getQueryData([
         QUERY_KEYS.listings,
         { filters },
-      ]);
+      ])
       if (currentData) {
         queryClient.setQueryData(
           [QUERY_KEYS.listings, { filters }],
@@ -87,44 +93,44 @@ const Home = () => {
                 },
                 ...queryData.pages,
               ],
-            };
+            }
           }
-        );
+        )
       }
-    });
+    })
 
-    return () => PubSub.unsubscribe(token);
-  }, [queryClient, filters]);
+    return () => PubSub.unsubscribe(token)
+  }, [queryClient, filters])
 
   useEffect(() => {
     const token = PubSub.subscribe(EVENT_TYPES.Bid, (msg, data) => {
       const currentData = queryClient.getQueryData([
         QUERY_KEYS.listings,
         { filters },
-      ]);
+      ])
       if (currentData) {
-        const auctionId = data.itemNumber;
+        const auctionId = data.itemNumber
         const currentBidData = queryClient.getQueryData([
           QUERY_KEYS.bids,
           { auctionId },
-        ]);
-        const randomId = uuidv4();
+        ])
+        const randomId = uuidv4()
         const bidWithId = {
           ...data,
           _id: randomId,
-        };
+        }
 
         if (data.itemNumber === auctionId) {
           if (currentBidData) {
             queryClient.setQueryData(
               [QUERY_KEYS.bids, { auctionId }],
               [bidWithId, ...currentBidData]
-            );
+            )
           } else {
             queryClient.setQueryData(
               [QUERY_KEYS.bids, { auctionId }],
               [bidWithId]
-            );
+            )
           }
         }
 
@@ -134,21 +140,21 @@ const Home = () => {
             queryData.pages.map((page) => {
               page.data.map((auction) => {
                 if (auction.itemNumber === data.itemNumber) {
-                  auction.highestBid = data.bidAmount;
+                  auction.highestBid = data.bidAmount
                 }
-                return auction;
-              });
-              return page;
-            });
+                return auction
+              })
+              return page
+            })
 
-            return queryData;
+            return queryData
           }
-        );
+        )
       }
-    });
-    return () => PubSub.unsubscribe(token);
-  }, [queryClient, filters]);
-  
+    })
+    return () => PubSub.unsubscribe(token)
+  }, [queryClient, filters])
+
   return (
     <Container>
       <Filterbar
@@ -182,7 +188,7 @@ const Home = () => {
         )}
       </div>
     </Container>
-  );
-};
+  )
+}
 
-export default Home;
+export default Home

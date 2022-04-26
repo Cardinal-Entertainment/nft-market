@@ -5,7 +5,8 @@ import InputBase from '@mui/material/InputBase';
 import MenuItem from '@mui/material/MenuItem';
 import SearchIcon from '@mui/icons-material/Search';
 import { alpha, Select, Grid } from '@mui/material';
-import { wmovrContractAddress, zoomContractAddress, daiContractAddress } from '../constants';
+import { NETWORKS } from '../constants';
+import { useParams } from 'react-router-dom';
 
 const Container = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -169,6 +170,12 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 const Filterbar = ({ onFilterChanged, filters, totalCount }) => {
   const debouncedFilterChanged = debounce(onFilterChanged, 500);
   const { sortField } = filters;
+  const { network } = useParams()
+  const {
+    zoomContractAddress,
+    wmovrContractAddress,
+    daiContractAddress
+  } = NETWORKS[network]
 
   return (
     <Container>

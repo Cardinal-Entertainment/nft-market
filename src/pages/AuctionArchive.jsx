@@ -1,11 +1,13 @@
-import React from 'react';
-import styled from 'styled-components';
-import flatten from 'lodash/flatten';
+import React from 'react'
+import styled from 'styled-components'
+import flatten from 'lodash/flatten'
 
-import LoadingModal from 'components/LoadingModal';
-import { LISTING_PARAMS, useFetchListingQuery } from 'hooks/useListing';
-import InfiniteScroll from 'react-infinite-scroller';
-import AuctionItem from 'components/AuctionItem';
+import LoadingModal from 'components/LoadingModal'
+import { LISTING_PARAMS, useFetchListingQuery } from 'hooks/useListing'
+import InfiniteScroll from 'react-infinite-scroller'
+import AuctionItem from 'components/AuctionItem'
+import { useParams } from 'react-router-dom'
+import { NETWORKS } from '../constants'
 
 const Container = styled.div`
   display: flex;
@@ -19,18 +21,24 @@ const Container = styled.div`
     margin-bottom: 10px;
     color: white;
   }
-`;
+`
 
 const AuctionArchive = () => {
-  const { data, isLoading, hasNextPage, fetchNextPage } = useFetchListingQuery({
-    status: LISTING_PARAMS.status.ended,
-  });
+  const { network } = useParams()
+  const chainId = NETWORKS[network].chainId
 
-  const totalCount = data?.pages[0]?.totalCount || 0;
+  const { data, isLoading, hasNextPage, fetchNextPage } = useFetchListingQuery(
+    {
+      status: LISTING_PARAMS.status.ended,
+    },
+    chainId
+  )
+
+  const totalCount = data?.pages[0]?.totalCount || 0
 
   const auctionItems = data
     ? flatten(data.pages.map((page) => page.data))
-    : null;
+    : null
 
   return (
     <Container>
@@ -47,12 +55,12 @@ const AuctionArchive = () => {
           useWindow={false}
         >
           {auctionItems.map((auction) => (
-            <AuctionItem content={auction} key={auction._id} archived={true}/>
+            <AuctionItem content={auction} key={auction._id} archived={true} />
           ))}
         </InfiniteScroll>
       )}
     </Container>
-  );
-};
+  )
+}
 
-export default AuctionArchive;
+export default AuctionArchive

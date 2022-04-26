@@ -1,24 +1,18 @@
 import { ethers } from 'ethers'
-
-const devRPC = `wss://moonbeam-alpha.api.onfinality.io/ws?apikey=${process.env['REACT_APP_MOONBEAM_RPC_API_KEY']}`
-const prodRPC = `wss://moonriver.api.onfinality.io/ws?apikey=${process.env['REACT_APP_MOONBEAM_RPC_API_KEY']}`
-
 class WebsocketProvider {
-  constructor(isLocal, reconnectionCallback) {
+  constructor(rpcUrl, reconnectionCallback) {
     this.provider = undefined
 
     this.KEEP_ALIVE_CHECK_INTERVAL = 1000
 
     this.keepAliveInterval = undefined
 
-    this.isLocal = isLocal
+    this.rpcUrl = rpcUrl
     this.reconnectionCallback = reconnectionCallback || undefined
   }
 
   init() {
-    this.provider = new ethers.providers.WebSocketProvider(
-      this.isLocal ? devRPC : prodRPC
-    )
+    this.provider = new ethers.providers.WebSocketProvider(this.rpcUrl)
 
     this.signer = this.provider.getSigner()
 

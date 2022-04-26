@@ -7,16 +7,16 @@ import DateTimePicker from '@mui/lab/DateTimePicker'
 import TextField from '@mui/material/TextField'
 import { store } from 'store/store'
 import { omit } from 'lodash'
-import { useHistory } from 'react-router-dom'
+import { useHistory, useParams } from 'react-router-dom'
 import { ethers } from 'ethers'
 import LazyLoad from 'react-lazyload'
 import { CircularProgress, ListItemIcon, ListItemText } from '@mui/material'
 import {
-  marketContractAddress,
-  gNFTAddresses,
   ZoombiesStableEndpoint,
   ZoombiesTestingEndpoint,
   cardImageBaseURL,
+  NETWORKS,
+  NFT_CONTRACTS,
 } from '../constants'
 import {
   useFetchUserNFTQuery,
@@ -242,6 +242,11 @@ const renderUserNFTs = (
 
 const NewListing = () => {
   const history = useHistory()
+
+  const { network } = useParams()
+  const marketAddress = NETWORKS[network].marketContractAddress
+  const nftContracts = NFT_CONTRACTS[network]
+
   const [isDateError, setIsDateError] = useState(false)
   const [dateTime, setDateTime] = useState(
     new Date(new Date().getTime() + 86400000 * 3)
@@ -250,8 +255,9 @@ const NewListing = () => {
   const [createInProgress, setCreateInProgress] = useState(false)
   const [selectedCurrency, setSelectedCurrency] = useState(CURRENCY_TYPES.MOVR)
   const [selectedNFT, setSelectedNFT] = useState(
-    !gNFTAddresses.isEmpty ? gNFTAddresses[0].address : ''
+    !nftContracts.isEmpty ? nftContracts[0].address : ''
   )
+
   const [selectedCards, setSelectedCards] = useState({})
   const [isApprovedForAll, setIsApprovedForAll] = useState(false)
   const [instantAuction, setInstantAuction] = useState(false)
@@ -271,7 +277,7 @@ const NewListing = () => {
         if (readOnlyContract) {
           const approved = await readOnlyContract.isApprovedForAll(
             wallet.address,
-            marketContractAddress
+            marketAddress
           )
           setIsApprovedForAll(approved)
         }
@@ -279,7 +285,7 @@ const NewListing = () => {
     }
 
     getIsApprovedForAll().then()
-  }, [wallet.address, contracts.nftContracts, selectedNFT])
+  }, [wallet.address, contracts.nftContracts, selectedNFT, marketAddress])
 
   const handleCardClicked = (cardId) => {
     if (selectedCards[cardId]) {
@@ -315,7 +321,7 @@ const NewListing = () => {
         getCurrencyAddress(selectedCurrency, wallet.chainId)
       )
       setCreateInProgress(false)
-      history.push('/')
+      history.push(`/${network}`)
     } catch (err) {
       console.error(err)
     } finally {
@@ -332,12 +338,12 @@ const NewListing = () => {
         if (contract != null) {
           const marketIsApproved = await contract.readOnly.isApprovedForAll(
             wallet.address,
-            marketContractAddress
+            marketAddress
           )
 
           if (!marketIsApproved) {
             setIsApprovedForAll(false)
-            await contract.signed.setApprovalForAll(marketContractAddress, true)
+            await contract.signed.setApprovalForAll(marketAddress, true)
             setIsApprovedForAll(true)
           }
         }
@@ -382,7 +388,8 @@ const NewListing = () => {
   const { isLoading, data } = useFetchUserNFTQuery(
     wallet.address,
     contracts.nftContracts[selectedNFT]?.readOnly,
-    contracts.ReadOnlyMarketContract
+    contracts.ReadOnlyMarketContract,
+    network
   )
 
   const numberOfSelectedCards = Object.keys(selectedCards).length || 0
@@ -563,7 +570,7 @@ const NewListing = () => {
             setSelectedNFT(e.target.value)
           }}
         >
-          {gNFTAddresses.map((contract) => (
+          {nftContracts.map((contract) => (
             <MenuItem value={contract.address} key={contract.address}>
               <ListItemIcon>
                 <SelectItemImg src={contract.icon} />
