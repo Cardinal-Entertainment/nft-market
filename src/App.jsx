@@ -30,6 +30,7 @@ import {
   ZoombiesStableEndpoint,
   NETWORK_NAMES,
   NETWORKS,
+  homePageURL,
 } from './constants'
 import { useFetchProfileQuery } from './hooks/useProfile'
 import { store } from 'store/store'
@@ -365,7 +366,9 @@ const App = () => {
         <Header>
           <img
             alt="MOVR Token"
+            className={'header-logo-zoom'}
             src="https://zoombies.world/images/mr-icon.png"
+            onClick={() => {window.location.href=homePageURL}}
           />
           <h1>Zoom </h1>{' '}
           <img
