@@ -38,6 +38,7 @@ const initialState = {
   wmovrIncrement: toBigNumber(0.02), //this is ether units, convert to BigNumber and use wei
   usdtIncrement: toBigNumber(1), //this is ether units, convert to BigNumber and use wei
   daiIncrement: toBigNumber(1), //this is ether units, convert to BigNumber and use wei
+  xcKSMIncrement: toBigNumber(0.006), //this is ether units, convert to BigNumber and use wei
 }
 
 const store = createContext(initialState)
