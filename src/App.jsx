@@ -174,6 +174,7 @@ const App = () => {
         content: {
           blockNumber: uuid, //should be removed when settle eventscraper is completed
           currency:
+          network ?
             liveFeedItem.saleToken === network.zoomContractAddress
               ? 'ZOOM'
               : liveFeedItem.saleToken === network.wmovrContractAddress
@@ -182,7 +183,7 @@ const App = () => {
               ? 'USDT'
               : liveFeedItem.saleToken === network.daiContractAddress
               ? 'DAI'
-              : '',
+              : '' : '',
           ...liveFeedItem,
         },
       }
