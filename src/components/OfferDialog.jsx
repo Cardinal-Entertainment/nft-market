@@ -105,7 +105,7 @@ const OfferDialog = ({
   if (timestamp === 0) { // Buy now
     buttonText = `Buy now (${ethers.utils.formatEther(minAmount)} ${currency})`;
   } else {
-    buttonText = quickBid ? `Quick bid (${ethers.utils.formatEther(minAmount)} ${currency})` : 'Make Offer';
+    buttonText = quickBid ? `Quick bid (${ethers.utils.formatEther(minAmount)} ${currency})` : 'Buy now';
   }
   return (
     <Container>
@@ -139,7 +139,7 @@ const OfferDialog = ({
         )
       }
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Make Offer</DialogTitle>
+        <DialogTitle>Buy now</DialogTitle>
         <DialogContent>
           <DialogContentText>
             Enter the amount you want to offer
