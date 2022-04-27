@@ -334,20 +334,21 @@ const NewListing = () => {
       contracts.nftContracts &&
       Object.keys(contracts.nftContracts).length > 0
     ) {
-      for (const contract of contracts.nftContracts) {
-        if (contract != null) {
-          const marketIsApproved = await contract.readOnly.isApprovedForAll(
+        const readOnlyContract = contracts.nftContracts[selectedNFT]?.readOnly
+
+        if (readOnlyContract) {
+          const approved = await readOnlyContract.isApprovedForAll(
             wallet.address,
             marketAddress
           )
 
-          if (!marketIsApproved) {
+          if (!approved) {
             setIsApprovedForAll(false)
-            await contract.signed.setApprovalForAll(marketAddress, true)
+            const signedContract = contracts.nftContracts[selectedNFT]?.signed
+            await signedContract.setApprovalForAll(marketAddress, true)
             setIsApprovedForAll(true)
           }
         }
-      }
     }
   }
 
