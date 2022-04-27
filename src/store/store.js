@@ -35,7 +35,7 @@ const initialState = {
   myEvents: [],
   myNewEventsCount: 0,
   zoomIncrement: toBigNumber(25000), //this is ether units, convert to BigNumber and use wei
-  wmovrIncrement: toBigNumber(0.001), //this is ether units, convert to BigNumber and use wei
+  wmovrIncrement: toBigNumber(0.02), //this is ether units, convert to BigNumber and use wei
   usdtIncrement: toBigNumber(1), //this is ether units, convert to BigNumber and use wei
   daiIncrement: toBigNumber(1), //this is ether units, convert to BigNumber and use wei
 }
