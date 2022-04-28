@@ -92,7 +92,7 @@ const OfferDialog = ({
     offerButtonClassName = "button-bid button-mylisting";
   } else if ((quickBid && timestamp !== 0) && !disabled) {
     offerButtonClassName = "button-bid";
-  } else if (timestamp === 0 && !disabled) {
+  } else if (timestamp === 0 && !disabled && quickBid) {
     offerButtonClassName = "button-bid button-buynow";
   } else if (!quickBid && disabled) {
     offerButtonClassName = "button-readonly";
@@ -103,9 +103,9 @@ const OfferDialog = ({
   let buttonText = '';
 
   if (timestamp === 0) { // Buy now
-    buttonText = `Buy now (${ethers.utils.formatEther(minAmount)} ${currency})`;
+    buttonText = quickBid ? `Buy now (${ethers.utils.formatEther(minAmount)} ${currency})` : 'Buy now';
   } else {
-    buttonText = quickBid ? `Quick bid (${ethers.utils.formatEther(minAmount)} ${currency})` : 'Buy now';
+    buttonText = quickBid ? `Quick bid (${ethers.utils.formatEther(minAmount)} ${currency})` : 'Make Offer';
   }
   return (
     <Container>
@@ -139,7 +139,7 @@ const OfferDialog = ({
         )
       }
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Buy now</DialogTitle>
+        <DialogTitle>Make Offer</DialogTitle>
         <DialogContent>
           <DialogContentText>
             Enter the amount you want to offer

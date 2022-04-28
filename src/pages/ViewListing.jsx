@@ -603,6 +603,7 @@ const ListingMetadata = ({
               (!isZoomAllowanceEnough && listing.currency === 'ZOOM')
             }
             tooltip={offerToolTip}
+            timestamp={listing.auctionEnd}
           />
         )}
       </div>
