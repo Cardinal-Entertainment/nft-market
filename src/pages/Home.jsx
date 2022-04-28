@@ -51,7 +51,7 @@ const Home = () => {
   const { network } = useParams()
   const chainId = NETWORKS[network].chainId
 
-  const { data, isLoading, hasNextPage, fetchNextPage } = useFetchListingQuery(
+  const { data, isLoading, hasNextPage, fetchNextPage, refetch } = useFetchListingQuery(
     filters,
     chainId
   )
@@ -181,6 +181,7 @@ const Home = () => {
                 <AuctionItem
                   content={auction}
                   key={`${auction.itemNumber}-${auction._id}`}
+                  refresh={refetch}
                 />
               ))
             )}

@@ -319,7 +319,7 @@ const handleSettle = async (
   }
 }
 
-const AuctionItem = ({ content, archived }) => {
+const AuctionItem = ({ content, archived, refresh }) => {
   const {
     state: {
       contracts,
@@ -430,6 +430,7 @@ const AuctionItem = ({ content, archived }) => {
         { value: currency === 'MOVR' ? weiAmount : 0 }
       )
       await waitForTransaction(bidTx)
+      refresh();
     } catch (e) {
       console.error(e)
     } finally {
