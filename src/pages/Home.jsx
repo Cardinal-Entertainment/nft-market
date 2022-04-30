@@ -75,6 +75,8 @@ const Home = () => {
        * stored in the database and API call will fetch it.
        * So it should be safe to have the data eventually consistent.
        */
+      refetch()
+      
       const currentData = queryClient.getQueryData([
         QUERY_KEYS.listings,
         { filters },
