@@ -236,7 +236,7 @@ export const setupEthers = async (dispatch, chainName = 'moonbase-alpha') => {
       return
     }
 
-    const metamaskProviderData = await setupMetamask()
+    const metamaskProviderData = await setupMetamask(chainName)
     if (!metamaskProviderData) {
       return
     }

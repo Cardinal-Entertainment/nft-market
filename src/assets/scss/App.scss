@@ -1,0 +1,26 @@
+.network-link-container {
+    display: flex;
+    color: white;
+
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+
+    .network-links {
+        color: white;
+        margin-right: 16px;
+        text-decoration: none;
+        padding: 16px;
+    }
+}
+
+.active-network {
+    background-color: #4a4a4a;
+    border-radius: 5px;
+}
+
+.never-pay-commission {
+    margin-left: 16px;
+    display: block;
+    width: 200px;
+}

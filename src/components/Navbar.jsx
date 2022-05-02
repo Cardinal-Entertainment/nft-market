@@ -150,6 +150,19 @@ const TooltipContent = styled1('span')({
 const ButtonGroupContainer = styled1('div')({
   margin: '12px',
 
+  '& a': {
+    textDecoration: 'none',
+  },
+
+  '& .network-links > div': {
+    paddingLeft: '8px',
+  },
+
+  '& .active-link > div': {
+    backgroundColor: '#4a4a4a',
+    borderRadius: '5px',
+  },
+
   '& .popper': {
     width: '276px',
 
@@ -259,7 +272,7 @@ const renderUserBalanceSection = (
   )
 }
 
-const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
+const Navbar = ({ toggleLiveFeeds, hideNavbar, isMobile }) => {
   const theme = useTheme()
 
   const { state, dispatch } = useContext(store)
@@ -276,12 +289,7 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
   return (
     <Container>
       <NavigationSection>
-        <NavLink
-          exact
-          to={`/${networkName}`}
-          activeClassName="active-link"
-          className="page-links"
-        >
+        <NavLink exact to={`/${networkName}`} activeClassName="active-link">
           <NavItem color="white" onClick={hideNavbar}>
             <FontAwesomeIcon
               icon={faShoppingBag}
@@ -291,12 +299,7 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
             Live Auctions
           </NavItem>
         </NavLink>
-        <NavLink
-          exact
-          activeClassName="active-link"
-          className="page-links"
-          to={`/${networkName}/new`}
-        >
+        <NavLink exact activeClassName="active-link" to={`/${networkName}/new`}>
           <NavItem color="white" onClick={hideNavbar}>
             <FontAwesomeIcon className="marketplace" icon={faEdit} size="lg" />
             New Listing
@@ -307,7 +310,6 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
             <NavLink
               exact
               activeClassName="active-link"
-              className="page-links"
               to={`/${networkName}/profile`}
             >
               <NavItem color="white" onClick={hideNavbar}>
@@ -326,7 +328,6 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
             <NavLink
               exact
               activeClassName="active-link"
-              className="page-links"
               to={`/${networkName}/archives`}
             >
               <NavItem color="white" onClick={hideNavbar}>
@@ -375,7 +376,6 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
         <NavLink
           exact
           activeClassName="active-link"
-          className="page-links"
           to={`/${networkName}/help`}
         >
           <NavItem color="white" onClick={hideNavbar}>
@@ -387,6 +387,39 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
             Help
           </NavItem>
         </NavLink>
+
+        {isMobile && (
+          <>
+            <NavLink exact activeClassName="active-link" to={`/moonbase-alpha`}>
+              <NavItem
+                className="network-links"
+                color="white"
+                onClick={hideNavbar}
+              >
+                <div>Moonbase Alpha</div>
+              </NavItem>
+            </NavLink>
+            <NavLink exact activeClassName="active-link" to={`/moonriver`}>
+              <NavItem
+                className="network-links"
+                color="white"
+                onClick={hideNavbar}
+              >
+                <div>Moonriver</div>
+              </NavItem>
+            </NavLink>
+            <NavLink exact activeClassName="active-link" to={`/moonbeam`}>
+              <NavItem
+                className="network-links"
+                color="white"
+                onClick={hideNavbar}
+              >
+                <div>Moonbeam</div>
+              </NavItem>
+            </NavLink>
+          </>
+        )}
+
         <Button
           onClick={() => {
             addAssetToMetamask('ZOOM', contracts.ZoomContract.address)
