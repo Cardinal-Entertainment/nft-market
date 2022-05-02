@@ -2,13 +2,7 @@ import zoomTokenLogo from './assets/zoombies_coin.svg'
 import liveFeedIcon from './assets/live-feed.png'
 import React, { useContext, useEffect, useState } from 'react'
 import Navbar from 'components/Navbar'
-import {
-  Switch,
-  Route,
-  Redirect,
-  NavLink,
-  useLocation,
-} from 'react-router-dom'
+import { Switch, Route, Redirect, NavLink, useLocation } from 'react-router-dom'
 import Home from 'pages/Home'
 import NewListing from 'pages/NewListing'
 import ViewListing from 'pages/ViewListing'
@@ -31,7 +25,6 @@ import {
   ZoombiesStableEndpoint,
   NETWORK_NAMES,
   NETWORKS,
-  homePageURL,
 } from './constants'
 import { useFetchProfileQuery } from './hooks/useProfile'
 import { store } from 'store/store'
@@ -133,7 +126,6 @@ const App = () => {
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
   const { dispatch } = useContext(store)
 
-
   const queryClient = useQueryClient()
 
   const { state } = useContext(store)
@@ -142,7 +134,7 @@ const App = () => {
     contracts: { ReadOnlyMarketContract },
   } = state
 
-  const location = useLocation();
+  const location = useLocation()
 
   useEffect(() => {
     const setupWallet = async () => {
@@ -176,9 +168,8 @@ const App = () => {
         timestamp: Date.now() / 1000,
         content: {
           blockNumber: uuid, //should be removed when settle eventscraper is completed
-          currency:
-          network ?
-            liveFeedItem.saleToken === network.zoomContractAddress
+          currency: network
+            ? liveFeedItem.saleToken === network.zoomContractAddress
               ? 'ZOOM'
               : liveFeedItem.saleToken === network.wmovrContractAddress
               ? 'MOVR'
@@ -186,7 +177,8 @@ const App = () => {
               ? 'USDT'
               : liveFeedItem.saleToken === network.daiContractAddress
               ? 'DAI'
-              : '' : '',
+              : ''
+            : '',
           ...liveFeedItem,
         },
       }
@@ -365,7 +357,13 @@ const App = () => {
   return (
     <Container>
       <Header>
-        <img alt="MOVR Token" src="https://zoombies.world/images/mr-icon.png" />
+        <NavLink exact to={location.pathname}>
+          <img
+            alt="MOVR Token"
+            className="header-logo-zoom"
+            src="https://zoombies.world/images/mr-icon.png"
+          />
+        </NavLink>
         <h1>Zoom </h1>{' '}
         <img
           src={zoomTokenLogo}

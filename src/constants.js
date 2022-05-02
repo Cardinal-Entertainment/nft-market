@@ -95,8 +95,6 @@ export const ZoombiesTestingEndpoint = `https://moonbase.zoombies.world`
 export const ZoombiesStableEndpoint = 'https://movr.zoombies.world'
 export const maxZOOMAllowance = 999999999999 // 10^13-1
 
-export const homePageURL = '/'
-
 export const EVENT_TYPES = {
   Bid: 'Bid',
   ItemListed: 'ItemListed',
