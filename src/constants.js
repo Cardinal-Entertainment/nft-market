@@ -95,8 +95,6 @@ export const ZoombiesTestingEndpoint = `https://moonbase.zoombies.world`
 export const ZoombiesStableEndpoint = 'https://movr.zoombies.world'
 export const maxZOOMAllowance = 999999999999 // 10^13-1
 
-export const homePageURL = '/'
-
 export const EVENT_TYPES = {
   Bid: 'Bid',
   ItemListed: 'ItemListed',
@@ -111,4 +109,10 @@ export const QUERY_KEYS = {
   userNFT: 'fetchUserNFT',
   zoomAllowance: 'fetchUserZoomAllowance',
   isSettled: 'checkIsItemSettled',
+}
+
+export const NETWORK_ICONS = {
+  'moonbase-alpha': 'https://zoombies.world/images/moonbase.png',
+  'moonriver': 'https://zoombies.world/images/mr-icon.png',
+  'moonbeam': 'https://zoombies.world/images/moonbeam.png'
 }

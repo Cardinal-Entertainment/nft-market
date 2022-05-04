@@ -1,0 +1,97 @@
+.network-link-container {
+  display: flex;
+  color: white;
+
+  width: 100%;
+  align-items: center;
+  justify-content: flex-end;
+
+  button {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+  }
+
+  img {
+    width: 50px !important;
+    border-radius: 40%;
+    cursor: pointer;
+  }
+}
+
+.active-network {
+  background-color: #4a4a4a;
+  border-radius: 5px;
+}
+
+.never-pay-commission {
+  margin-left: 16px;
+  display: block;
+  width: 200px;
+}
+
+.network-modal {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  border: 2px solid white;
+  border-radius: 5px;
+  background-color: #2c2b2d;
+  padding: 8px 16px;
+  padding-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+
+  h1 {
+    color: white;
+    font-size: 1.25rem;
+  }
+
+  .network-switch-btn-container {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    margin-top: 16px;
+    column-gap: 8px;
+    row-gap: 16px;
+
+    .network-links {
+      color: white;
+      margin-right: 16px;
+      text-decoration: none;
+      display: flex;
+      height: 30px;
+      align-items: center;
+      border: 1px solid white;
+      border-radius: 5px;
+      padding: 6px;
+
+      p {
+        font-size: 16px;
+      }
+
+      &:hover {
+        background-color: #4a4a4a;
+      }
+    }
+
+    @media screen and (max-width: 500px) {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+
+  @media screen and (max-width: 500px) {
+    width: 250px;
+  }
+}
+
+.network-icons {
+  width: 30px;
+  margin-right: 8px;
+}

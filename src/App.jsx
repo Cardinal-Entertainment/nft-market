@@ -2,12 +2,7 @@ import zoomTokenLogo from './assets/zoombies_coin.svg'
 import liveFeedIcon from './assets/live-feed.png'
 import React, { useContext, useEffect, useState } from 'react'
 import Navbar from 'components/Navbar'
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Redirect,
-} from 'react-router-dom'
+import { Switch, Route, Redirect, NavLink, useLocation } from 'react-router-dom'
 import Home from 'pages/Home'
 import NewListing from 'pages/NewListing'
 import ViewListing from 'pages/ViewListing'
@@ -30,23 +25,21 @@ import {
   ZoombiesStableEndpoint,
   NETWORK_NAMES,
   NETWORKS,
-  homePageURL,
+  NETWORK_ICONS,
 } from './constants'
 import { useFetchProfileQuery } from './hooks/useProfile'
 import { store } from 'store/store'
 import NotificationAddon from './components/NotificationAddon'
 import { setupEthers, setupEthListeners } from 'hooks/useBlockchain'
 import { getNetworkNameFromURL } from 'utils/networkUtil'
+import './assets/scss/App.scss'
+import NetworkModal from 'components/NetworkModal'
 
 const Container = styled('div')({
   height: '100vh',
   display: 'flex',
   flexDirection: 'column',
   overflow: 'hidden',
-})
-
-const TitleLabelText = styled('span')({
-  marginLeft: '16px',
 })
 
 const Header = styled('div')(({ theme }) => ({
@@ -135,14 +128,6 @@ const App = () => {
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
   const { dispatch } = useContext(store)
 
-  useEffect(() => {
-    const setupWallet = async () => {
-      await setupEthers(dispatch)
-      await setupEthListeners(dispatch)
-    }
-    setupWallet()
-  }, [dispatch])
-
   const queryClient = useQueryClient()
 
   const { state } = useContext(store)
@@ -151,11 +136,29 @@ const App = () => {
     contracts: { ReadOnlyMarketContract },
   } = state
 
+  const location = useLocation()
+
   const networkName = getNetworkNameFromURL()
   const chainId =
     networkName && networkName in NETWORKS
       ? NETWORKS[networkName].chainId
       : null
+
+  const networkIconUrl = NETWORK_ICONS[networkName]
+
+  const [isNetworkModalOpen, setIsNetworkModalOpen] = useState(false)
+  const handleOpen = () => setIsNetworkModalOpen(true)
+  const handleClose = () => setIsNetworkModalOpen(false)
+
+  useEffect(() => {
+    const setupWallet = async () => {
+      const chainName = location.pathname.replace('/', '')
+      setIsNetworkModalOpen(false)
+      await setupEthers(dispatch, chainName)
+      await setupEthListeners(dispatch)
+    }
+    setupWallet()
+  }, [dispatch, location])
 
   const { data: myAuctions } = useFetchProfileQuery(address, chainId)
 
@@ -174,9 +177,8 @@ const App = () => {
         timestamp: Date.now() / 1000,
         content: {
           blockNumber: uuid, //should be removed when settle eventscraper is completed
-          currency:
-          network ?
-            liveFeedItem.saleToken === network.zoomContractAddress
+          currency: network
+            ? liveFeedItem.saleToken === network.zoomContractAddress
               ? 'ZOOM'
               : liveFeedItem.saleToken === network.wmovrContractAddress
               ? 'MOVR'
@@ -184,7 +186,8 @@ const App = () => {
               ? 'USDT'
               : liveFeedItem.saleToken === network.daiContractAddress
               ? 'DAI'
-              : '' : '',
+              : ''
+            : '',
           ...liveFeedItem,
         },
       }
@@ -362,100 +365,112 @@ const App = () => {
 
   return (
     <Container>
-      <Router>
-        <Header>
+      <Header>
+        <NavLink exact to={location.pathname}>
           <img
             alt="MOVR Token"
-            className={'header-logo-zoom'}
+            className="header-logo-zoom"
             src="https://zoombies.world/images/mr-icon.png"
-            onClick={() => {window.location.href=homePageURL}}
           />
-          <h1>Zoom </h1>{' '}
-          <img
-            src={zoomTokenLogo}
-            className={'header-logo-zoom'}
-            alt={'ZOOM token'}
-            onClick={() => {
-              if (chainId === 1287) {
-                window.open(ZoombiesTestingEndpoint, '_blank')
-              } else if (chainId === 1285) {
-                window.open(ZoombiesStableEndpoint, '_blank')
-              }
-            }}
-          />
-          <h1>Market</h1> <TitleLabelText>Never pay commission!</TitleLabelText>
-          {isDesktop ? <LiveFeedButton /> : <MobileHamburgerMenu />}
-        </Header>
-        <Body>
-          <Drawer
-            classes={{
-              paper: 'permanent-drawer',
-            }}
-            open={isMobileDrawerOpen}
-            variant={isDesktop ? 'permanent' : 'temporary'}
-            onClose={() => setIsMobileDrawerOpen(false)}
+        </NavLink>
+        <h1>Zoom </h1>{' '}
+        <img
+          src={zoomTokenLogo}
+          className={'header-logo-zoom'}
+          alt={'ZOOM token'}
+          onClick={() => {
+            if (chainId === 1287) {
+              window.open(ZoombiesTestingEndpoint, '_blank')
+            } else if (chainId === 1285) {
+              window.open(ZoombiesStableEndpoint, '_blank')
+            }
+          }}
+        />
+        <h1>Market</h1>{' '}
+        <span className="never-pay-commission">Never pay commission!</span>
+        {isDesktop && (
+          <div className="network-link-container">
+            <button onClick={handleOpen}>
+              <img src={networkIconUrl} alt="network-logo"></img>
+            </button>
+            <NetworkModal
+              isNetworkModalOpen={isNetworkModalOpen}
+              handleClose={handleClose}
+            ></NetworkModal>
+          </div>
+        )}
+        {isDesktop ? <LiveFeedButton /> : <MobileHamburgerMenu />}
+      </Header>
+      <Body>
+        <Drawer
+          classes={{
+            paper: 'permanent-drawer',
+          }}
+          open={isMobileDrawerOpen}
+          variant={isDesktop ? 'permanent' : 'temporary'}
+          onClose={() => setIsMobileDrawerOpen(false)}
+        >
+          <NavbarContainer>
+            <Navbar
+              toggleLiveFeeds={() => setIsLiveFeedOpen(true)}
+              hideNavbar={() => setIsMobileDrawerOpen(false)}
+              isMobile={!isDesktop}
+            />
+          </NavbarContainer>
+        </Drawer>
+        <Content>
+          <Switch>
+            <Route
+              path={`/:network(${supportedNetworkRegex})/new`}
+              component={NewListing}
+            />
+            <Route
+              path={`/:network(${supportedNetworkRegex})/listing/:id`}
+              component={ViewListing}
+            />
+            <Route
+              path={`/:network(${supportedNetworkRegex})/help`}
+              component={HelpPage}
+            />
+            <Route
+              path={`/:network(${supportedNetworkRegex})/profile`}
+              component={Profile}
+            />
+            <Route
+              path={`/:network(${supportedNetworkRegex})/archives`}
+              component={AuctionArchive}
+            />
+            <Route
+              path={`/:network(${supportedNetworkRegex})/`}
+              component={Home}
+            />
+            <Route exact path="/">
+              <Redirect to="/moonbase-alpha" />
+            </Route>
+            <Route path="*">
+              <h2
+                style={{
+                  color: 'white',
+                  marginLeft: '12px',
+                }}
+              >
+                Please select a valid network
+              </h2>
+            </Route>
+          </Switch>
+        </Content>
+        {isLiveFeedOpen && (
+          <Slide
+            direction="left"
+            in={isLiveFeedOpen}
+            mountOnEnter
+            unmountOnExit
           >
-            <NavbarContainer>
-              <Navbar
-                toggleLiveFeeds={() => setIsLiveFeedOpen(true)}
-                hideNavbar={() => setIsMobileDrawerOpen(false)}
-              />
-            </NavbarContainer>
-          </Drawer>
-          <Content>
-            <Switch>
-              <Route
-                path={`/:network(${supportedNetworkRegex})/new`}
-                component={NewListing}
-              />
-              <Route
-                path={`/:network(${supportedNetworkRegex})/listing/:id`}
-                component={ViewListing}
-              />
-              <Route
-                path={`/:network(${supportedNetworkRegex})/help`}
-                component={HelpPage}
-              />
-              <Route
-                path={`/:network(${supportedNetworkRegex})/profile`}
-                component={Profile}
-              />
-              <Route
-                path={`/:network(${supportedNetworkRegex})/archives`}
-                component={AuctionArchive}
-              />
-              <Route
-                path={`/:network(${supportedNetworkRegex})/`}
-                component={Home}
-              />
-              <Route exact path="/">
-                <Redirect to="/moonbase-alpha" />
-              </Route>
-              <Route path="*">
-                <h2
-                  style={{
-                    color: 'white',
-                    marginLeft: '12px',
-                  }}
-                >
-                  Please select a valid network
-                </h2>
-              </Route>
-            </Switch>
-          </Content>
-          {isLiveFeedOpen && (
-            <Slide
-              direction="left"
-              in={isLiveFeedOpen}
-              mountOnEnter
-              unmountOnExit
-            >
-              <LiveFeedsSlide hidelivefeeds={() => setIsLiveFeedOpen(false)} />
-            </Slide>
-          )}
-        </Body>
-        <Footer />
-      </Router>
+            <LiveFeedsSlide hidelivefeeds={() => setIsLiveFeedOpen(false)} />
+          </Slide>
+        )}
+      </Body>
+      <Footer />
     </Container>
   )
 }

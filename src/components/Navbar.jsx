@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { useTheme } from 'styled-components'
 import metamaskLogo from '../assets/metamask-face.png'
 import movrLogo from '../assets/movr_logo.png'
@@ -24,6 +24,9 @@ import { styled as styled1 } from '@mui/material/styles'
 import NotificationAddon from './NotificationAddon'
 import { Button } from '@mui/material'
 import { getNetworkNameFromURL } from '../utils/networkUtil'
+import { NETWORK_ICONS } from '../constants'
+import '../assets/scss/Navbar.scss'
+import NetworkModal from './NetworkModal'
 
 const Container = styled1('div')({
   width: '300px',
@@ -150,6 +153,19 @@ const TooltipContent = styled1('span')({
 const ButtonGroupContainer = styled1('div')({
   margin: '12px',
 
+  '& a': {
+    textDecoration: 'none',
+  },
+
+  '& .network-links > div': {
+    paddingLeft: '8px',
+  },
+
+  '& .active-link > div': {
+    backgroundColor: '#4a4a4a',
+    borderRadius: '5px',
+  },
+
   '& .popper': {
     width: '276px',
 
@@ -259,7 +275,7 @@ const renderUserBalanceSection = (
   )
 }
 
-const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
+const Navbar = ({ toggleLiveFeeds, hideNavbar, isMobile }) => {
   const theme = useTheme()
 
   const { state, dispatch } = useContext(store)
@@ -273,15 +289,16 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
 
   const networkName = getNetworkNameFromURL()
 
+  const networkIconUrl = NETWORK_ICONS[networkName]
+
+  const [isNetworkModalOpen, setIsNetworkModalOpen] = useState(false)
+  const handleOpen = () => setIsNetworkModalOpen(true)
+  const handleClose = () => setIsNetworkModalOpen(false)
+
   return (
     <Container>
       <NavigationSection>
-        <NavLink
-          exact
-          to={`/${networkName}`}
-          activeClassName="active-link"
-          className="page-links"
-        >
+        <NavLink exact to={`/${networkName}`} activeClassName="active-link">
           <NavItem color="white" onClick={hideNavbar}>
             <FontAwesomeIcon
               icon={faShoppingBag}
@@ -291,12 +308,7 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
             Live Auctions
           </NavItem>
         </NavLink>
-        <NavLink
-          exact
-          activeClassName="active-link"
-          className="page-links"
-          to={`/${networkName}/new`}
-        >
+        <NavLink exact activeClassName="active-link" to={`/${networkName}/new`}>
           <NavItem color="white" onClick={hideNavbar}>
             <FontAwesomeIcon className="marketplace" icon={faEdit} size="lg" />
             New Listing
@@ -307,7 +319,6 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
             <NavLink
               exact
               activeClassName="active-link"
-              className="page-links"
               to={`/${networkName}/profile`}
             >
               <NavItem color="white" onClick={hideNavbar}>
@@ -326,7 +337,6 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
             <NavLink
               exact
               activeClassName="active-link"
-              className="page-links"
               to={`/${networkName}/archives`}
             >
               <NavItem color="white" onClick={hideNavbar}>
@@ -375,7 +385,6 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
         <NavLink
           exact
           activeClassName="active-link"
-          className="page-links"
           to={`/${networkName}/help`}
         >
           <NavItem color="white" onClick={hideNavbar}>
@@ -387,6 +396,22 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar }) => {
             Help
           </NavItem>
         </NavLink>
+        {isMobile && (
+          <>
+            <button onClick={handleOpen} className="network-button-mobile">
+              <img
+                src={networkIconUrl}
+                alt="network-logo"
+                className="mobile-network-icon"
+              ></img>
+              <p>Switch network</p>
+            </button>
+            <NetworkModal
+              isNetworkModalOpen={isNetworkModalOpen}
+              handleClose={handleClose}
+            ></NetworkModal>
+          </>
+        )}
         <Button
           onClick={() => {
             addAssetToMetamask('ZOOM', contracts.ZoomContract.address)
