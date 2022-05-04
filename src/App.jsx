@@ -25,6 +25,7 @@ import {
   ZoombiesStableEndpoint,
   NETWORK_NAMES,
   NETWORKS,
+  NETWORK_ICONS,
 } from './constants'
 import { useFetchProfileQuery } from './hooks/useProfile'
 import { store } from 'store/store'
@@ -32,6 +33,7 @@ import NotificationAddon from './components/NotificationAddon'
 import { setupEthers, setupEthListeners } from 'hooks/useBlockchain'
 import { getNetworkNameFromURL } from 'utils/networkUtil'
 import './assets/scss/App.scss'
+import NetworkModal from 'components/NetworkModal'
 
 const Container = styled('div')({
   height: '100vh',
@@ -136,20 +138,27 @@ const App = () => {
 
   const location = useLocation()
 
-  useEffect(() => {
-    const setupWallet = async () => {
-      const chainName = location.pathname.replace('/', '')
-      await setupEthers(dispatch, chainName)
-      await setupEthListeners(dispatch)
-    }
-    setupWallet()
-  }, [dispatch, location])
-
   const networkName = getNetworkNameFromURL()
   const chainId =
     networkName && networkName in NETWORKS
       ? NETWORKS[networkName].chainId
       : null
+
+  const networkIconUrl = NETWORK_ICONS[networkName]
+
+  const [isNetworkModalOpen, setIsNetworkModalOpen] = useState(false)
+  const handleOpen = () => setIsNetworkModalOpen(true)
+  const handleClose = () => setIsNetworkModalOpen(false)
+
+  useEffect(() => {
+    const setupWallet = async () => {
+      const chainName = location.pathname.replace('/', '')
+      setIsNetworkModalOpen(false)
+      await setupEthers(dispatch, chainName)
+      await setupEthListeners(dispatch)
+    }
+    setupWallet()
+  }, [dispatch, location])
 
   const { data: myAuctions } = useFetchProfileQuery(address, chainId)
 
@@ -381,30 +390,13 @@ const App = () => {
         <span className="never-pay-commission">Never pay commission!</span>
         {isDesktop && (
           <div className="network-link-container">
-            <NavLink
-              exact
-              activeClassName="active-network"
-              to="/moonbase-alpha"
-              className="network-links"
-            >
-              <div>Moonbase Alpha</div>
-            </NavLink>
-            <NavLink
-              activeClassName="active-network"
-              className="network-links"
-              exact
-              to="/moonriver"
-            >
-              <div>Moonriver</div>
-            </NavLink>
-            <NavLink
-              activeClassName="active-network"
-              className="network-links"
-              exact
-              to="moonbeam"
-            >
-              <div>Moonbeam</div>
-            </NavLink>
+            <button onClick={handleOpen}>
+              <img src={networkIconUrl} alt="network-logo"></img>
+            </button>
+            <NetworkModal
+              isNetworkModalOpen={isNetworkModalOpen}
+              handleClose={handleClose}
+            ></NetworkModal>
           </div>
         )}
         {isDesktop ? <LiveFeedButton /> : <MobileHamburgerMenu />}

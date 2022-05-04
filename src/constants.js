@@ -110,3 +110,9 @@ export const QUERY_KEYS = {
   zoomAllowance: 'fetchUserZoomAllowance',
   isSettled: 'checkIsItemSettled',
 }
+
+export const NETWORK_ICONS = {
+  'moonbase-alpha': 'https://zoombies.world/images/moonbase.png',
+  'moonriver': 'https://zoombies.world/images/mr-icon.png',
+  'moonbeam': 'https://zoombies.world/images/moonbeam.png'
+}

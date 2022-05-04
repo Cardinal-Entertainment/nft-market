@@ -1,0 +1,25 @@
+.network-button-mobile {
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
+
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+
+  p {
+    font-size: 20px;
+    color: white;
+  }
+}
+
+.mobile-network-icon {
+  width: 30px;
+  border-radius: 40%;
+  margin-right: 25px;
+  margin-left: 10px;
+}

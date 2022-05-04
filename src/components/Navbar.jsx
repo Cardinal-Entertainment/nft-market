@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import { useTheme } from 'styled-components'
 import metamaskLogo from '../assets/metamask-face.png'
 import movrLogo from '../assets/movr_logo.png'
@@ -24,6 +24,9 @@ import { styled as styled1 } from '@mui/material/styles'
 import NotificationAddon from './NotificationAddon'
 import { Button } from '@mui/material'
 import { getNetworkNameFromURL } from '../utils/networkUtil'
+import { NETWORK_ICONS } from '../constants'
+import '../assets/scss/Navbar.scss'
+import NetworkModal from './NetworkModal'
 
 const Container = styled1('div')({
   width: '300px',
@@ -286,6 +289,12 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar, isMobile }) => {
 
   const networkName = getNetworkNameFromURL()
 
+  const networkIconUrl = NETWORK_ICONS[networkName]
+
+  const [isNetworkModalOpen, setIsNetworkModalOpen] = useState(false)
+  const handleOpen = () => setIsNetworkModalOpen(true)
+  const handleClose = () => setIsNetworkModalOpen(false)
+
   return (
     <Container>
       <NavigationSection>
@@ -387,6 +396,22 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar, isMobile }) => {
             Help
           </NavItem>
         </NavLink>
+        {isMobile && (
+          <>
+            <button onClick={handleOpen} className="network-button-mobile">
+              <img
+                src={networkIconUrl}
+                alt="network-logo"
+                className="mobile-network-icon"
+              ></img>
+              <p>Switch network</p>
+            </button>
+            <NetworkModal
+              isNetworkModalOpen={isNetworkModalOpen}
+              handleClose={handleClose}
+            ></NetworkModal>
+          </>
+        )}
 
         {isMobile && (
           <>
