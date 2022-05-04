@@ -412,39 +412,6 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar, isMobile }) => {
             ></NetworkModal>
           </>
         )}
-
-        {isMobile && (
-          <>
-            <NavLink exact activeClassName="active-link" to={`/moonbase-alpha`}>
-              <NavItem
-                className="network-links"
-                color="white"
-                onClick={hideNavbar}
-              >
-                <div>Moonbase Alpha</div>
-              </NavItem>
-            </NavLink>
-            <NavLink exact activeClassName="active-link" to={`/moonriver`}>
-              <NavItem
-                className="network-links"
-                color="white"
-                onClick={hideNavbar}
-              >
-                <div>Moonriver</div>
-              </NavItem>
-            </NavLink>
-            <NavLink exact activeClassName="active-link" to={`/moonbeam`}>
-              <NavItem
-                className="network-links"
-                color="white"
-                onClick={hideNavbar}
-              >
-                <div>Moonbeam</div>
-              </NavItem>
-            </NavLink>
-          </>
-        )}
-
         <Button
           onClick={() => {
             addAssetToMetamask('ZOOM', contracts.ZoomContract.address)
