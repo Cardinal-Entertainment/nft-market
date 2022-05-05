@@ -22,7 +22,7 @@ export const NETWORKS = {
     chainId: 1287,
     websocketRPC: `wss://moonbeam-alpha.api.onfinality.io/ws?apikey=${process.env['REACT_APP_MOONBEAM_RPC_API_KEY']}`,
     httpRPC: `https://moonbeam-alpha.api.onfinality.io/rpc?apikey=${process.env['REACT_APP_MOONBEAM_RPC_API_KEY']}`,
-    marketContractAddress: '0xd00d7b22deD10Fde1c94Be9E6D55D7190CCADD7F',
+    marketContractAddress: '0x0705212aeaa5d0b91c995269863856b2a17874a8',
     zoomContractAddress: '0x8e21404bAd3A1d2327cc6D2B2118f47911a1f316',
     zoombiesContractAddress: '0x3E7997B8D30AA6216102fb2e9206246e478d57d3',
     wmovrContractAddress: '0x372d0695E75563D9180F8CE31c9924D7e8aaac47',
