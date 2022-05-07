@@ -22,7 +22,7 @@ export const NETWORKS = {
     chainId: 1287,
     websocketRPC: `wss://moonbeam-alpha.api.onfinality.io/ws?apikey=${process.env['REACT_APP_MOONBEAM_RPC_API_KEY']}`,
     httpRPC: `https://moonbeam-alpha.api.onfinality.io/rpc?apikey=${process.env['REACT_APP_MOONBEAM_RPC_API_KEY']}`,
-    marketContractAddress: '0x0705212aeaa5d0b91c995269863856b2a17874a8',
+    marketContractAddress: '0xd00d7b22deD10Fde1c94Be9E6D55D7190CCADD7F',
     zoomContractAddress: '0x8e21404bAd3A1d2327cc6D2B2118f47911a1f316',
     zoombiesContractAddress: '0x3E7997B8D30AA6216102fb2e9206246e478d57d3',
     wmovrContractAddress: '0x372d0695E75563D9180F8CE31c9924D7e8aaac47',
@@ -60,6 +60,20 @@ export const NFT_CONTRACTS = {
       abiJSON: anyNFTJson,
     },
   ],
+  'moonriver': [
+    {
+      name: 'Zoombies',
+      address: '0x08716e418e68564C96b68192E985762740728018',
+      icon: zoombiesLogo,
+      abiJSON: zoombiesContractJSON,
+    },
+    {
+      name: 'NextGem',
+      address: '0x4c0EaC154AE7cB755b260E835895e9F471B640f3',
+      icon: nextGemLogo,
+      abiJSON: anyNFTJson,
+    },
+  ]
 }
 
 export const METAMASK_CHAIN_PARAMS = {
