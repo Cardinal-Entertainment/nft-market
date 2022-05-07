@@ -16,7 +16,6 @@ import {
   QUERY_KEYS,
   ZoombiesStableEndpoint,
   ZoombiesTestingEndpoint,
-  cardImageBaseURL,
   NETWORKS,
   NFT_CONTRACTS,
 } from '../constants'
@@ -305,8 +304,10 @@ const handleSettle = async (history, marketContract, auctionId, network) => {
   history.push(`/${network}`)
 }
 
-const ListingNFTs = ({ cards }) => {
+const ListingNFTs = ({ cards, network }) => {
   const [enlargedCard, setEnlargedCard] = useState(cards[0])
+  const imageUrl = NETWORKS[network].imageUrl
+
   return (
     <ListingNFTWrapper>
       <div className="enlarged-nft">
@@ -315,7 +316,7 @@ const ListingNFTs = ({ cards }) => {
             src={
               enlargedCard.isNotZoombies
                 ? enlargedCard.image
-                : `${cardImageBaseURL}/${enlargedCard.id}`
+                : `${imageUrl}/${enlargedCard.id}`
             }
             alt={`Token #${enlargedCard.id}`}
             loading="lazy"
@@ -341,7 +342,7 @@ const ListingNFTs = ({ cards }) => {
                 src={
                   card.isNotZoombies
                     ? card.image
-                    : `${cardImageBaseURL}/${card.id}`
+                    : `${imageUrl}/${card.id}`
                 }
                 alt={`Token #${card.id}`}
                 loading="lazy"
@@ -893,7 +894,7 @@ const ViewListing = () => {
         </HeaderRow>
         <div className="listing-content">
           <div className="listing-wrapper">
-            <ListingNFTs cards={auctionItem.cards} />
+            <ListingNFTs cards={auctionItem.cards} network={network} />
             <ListingMetadata
               minIncrement={minIncrement}
               zoomBalance={zoomBalance}
