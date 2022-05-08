@@ -291,7 +291,7 @@ const LiveFeedItem = (props, ref) => {
                 <div className={'content-auction-end'}>
                   Auction Ends at:{' '}
                   <span>
-                    {moment.unix(auctionEnd).format('MM/DD/YYYY, h:mm:ss A')}
+                    {auctionEnd > 0 ? moment.unix(auctionEnd).format('MM/DD/YYYY, h:mm:ss A') : 'Instant Auction'}
                   </span>
                 </div>
               </>
@@ -320,7 +320,7 @@ const LiveFeedItem = (props, ref) => {
                 <div className={'content-auction-end'}>
                   Auction Ends at:{' '}
                   <span>
-                    {moment.unix(auctionEnd).format('MM/DD/YYYY, h:mm:ss A')}
+                  {auctionEnd > 0 ? moment.unix(auctionEnd).format('MM/DD/YYYY, h:mm:ss A') : 'Instant Auction'}
                   </span>
                 </div>
               </>

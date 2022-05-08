@@ -6,7 +6,8 @@ export const ActionTypes = {
   MY_NEW_BID_EVENT: 'MY_NEW_BID_EVENT',
   RESET_NOTIFICATIONS: 'RESET_NOTIFICATIONS',
   MIN_INCREMENT_UPDATED: 'MIN_INCREMENT_UPDATED',
-  CLEAR_WALLET: 'CLEAR_WALLET'
+  CLEAR_WALLET: 'CLEAR_WALLET',
+  FINISHED_SETUP: 'FINISHED_SETUP'
 };
 
 const Actions = {
@@ -55,6 +56,11 @@ const Actions = {
   clearWallet() {
     return {
       type: ActionTypes.CLEAR_WALLET
+    }
+  },
+  setupDone() {
+    return {
+      type: ActionTypes.FINISHED_SETUP
     }
   }
 };

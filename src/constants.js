@@ -125,10 +125,11 @@ export const QUERY_KEYS = {
   userNFT: 'fetchUserNFT',
   zoomAllowance: 'fetchUserZoomAllowance',
   isSettled: 'checkIsItemSettled',
+  liveFeeds: 'fetchLiveFeeds'
 }
 
 export const NETWORK_ICONS = {
   'moonbase-alpha': 'https://zoombies.world/images/moonbase.png',
   'moonriver': 'https://zoombies.world/images/mr-icon.png',
-  'moonbeam': 'https://zoombies.world/images/moonbeam.png'
+  'moonbeam': 'https://zoombies.world/images/moonbeam.webp'
 }

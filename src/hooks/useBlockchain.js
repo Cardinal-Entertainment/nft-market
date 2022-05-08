@@ -290,6 +290,7 @@ export const setupEthers = async (dispatch, chainName = 'moonbase-alpha') => {
         daiBalance: daiBalance,
       })
     )
+    dispatch(Actions.setupDone())
   } catch (err) {
     console.error('Failed to setup ether', err)
   }
