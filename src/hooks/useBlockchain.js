@@ -268,14 +268,14 @@ export const setupEthers = async (dispatch, chainName = 'moonbase-alpha') => {
     const websocketProvider = new WebsocketProvider(
       websocketUrl,
       (provider) => {
-        loadContracts(signer, dispatch, provider)
+        loadContracts(signer, dispatch, provider, chainName)
       }
     )
 
     websocketProvider.init()
 
     const { ZoomContract, WMOVRContract, USDTContract, DAIContract } =
-      await loadContracts(signer, dispatch, websocketProvider.provider)
+      await loadContracts(signer, dispatch, websocketProvider.provider, chainName)
 
     const zoomBalance = await getWalletZoomBalance(ZoomContract, address)
     const WMOVRBalance = await getWalletWMOVRBalance(WMOVRContract, address)

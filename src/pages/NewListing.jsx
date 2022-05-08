@@ -14,9 +14,9 @@ import { CircularProgress, ListItemIcon, ListItemText } from '@mui/material'
 import {
   ZoombiesStableEndpoint,
   ZoombiesTestingEndpoint,
-  cardImageBaseURL,
   NETWORKS,
   NFT_CONTRACTS,
+  CHAIN_ID_TO_NETWORK,
 } from '../constants'
 import {
   useFetchUserNFTQuery,
@@ -205,6 +205,9 @@ const renderUserNFTs = (
     return null
   }
 
+  const network = CHAIN_ID_TO_NETWORK[chainId]
+  const imageUrl = NETWORKS[network].imageUrl
+
   if (userNFTs.length === 0) {
     return (
       <div>
@@ -229,7 +232,7 @@ const renderUserNFTs = (
       <CardWrapper onClick={() => handleCardClicked(card.id)} key={card.id}>
         <img
           src={
-            card.isNotZoombies ? card.image : `${cardImageBaseURL}/${card.id}`
+            card.isNotZoombies ? card.image : `${imageUrl}/${card.id}`
           }
           alt={`Token #${card.id}`}
         />

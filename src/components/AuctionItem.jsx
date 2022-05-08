@@ -8,7 +8,6 @@ import daiLogo from '../assets/dai.png'
 import zoomCoin from '../assets/zoombies_coin.svg'
 import { Button, CircularProgress, Modal, styled, Grid } from '@mui/material'
 import {
-  cardImageBaseURL,
   QUERY_KEYS,
   NETWORKS,
 } from '../constants'
@@ -513,6 +512,8 @@ const AuctionItem = ({ content, archived, refresh }) => {
 
   const queryClient = useQueryClient()
 
+  const cardImageUrl = NETWORKS[network].imageUrl
+
   return (
     <Container key={auctionItem._id} container>
       <MetaDiv>
@@ -714,7 +715,7 @@ const AuctionItem = ({ content, archived, refresh }) => {
                 src={
                   card.isNotZoombies
                     ? card.image
-                    : cardImageBaseURL + '/' + card.id
+                    : cardImageUrl + '/' + card.id
                 }
                 alt={'CARD ' + card.id}
                 loading="lazy"
