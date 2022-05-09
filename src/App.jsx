@@ -134,6 +134,7 @@ const App = () => {
   const {
     wallet: { address },
     contracts: { ReadOnlyMarketContract },
+    isInitialSetupDone,
   } = state
 
   const location = useLocation()
@@ -152,13 +153,15 @@ const App = () => {
 
   useEffect(() => {
     const setupWallet = async () => {
-      const chainName = location.pathname.replace('/', '')
-      setIsNetworkModalOpen(false)
-      await setupEthers(dispatch, chainName)
-      await setupEthListeners(dispatch)
+      if (!isInitialSetupDone) {
+        const chainName = location.pathname.replace('/', '')
+        setIsNetworkModalOpen(false)
+        await setupEthers(dispatch, chainName)
+        await setupEthListeners(dispatch)
+      }
     }
     setupWallet()
-  }, [dispatch, location])
+  }, [dispatch, location, isInitialSetupDone])
 
   const { data: myAuctions } = useFetchProfileQuery(address, chainId)
 

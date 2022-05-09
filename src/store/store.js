@@ -11,6 +11,7 @@ export const DAPP_STATES = {
 
 const initialState = {
   dAppState: DAPP_STATES.NOT_CONNECTED,
+  isInitialSetupDone: false,
   wallet: {
     address: null,
     balance: null,
@@ -103,6 +104,11 @@ const StateProvider = ({ children }) => {
           }
         })
         return initialState
+      case ActionTypes.FINISHED_SETUP:
+        return {
+          ...state,
+          isInitialSetupDone: true
+        }
       default:
         throw new Error(`Unhandled action type: ${type}`)
     }
