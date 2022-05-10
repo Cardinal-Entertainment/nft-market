@@ -72,7 +72,7 @@ const loadContracts = async (
 
   const USDTContract = new ethers.Contract(
     network.usdtContractAddress,
-    wrapped_movr_json.abi,
+    anyERC20JSON.abi,
     signer
   )
 

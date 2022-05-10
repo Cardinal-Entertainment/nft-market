@@ -404,7 +404,7 @@ const NewListing = () => {
     ) === 1
 
   const { data: currentAllowance, isLoading: isLoadingAllowance } =
-    useGetZoomAllowanceQuery(wallet.address, contracts.ZoomContract)
+    useGetZoomAllowanceQuery(wallet.address, contracts.ZoomContract, network)
 
   const exceedZoomAllowance = toBigNumber(
     data?.zoomBurnFee ? numberOfSelectedCards * data?.zoomBurnFee : 0

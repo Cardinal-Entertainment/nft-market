@@ -443,7 +443,8 @@ const AuctionItem = ({ content, archived, refresh }) => {
 
   const { data: zoomAllowance } = useGetZoomAllowanceQuery(
     wallet.address,
-    contracts.ZoomContract
+    contracts.ZoomContract,
+    network
   )
 
   const isAllowanceEnough = zoomAllowance
