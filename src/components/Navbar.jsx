@@ -175,8 +175,8 @@ const ButtonGroupContainer = styled1('div')({
   },
 })
 
-const onConnect = async (dispatch) => {
-  await setupEthers(dispatch)
+const onConnect = async (dispatch, networkName) => {
+  await setupEthers(dispatch, networkName)
   await setupEthListeners(dispatch)
 }
 
@@ -190,7 +190,8 @@ const renderUserBalanceSection = (
   zoomBalance,
   wmovrBalance,
   usdtBalance,
-  daiBalance
+  daiBalance,
+  networkName
 ) => {
   if (!hasMetamask) {
     return (
@@ -210,7 +211,7 @@ const renderUserBalanceSection = (
   if (!address) {
     return (
       <div className="connect-button">
-        <Button onClick={() => onConnect(dispatch)} variant="contained">
+        <Button onClick={() => onConnect(dispatch, networkName)} variant="contained">
           Connect
         </Button>
       </div>
@@ -364,7 +365,8 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar, isMobile }) => {
         balance,
         zoomBalance,
         wmovrBalance,
-        daiBalance
+        daiBalance,
+        networkName
       )}
       <ButtonGroupContainer>
         <NavItemLiveFeeds>

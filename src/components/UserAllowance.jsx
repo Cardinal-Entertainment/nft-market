@@ -39,12 +39,14 @@ const UserAllowance = ({ initial }) => {
   const {
     state: { wallet, contracts },
   } = useContext(store)
-  const { data: currentAllowance, isLoading } = useGetZoomAllowanceQuery(
-    wallet.address,
-    contracts.ZoomContract
-  )
 
   const { network } = useParams()
+  const { data: currentAllowance, isLoading } = useGetZoomAllowanceQuery(
+    wallet.address,
+    contracts.ZoomContract,
+    network
+  )
+
   const marketAddress = NETWORKS[network].marketContractAddress
 
   const { zoomBalance } = wallet

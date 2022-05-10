@@ -772,7 +772,8 @@ const ViewListing = () => {
 
   const { data: currentZoomAllowance } = useGetZoomAllowanceQuery(
     wallet.address,
-    contracts.ZoomContract
+    contracts.ZoomContract,
+    network
   )
 
   if (isFetchingListing) {

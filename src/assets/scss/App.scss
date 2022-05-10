@@ -18,7 +18,7 @@
 
   img {
     width: 50px !important;
-    border-radius: 40%;
+    border-radius: 9999px;
     cursor: pointer;
   }
 }
@@ -95,5 +95,6 @@
 
 .network-icons {
   width: 30px;
+  border-radius: 9999px;
   margin-right: 8px;
 }

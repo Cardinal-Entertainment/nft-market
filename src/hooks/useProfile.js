@@ -105,13 +105,13 @@ export const getUserTokenAllowance = async (
   }
 }
 
-export const useGetZoomAllowanceQuery = (userAddress, zoomTokenContract) =>
+export const useGetZoomAllowanceQuery = (userAddress, zoomTokenContract, chainName) =>
   useQuery({
     queryKey: [
       QUERY_KEYS.zoomAllowance,
-      { zoomTokenContract: zoomTokenContract?.address, userAddress },
+      { zoomTokenContract: zoomTokenContract?.address, userAddress, chainName },
     ],
-    queryFn: () => getUserTokenAllowance(zoomTokenContract, userAddress),
+    queryFn: () => getUserTokenAllowance(zoomTokenContract, userAddress, chainName),
     refetchOnWindowFocus: false,
   })
 
