@@ -4,11 +4,6 @@
 import { ethers } from 'ethers';
 import detectEthereumProvider from '@metamask/detect-provider';
 
-export const getWalletWMOVRBalance = async (wmovrContract, address) => {
-  const wmovrBalance = await wmovrContract.balanceOf(address);
-  return ethers.utils.formatEther(wmovrBalance);
-};
-
 export const getWalletUSDTBalance = async (usdtContract, address) => {
   const balance = await usdtContract.balanceOf(address);
   return ethers.utils.formatEther(balance);
