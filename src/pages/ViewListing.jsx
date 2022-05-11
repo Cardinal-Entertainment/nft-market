@@ -719,6 +719,7 @@ const ViewListing = () => {
         {
           itemNumber: auctionId,
           marketContractAddress: ReadOnlyMarketContract?.address,
+          chainId
         },
       ])
       const randomId = uuidv4()
@@ -736,6 +737,7 @@ const ViewListing = () => {
                 {
                   itemNumber: auctionId,
                   marketContractAddress: ReadOnlyMarketContract?.address,
+                  chainId
                 },
               ],
               {
@@ -752,6 +754,7 @@ const ViewListing = () => {
               {
                 itemNumber: auctionId,
                 marketContractAddress: ReadOnlyMarketContract?.address,
+                chainId
               },
             ],
             {
@@ -765,7 +768,7 @@ const ViewListing = () => {
     })
 
     return () => PubSub.unsubscribe(token)
-  }, [queryClient, auctionId, ReadOnlyMarketContract])
+  }, [queryClient, auctionId, ReadOnlyMarketContract, chainId])
 
   const { isLoading: isFetchingListing, data: auctionItem } =
     useFetchSingleListingQuery(auctionId, ReadOnlyMarketContract, chainId)

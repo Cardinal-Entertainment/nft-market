@@ -77,11 +77,11 @@ const Home = () => {
        */
       const currentData = queryClient.getQueryData([
         QUERY_KEYS.listings,
-        { filters },
+        { filters, chainId },
       ])
       if (currentData) {
         queryClient.setQueryData(
-          [QUERY_KEYS.listings, { filters }],
+          [QUERY_KEYS.listings, { filters, chainId }],
           (queryData) => {
             return {
               pageParams: queryData.pageParams,
@@ -100,19 +100,19 @@ const Home = () => {
     })
 
     return () => PubSub.unsubscribe(token)
-  }, [queryClient, filters])
+  }, [queryClient, filters, chainId])
 
   useEffect(() => {
     const token = PubSub.subscribe(EVENT_TYPES.Bid, (msg, data) => {
       const currentData = queryClient.getQueryData([
         QUERY_KEYS.listings,
-        { filters },
+        { filters, chainId },
       ])
       if (currentData) {
         const auctionId = data.itemNumber
         const currentBidData = queryClient.getQueryData([
           QUERY_KEYS.bids,
-          { auctionId },
+          { auctionId, chainId },
         ])
         const randomId = uuidv4()
         const bidWithId = {
@@ -123,19 +123,19 @@ const Home = () => {
         if (data.itemNumber === auctionId) {
           if (currentBidData) {
             queryClient.setQueryData(
-              [QUERY_KEYS.bids, { auctionId }],
+              [QUERY_KEYS.bids, { auctionId, chainId }],
               [bidWithId, ...currentBidData]
             )
           } else {
             queryClient.setQueryData(
-              [QUERY_KEYS.bids, { auctionId }],
+              [QUERY_KEYS.bids, { auctionId, chainId }],
               [bidWithId]
             )
           }
         }
 
         queryClient.setQueryData(
-          [QUERY_KEYS.listings, { filters }],
+          [QUERY_KEYS.listings, { filters, chainId }],
           (queryData) => {
             queryData.pages.map((page) => {
               page.data.map((auction) => {
@@ -153,7 +153,7 @@ const Home = () => {
       }
     })
     return () => PubSub.unsubscribe(token)
-  }, [queryClient, filters])
+  }, [queryClient, filters, chainId])
 
   return (
     <Container>

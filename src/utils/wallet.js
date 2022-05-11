@@ -24,6 +24,11 @@ export const getWalletZoomBalance = async (zoomContract, address) => {
   return ethers.utils.formatEther(zoomBalance);
 };
 
+export const getWalletUSDCBalance = async (usdcContract, address) => {
+  const usdcBalance = await usdcContract.balanceOf(address)
+  return ethers.utils.formatEther(usdcBalance)
+}
+
 export const unWrapMOVR = async (wmovrContract, amount) => {
   await wmovrContract.withdraw(ethers.utils.parseEther(amount));
 };
