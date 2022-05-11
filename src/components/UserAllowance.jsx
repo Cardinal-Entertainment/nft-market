@@ -114,6 +114,7 @@ const UserAllowance = ({ initial }) => {
           {
             userAddress: wallet.address,
             zoomTokenContract: contracts.ZoomContract.address,
+            chainName: network
           },
         ],
         ethers.utils.parseEther(zoomAllowance.toString())

@@ -14,6 +14,7 @@ import {
   getWalletWMOVRBalance,
   getWalletZoomBalance,
   getWalletDAIBalance,
+  getWalletUSDCBalance,
 } from '../utils/wallet'
 import watchMarketEvents from 'utils/setupWatcher'
 import WebsocketProvider from 'utils/WebsocketProvider'
@@ -78,6 +79,12 @@ const loadContracts = async (
 
   const DAIContract = new ethers.Contract(
     network.daiContractAddress,
+    anyERC20JSON.abi,
+    signer
+  )
+
+  const USDCContract = new ethers.Contract(
+    network.usdcContractAddress,
     anyERC20JSON.abi,
     signer
   )
@@ -158,6 +165,25 @@ const loadContracts = async (
     }
   })
 
+  USDCContract.provider.on('block', async () => {
+    if (signer) {
+      const address = await signer.getAddress()
+      const bal = await getWalletUSDCBalance(DAIContract, address)
+
+      dispatch(
+        Actions.walletChanged({
+          usdcBalance: bal,
+        })
+      )
+    } else {
+      dispatch(
+        Actions.walletChanged({
+          usdcBalance: 0,
+        })
+      )
+    }
+  })
+
   await watchMarketEvents(
     websocketProvider,
     network.marketContractAddress,
@@ -175,6 +201,7 @@ const loadContracts = async (
         USDTContract,
         DAIContract,
         nftContracts,
+        USDCContract
       },
       signer: signer,
     })
@@ -187,6 +214,7 @@ const loadContracts = async (
     USDTContract,
     DAIContract,
     nftContracts,
+    USDCContract
   }
 }
 
@@ -274,13 +302,14 @@ export const setupEthers = async (dispatch, chainName = 'moonbase-alpha') => {
 
     websocketProvider.init()
 
-    const { ZoomContract, WMOVRContract, USDTContract, DAIContract } =
+    const { ZoomContract, WMOVRContract, USDTContract, DAIContract, USDCContract } =
       await loadContracts(signer, dispatch, websocketProvider.provider, chainName)
 
     const zoomBalance = await getWalletZoomBalance(ZoomContract, address)
     const WMOVRBalance = await getWalletWMOVRBalance(WMOVRContract, address)
     const usdtBalance = await getWalletUSDTBalance(USDTContract, address)
     const daiBalance = await getWalletDAIBalance(DAIContract, address)
+    const usdcBalance = await getWalletUSDCBalance(USDCContract, address)
 
     dispatch(
       Actions.walletChanged({
@@ -288,6 +317,7 @@ export const setupEthers = async (dispatch, chainName = 'moonbase-alpha') => {
         wmovrBalance: WMOVRBalance,
         usdtBalance: usdtBalance,
         daiBalance: daiBalance,
+        usdcBalance: usdcBalance
       })
     )
     dispatch(Actions.setupDone())

@@ -169,7 +169,7 @@ const App = () => {
     const addLiveFeedItem = (liveFeedItem, filterKey, networkName) => {
       const liveFeeds = queryClient.getQueryData([
         QUERY_KEYS.liveFeeds,
-        { filterKey },
+        { filterKey, chainId },
       ])
       const uuid = uuidv4()
       const network = NETWORKS[networkName]

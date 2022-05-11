@@ -20,6 +20,7 @@ const initialState = {
     wmovrBalance: null,
     usdtBalance: null,
     daiBalance: null,
+    usdcBalance: null
   },
   contracts: {
     ZoomContract: null,
@@ -28,6 +29,7 @@ const initialState = {
     WMOVRContract: null,
     USDTContract: null,
     DAIContract: null,
+    USDCContract: null,
     nftContracts: {},
   },
   signer: null,
@@ -40,6 +42,7 @@ const initialState = {
   usdtIncrement: toBigNumber(1), //this is ether units, convert to BigNumber and use wei
   daiIncrement: toBigNumber(1), //this is ether units, convert to BigNumber and use wei
   xcKSMIncrement: toBigNumber(0.006), //this is ether units, convert to BigNumber and use wei
+  usdctIncrement: toBigNumber(1)
 }
 
 const store = createContext(initialState)
