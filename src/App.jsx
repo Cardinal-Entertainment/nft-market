@@ -319,7 +319,7 @@ const App = () => {
       PubSub.unsubscribe(tokenBid)
       PubSub.unsubscribe(tokenSettled)
     }
-  }, [queryClient, isDesktop, address, myAuctions, ReadOnlyMarketContract])
+  }, [queryClient, isDesktop, address, myAuctions, ReadOnlyMarketContract, chainId])
 
   const LiveFeedButton = () => {
     return (
