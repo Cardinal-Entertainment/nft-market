@@ -188,7 +188,6 @@ const renderUserBalanceSection = (
   address,
   balance,
   zoomBalance,
-  wmovrBalance,
   usdtBalance,
   daiBalance,
   networkName
@@ -281,7 +280,7 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar, isMobile }) => {
 
   const { state, dispatch } = useContext(store)
   const {
-    wallet: { address, balance, zoomBalance, wmovrBalance, daiBalance },
+    wallet: { address, balance, zoomBalance, daiBalance },
     contracts,
   } = state
 
@@ -364,7 +363,6 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar, isMobile }) => {
         address,
         balance,
         zoomBalance,
-        wmovrBalance,
         daiBalance,
         networkName
       )}

@@ -697,7 +697,6 @@ const ViewListing = () => {
 
   const {
     zoomBalance,
-    wmovrBalance,
     balance: movrBalance,
     usdtBalance,
     daiBalance,
@@ -902,7 +901,6 @@ const ViewListing = () => {
             <ListingMetadata
               minIncrement={minIncrement}
               zoomBalance={zoomBalance}
-              wmovrBalance={wmovrBalance}
               usdtBalance={usdtBalance}
               movrBalance={movrBalance}
               daiBalance={daiBalance}

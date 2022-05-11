@@ -11,7 +11,6 @@ import Actions from 'store/actions'
 import { NFT_CONTRACTS, NETWORKS, METAMASK_CHAIN_PARAMS } from '../constants'
 import {
   getWalletUSDTBalance,
-  getWalletWMOVRBalance,
   getWalletZoomBalance,
   getWalletDAIBalance,
   getWalletUSDCBalance,
@@ -93,7 +92,6 @@ const loadContracts = async (
     if (signer) {
       const address = await signer.getAddress()
       const bal = await getWalletZoomBalance(ZoomContract, address)
-
       dispatch(
         Actions.walletChanged({
           zoomBalance: bal,
@@ -103,25 +101,6 @@ const loadContracts = async (
       dispatch(
         Actions.walletChanged({
           zoomBalance: 0,
-        })
-      )
-    }
-  })
-
-  WMOVRContract.provider.on('block', async () => {
-    if (signer) {
-      const address = await signer.getAddress()
-      const bal = await getWalletWMOVRBalance(WMOVRContract, address)
-
-      dispatch(
-        Actions.walletChanged({
-          wmovrBalance: bal,
-        })
-      )
-    } else {
-      dispatch(
-        Actions.walletChanged({
-          wmovrBalance: 0,
         })
       )
     }
@@ -269,7 +248,7 @@ export const setupEthers = async (dispatch, chainName = 'moonbase-alpha') => {
       return
     }
 
-    const { address, balance, network, signer, provider } = metamaskProviderData
+    const { address, balance, network, signer } = metamaskProviderData
 
     dispatch(
       Actions.walletChanged({
@@ -282,15 +261,16 @@ export const setupEthers = async (dispatch, chainName = 'moonbase-alpha') => {
 
     dispatch(Actions.dAppStateChanged(DAPP_STATES.CONNECTED))
 
-    provider.on('block', () => {
-      provider.getBalance(address).then((balance) => {
-        dispatch(
-          Actions.walletChanged({
-            balance: Number(ethers.utils.formatEther(balance)),
-          })
-        )
-      })
+
+    const httpUrl = NETWORKS[chainName].httpRPC
+    const jsonRPCProvider = new ethers.providers.JsonRpcProvider(httpUrl)
+    jsonRPCProvider.on('block', async (data) => {
+      const balance = await signer.getBalance()
+      dispatch(Actions.walletChanged({
+        balance: Number(ethers.utils.formatEther(balance))
+      }))
     })
+    
 
     const websocketUrl = NETWORKS[chainName].websocketRPC
     const websocketProvider = new WebsocketProvider(
@@ -302,11 +282,10 @@ export const setupEthers = async (dispatch, chainName = 'moonbase-alpha') => {
 
     websocketProvider.init()
 
-    const { ZoomContract, WMOVRContract, USDTContract, DAIContract, USDCContract } =
+    const { ZoomContract, USDTContract, DAIContract, USDCContract } =
       await loadContracts(signer, dispatch, websocketProvider.provider, chainName)
 
     const zoomBalance = await getWalletZoomBalance(ZoomContract, address)
-    const WMOVRBalance = await getWalletWMOVRBalance(WMOVRContract, address)
     const usdtBalance = await getWalletUSDTBalance(USDTContract, address)
     const daiBalance = await getWalletDAIBalance(DAIContract, address)
     const usdcBalance = await getWalletUSDCBalance(USDCContract, address)
@@ -314,7 +293,6 @@ export const setupEthers = async (dispatch, chainName = 'moonbase-alpha') => {
     dispatch(
       Actions.walletChanged({
         zoomBalance: zoomBalance,
-        wmovrBalance: WMOVRBalance,
         usdtBalance: usdtBalance,
         daiBalance: daiBalance,
         usdcBalance: usdcBalance

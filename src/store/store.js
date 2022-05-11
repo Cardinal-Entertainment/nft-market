@@ -17,7 +17,6 @@ const initialState = {
     balance: null,
     chainId: null,
     zoomBalance: null,
-    wmovrBalance: null,
     usdtBalance: null,
     daiBalance: null,
     usdcBalance: null
