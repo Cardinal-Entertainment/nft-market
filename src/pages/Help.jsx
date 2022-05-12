@@ -97,6 +97,22 @@ const HelpPage = () => {
         time is 2 weeks)
       </p>
 
+      <h2>Live Auction Legend</h2>
+
+        <img src="https://zoombies.world/images/market_auction_tile.png" width="20%" style={{float:"Right"}} alt="ZOOM Market auction legend" align="absmiddle" />
+
+        <p>
+        The Live Listing displays a Quick Summary of an auction:
+        <ul>
+          <li>Auction Listing Number</li>
+          <li>Rarity Count in listing - (E)pic, (R)are, (U)ncommon, (C)ommon</li>
+          <li>Current highest bid and Currency of Auction</li>
+          <li>Countdown of time remaining in the auction</li>
+          <li>Quick Bid the minimum increment above the current highest bid</li>
+          <li>More Info redirects to a detailed Auction listing view</li>
+        </ul>
+</p>
+
       <h2>After an auction ends</h2>
       <p>
         When an auction has completed, you can settle the funds or item to your
