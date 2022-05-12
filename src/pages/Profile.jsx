@@ -135,11 +135,14 @@ const StatusColumn = ({ auctionItem }) => {
       contracts.ReadOnlyMarketContract
     )
   const canSettle = isOver && (isWinner || isOwner) && isSettled === false
+  const isInstantAuction = auctionItem.auctionEnd === 0
   const queryClient = useQueryClient()
 
   if (isCheckingSettled) {
     return <CircularProgress size={20}></CircularProgress>
   }
+
+  const settleButtonText = isInstantAuction ? 'Cancel' : 'Settle'
 
   if (!isCheckingSettled && canSettle) {
     return (
@@ -148,7 +151,7 @@ const StatusColumn = ({ auctionItem }) => {
           borderRadius: 10,
         }}
         variant="contained"
-        color="success"
+        color={isInstantAuction ? 'warning': "success"} 
         disabled={isSettling}
         onClick={(e) =>
           handleSettle(
@@ -162,9 +165,7 @@ const StatusColumn = ({ auctionItem }) => {
       >
         {isSettling ? (
           <CircularProgress size={20}></CircularProgress>
-        ) : (
-          'Settle'
-        )}
+        ) : settleButtonText}
       </Button>
     )
   }

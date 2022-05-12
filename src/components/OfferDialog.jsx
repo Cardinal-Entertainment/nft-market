@@ -5,7 +5,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components/macro';
 import { ethers } from 'ethers'
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
@@ -59,8 +59,14 @@ const OfferDialog = ({
                        timestamp
                      }) => {
   const [open, setOpen] = useState(false);
-  const [input, setInput] = useState(ethers.utils.formatEther(minAmount));
+  const [input, setInput] = useState(ethers.utils.formatEther(minAmount.toString()));
   const [inputInvalid, setInputInvalid] = useState('');
+
+  useEffect(() => {
+    if (minAmount) {
+      setInput(ethers.utils.formatEther(minAmount.toString()))
+    }
+  }, [minAmount])
 
   const handleClickOpen = () => {
     setOpen(true);

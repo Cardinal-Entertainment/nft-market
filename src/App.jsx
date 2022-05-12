@@ -16,7 +16,7 @@ import Profile from 'pages/Profile'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import AuctionArchive from 'pages/AuctionArchive'
 import PubSub from 'pubsub-js'
-import { useQueryClient } from 'react-query'
+import { QueryCache, useQueryClient } from 'react-query'
 import { v4 as uuidv4 } from 'uuid'
 import {
   EVENT_TYPES,
@@ -156,6 +156,8 @@ const App = () => {
       if (!isInitialSetupDone) {
         const chainName = location.pathname.replace('/', '')
         setIsNetworkModalOpen(false)
+        const queryCache = new QueryCache()
+        queryCache.clear()
         await setupEthers(dispatch, chainName)
         await setupEthListeners(dispatch)
       }
