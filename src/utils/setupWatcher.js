@@ -39,7 +39,7 @@ const eventsToScrape = [
   },
   {
     filterString:
-      'Settled(uint256 indexed,address,address,uint256,address indexed,address indexed,address,uint256,uint256[])',
+      'Settled(uint256,address,address,uint256,address,address,address,uint256,uint256[])',
     callbackFunc: settledCallback,
   },
 ]

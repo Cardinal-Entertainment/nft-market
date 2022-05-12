@@ -2,7 +2,7 @@ import zoomTokenLogo from './assets/zoombies_coin.svg'
 import liveFeedIcon from './assets/live-feed.png'
 import React, { useContext, useEffect, useState } from 'react'
 import Navbar from 'components/Navbar'
-import { Switch, Route, Redirect, NavLink, useLocation } from 'react-router-dom'
+import { Switch, Route, Redirect, useLocation } from 'react-router-dom'
 import Home from 'pages/Home'
 import NewListing from 'pages/NewListing'
 import ViewListing from 'pages/ViewListing'
@@ -62,6 +62,11 @@ const Header = styled('div')(({ theme }) => ({
     height: '48px',
     marginLeft: 'auto',
     marginRight: '32px',
+  },
+
+  '& h1': {
+    display: 'block',
+    width: '300px',
   },
 
   [theme.breakpoints.down('md')]: {
@@ -321,7 +326,14 @@ const App = () => {
       PubSub.unsubscribe(tokenBid)
       PubSub.unsubscribe(tokenSettled)
     }
-  }, [queryClient, isDesktop, address, myAuctions, ReadOnlyMarketContract, chainId])
+  }, [
+    queryClient,
+    isDesktop,
+    address,
+    myAuctions,
+    ReadOnlyMarketContract,
+    chainId,
+  ])
 
   const LiveFeedButton = () => {
     return (
@@ -368,30 +380,19 @@ const App = () => {
     .map((network) => NETWORK_NAMES[network])
     .join('|')
 
+  const zoombiesLogoUrl = chainId === 1285 ? ZoombiesStableEndpoint : ZoombiesTestingEndpoint
+
   return (
     <Container>
       <Header>
-        <NavLink exact to={location.pathname}>
+        <a href={zoombiesLogoUrl} target="_blank" rel="noreferrer">
           <img
-            alt="MOVR Token"
-            className="header-logo-zoom"
-            src="https://zoombies.world/images/mr-icon.png"
+            src={zoomTokenLogo}
+            className={'header-logo-zoom'}
+            alt={'ZOOM token'}
           />
-        </NavLink>
-        <h1>Zoom </h1>{' '}
-        <img
-          src={zoomTokenLogo}
-          className={'header-logo-zoom'}
-          alt={'ZOOM token'}
-          onClick={() => {
-            if (chainId === 1287) {
-              window.open(ZoombiesTestingEndpoint, '_blank')
-            } else if (chainId === 1285) {
-              window.open(ZoombiesStableEndpoint, '_blank')
-            }
-          }}
-        />
-        <h1>Market</h1>{' '}
+        </a>
+        <h1>Zoom Market</h1>
         <span className="never-pay-commission">Never pay commission!</span>
         {isDesktop && (
           <div className="network-link-container">
