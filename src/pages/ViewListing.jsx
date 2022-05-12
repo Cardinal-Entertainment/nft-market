@@ -792,6 +792,8 @@ const ViewListing = () => {
     const isOwner = wallet.address === auctionItem.seller
     const canSettle =
       isOver && (isWinner || isOwner) && !auctionItem.isItemSettled
+    const isInstantAuction = auctionItem.auctionEnd === 0
+
     const sellerURL =
       chainId === 1287
         ? `${ZoombiesTestingEndpoint}/my-zoombies-nfts/${auctionItem?.seller}`
@@ -888,10 +890,10 @@ const ViewListing = () => {
           {canSettle && (
             <Button
               variant="contained"
-              color="success"
-              onClick={() => handleSettle(history, MarketContract, auctionId)}
+              color={isInstantAuction ? 'warning': "success"} 
+              onClick={() => handleSettle(history, MarketContract, auctionId, network)}
             >
-              Settle
+              {isInstantAuction ? 'Cancel' : 'Settle'}
             </Button>
           )}
         </HeaderRow>
