@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import styled from 'styled-components/macro'
 import { store } from 'store/store'
 import { ethers } from 'ethers'
+import '../assets/scss/Help.scss'
 
 const Container = styled.div`
   color: white;
@@ -98,20 +99,28 @@ const HelpPage = () => {
       </p>
 
       <h2>Live Auction Legend</h2>
-
-        <img src="https://zoombies.world/images/market_auction_tile.png" width="20%" style={{float:"Right"}} alt="ZOOM Market auction legend" align="absmiddle" />
-
+      <div className="auction-legend-wrapper">
         <p>
-        The Live Listing displays a Quick Summary of an auction:
-        <ul>
-          <li>Auction Listing Number</li>
-          <li>Rarity Count in listing - (E)pic, (R)are, (U)ncommon, (C)ommon</li>
-          <li>Current highest bid and Currency of Auction</li>
-          <li>Countdown of time remaining in the auction</li>
-          <li>Quick Bid the minimum increment above the current highest bid</li>
-          <li>More Info redirects to a detailed Auction listing view</li>
-        </ul>
-</p>
+          The Live Listing displays a Quick Summary of an auction:
+          <ul>
+            <li>Auction Listing Number</li>
+            <li>
+              Rarity Count in listing - (E)pic, (R)are, (U)ncommon, (C)ommon
+            </li>
+            <li>Current highest bid and Currency of Auction</li>
+            <li>Countdown of time remaining in the auction</li>
+            <li>
+              Quick Bid the minimum increment above the current highest bid
+            </li>
+            <li>More Info redirects to a detailed Auction listing view</li>
+          </ul>
+        </p>
+        <img
+          src="https://zoombies.world/images/market_auction_tile.png"
+          alt="ZOOM Market auction legend"
+          align="absmiddle"
+        />
+      </div>
 
       <h2>After an auction ends</h2>
       <p>
