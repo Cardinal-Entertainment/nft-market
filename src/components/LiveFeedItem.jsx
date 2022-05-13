@@ -11,14 +11,11 @@ import iconMyOutBid from '../assets/myoutbid.png'
 import iconSettle from '../assets/settle.png'
 import iconWin from '../assets/win.png'
 import iconSold from '../assets/sold.png'
-import wmovrCoin from '../assets/movr_logo.png'
-import usdtCoin from '../assets/usdt.svg'
-import daiCoin from '../assets/dai.png'
-import zoomCoin from '../assets/zoombies_coin.svg'
 
 import moment from 'moment'
 import { useHistory, useParams } from 'react-router-dom'
 import { formatAddress } from '../utils/wallet'
+import { CURRENCY_ICONS } from '../constants'
 
 const StyledDiv = styled('div')({
   // '& .container-highlight': {
@@ -275,15 +272,7 @@ const LiveFeedItem = (props, ref) => {
                   Min Price:{' '}
                   <img
                     className="content-coin"
-                    src={
-                      currency === 'ZOOM'
-                        ? zoomCoin
-                        : currency === 'USDT'
-                        ? usdtCoin
-                        : currency === 'DAI'
-                        ? daiCoin
-                        : wmovrCoin
-                    }
+                    src={CURRENCY_ICONS[currency]}
                     alt={currency}
                   />
                   <span className={'span-amount'}>{minPrice}</span> {currency}
@@ -291,7 +280,9 @@ const LiveFeedItem = (props, ref) => {
                 <div className={'content-auction-end'}>
                   Auction Ends at:{' '}
                   <span>
-                    {auctionEnd > 0 ? moment.unix(auctionEnd).format('MM/DD/YYYY, h:mm:ss A') : 'Instant Auction'}
+                    {auctionEnd > 0
+                      ? moment.unix(auctionEnd).format('MM/DD/YYYY, h:mm:ss A')
+                      : 'Instant Auction'}
                   </span>
                 </div>
               </>
@@ -304,15 +295,7 @@ const LiveFeedItem = (props, ref) => {
                   Min Price:{' '}
                   <img
                     className="content-coin"
-                    src={
-                      currency === 'ZOOM'
-                        ? zoomCoin
-                        : currency === 'USDT'
-                        ? usdtCoin
-                        : currency === 'DAI'
-                        ? daiCoin
-                        : wmovrCoin
-                    }
+                    src={CURRENCY_ICONS[currency]}
                     alt={currency}
                   />
                   <span className={'span-amount'}>{minPrice}</span> {currency}
@@ -320,7 +303,9 @@ const LiveFeedItem = (props, ref) => {
                 <div className={'content-auction-end'}>
                   Auction Ends at:{' '}
                   <span>
-                  {auctionEnd > 0 ? moment.unix(auctionEnd).format('MM/DD/YYYY, h:mm:ss A') : 'Instant Auction'}
+                    {auctionEnd > 0
+                      ? moment.unix(auctionEnd).format('MM/DD/YYYY, h:mm:ss A')
+                      : 'Instant Auction'}
                   </span>
                 </div>
               </>
@@ -333,15 +318,7 @@ const LiveFeedItem = (props, ref) => {
                   Bid Amount:{' '}
                   <img
                     className="content-coin"
-                    src={
-                      currency === 'ZOOM'
-                        ? zoomCoin
-                        : currency === 'USDT'
-                        ? usdtCoin
-                        : currency === 'DAI'
-                        ? daiCoin
-                        : wmovrCoin
-                    }
+                    src={CURRENCY_ICONS[currency]}
                     alt={currency}
                   />
                   <span className={'span-amount'}>{bidAmount}</span> {currency}
@@ -356,15 +333,7 @@ const LiveFeedItem = (props, ref) => {
                   Bid Amount:{' '}
                   <img
                     className="content-coin"
-                    src={
-                      currency === 'ZOOM'
-                        ? zoomCoin
-                        : currency === 'USDT'
-                        ? usdtCoin
-                        : currency === 'DAI'
-                        ? daiCoin
-                        : wmovrCoin
-                    }
+                    src={CURRENCY_ICONS[currency]}
                     alt={currency}
                   />
                   <span className={'span-amount'}>{bidAmount}</span> {currency}
@@ -379,15 +348,7 @@ const LiveFeedItem = (props, ref) => {
                   Bid Amount:{' '}
                   <img
                     className="content-coin"
-                    src={
-                      currency === 'ZOOM'
-                        ? zoomCoin
-                        : currency === 'USDT'
-                        ? usdtCoin
-                        : currency === 'DAI'
-                        ? daiCoin
-                        : wmovrCoin
-                    }
+                    src={CURRENCY_ICONS[currency]}
                     alt={currency}
                   />
                   <span className={'span-amount'}>{bidAmount}</span> {currency}
@@ -403,15 +364,7 @@ const LiveFeedItem = (props, ref) => {
                   Amount:{' '}
                   <img
                     className="content-coin"
-                    src={
-                      currency === 'ZOOM'
-                        ? zoomCoin
-                        : currency === 'USDT'
-                        ? usdtCoin
-                        : currency === 'DAI'
-                        ? daiCoin
-                        : wmovrCoin
-                    }
+                    src={CURRENCY_ICONS[currency]}
                     alt={currency}
                   />
                   <span className={'span-amount'}>{bidAmount}</span> {currency}
@@ -427,15 +380,7 @@ const LiveFeedItem = (props, ref) => {
                   Amount:{' '}
                   <img
                     className="content-coin"
-                    src={
-                      currency === 'ZOOM'
-                        ? zoomCoin
-                        : currency === 'USDT'
-                        ? usdtCoin
-                        : currency === 'DAI'
-                        ? daiCoin
-                        : wmovrCoin
-                    }
+                    src={CURRENCY_ICONS[currency]}
                     alt={currency}
                   />
                   <span className={'span-amount'}>{bidAmount}</span> {currency}
@@ -451,15 +396,7 @@ const LiveFeedItem = (props, ref) => {
                   Amount:{' '}
                   <img
                     className="content-coin"
-                    src={
-                      currency === 'ZOOM'
-                        ? zoomCoin
-                        : currency === 'USDT'
-                        ? usdtCoin
-                        : currency === 'DAI'
-                        ? daiCoin
-                        : wmovrCoin
-                    }
+                    src={CURRENCY_ICONS[currency]}
                     alt={currency}
                   />
                   <span className={'span-amount'}>{bidAmount}</span> {currency}
@@ -477,15 +414,7 @@ const LiveFeedItem = (props, ref) => {
                   Amount:{' '}
                   <img
                     className="content-coin"
-                    src={
-                      currency === 'ZOOM'
-                        ? zoomCoin
-                        : currency === 'USDT'
-                        ? usdtCoin
-                        : currency === 'DAI'
-                        ? daiCoin
-                        : wmovrCoin
-                    }
+                    src={CURRENCY_ICONS[currency]}
                     alt={currency}
                   />
                   <span className={'span-amount'}>{bidAmount}</span> {currency}
@@ -500,15 +429,7 @@ const LiveFeedItem = (props, ref) => {
                   Amount:{' '}
                   <img
                     className="content-coin"
-                    src={
-                      currency === 'ZOOM'
-                        ? zoomCoin
-                        : currency === 'USDT'
-                        ? usdtCoin
-                        : currency === 'DAI'
-                        ? daiCoin
-                        : wmovrCoin
-                    }
+                    src={CURRENCY_ICONS[currency]}
                     alt={currency}
                   />
                   <span className={'span-amount'}>{bidAmount}</span> {currency}

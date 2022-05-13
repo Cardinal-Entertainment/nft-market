@@ -1,8 +1,6 @@
 import React, { useContext, useState } from 'react'
 import { useTheme } from 'styled-components'
 import metamaskLogo from '../assets/metamask-face.png'
-import movrLogo from '../assets/movr_logo.png'
-import zoomCoin from '../assets/zoombies_coin.svg'
 import Tooltip from '@mui/material/Tooltip'
 import { store } from 'store/store'
 import { NavLink } from 'react-router-dom'
@@ -24,7 +22,7 @@ import { styled as styled1 } from '@mui/material/styles'
 import NotificationAddon from './NotificationAddon'
 import { Button } from '@mui/material'
 import { getNetworkNameFromURL } from '../utils/networkUtil'
-import { NETWORK_ICONS } from '../constants'
+import { CURRENCY_ICONS, NETWORK_ICONS } from '../constants'
 import '../assets/scss/Navbar.scss'
 import NetworkModal from './NetworkModal'
 
@@ -238,7 +236,7 @@ const renderUserBalanceSection = (
           placement="right"
         >
           <span>
-            <img src={movrLogo} alt="movr logo" />
+            <img src={ CURRENCY_ICONS.MOVR} alt="movr logo" />
             {Number(balance).toFixed(4)} MOVR
           </span>
         </Tooltip>
@@ -266,7 +264,7 @@ const renderUserBalanceSection = (
           placement="right"
         >
           <span>
-            <img className="zoom" src={zoomCoin} alt="zoom coin logo" />
+            <img className="zoom" src={CURRENCY_ICONS.ZOOM} alt="zoom coin logo" />
             {Number(Number(zoomBalance || 0).toFixed(4)).toLocaleString()} ZOOM
           </span>
         </Tooltip>
