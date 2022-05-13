@@ -18,6 +18,7 @@ import {
   ZoombiesTestingEndpoint,
   NETWORKS,
   NFT_CONTRACTS,
+  CURRENCY_ICONS,
 } from '../constants'
 import { ethers } from 'ethers'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -25,10 +26,6 @@ import { faChevronLeft } from '@fortawesome/free-solid-svg-icons'
 import moment from 'moment'
 import momentTimezone from 'moment-timezone'
 import LazyLoad from 'react-lazyload'
-import zoomLogo from '../assets/zoombies_coin.svg'
-import movrLogo from '../assets/movr_logo.png'
-import daiLogo from '../assets/dai.png'
-import usdtLogo from '../assets/usdt.svg'
 import LoadingModal from 'components/LoadingModal'
 import { useQueryClient } from 'react-query'
 import { v4 as uuidv4 } from 'uuid'
@@ -545,15 +542,7 @@ const ListingMetadata = ({
         <div className={'currency-label'}>
           <p>Auction currency: {auctionCurrency}</p>
           <div className={'currency-logo'}>
-            {listing.currency === 'ZOOM' ? (
-              <StyledLogo src={zoomLogo} />
-            ) : listing.currency === 'USDT' ? (
-              <StyledLogo src={usdtLogo} />
-            ) : listing.currency === 'DAI' ? (
-              <StyledLogo src={daiLogo} />
-            ) : (
-              <StyledLogo src={movrLogo} />
-            )}
+            <StyledLogo src={CURRENCY_ICONS[listing.currency]} />
           </div>
         </div>
         <p className="min-price">

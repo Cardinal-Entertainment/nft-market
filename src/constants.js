@@ -2,6 +2,10 @@ import zoombiesLogo from './assets/zoombies_logo.svg'
 import nextGemLogo from './assets/NextGem.png'
 import zoombiesContractJSON from './contracts/Zoombies.json'
 import anyNFTJson from './contracts/AnyNFT.json'
+import movrLogo from './assets/movr_logo.png'
+import usdtLogo from './assets/usdt.svg'
+import daiLogo from './assets/dai.png'
+import zoomCoin from './assets/zoombies_coin.svg'
 
 export const isLocal = process.env.NODE_ENV === 'development'
 
@@ -134,4 +138,11 @@ export const NETWORK_ICONS = {
   'moonbase-alpha': 'https://zoombies.world/images/moonbase.png',
   'moonriver': 'https://zoombies.world/images/mr-icon.png',
   'moonbeam': 'https://zoombies.world/images/moonbeam.webp'
+}
+
+export const CURRENCY_ICONS = {
+  MOVR: movrLogo,
+  DAI: daiLogo,
+  USDT: usdtLogo,
+  ZOOM: zoomCoin
 }

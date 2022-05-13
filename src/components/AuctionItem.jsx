@@ -2,15 +2,8 @@ import React, { useContext, useEffect, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faClock } from '@fortawesome/free-regular-svg-icons'
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
-import movrLogo from '../assets/movr_logo.png'
-import usdtLogo from '../assets/usdt.svg'
-import daiLogo from '../assets/dai.png'
-import zoomCoin from '../assets/zoombies_coin.svg'
 import { Button, CircularProgress, Modal, styled, Grid } from '@mui/material'
-import {
-  QUERY_KEYS,
-  NETWORKS,
-} from '../constants'
+import { QUERY_KEYS, NETWORKS, CURRENCY_ICONS } from '../constants'
 import { useTheme } from 'styled-components'
 import moment from 'moment'
 import { useHistory, useParams } from 'react-router-dom'
@@ -343,7 +336,6 @@ const AuctionItem = ({ content, archived, refresh }) => {
   const marketAddress = NETWORKS[network].marketContractAddress
   const chainId = NETWORKS[network].chainId
 
-
   const coinType = getTokenSymbol(auctionItem.saleToken, network)
 
   const getTokenMinIncrement = (saleToken) => {
@@ -398,7 +390,9 @@ const AuctionItem = ({ content, archived, refresh }) => {
         let tokenContract
         if (auctionItem.saleToken === NETWORKS[network].daiContractAddress) {
           tokenContract = contracts.DAIContract
-        } else if (auctionItem.saleToken === NETWORKS[network].usdtContractAddress) {
+        } else if (
+          auctionItem.saleToken === NETWORKS[network].usdtContractAddress
+        ) {
           tokenContract = contracts.USDTContract
         }
         const allowance = await getUserTokenAllowance(
@@ -413,7 +407,9 @@ const AuctionItem = ({ content, archived, refresh }) => {
               weiAmount
             )
             await waitForTransaction(approveTx)
-          } else if (auctionItem.saleToken === NETWORKS[network].usdtContractAddress) {
+          } else if (
+            auctionItem.saleToken === NETWORKS[network].usdtContractAddress
+          ) {
             const approveTx = await contracts.USDTContract.approve(
               marketAddress,
               weiAmount
@@ -429,7 +425,7 @@ const AuctionItem = ({ content, archived, refresh }) => {
         { value: currency === 'MOVR' ? weiAmount : 0 }
       )
       await waitForTransaction(bidTx)
-      refresh();
+      refresh()
     } catch (e) {
       console.error(e)
     } finally {
@@ -526,7 +522,8 @@ const AuctionItem = ({ content, archived, refresh }) => {
           </div>
           <div className={'meta-header-right'}>
             <div className={'meta-header-cards-tip'}>
-              {auctionItem.saleToken !== NETWORKS[network].wmovrContractAddress ? (
+              {auctionItem.saleToken !==
+              NETWORKS[network].wmovrContractAddress ? (
                 ''
               ) : (
                 <>
@@ -576,28 +573,24 @@ const AuctionItem = ({ content, archived, refresh }) => {
               <MetaContentBidAmount>
                 <img
                   className={'meta-content-coin-icon'}
-                  src={
-                    coinType === 'ZOOM'
-                      ? zoomCoin
-                      : coinType === 'USDT'
-                      ? usdtLogo
-                      : coinType === 'DAI'
-                      ? daiLogo
-                      : movrLogo
-                  }
+                  src={CURRENCY_ICONS[coinType]}
                   alt={coinType}
                   loading="lazy"
                 />
                 <span>
                   {ethers.utils.formatEther(
-                    ethers.utils.parseEther(auctionItem.highestBid !== 0
-                      ? auctionItem.highestBid.toString()
-                      : auctionItem.minPrice.toString())
+                    ethers.utils.parseEther(
+                      auctionItem.highestBid !== 0
+                        ? auctionItem.highestBid.toString()
+                        : auctionItem.minPrice.toString()
+                    )
                   )}
                 </span>
                 <span className={'meta-content-coin-text'}>{coinType}</span>
               </MetaContentBidAmount>
-              <MetaContentTip>{auctionItem.highestBid !== 0 ? "Highest Bid" : "Min Price"}</MetaContentTip>
+              <MetaContentTip>
+                {auctionItem.highestBid !== 0 ? 'Highest Bid' : 'Min Price'}
+              </MetaContentTip>
             </MetaContentRow>
           )}
 
@@ -714,9 +707,7 @@ const AuctionItem = ({ content, archived, refresh }) => {
               <CardImage
                 key={card.id}
                 src={
-                  card.isNotZoombies
-                    ? card.image
-                    : cardImageUrl + '/' + card.id
+                  card.isNotZoombies ? card.image : cardImageUrl + '/' + card.id
                 }
                 alt={'CARD ' + card.id}
                 loading="lazy"

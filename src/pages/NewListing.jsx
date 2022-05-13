@@ -17,6 +17,7 @@ import {
   NETWORKS,
   NFT_CONTRACTS,
   CHAIN_ID_TO_NETWORK,
+  CURRENCY_ICONS,
 } from '../constants'
 import {
   useFetchUserNFTQuery,
@@ -35,6 +36,8 @@ import Typography from '@mui/material/Typography'
 import { compareAsBigNumbers, toBigNumber } from '../utils/BigNumbers'
 import AntSwitch from '../components/AntSwitch'
 import Stack from '@mui/material/Stack'
+
+import '../assets/scss/Newlisting.scss'
 
 const Container = styled.div`
   flex: 1;
@@ -231,9 +234,7 @@ const renderUserNFTs = (
     <LazyLoad key={card.id} once={true} resize={true}>
       <CardWrapper onClick={() => handleCardClicked(card.id)} key={card.id}>
         <img
-          src={
-            card.isNotZoombies ? card.image : `${imageUrl}/${card.id}`
-          }
+          src={card.isNotZoombies ? card.image : `${imageUrl}/${card.id}`}
           alt={`Token #${card.id}`}
         />
         <div>ID: {card.id}</div>
@@ -337,21 +338,21 @@ const NewListing = () => {
       contracts.nftContracts &&
       Object.keys(contracts.nftContracts).length > 0
     ) {
-        const readOnlyContract = contracts.nftContracts[selectedNFT]?.readOnly
+      const readOnlyContract = contracts.nftContracts[selectedNFT]?.readOnly
 
-        if (readOnlyContract) {
-          const approved = await readOnlyContract.isApprovedForAll(
-            wallet.address,
-            marketAddress
-          )
+      if (readOnlyContract) {
+        const approved = await readOnlyContract.isApprovedForAll(
+          wallet.address,
+          marketAddress
+        )
 
-          if (!approved) {
-            setIsApprovedForAll(false)
-            const signedContract = contracts.nftContracts[selectedNFT]?.signed
-            await signedContract.setApprovalForAll(marketAddress, true)
-            setIsApprovedForAll(true)
-          }
+        if (!approved) {
+          setIsApprovedForAll(false)
+          const signedContract = contracts.nftContracts[selectedNFT]?.signed
+          await signedContract.setApprovalForAll(marketAddress, true)
+          setIsApprovedForAll(true)
         }
+      }
     }
   }
 
@@ -461,7 +462,10 @@ const NewListing = () => {
             >
               {Object.keys(CURRENCY_TYPES).map((value) => (
                 <MenuItem value={value} key={value}>
-                  {CURRENCY_TYPES[value]}
+                  <div className='new-listing-dropdown-item'>
+                    <img src={CURRENCY_ICONS[value]} alt="" />
+                    {CURRENCY_TYPES[value]}
+                  </div>
                 </MenuItem>
               ))}
             </Select>
