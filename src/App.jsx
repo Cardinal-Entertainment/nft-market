@@ -17,10 +17,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import AuctionArchive from 'pages/AuctionArchive'
 import PubSub from 'pubsub-js'
 import { QueryCache, useQueryClient } from 'react-query'
-import { v4 as uuidv4 } from 'uuid'
 import {
-  EVENT_TYPES,
-  QUERY_KEYS,
   ZoombiesTestingEndpoint,
   ZoombiesStableEndpoint,
   NETWORK_NAMES,
@@ -34,6 +31,7 @@ import { setupEthers, setupEthListeners } from 'hooks/useBlockchain'
 import { getNetworkNameFromURL } from 'utils/networkUtil'
 import './assets/scss/App.scss'
 import NetworkModal from 'components/NetworkModal'
+import { addBidEventToFeed, newSettledEvent } from 'utils/events'
 
 const Container = styled('div')({
   height: '100vh',
@@ -173,157 +171,16 @@ const App = () => {
   const { data: myAuctions } = useFetchProfileQuery(address, chainId)
 
   useEffect(() => {
-    const addLiveFeedItem = (liveFeedItem, filterKey, networkName) => {
-      const liveFeeds = queryClient.getQueryData([
-        QUERY_KEYS.liveFeeds,
-        { filterKey, chainId },
-      ])
-      const uuid = uuidv4()
-      const network = NETWORKS[networkName]
-
-      const newItem = {
-        _id: uuid,
-        type: liveFeedItem.type,
-        timestamp: Date.now() / 1000,
-        content: {
-          blockNumber: uuid, //should be removed when settle eventscraper is completed
-          currency: network
-            ? liveFeedItem.saleToken === network.zoomContractAddress
-              ? 'ZOOM'
-              : liveFeedItem.saleToken === network.wmovrContractAddress
-              ? 'MOVR'
-              : liveFeedItem.saleToken === network.usdtContractAddress
-              ? 'USDT'
-              : liveFeedItem.saleToken === network.daiContractAddress
-              ? 'DAI'
-              : ''
-            : '',
-          ...liveFeedItem,
-        },
-      }
-
-      if (liveFeeds) {
-        queryClient.setQueryData(
-          [QUERY_KEYS.liveFeeds, { filterKey }],
-          [newItem, ...liveFeeds]
-        )
-      } else {
-        queryClient.setQueryData(
-          [QUERY_KEYS.liveFeeds, { filterKey }],
-          [newItem]
-        )
-      }
-
-      const newCount = queryClient.getQueryData([
-        QUERY_KEYS.liveFeeds,
-        { filterKey: 'new' + filterKey },
-      ])
-      queryClient.setQueryData(
-        [QUERY_KEYS.liveFeeds, { filterKey: 'new' + filterKey }],
-        typeof newCount === 'string' ? parseInt(newCount) + 1 : newCount + 1
-      )
-    }
-
-    const getBidType = (liveFeedItem) => {
-      const condition = (bid) => {
-        return bid.itemNumber === liveFeedItem.itemNumber
-      }
-
-      if (myAuctions.bids.some(condition)) {
-        return 'myoutbid'
-      }
-      if (liveFeedItem.bidder === address) {
-        return 'mybid'
-      }
-      if (myAuctions.listings.some(condition)) {
-        return 'mybidon'
-      }
-      return 'bid'
-    }
-
-    const getSettleType = (liveFeedItem) => {
-      const condition = (item) => {
-        return item.itemNumber === liveFeedItem.itemNumber
-      }
-
-      if (myAuctions.bids.some(condition)) {
-        return 'settlemybid'
-      }
-      if (liveFeedItem.winner === address) {
-        return 'win'
-      }
-      if (
-        myAuctions.listings.some(condition) ||
-        liveFeedItem.seller === address
-      ) {
-        return 'sold'
-      }
-      return 'settle'
-    }
-
     setIsMobileDrawerOpen(isDesktop)
-    const tokenNewAuction = PubSub.subscribe(
-      EVENT_TYPES.ItemListed,
-      (msg, data) => {
-        const newAuction = data
-        let filterKey = ''
 
-        if (newAuction.lister === address) {
-          filterKey = 'MyAlerts'
-          newAuction['type'] = 'mynew'
-        } else {
-          filterKey = 'General'
-          newAuction['type'] = 'new'
-        }
-
-        addLiveFeedItem(newAuction, filterKey, newAuction.networkName)
-      }
+    const bidToken = addBidEventToFeed(
+      queryClient, address, chainId, ReadOnlyMarketContract
     )
 
-    const tokenBid = PubSub.subscribe(EVENT_TYPES.Bid, async (msg, data) => {
-      const bid = data
-      let filterKey = ''
-
-      const bidType = getBidType(bid)
-
-      let listingItem = myAuctions.listings.find(
-        (listing) => listing.itemNumber === bid.itemNumber
-      )
-      if (listingItem === undefined) {
-        listingItem = await ReadOnlyMarketContract.getListItem(bid.itemNumber)
-      }
-
-      bid['type'] = bidType
-      bid['saleToken'] = listingItem.saleToken
-      if (bidType === 'bid') {
-        filterKey = 'General'
-      } else {
-        filterKey = 'MyAlerts'
-      }
-      addLiveFeedItem(bid, filterKey, bid.networkName)
-    })
-
-    const tokenSettled = PubSub.subscribe(
-      EVENT_TYPES.Settled,
-      async (msg, data) => {
-        const settleData = data
-        let filterKey = ''
-
-        const settleType = getSettleType(settleData)
-
-        settleData['type'] = settleType
-        if (settleType === 'settle') {
-          filterKey = 'General'
-        } else {
-          filterKey = 'MyAlerts'
-        }
-        addLiveFeedItem(settleData, filterKey, settleData.networkName)
-      }
-    )
+    const tokenSettled = newSettledEvent(queryClient, address, chainId)
 
     return () => {
-      PubSub.unsubscribe(tokenNewAuction)
-      PubSub.unsubscribe(tokenBid)
+      PubSub.unsubscribe(bidToken)
       PubSub.unsubscribe(tokenSettled)
     }
   }, [

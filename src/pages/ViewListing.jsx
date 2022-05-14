@@ -12,8 +12,6 @@ import TableRow from '@mui/material/TableRow'
 import { CircularProgress, Modal, Paper } from '@mui/material'
 import OfferDialog from 'components/OfferDialog'
 import {
-  EVENT_TYPES,
-  QUERY_KEYS,
   ZoombiesStableEndpoint,
   ZoombiesTestingEndpoint,
   NETWORKS,
@@ -28,7 +26,6 @@ import momentTimezone from 'moment-timezone'
 import LazyLoad from 'react-lazyload'
 import LoadingModal from 'components/LoadingModal'
 import { useQueryClient } from 'react-query'
-import { v4 as uuidv4 } from 'uuid'
 import { useFetchSingleListingQuery } from 'hooks/useListing'
 import { formatAddress } from 'utils/wallet'
 import { styled } from '@mui/material'
@@ -44,6 +41,7 @@ import AccordionSummary from '@mui/material/AccordionSummary'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import Typography from '@mui/material/Typography'
 import AccordionDetails from '@mui/material/AccordionDetails'
+import { newBidEventForListing } from 'utils/events'
 
 const Container = styled('div')(({ theme }) => ({
   backgroundColor: 'white',
@@ -336,11 +334,7 @@ const ListingNFTs = ({ cards, network }) => {
               onClick={() => setEnlargedCard(card)}
             >
               <img
-                src={
-                  card.isNotZoombies
-                    ? card.image
-                    : `${imageUrl}/${card.id}`
-                }
+                src={card.isNotZoombies ? card.image : `${imageUrl}/${card.id}`}
                 alt={`Token #${card.id}`}
                 loading="lazy"
               />
@@ -395,7 +389,7 @@ const ListingMetadata = ({
     zoomContractAddress,
     wmovrContractAddress,
     usdtContractAddress,
-    daiContractAddress
+    daiContractAddress,
   } = NETWORKS[networkName]
 
   useEffect(() => {
@@ -423,7 +417,7 @@ const ListingMetadata = ({
     zoomContractAddress,
     wmovrContractAddress,
     usdtContractAddress,
-    daiContractAddress
+    daiContractAddress,
   ])
 
   /*
@@ -684,76 +678,23 @@ const ViewListing = () => {
     },
   } = useContext(store)
 
-  const {
-    zoomBalance,
-    balance: movrBalance,
-    usdtBalance,
-    daiBalance,
-  } = wallet
+  const { zoomBalance, balance: movrBalance, usdtBalance, daiBalance } = wallet
   const { MarketContract, ReadOnlyMarketContract } = contracts
   const {
     chainId,
     marketContractAddress: marketAddress,
     usdtContractAddress,
-    daiContractAddress
+    daiContractAddress,
   } = NETWORKS[network]
 
   const queryClient = useQueryClient()
   useEffect(() => {
-    const token = PubSub.subscribe(EVENT_TYPES.Bid, (msg, data) => {
-      const bid = data
-      const currentListing = queryClient.getQueryData([
-        QUERY_KEYS.listing,
-        {
-          itemNumber: auctionId,
-          marketContractAddress: ReadOnlyMarketContract?.address,
-          chainId
-        },
-      ])
-      const randomId = uuidv4()
-      const bidWithId = {
-        ...bid,
-        _id: randomId,
-      }
-
-      if (bid.itemNumber === auctionId) {
-        if (currentListing && currentListing.bids) {
-          if (currentListing.bids.length > 0) {
-            queryClient.setQueryData(
-              [
-                QUERY_KEYS.listing,
-                {
-                  itemNumber: auctionId,
-                  marketContractAddress: ReadOnlyMarketContract?.address,
-                  chainId
-                },
-              ],
-              {
-                ...currentListing,
-                bids: [...currentListing.bids, bidWithId],
-                highestBid: bid.bidAmount,
-              }
-            )
-          }
-        } else {
-          queryClient.setQueryData(
-            [
-              QUERY_KEYS.listing,
-              {
-                itemNumber: auctionId,
-                marketContractAddress: ReadOnlyMarketContract?.address,
-                chainId
-              },
-            ],
-            {
-              ...currentListing,
-              bids: [bidWithId],
-              highestBid: bid.bidAmount,
-            }
-          )
-        }
-      }
-    })
+    const token = newBidEventForListing(
+      queryClient,
+      auctionId,
+      ReadOnlyMarketContract,
+      chainId
+    )
 
     return () => PubSub.unsubscribe(token)
   }, [queryClient, auctionId, ReadOnlyMarketContract, chainId])
@@ -879,8 +820,10 @@ const ViewListing = () => {
           {canSettle && (
             <Button
               variant="contained"
-              color={isInstantAuction ? 'warning': "success"} 
-              onClick={() => handleSettle(history, MarketContract, auctionId, network)}
+              color={isInstantAuction ? 'warning' : 'success'}
+              onClick={() =>
+                handleSettle(history, MarketContract, auctionId, network)
+              }
             >
               {isInstantAuction ? 'Cancel' : 'Settle'}
             </Button>
