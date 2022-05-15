@@ -249,16 +249,6 @@ const addLiveFeedItem = (queryClient, liveFeedItem, filterKey, chainId) => {
       return [newItem]
     }
   })
-
-  const newCount = queryClient.getQueryData([
-    QUERY_KEYS.liveFeeds,
-    { filterKey: 'new' + filterKey },
-  ])
-
-  queryClient.setQueryData(
-    [QUERY_KEYS.liveFeeds, { filterKey: 'new' + filterKey }],
-    typeof newCount === 'string' ? parseInt(newCount) + 1 : newCount + 1
-  )
 }
 
 const getBidEventType = (bidData, queryClient, userAddress, chainId) => {

@@ -162,11 +162,11 @@ const App = () => {
         const queryCache = new QueryCache()
         queryCache.clear()
         await setupEthers(dispatch, chainName)
-        await setupEthListeners(dispatch)
+        await setupEthListeners(dispatch, queryClient, chainName)
       }
     }
     setupWallet()
-  }, [dispatch, location, isInitialSetupDone])
+  }, [dispatch, location, isInitialSetupDone, queryClient])
 
   const { data: myAuctions } = useFetchProfileQuery(address, chainId)
 

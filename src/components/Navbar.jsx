@@ -25,6 +25,7 @@ import { getNetworkNameFromURL } from '../utils/networkUtil'
 import { CURRENCY_ICONS, NETWORK_ICONS } from '../constants'
 import '../assets/scss/Navbar.scss'
 import NetworkModal from './NetworkModal'
+import { useQueryClient } from 'react-query'
 
 const Container = styled1('div')({
   width: '300px',
@@ -173,9 +174,9 @@ const ButtonGroupContainer = styled1('div')({
   },
 })
 
-const onConnect = async (dispatch, networkName) => {
+const onConnect = async (dispatch, networkName, queryClient) => {
   await setupEthers(dispatch, networkName)
-  await setupEthListeners(dispatch)
+  await setupEthListeners(dispatch, queryClient, networkName)
 }
 
 const renderUserBalanceSection = (
@@ -188,7 +189,8 @@ const renderUserBalanceSection = (
   zoomBalance,
   usdtBalance,
   daiBalance,
-  networkName
+  networkName,
+  queryClient
 ) => {
   if (!hasMetamask) {
     return (
@@ -208,7 +210,7 @@ const renderUserBalanceSection = (
   if (!address) {
     return (
       <div className="connect-button">
-        <Button onClick={() => onConnect(dispatch, networkName)} variant="contained">
+        <Button onClick={() => onConnect(dispatch, networkName, queryClient)} variant="contained">
           Connect
         </Button>
       </div>
@@ -293,6 +295,8 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar, isMobile }) => {
   const handleOpen = () => setIsNetworkModalOpen(true)
   const handleClose = () => setIsNetworkModalOpen(false)
 
+  const queryClient = useQueryClient()
+
   return (
     <Container>
       <NavigationSection>
@@ -362,7 +366,8 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar, isMobile }) => {
         balance,
         zoomBalance,
         daiBalance,
-        networkName
+        networkName,
+        queryClient
       )}
       <ButtonGroupContainer>
         <NavItemLiveFeeds>
