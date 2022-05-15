@@ -1,0 +1,70 @@
+.live-feed-item-wrapper {
+  display: flex;
+  border: 1px solid rgb(30, 73, 118);
+  border-radius: 8px;
+  margin: 8px 0;
+  padding: 8px;
+  align-items: center;
+}
+
+.live-feed-icon {
+  width: 32px;
+  height: 32px;
+}
+
+.live-feed-item-data {
+  width: 100%;
+  margin-left: 12px;
+
+  h2,
+  p {
+    margin: 0;
+    margin-top: 4px;
+  }
+
+  h2 {
+    font-size: 20px;
+    margin-top: 0;
+  }
+
+  p {
+    display: flex;
+    align-items: center;
+
+    span {
+      font-weight: bold;
+    }
+  }
+}
+
+.self-live-feeds {
+  background-color: rgba(40, 162, 184, 1);
+}
+
+.general-live-feeds {
+  background-color: #af46a1;
+}
+
+.live-feed-item-metadata {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .live-feed-item-link {
+    color: #f2b705;
+    font-size: 20px !important;
+    text-decoration: none;
+
+    &:hover {
+      cursor: pointer;
+      text-decoration: underline;
+      color: blue;
+    }
+  }
+
+  h3 {
+    font-style: italic;
+    font-size: 14px;
+    font-weight: normal;
+  }
+}

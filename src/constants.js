@@ -17,7 +17,7 @@ export const NETWORK_NAMES = {
 
 export const CHAIN_ID_TO_NETWORK = {
   1287: NETWORK_NAMES.MOONBASE,
-  1285: NETWORK_NAMES.MOONRIVER
+  1285: NETWORK_NAMES.MOONRIVER,
 }
 
 export const NETWORKS = {
@@ -33,7 +33,7 @@ export const NETWORKS = {
     usdtContractAddress: '0x0b77D7BDd78b2a4C2c50980968166D99e321DfB6',
     usdcContractAddress: '0x0D6f70B9D4fBdfAF630FA90caDe1aa5225232BdA',
     daiContractAddress: '0xEc95c10d4DD55741DE9491751407DEA41A3eF5f1',
-    imageUrl: 'https://moonbase.zoombies.world/nft-image'
+    imageUrl: 'https://moonbase.zoombies.world/nft-image',
   },
   moonriver: {
     name: NETWORK_NAMES.MOONRIVER,
@@ -68,7 +68,7 @@ export const NFT_CONTRACTS = {
       abiJSON: anyNFTJson,
     },
   ],
-  'moonriver': [
+  moonriver: [
     {
       name: 'Zoombies',
       address: '0x08716e418e68564C96b68192E985762740728018',
@@ -81,7 +81,7 @@ export const NFT_CONTRACTS = {
       icon: nextGemLogo,
       abiJSON: anyNFTJson,
     },
-  ]
+  ],
 }
 
 export const METAMASK_CHAIN_PARAMS = {
@@ -131,18 +131,18 @@ export const QUERY_KEYS = {
   userNFT: 'fetchUserNFT',
   zoomAllowance: 'fetchUserZoomAllowance',
   isSettled: 'checkIsItemSettled',
-  liveFeeds: 'fetchLiveFeeds'
+  liveFeeds: 'fetchLiveFeeds',
 }
 
 export const NETWORK_ICONS = {
   'moonbase-alpha': 'https://zoombies.world/images/moonbase.png',
-  'moonriver': 'https://zoombies.world/images/mr-icon.png',
-  'moonbeam': 'https://zoombies.world/images/moonbeam.webp'
+  moonriver: 'https://zoombies.world/images/mr-icon.png',
+  moonbeam: 'https://zoombies.world/images/moonbeam.webp',
 }
 
 export const CURRENCY_ICONS = {
   MOVR: movrLogo,
   DAI: daiLogo,
   USDT: usdtLogo,
-  ZOOM: zoomCoin
+  ZOOM: zoomCoin,
 }

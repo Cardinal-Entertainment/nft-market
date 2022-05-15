@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import PubSub from 'pubsub-js'
 import styled from 'styled-components'
 import Filterbar from '../components/Filterbar'
@@ -6,10 +6,11 @@ import InfiniteScroll from 'react-infinite-scroller'
 import AuctionItem from '../components/AuctionItem'
 import { useFetchListingQuery } from '../hooks/useListing'
 import LoadingModal from 'components/LoadingModal'
-import { EVENT_TYPES, NETWORKS, QUERY_KEYS } from '../constants'
+import { NETWORKS } from '../constants'
 import { useQueryClient } from 'react-query'
-import { v4 as uuidv4 } from 'uuid'
 import { useParams } from 'react-router-dom'
+import { newBidEventForListings, newItemListedEvent } from 'utils/events'
+import { store } from 'store/store'
 
 const Container = styled.div`
   flex: auto;
@@ -48,13 +49,16 @@ const Home = () => {
     sortField: 'auctionEnd', //sort by key
   })
 
+  const { state } = useContext(store)
+  const {
+    wallet: { address },
+  } = state
+
   const { network } = useParams()
   const chainId = NETWORKS[network].chainId
 
-  const { data, isLoading, hasNextPage, fetchNextPage, refetch } = useFetchListingQuery(
-    filters,
-    chainId
-  )
+  const { data, isLoading, hasNextPage, fetchNextPage, refetch } =
+    useFetchListingQuery(filters, chainId)
 
   const handleFilterChanged = async (params) => {
     setFilters({ ...filters, ...params })
@@ -65,93 +69,12 @@ const Home = () => {
   const queryClient = useQueryClient()
 
   useEffect(() => {
-    const token = PubSub.subscribe(EVENT_TYPES.ItemListed, (msg, data) => {
-      /**
-       * We will only append the new listing based on the current cached data a user is viewing.
-       * Say a user clears the filter afterwards,
-       * react-query will automatically refetch since we are using filters as part of query key.
-       *
-       * The assumption is that by the time user switches filter, the new listing should've been
-       * stored in the database and API call will fetch it.
-       * So it should be safe to have the data eventually consistent.
-       */
-      const currentData = queryClient.getQueryData([
-        QUERY_KEYS.listings,
-        { filters, chainId },
-      ])
-      if (currentData) {
-        queryClient.setQueryData(
-          [QUERY_KEYS.listings, { filters, chainId }],
-          (queryData) => {
-            return {
-              pageParams: queryData.pageParams,
-              pages: [
-                {
-                  totalCount: queryData.pages[0].totalCount + 1,
-                  nextOffset: queryData.pages[0].nextOffset,
-                  data: [data],
-                },
-                ...queryData.pages,
-              ],
-            }
-          }
-        )
-      }
-    })
-
+    const token = newItemListedEvent(queryClient, filters, chainId, address)
     return () => PubSub.unsubscribe(token)
-  }, [queryClient, filters, chainId])
+  }, [queryClient, filters, chainId, address])
 
   useEffect(() => {
-    const token = PubSub.subscribe(EVENT_TYPES.Bid, (msg, data) => {
-      const currentData = queryClient.getQueryData([
-        QUERY_KEYS.listings,
-        { filters, chainId },
-      ])
-      if (currentData) {
-        const auctionId = data.itemNumber
-        const currentBidData = queryClient.getQueryData([
-          QUERY_KEYS.bids,
-          { auctionId, chainId },
-        ])
-        const randomId = uuidv4()
-        const bidWithId = {
-          ...data,
-          _id: randomId,
-        }
-
-        if (data.itemNumber === auctionId) {
-          if (currentBidData) {
-            queryClient.setQueryData(
-              [QUERY_KEYS.bids, { auctionId, chainId }],
-              [bidWithId, ...currentBidData]
-            )
-          } else {
-            queryClient.setQueryData(
-              [QUERY_KEYS.bids, { auctionId, chainId }],
-              [bidWithId]
-            )
-          }
-        }
-
-        queryClient.setQueryData(
-          [QUERY_KEYS.listings, { filters, chainId }],
-          (queryData) => {
-            queryData.pages.map((page) => {
-              page.data.map((auction) => {
-                if (auction.itemNumber === data.itemNumber) {
-                  auction.highestBid = data.bidAmount
-                }
-                return auction
-              })
-              return page
-            })
-
-            return queryData
-          }
-        )
-      }
-    })
+    const token = newBidEventForListings(queryClient, chainId, filters)
     return () => PubSub.unsubscribe(token)
   }, [queryClient, filters, chainId])
 
