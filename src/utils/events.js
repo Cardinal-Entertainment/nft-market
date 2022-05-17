@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid'
-import { CHAIN_ID_TO_NETWORK, EVENT_TYPES, QUERY_KEYS } from '../constants'
+import { apiEndpoint, CHAIN_ID_TO_NETWORK, EVENT_TYPES, QUERY_KEYS } from '../constants'
 import PubSub from 'pubsub-js'
 import { getTokenSymbol } from './auction'
 
@@ -280,6 +280,17 @@ const getSettledEventType = (settledData, userAddress) => {
   }
 }
 
+const getListingItemFromAPI = async (itemNumber, chainId) => {
+  const result = await fetch(`${apiEndpoint}/item/${itemNumber}?chainId=${chainId}`)
+
+  if (result.ok) {
+    const json = await result.json()
+    return json;
+  }
+
+  return null
+}
+
 /**
  * Bid data:
  * {
@@ -295,33 +306,18 @@ const getSettledEventType = (settledData, userAddress) => {
 export const addBidEventToFeed = (
   queryClient,
   userAddress,
-  chainId,
-  marketContract
+  chainId
 ) => {
   const token = PubSub.subscribe(EVENT_TYPES.Bid, async (msg, data) => {
     const bidTypes = getBidEventType(data, queryClient, userAddress, chainId)
 
-    const userData = queryClient.getQueryData([
-      QUERY_KEYS.profile,
-      {
-        userAddress,
-        chainId,
-      },
-    ])
-
-    let listingItem = userData.listings.find(
-      (listing) => listing.itemNumber === data.itemNumber
-    )
-
-    if (!listingItem) {
-      listingItem = await marketContract.getListItem(data.itemNumber)
-    }
+    const listing = await getListingItemFromAPI(data.itemNumber, chainId)
 
     bidTypes.forEach((bidType) => {
       const bid = {
         ...data,
         type: bidType,
-        saleToken: listingItem.saleToken,
+        saleToken: listing ? listing.saleToken : null
       }
 
       const filterKey =
