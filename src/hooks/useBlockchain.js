@@ -8,7 +8,7 @@ import anyERC20JSON from '../contracts/AnyERC20.json'
 import { DAPP_STATES } from 'store/store'
 import Actions from 'store/actions'
 
-import { NFT_CONTRACTS, NETWORKS, METAMASK_CHAIN_PARAMS } from '../constants'
+import { NFT_CONTRACTS, NETWORKS, METAMASK_CHAIN_PARAMS, QUERY_KEYS } from '../constants'
 import {
   getWalletUSDTBalance,
   getWalletZoomBalance,
@@ -308,13 +308,14 @@ const handleConnected = (dispatch) => {
   dispatch(Actions.dAppStateChanged(DAPP_STATES.CONNECTED))
 }
 
-const handleAccountsChanged = async (accounts, dispatch) => {
+const handleAccountsChanged = async (accounts, dispatch, queryClient, chainName) => {
   if (!accounts || accounts.length === 0) {
     dispatch(Actions.dAppStateChanged(DAPP_STATES.NOT_CONNECTED))
     dispatch(Actions.clearWallet())
     window.location.replace('/')
   } else {
-    await setupEthers(dispatch)
+    queryClient.removeQueries(QUERY_KEYS.liveFeeds)
+    await setupEthers(dispatch, chainName)
   }
 }
 
@@ -323,12 +324,12 @@ const handleDisconnected = (dispatch) => {
   dispatch(Actions.walletChanged(null))
 }
 
-export const setupEthListeners = (dispatch) => {
+export const setupEthListeners = (dispatch, queryClient, chainName) => {
   if (window.ethereum) {
     window.ethereum.on('connected', () => handleConnected(dispatch))
     window.ethereum.on('disconnect', () => handleDisconnected(dispatch))
     window.ethereum.on('accountsChanged', (accounts) =>
-      handleAccountsChanged(accounts, dispatch)
+      handleAccountsChanged(accounts, dispatch, queryClient, chainName)
     )
     window.ethereum.on('chainChanged', (chainId) => {
       window.location.reload()

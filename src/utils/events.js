@@ -1,7 +1,12 @@
 import { v4 as uuidv4 } from 'uuid'
-import { CHAIN_ID_TO_NETWORK, EVENT_TYPES, QUERY_KEYS } from '../constants'
+import {
+  apiEndpoint,
+  CHAIN_ID_TO_NETWORK,
+  EVENT_TYPES,
+  QUERY_KEYS,
+} from '../constants'
 import PubSub from 'pubsub-js'
-import { getTokenSymbol } from './auction'
+import { fetchHighestBids, getTokenSymbol } from './auction'
 
 export const OBSERVER_EVENT_TYPES = {
   otherBidPlaced: 'otherBidPlaced',
@@ -249,31 +254,30 @@ const addLiveFeedItem = (queryClient, liveFeedItem, filterKey, chainId) => {
       return [newItem]
     }
   })
-
-  const newCount = queryClient.getQueryData([
-    QUERY_KEYS.liveFeeds,
-    { filterKey: 'new' + filterKey },
-  ])
-
-  queryClient.setQueryData(
-    [QUERY_KEYS.liveFeeds, { filterKey: 'new' + filterKey }],
-    typeof newCount === 'string' ? parseInt(newCount) + 1 : newCount + 1
-  )
 }
 
-const getBidEventType = (bidData, queryClient, userAddress, chainId) => {
-  const userData = queryClient.getQueryData([
-    QUERY_KEYS.profile,
-    {
-      userAddress,
-      chainId,
-    },
-  ])
-  const itemNumber = bidData.itemNumber
+const getBidEventType = async (bidData, queryClient, userAddress, chainId) => {
+  const { itemNumber, bidAmount } = bidData
+  const highestBids = await fetchHighestBids(itemNumber, chainId)
 
   if (bidData.bidder !== userAddress) {
-    if (userData.bids.some((bid) => bid.itemNumber === itemNumber)) {
-      return [SELF_EVENT_TYPES.outBid, OBSERVER_EVENT_TYPES.otherBidPlaced]
+    if (highestBids && highestBids.length > 0) {
+      const numberOfBids = highestBids.length
+      if (bidAmount === highestBids[0].bidAmount) {
+        // Data is already in the DB. Need to check the second highest bid.
+        const secondHighestBid = numberOfBids > 1 ? highestBids[1] : null
+        if (secondHighestBid && secondHighestBid.bidder === userAddress) {
+          return [SELF_EVENT_TYPES.outBid, OBSERVER_EVENT_TYPES.otherBidPlaced]
+        }
+
+        return [OBSERVER_EVENT_TYPES.otherBidPlaced]
+      } else {
+        // Data did not make it to DB yet.
+        if (highestBids[0].bidder === userAddress) {
+          // Current user got outbid.
+          return [SELF_EVENT_TYPES.outBid, OBSERVER_EVENT_TYPES.otherBidPlaced]
+        }
+      }
     }
 
     return [OBSERVER_EVENT_TYPES.otherBidPlaced]
@@ -290,6 +294,19 @@ const getSettledEventType = (settledData, userAddress) => {
   }
 }
 
+const getListingItemFromAPI = async (itemNumber, chainId) => {
+  const result = await fetch(
+    `${apiEndpoint}/item/${itemNumber}?chainId=${chainId}`
+  )
+
+  if (result.ok) {
+    const json = await result.json()
+    return json
+  }
+
+  return null
+}
+
 /**
  * Bid data:
  * {
@@ -302,46 +319,36 @@ const getSettledEventType = (settledData, userAddress) => {
     networkName: string
  * }
  */
-export const addBidEventToFeed = (
-  queryClient,
-  userAddress,
-  chainId,
-  marketContract
-) => {
+export const addBidEventToFeed = (queryClient, userAddress, chainId) => {
   const token = PubSub.subscribe(EVENT_TYPES.Bid, async (msg, data) => {
-    const bidTypes = getBidEventType(data, queryClient, userAddress, chainId)
-
-    const userData = queryClient.getQueryData([
-      QUERY_KEYS.profile,
-      {
+    try {
+      const bidTypes = await getBidEventType(
+        data,
+        queryClient,
         userAddress,
-        chainId,
-      },
-    ])
+        chainId
+      )
 
-    let listingItem = userData.listings.find(
-      (listing) => listing.itemNumber === data.itemNumber
-    )
+      const listing = await getListingItemFromAPI(data.itemNumber, chainId)
 
-    if (!listingItem) {
-      listingItem = await marketContract.getListItem(data.itemNumber)
+      bidTypes.forEach((bidType) => {
+        const bid = {
+          ...data,
+          type: bidType,
+          saleToken: listing ? listing.saleToken : null,
+        }
+
+        const filterKey =
+          bidType === SELF_EVENT_TYPES.selfBidPlaced ||
+          bidType === SELF_EVENT_TYPES.outBid
+            ? FEED_TYPE.self
+            : FEED_TYPE.observer
+
+        addLiveFeedItem(queryClient, bid, filterKey, chainId)
+      })
+    } catch (error) {
+      console.error('Failed to add bid event: ', error)
     }
-
-    bidTypes.forEach((bidType) => {
-      const bid = {
-        ...data,
-        type: bidType,
-        saleToken: listingItem.saleToken,
-      }
-
-      const filterKey =
-        bidType === SELF_EVENT_TYPES.selfBidPlaced ||
-        bidType === SELF_EVENT_TYPES.outBid
-          ? FEED_TYPE.self
-          : FEED_TYPE.observer
-
-      addLiveFeedItem(queryClient, bid, filterKey, chainId)
-    })
   })
 
   return token

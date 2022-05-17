@@ -136,7 +136,6 @@ const App = () => {
   const { state } = useContext(store)
   const {
     wallet: { address },
-    contracts: { ReadOnlyMarketContract },
     isInitialSetupDone,
   } = state
 
@@ -162,11 +161,11 @@ const App = () => {
         const queryCache = new QueryCache()
         queryCache.clear()
         await setupEthers(dispatch, chainName)
-        await setupEthListeners(dispatch)
+        await setupEthListeners(dispatch, queryClient, chainName)
       }
     }
     setupWallet()
-  }, [dispatch, location, isInitialSetupDone])
+  }, [dispatch, location, isInitialSetupDone, queryClient])
 
   const { data: myAuctions } = useFetchProfileQuery(address, chainId)
 
@@ -174,7 +173,7 @@ const App = () => {
     setIsMobileDrawerOpen(isDesktop)
 
     const bidToken = addBidEventToFeed(
-      queryClient, address, chainId, ReadOnlyMarketContract
+      queryClient, address, chainId
     )
 
     const tokenSettled = newSettledEvent(queryClient, address, chainId)
@@ -188,7 +187,6 @@ const App = () => {
     isDesktop,
     address,
     myAuctions,
-    ReadOnlyMarketContract,
     chainId,
   ])
 

@@ -8,7 +8,7 @@ import Collapse from '@mui/material/Collapse'
 import { QUERY_KEYS } from '../constants'
 import { useFetchLiveFeeds } from '../hooks/useLiveFeeds'
 import { useQueryClient } from 'react-query'
-import { FEED_TYPE, OBSERVER_EVENT_TYPES, SELF_EVENT_TYPES } from 'utils/events'
+import { FEED_TYPE, OBSERVER_EVENT_TYPES, SELF_EVENT_TYPES } from '../utils/events'
 
 const Container = styled('div')(({ theme }) => ({
   zIndex: 1,
@@ -126,22 +126,7 @@ const LiveFeedsSlide = (props, ref) => {
   const queryClient = useQueryClient()
 
   const clearAll = () => {
-    queryClient.setQueryData(
-      [QUERY_KEYS.liveFeeds, { filterKey: 'MyAlerts' }],
-      []
-    )
-    queryClient.setQueryData(
-      [QUERY_KEYS.liveFeeds, { filterKey: 'General' }],
-      []
-    )
-    queryClient.setQueryData(
-      [QUERY_KEYS.liveFeeds, { filterKey: 'newMyAlerts' }],
-      0
-    )
-    queryClient.setQueryData(
-      [QUERY_KEYS.liveFeeds, { filterKey: 'newGeneral' }],
-      0
-    )
+    queryClient.removeQueries(QUERY_KEYS.liveFeeds)
   }
 
   const toggleFilter = (key) => {
@@ -151,8 +136,8 @@ const LiveFeedsSlide = (props, ref) => {
     })
   }
 
-  const { data: generalAlerts } = useFetchLiveFeeds('General')
-  const { data: myAlerts } = useFetchLiveFeeds('MyAlerts')
+  const { data: generalAlerts } = useFetchLiveFeeds(FEED_TYPE.observer)
+  const { data: myAlerts } = useFetchLiveFeeds(FEED_TYPE.self)
 
   return (
     <Container ref={ref}>

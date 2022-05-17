@@ -1,13 +1,12 @@
-import {
-  NETWORKS,
-} from '../constants'
+import { apiEndpoint, NETWORKS } from '../constants'
+import moment from 'moment'
 
 export const getTokenSymbol = (saleToken, networkName) => {
   const {
     zoomContractAddress,
     wmovrContractAddress,
     usdtContractAddress,
-    daiContractAddress
+    daiContractAddress,
   } = NETWORKS[networkName]
   switch (saleToken) {
     case zoomContractAddress:
@@ -39,5 +38,50 @@ export const isItemSettled = async (itemNumber, marketContract) => {
   } catch (err) {
     console.error(err)
     return false
+  }
+}
+
+export const getStatus = (endTime, highestBidder, address) => {
+  const now = moment().unix()
+  const end = moment(endTime).unix()
+
+  if (end < now) {
+    if (highestBidder === address) {
+      return {
+        label: 'You Won!',
+        color: 'success',
+      }
+    }
+    return {
+      label: 'Completed',
+      color: 'success',
+    }
+  }
+  if (end - now < 86400) {
+    return {
+      label: 'Ending Soon',
+      color: 'warning',
+    }
+  }
+  return {
+    label: 'Ongoing',
+    color: 'secondary',
+  }
+}
+
+export const fetchHighestBids = async (itemNumber, chainId) => {
+  try {
+    const result = await fetch(
+      `${apiEndpoint}/bids/highest/${itemNumber}?chainId=${chainId}`
+    )
+
+    if (result.ok) {
+      const json = await result.json()
+      return json
+    }
+
+    return null
+  } catch (error) {
+    console.error('Failed to fetch highest bids: ', error)
   }
 }
