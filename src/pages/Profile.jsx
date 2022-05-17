@@ -16,7 +16,7 @@ import {
 import { store } from 'store/store'
 
 import { getCardSummary } from 'utils/cardsUtil'
-import { getStatus } from 'utils/listingUtil'
+import { getStatus } from 'utils/auction'
 
 import moment from 'moment'
 
