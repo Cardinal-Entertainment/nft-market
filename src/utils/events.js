@@ -7,6 +7,7 @@ import {
 } from '../constants'
 import PubSub from 'pubsub-js'
 import { fetchHighestBids, getTokenSymbol } from './auction'
+import { ethers } from 'ethers'
 
 export const OBSERVER_EVENT_TYPES = {
   otherBidPlaced: 'otherBidPlaced',
@@ -24,6 +25,7 @@ export const SELF_EVENT_TYPES = {
   selfBidPlaced: 'selfBidPlaced',
   selfAuctionWon: 'selfAuctionWon',
   outBid: 'outBid',
+  cancelledListing: 'cancelListing'
 }
 
 export const newBidEventForListing = (
@@ -220,7 +222,7 @@ export const newSettledEvent = (queryClient, userAddress, chainId) => {
     const settleType = getSettledEventType(data, userAddress)
 
     const filterKey =
-      data.winner === userAddress ? FEED_TYPE.self : FEED_TYPE.observer
+      data.winner === userAddress || data.winner === ethers.constants.AddressZero ? FEED_TYPE.self : FEED_TYPE.observer
 
     const settleData = {
       ...data,
@@ -287,6 +289,10 @@ const getBidEventType = async (bidData, queryClient, userAddress, chainId) => {
 }
 
 const getSettledEventType = (settledData, userAddress) => {
+  if (settledData.winner === ethers.constants.AddressZero) {
+    return SELF_EVENT_TYPES.cancelledListing
+  }
+
   if (settledData.winner === userAddress) {
     return SELF_EVENT_TYPES.selfAuctionWon
   } else {

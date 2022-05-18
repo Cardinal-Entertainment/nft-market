@@ -8,6 +8,7 @@ import iconMyBid from '../assets/mybid.png'
 import iconMyOutBid from '../assets/myoutbid.png'
 import iconSettle from '../assets/settle.png'
 import iconWin from '../assets/win.png'
+import iconCancelAuction from '../assets/cancel_auction.png'
 
 import moment from 'moment'
 import { Link } from 'react-router-dom'
@@ -131,11 +132,20 @@ export const SettleFeedItem = ({ eventType, timestamp, content }) => {
     return () => clearInterval(interval)
   }, [timestamp])
 
-  const message =
-    type === OBSERVER_EVENT_TYPES.otherAuctionWon
-      ? `${winnerAddress} has won Auction #${itemNumber}`
-      : 'You have won this auction'
-  const icon = OBSERVER_EVENT_TYPES.otherAuctionWon ? iconSettle : iconWin
+  let message
+  let icon
+
+  if (type === SELF_EVENT_TYPES.cancelledListing) {
+    message = `You have cancelled auction #${itemNumber}`
+    icon = iconCancelAuction
+  } else if (type === OBSERVER_EVENT_TYPES.otherAuctionWon) {
+    message = `${winnerAddress} has won Auction #${itemNumber}`
+    icon = iconSettle
+  } else {
+    message = 'You have won this auction'
+    icon = iconWin
+  }
+
   const currencyIcon = CURRENCY_ICONS[currency]
 
   return (
@@ -148,13 +158,15 @@ export const SettleFeedItem = ({ eventType, timestamp, content }) => {
       itemNumber={itemNumber}
     >
       <h2>{message}</h2>
-      <p>
-        Highest Bid:
-        <img className="live-feed-icon" alt={currency} src={currencyIcon} />
-        <span>
-          {bidAmount} {currency}
-        </span>
-      </p>
+      {type !== SELF_EVENT_TYPES.cancelledListing && (
+        <p>
+          Highest Bid:
+          <img className="live-feed-icon" alt={currency} src={currencyIcon} />
+          <span>
+            {bidAmount} {currency}
+          </span>
+        </p>
+      )}
     </FeedItem>
   )
 }

@@ -102,6 +102,7 @@ const renderLiveFeedItem = (event, filterKey, timestamp) => {
       break
     case SELF_EVENT_TYPES.selfAuctionWon:
     case OBSERVER_EVENT_TYPES.otherAuctionWon:
+    case SELF_EVENT_TYPES.cancelledListing:
       component = (
         <SettleFeedItem
           timestamp={timestamp}
