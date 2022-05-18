@@ -32,14 +32,14 @@ const NetworkModal = ({ isNetworkModalOpen, handleClose }) => {
             />
             <p>Moonriver</p>
           </button>
-          <button onClick={() => goto('/moonbeam')} variant='outlined' to="/moonbeam" className="network-links">
+          {/* <button onClick={() => goto('/moonbeam')} variant='outlined' to="/moonbeam" className="network-links">
             <img
               src={NETWORK_ICONS.moonbeam}
               alt=""
               className="network-icons"
             />
             <p>Moonbeam</p>
-          </button>
+          </button> */}
         </div>
       </div>
     </Modal>
