@@ -237,7 +237,7 @@ const setupMetamask = async (chainName = 'moonbase-alpha') => {
   }
 }
 
-export const setupEthers = async (dispatch, chainName = 'moonbase-alpha') => {
+export const setupEthers = async (dispatch, queryClient, chainName = 'moonbase-alpha') => {
   try {
     if (!(chainName in NETWORKS)) {
       return
@@ -298,6 +298,13 @@ export const setupEthers = async (dispatch, chainName = 'moonbase-alpha') => {
         usdcBalance: usdcBalance
       })
     )
+
+    await setupEthListeners(dispatch, queryClient, {
+      ZoomContract,
+      USDTContract,
+      DAIContract,
+      USDCContract
+    })
     dispatch(Actions.setupDone())
   } catch (err) {
     console.error('Failed to setup ether', err)
@@ -308,14 +315,37 @@ const handleConnected = (dispatch) => {
   dispatch(Actions.dAppStateChanged(DAPP_STATES.CONNECTED))
 }
 
-const handleAccountsChanged = async (accounts, dispatch, queryClient, chainName) => {
+const handleAccountsChanged = async (accounts, dispatch, queryClient, contracts) => {
   if (!accounts || accounts.length === 0) {
     dispatch(Actions.dAppStateChanged(DAPP_STATES.NOT_CONNECTED))
     dispatch(Actions.clearWallet())
     window.location.replace('/')
   } else {
     queryClient.removeQueries(QUERY_KEYS.liveFeeds)
-    await setupEthers(dispatch, chainName)
+    const address = accounts[0]
+
+    const etherWrapper = new ethers.providers.Web3Provider(window.ethereum)
+    const signer = etherWrapper.getSigner()
+
+    const [zoomBalance, usdcBalance, usdtBalance, daiBalance, balance, etherAddress] = await Promise.all([
+      getWalletZoomBalance(contracts.ZoomContract, address),
+      getWalletUSDCBalance(contracts.USDTContract, address),
+      getWalletUSDTBalance(contracts.DAIContract, address),
+      getWalletDAIBalance(contracts.USDCContract, address),
+      signer.getBalance(),
+      signer.getAddress(),
+    ])
+
+    dispatch(
+      Actions.walletChanged({
+        zoomBalance: zoomBalance,
+        usdtBalance: usdtBalance,
+        daiBalance: daiBalance,
+        usdcBalance: usdcBalance,
+        address: etherAddress,
+        balance: Number(ethers.utils.formatEther(balance))
+      })
+    )
   }
 }
 
@@ -324,12 +354,12 @@ const handleDisconnected = (dispatch) => {
   dispatch(Actions.walletChanged(null))
 }
 
-export const setupEthListeners = (dispatch, queryClient, chainName) => {
+const setupEthListeners = (dispatch, queryClient, contracts) => {
   if (window.ethereum) {
     window.ethereum.on('connected', () => handleConnected(dispatch))
     window.ethereum.on('disconnect', () => handleDisconnected(dispatch))
     window.ethereum.on('accountsChanged', (accounts) =>
-      handleAccountsChanged(accounts, dispatch, queryClient, chainName)
+      handleAccountsChanged(accounts, dispatch, queryClient, contracts)
     )
     window.ethereum.on('chainChanged', (chainId) => {
       window.location.reload()
