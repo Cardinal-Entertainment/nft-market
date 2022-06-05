@@ -1,7 +1,6 @@
 import React, { createContext, useReducer } from 'react'
 import { ActionTypes } from './actions'
 import logger from './logger'
-import { toBigNumber } from '../utils/BigNumbers'
 
 export const DAPP_STATES = {
   NOT_CONNECTED: 'NOT_CONNECTED',
@@ -19,7 +18,7 @@ const initialState = {
     zoomBalance: null,
     usdtBalance: null,
     daiBalance: null,
-    usdcBalance: null
+    usdcBalance: null,
   },
   contracts: {
     ZoomContract: null,
@@ -36,12 +35,12 @@ const initialState = {
   newEventsCount: 0,
   myEvents: [],
   myNewEventsCount: 0,
-  zoomIncrement: toBigNumber(25000), //this is ether units, convert to BigNumber and use wei
-  wmovrIncrement: toBigNumber(0.02), //this is ether units, convert to BigNumber and use wei
-  usdtIncrement: toBigNumber(1), //this is ether units, convert to BigNumber and use wei
-  daiIncrement: toBigNumber(1), //this is ether units, convert to BigNumber and use wei
-  xcKSMIncrement: toBigNumber(0.006), //this is ether units, convert to BigNumber and use wei
-  usdctIncrement: toBigNumber(1)
+  zoomIncrement: 25000,
+  wmovrIncrement: 0.02,
+  usdtIncrement: 1,
+  daiIncrement: 1,
+  xcKSMIncrement: 0.006,
+  usdcIncrement: 1,
 }
 
 const store = createContext(initialState)
@@ -109,7 +108,7 @@ const StateProvider = ({ children }) => {
       case ActionTypes.FINISHED_SETUP:
         return {
           ...state,
-          isInitialSetupDone: true
+          isInitialSetupDone: true,
         }
       default:
         throw new Error(`Unhandled action type: ${type}`)

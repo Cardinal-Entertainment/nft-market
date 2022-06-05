@@ -17,6 +17,7 @@ import {
   NETWORKS,
   NFT_CONTRACTS,
   CURRENCY_ICONS,
+  CURRENCY_TYPES,
 } from '../constants'
 import { ethers } from 'ethers'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -29,7 +30,6 @@ import { useQueryClient } from 'react-query'
 import { useFetchSingleListingQuery } from 'hooks/useListing'
 import { formatAddress } from 'utils/wallet'
 import { styled } from '@mui/material'
-import { toBigNumber } from '../utils/BigNumbers'
 import { waitForTransaction } from 'utils/transactions'
 import {
   getUserTokenAllowance,
@@ -42,6 +42,15 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import Typography from '@mui/material/Typography'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import { newBidEventForListing } from 'utils/events'
+import {
+  approveTokenContractAmount,
+  getTokenContract,
+  getTokenMinIncrement,
+  getTokenNameFromAddress,
+  getWalletBalance,
+  isWalletBalanceEnough,
+  parseAmountToBigNumber,
+} from 'utils/currencies'
 
 const Container = styled('div')(({ theme }) => ({
   backgroundColor: 'white',
@@ -361,19 +370,31 @@ const ListingMetadata = ({
   zoomAllowance,
   networkName,
 }) => {
-  const shortWallet = formatAddress(listing.seller)
-  const dateListed = moment(listing.auctionStart * 1000).format(
-    'MM/DD/YYYY h:mm:ss A'
-  )
-  const localAuctionEnd = moment(listing.auctionEnd * 1000).local()
+  const {
+    seller,
+    minPrice,
+    auctionStart,
+    auctionEnd,
+    bids,
+    isItemSettled,
+    highestBid,
+    saleToken,
+    numBids,
+  } = listing
+  const shortWallet = formatAddress(seller)
+  const dateListed = moment(auctionStart * 1000).format('MM/DD/YYYY h:mm:ss A')
+  const localAuctionEnd = moment(auctionEnd * 1000).local()
   const auctionEndDate = localAuctionEnd.format('MMMM D, YYYY')
   const auctionEndTime = localAuctionEnd.format('h:mm:ss A')
   const timezone = momentTimezone.tz(momentTimezone.tz.guess()).zoneAbbr()
-  const highestBid = toBigNumber(listing.highestBid)
+
+  const {
+    state: { wallet },
+  } = useContext(store)
 
   const auctionEndText =
-    listing.auctionEnd === 0 //instantBid
-      ? listing.bids.length > 0 || listing.isItemSettled //Auction achive view
+    auctionEnd === 0 //instantBid
+      ? bids.length > 0 || isItemSettled //Auction achive view
         ? 'This auction has CLOSED'
         : 'This auction will end immediately once someone places a bid.'
       : Date.now() >= localAuctionEnd //Auction achive view
@@ -382,86 +403,48 @@ const ListingMetadata = ({
 
   const [auctionCurrency, setAuctionCurrency] = useState('')
 
-  const { state } = useContext(store)
-  const { contracts } = state
-
-  const {
-    zoomContractAddress,
-    wmovrContractAddress,
-    usdtContractAddress,
-    daiContractAddress,
-  } = NETWORKS[networkName]
-
   useEffect(() => {
-    const getTokenName = async (saleToken) => {
-      if (saleToken === zoomContractAddress) {
-        return await contracts.ZoomContract.name()
-      } else if (saleToken === wmovrContractAddress) {
-        return await contracts.WMOVRContract.name()
-      } else if (saleToken === usdtContractAddress) {
-        return await contracts.USDTContract.name()
-      } else if (saleToken === daiContractAddress) {
-        return await contracts.DAIContract.name()
-      }
+    if (saleToken) {
+      const tokenName = getTokenNameFromAddress(saleToken, networkName)
+      setAuctionCurrency(tokenName)
     }
-
-    getTokenName(listing.saleToken).then((name) => {
-      setAuctionCurrency(name)
-    })
-  }, [
-    contracts.ZoomContract,
-    contracts.WMOVRContract,
-    contracts.USDTContract,
-    contracts.DAIContract,
-    listing.saleToken,
-    zoomContractAddress,
-    wmovrContractAddress,
-    usdtContractAddress,
-    daiContractAddress,
-  ])
+  }, [saleToken, networkName])
 
   /*
   const minOfferAmount =
     Math.max(parseFloat(listing.highestBid), parseFloat(listing.minPrice)) +
     minIncrement
 */
-  let minOfferAmount = ethers.utils
-    .parseEther(listing.highestBid.toString())
-    .gt(ethers.utils.parseEther(listing.minPrice.toString()))
-    ? ethers.utils.parseEther(listing.highestBid.toString())
-    : ethers.utils.parseEther(listing.minPrice.toString())
+  const parsedMinIncrement = parseAmountToBigNumber(
+    minIncrement.toString(),
+    saleToken,
+    networkName
+  )
+  const parsedHighestBid = parseAmountToBigNumber(
+    highestBid.toString(),
+    saleToken,
+    networkName
+  )
+  const parsedMinPrice = parseAmountToBigNumber(
+    minPrice,
+    saleToken,
+    networkName
+  )
 
-  minOfferAmount = minOfferAmount.add(minIncrement)
+  const minOfferAmount =
+    numBids > 0
+      ? parsedHighestBid.add(parsedMinIncrement)
+      : parsedMinPrice.add(parsedMinIncrement)
+
   const isZoomAllowanceEnough = zoomAllowance
     ? minOfferAmount.lte(zoomAllowance)
     : false
 
-  const maxOfferAmount =
-    listing.currency === 'ZOOM'
-      ? ethers.utils.parseEther(zoomBalance)
-      : listing.currency === 'USDT'
-      ? ethers.utils.parseEther(usdtBalance.toString())
-      : listing.currency === 'DAI'
-      ? ethers.utils.parseEther(daiBalance.toString())
-      : ethers.utils.parseEther(movrBalance.toString())
+  const maxOfferAmount = wallet ? getWalletBalance(wallet, auctionCurrency) : 0
 
-  const canBid =
-    listing.currency === 'ZOOM'
-      ? ethers.utils
-          .parseEther(zoomBalance ? zoomBalance : '0')
-          .gt(minOfferAmount)
-      : listing.currency === 'USDT'
-      ? ethers.utils
-          .parseEther(usdtBalance ? usdtBalance.toString() : '0')
-          .gt(minOfferAmount)
-      : listing.currency === 'DAI'
-      ? ethers.utils
-          .parseEther(daiBalance ? daiBalance.toString() : '0')
-          .gt(minOfferAmount)
-      : ethers.utils
-          .parseEther(movrBalance ? movrBalance.toString() : '0')
-          .gt(minOfferAmount)
+  const canBid = isWalletBalanceEnough(auctionCurrency, wallet, minOfferAmount)
 
+  // TODO(mchi): clean this up
   let offerToolTip
   if (isAuctionOver) {
     offerToolTip = 'This Auction is ended.'
@@ -540,18 +523,14 @@ const ListingMetadata = ({
           </div>
         </div>
         <p className="min-price">
-          Opening Bid:{' '}
-          {ethers.utils.formatEther(
-            ethers.utils.parseEther(listing.minPrice.toString())
-          )}{' '}
-          {listing.currency}
+          Opening Bid: {minPrice.toString()} {listing.currency}
         </p>
         <p className="current-price">
-          Current Bid: {ethers.utils.formatEther(highestBid)} {listing.currency}
+          Current Bid: {highestBid} {listing.currency}
         </p>
       </div>
       <div className="offer-wrapper">
-        {!isZoomAllowanceEnough && listing.currency === 'ZOOM' && (
+        {!isZoomAllowanceEnough && listing.currency === CURRENCY_TYPES.ZOOM && (
           <>
             <p className="not-enough-zoom-msg">
               Not enough Zoom set in allowance!
@@ -570,24 +549,27 @@ const ListingMetadata = ({
             </Accordion>
           </>
         )}
-        {((!isAuctionOver && listing.auctionEnd > 0) ||
-          (listing.auctionEnd === 0 && !listing.isItemSettled)) && (
+        {((!isAuctionOver && auctionEnd > 0) ||
+          (auctionEnd === 0 && !isItemSettled)) && (
           <OfferDialog
             minAmount={minOfferAmount}
             currency={listing.currency}
             maxAmount={maxOfferAmount}
             onConfirm={handleConfirmBid}
-            minIncrement={ethers.utils.formatEther(minIncrement)}
+            minIncrement={minIncrement}
             disabled={
               isBidInProgress ||
               !canBid ||
               (isAuctionOver && listing.auctionEnd > 0) ||
               (listing.isItemSettled && listing.auctionEnd === 0) ||
               listing.seller === walletAddress ||
-              (!isZoomAllowanceEnough && listing.currency === 'ZOOM')
+              (!isZoomAllowanceEnough &&
+                listing.currency === CURRENCY_TYPES.ZOOM)
             }
             tooltip={offerToolTip}
-            timestamp={listing.auctionEnd}
+            timestamp={auctionEnd}
+            saleToken={saleToken}
+            network={networkName}
           />
         )}
       </div>
@@ -644,11 +626,7 @@ const ItemHistory = ({ bids }) => {
                           )}`
                         : ''}
                     </TableCell>
-                    <TableCell>
-                      {ethers.utils.formatEther(
-                        ethers.utils.parseEther(bid.bidAmount.toString())
-                      )}
-                    </TableCell>
+                    <TableCell>{bid.bidAmount.toString()}</TableCell>
                   </TableRow>
                 ))}
             </TableBody>
@@ -667,25 +645,13 @@ const ViewListing = () => {
 
   const auctionId = parseInt(id)
 
-  const {
-    state: {
-      contracts,
-      wallet,
-      zoomIncrement,
-      wmovrIncrement,
-      usdtIncrement,
-      daiIncrement,
-    },
-  } = useContext(store)
+  const { state } = useContext(store)
+
+  const { contracts, wallet } = state
 
   const { zoomBalance, balance: movrBalance, usdtBalance, daiBalance } = wallet
   const { MarketContract, ReadOnlyMarketContract } = contracts
-  const {
-    chainId,
-    marketContractAddress: marketAddress,
-    usdtContractAddress,
-    daiContractAddress,
-  } = NETWORKS[network]
+  const { chainId, marketContractAddress: marketAddress } = NETWORKS[network]
 
   const queryClient = useQueryClient()
   useEffect(() => {
@@ -715,86 +681,90 @@ const ViewListing = () => {
   }
 
   if (auctionItem) {
+    const {
+      saleToken,
+      auctionEnd,
+      highestBidder,
+      seller,
+      isItemSettled,
+      cards,
+      bids,
+      highestBid,
+      minPrice,
+      numBids,
+      currency,
+      itemNumber,
+    } = auctionItem
     const now = moment().unix()
-    const end = moment(auctionItem.auctionEnd * 1000).unix()
+    const end = moment(auctionEnd * 1000).unix()
     const isOver = end < now
-    const isWinner = auctionItem.highestBidder === wallet.address
-    const isOwner = wallet.address === auctionItem.seller
-    const canSettle =
-      isOver && (isWinner || isOwner) && !auctionItem.isItemSettled
-    const isInstantAuction = auctionItem.auctionEnd === 0
+    const isWinner = highestBidder === wallet.address
+    const isOwner = wallet.address === seller
+    const canSettle = isOver && (isWinner || isOwner) && !isItemSettled
+    const isInstantAuction = auctionEnd === 0
 
     const sellerURL =
       chainId === 1287
         ? `${ZoombiesTestingEndpoint}/my-zoombies-nfts/${auctionItem?.seller}`
         : `${ZoombiesStableEndpoint}/my-zoombies-nfts/${auctionItem?.seller}`
 
-    const minIncrement =
-      auctionItem.currency === 'ZOOM'
-        ? zoomIncrement
-        : auctionItem.currency === 'USDT'
-        ? usdtIncrement
-        : auctionItem.currency === 'DAI'
-        ? daiIncrement
-        : wmovrIncrement
+    const minIncrement = getTokenMinIncrement(saleToken, network, state)
+    const parsedMinIncrement = parseAmountToBigNumber(
+      minIncrement.toString(),
+      saleToken,
+      network
+    )
+    const parsedHighestBid = parseAmountToBigNumber(
+      highestBid.toString(),
+      saleToken,
+      network
+    )
+    const parsedMinPrice = parseAmountToBigNumber(minPrice, saleToken, network)
+    const minOfferAmount =
+      numBids > 0
+        ? parsedHighestBid.add(parsedMinIncrement)
+        : parsedMinPrice.add(parsedMinIncrement)
 
     const handleConfirmBid = async (amount) => {
       try {
         setBidInProgress(true)
-        const { currency, id } = auctionItem
+        const parsedAmount = parseAmountToBigNumber(
+          amount.toString(),
+          saleToken,
+          network
+        )
 
-        const minAmount = ethers.utils
-          .parseEther(auctionItem?.highestBid.toString())
-          .add(minIncrement)
-          .gt(
-            ethers.utils
-              .parseEther(auctionItem?.minPrice.toString())
-              .add(minIncrement)
-          )
-          ? ethers.utils
-              .parseEther(auctionItem?.highestBid.toString())
-              .add(minIncrement)
-          : ethers.utils
-              .parseEther(auctionItem?.minPrice.toString())
-              .add(minIncrement)
-
-        if (ethers.utils.parseEther(amount.toString()).lt(minAmount)) {
+        if (parsedAmount.lt(minOfferAmount)) {
           throw new Error(`Invalid amount valid : ${amount}`)
         }
 
-        if (currency !== 'ZOOM' && currency !== 'MOVR') {
-          let tokenContract
-          if (auctionItem.saleToken === daiContractAddress) {
-            tokenContract = contracts.DAIContract
-          } else if (auctionItem.saleToken === usdtContractAddress) {
-            tokenContract = contracts.USDTContract
-          }
+        if (
+          currency !== CURRENCY_TYPES.ZOOM &&
+          currency !== CURRENCY_TYPES.MOVR
+        ) {
+          const tokenContract = getTokenContract(saleToken, network, contracts)
+
           const allowance = await getUserTokenAllowance(
             tokenContract,
             wallet.address,
             network
           )
-          if (allowance.lt(toBigNumber(amount))) {
-            if (auctionItem.saleToken === daiContractAddress) {
-              const approveTx = await contracts.DAIContract.approve(
-                marketAddress,
-                toBigNumber(amount)
-              )
-              await waitForTransaction(approveTx)
-            } else if (auctionItem.saleToken === usdtContractAddress) {
-              const approveTx = await contracts.USDTContract.approve(
-                marketAddress,
-                toBigNumber(amount)
-              )
-              await waitForTransaction(approveTx)
-            }
+          if (allowance.lt(parsedAmount)) {
+            await approveTokenContractAmount(
+              tokenContract,
+              marketAddress,
+              parsedAmount
+            )
           }
         }
 
         const bidTx = await contracts.MarketContract.bid(
-          parseInt(id),
-          toBigNumber(amount),
-          { value: currency === 'MOVR' ? toBigNumber(amount) : 0 }
+          parseInt(itemNumber),
+          parsedAmount.toString(),
+          {
+            value:
+              currency === CURRENCY_TYPES.MOVR ? parsedAmount.toString() : 0,
+          }
         )
         await waitForTransaction(bidTx)
       } catch (e) {
@@ -831,7 +801,7 @@ const ViewListing = () => {
         </HeaderRow>
         <div className="listing-content">
           <div className="listing-wrapper">
-            <ListingNFTs cards={auctionItem.cards} network={network} />
+            <ListingNFTs cards={cards} network={network} />
             <ListingMetadata
               minIncrement={minIncrement}
               zoomBalance={zoomBalance}
@@ -849,7 +819,7 @@ const ViewListing = () => {
             />
           </div>
 
-          <ItemHistory bids={auctionItem.bids} />
+          <ItemHistory bids={bids} />
         </div>
         <Modal
           open={approvalModalOpen}

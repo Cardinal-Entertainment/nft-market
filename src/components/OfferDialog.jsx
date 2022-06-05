@@ -1,15 +1,18 @@
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components/macro';
+import Button from '@mui/material/Button'
+import TextField from '@mui/material/TextField'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogTitle from '@mui/material/DialogTitle'
+import React, { useEffect, useState } from 'react'
+import styled from 'styled-components/macro'
 import { ethers } from 'ethers'
-import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip'
 import { styled as styled1 } from '@mui/material/styles'
+
+import '../assets/scss/OfferDialog.scss'
+import { formatBigNumberAmount } from 'utils/currencies'
 
 const Container = styled.div`
   .button-readonly {
@@ -24,7 +27,7 @@ const Container = styled.div`
     background: rgba(198, 232, 4, 1);
     color: rgba(0, 0, 0, 1);
   }
-`;
+`
 
 const FlexRow = styled.div`
   display: flex;
@@ -35,115 +38,120 @@ const FlexRow = styled.div`
     margin-left: 10px;
     font-size: 18px;
   }
-`;
+`
 
 const CustomWidthTooltip = styled1(({ className, ...props }) => (
   <Tooltip {...props} classes={{ popper: className }} />
 ))({
   [`& .${tooltipClasses.tooltip}`]: {
     maxWidth: 200,
-    fontSize: '16px'
+    fontSize: '16px',
   },
-});
+})
 
 const OfferDialog = ({
-                       currency,
-                       minAmount,
-                       maxAmount,
-                       onConfirm,
-                       disabled,
-                       tooltip,
-                       quickBid,
-                       mylisting,
-                       minIncrement,
-                       timestamp
-                     }) => {
-  const [open, setOpen] = useState(false);
-  const [input, setInput] = useState(ethers.utils.formatEther(minAmount.toString()));
-  const [inputInvalid, setInputInvalid] = useState('');
+  currency,
+  minAmount,
+  maxAmount,
+  onConfirm,
+  disabled,
+  tooltip,
+  quickBid,
+  mylisting,
+  minIncrement,
+  timestamp,
+  saleToken,
+  network,
+}) => {
+  const [open, setOpen] = useState(false)
+  const [input, setInput] = useState(
+    formatBigNumberAmount(minAmount.toString(), saleToken, network)
+  )
+  const [inputInvalid, setInputInvalid] = useState('')
 
   useEffect(() => {
     if (minAmount) {
-      setInput(ethers.utils.formatEther(minAmount.toString()))
+      setInput(formatBigNumberAmount(minAmount.toString(), saleToken, network))
     }
-  }, [minAmount])
+  }, [minAmount, saleToken, network])
 
   const handleClickOpen = () => {
-    setOpen(true);
-  };
+    setOpen(true)
+  }
 
   const handleClose = () => {
-    setOpen(false);
-  };
+    setOpen(false)
+  }
 
   const handleAmountChanged = (e) => {
-    const value = e.target.value;
-    setInput(value);
-  };
+    const value = e.target.value
+    setInput(value)
+  }
 
   const handleConfirm = () => {
     if (ethers.utils.parseEther(input).lt(minAmount)) {
-      setInputInvalid('Set bigger amount');
+      setInputInvalid('Set bigger amount')
     } else if (ethers.utils.parseEther(input).gt(maxAmount)) {
-      setInputInvalid("You don't have enough coin");
+      setInputInvalid("You don't have enough coin")
     } else {
-      setInputInvalid('');
-      onConfirm(parseFloat(input));
-      setOpen(false);
+      setInputInvalid('')
+      onConfirm(parseFloat(input))
+      setOpen(false)
     }
-  };
-
-  let offerButtonClassName = "";
-  if (quickBid && disabled) {
-    offerButtonClassName = "button-bid button-mylisting";
-  } else if ((quickBid && timestamp !== 0) && !disabled) {
-    offerButtonClassName = "button-bid";
-  } else if (timestamp === 0 && !disabled && quickBid) {
-    offerButtonClassName = "button-bid button-buynow";
-  } else if (!quickBid && disabled) {
-    offerButtonClassName = "button-readonly";
-  } else {
-    offerButtonClassName = "";
   }
 
-  let buttonText = '';
-
-  if (timestamp === 0) { // Buy now
-    buttonText = quickBid ? `Buy now (${ethers.utils.formatEther(minAmount)} ${currency})` : 'Buy now';
+  let offerButtonClassName = ''
+  if (quickBid && disabled) {
+    offerButtonClassName = 'button-bid button-mylisting'
+  } else if (quickBid && timestamp !== 0 && !disabled) {
+    offerButtonClassName = 'button-bid'
+  } else if (timestamp === 0 && !disabled && quickBid) {
+    offerButtonClassName = 'button-bid button-buynow'
+  } else if (!quickBid && disabled) {
+    offerButtonClassName = 'button-readonly'
   } else {
-    buttonText = quickBid ? `Quick bid (${ethers.utils.formatEther(minAmount)} ${currency})` : 'Make Offer';
+    offerButtonClassName = ''
+  }
+
+  let buttonText = ''
+
+  if (timestamp === 0) {
+    // Buy now
+    buttonText = quickBid
+      ? `Buy now (${formatBigNumberAmount(
+          minAmount.toString(),
+          saleToken,
+          network
+        )} ${currency})`
+      : 'Buy now'
+  } else {
+    buttonText = quickBid
+      ? `Quick bid (${formatBigNumberAmount(
+          minAmount.toString(),
+          saleToken,
+          network
+        )} ${currency})`
+      : 'Make Offer'
   }
   return (
     <Container>
-      {
-        disabled ? (
-          <CustomWidthTooltip
-            title={tooltip}
-            arrow
-            placement="top"
-          >
-            <Button
-              variant="contained"
-              onClick={!disabled ? handleClickOpen : null}
-              className={offerButtonClassName}
-            >
-              {
-                mylisting ? 'My Listing' : buttonText
-              }
-            </Button>
-          </CustomWidthTooltip>
-        ) : (
-          <Button
-            variant="contained"
-            onClick={!disabled ? handleClickOpen : null}
-            className={offerButtonClassName}
-          >
-            {
-              mylisting ? 'My Listing' : buttonText
-            }
-          </Button>
-        )
-      }
+      {disabled && tooltip && !mylisting ? (
+        <CustomWidthTooltip title={tooltip} arrow placement="top">
+          <p className={`${offerButtonClassName} offer-tool-tip`}>
+            {mylisting ? 'My Listing' : buttonText}
+          </p>
+        </CustomWidthTooltip>
+      ) : (
+        <Button
+          variant="contained"
+          onClick={handleClickOpen}
+          className={offerButtonClassName}
+          disabled={disabled}
+        >
+          {mylisting ? 'My Listing' : buttonText}
+        </Button>
+      )}
+
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Make Offer</DialogTitle>
         <DialogContent>
@@ -152,7 +160,7 @@ const OfferDialog = ({
           </DialogContentText>
           <FlexRow>
             <TextField
-              style={{flex: 1}}
+              style={{ flex: 1 }}
               autoFocus
               margin="dense"
               id="amount"
@@ -163,7 +171,7 @@ const OfferDialog = ({
               onChange={handleAmountChanged}
               error={inputInvalid !== ''}
               helperText={inputInvalid}
-              inputProps={{ step: parseFloat(minIncrement), min: 0}}
+              inputProps={{ step: parseFloat(minIncrement), min: 0 }}
             />
             <span>{currency}</span>
           </FlexRow>
@@ -173,7 +181,7 @@ const OfferDialog = ({
           <Button
             variant="contained"
             onClick={() => {
-              handleConfirm(input);
+              handleConfirm(input)
             }}
           >
             Confirm
@@ -181,7 +189,7 @@ const OfferDialog = ({
         </DialogActions>
       </Dialog>
     </Container>
-  );
-};
+  )
+}
 
-export default OfferDialog;
+export default OfferDialog

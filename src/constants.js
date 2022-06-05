@@ -6,6 +6,7 @@ import movrLogo from './assets/movr_logo.png'
 import usdtLogo from './assets/usdt.svg'
 import daiLogo from './assets/dai.png'
 import zoomCoin from './assets/zoombies_coin.svg'
+import usdcCoin from './assets/usdc.png'
 
 export const isLocal = process.env.NODE_ENV === 'development'
 
@@ -111,7 +112,7 @@ export const METAMASK_CHAIN_PARAMS = {
 
 export const cardImageBaseURL = 'https://moonbase.zoombies.world/nft-image'
 export const apiEndpoint = 'https://api.zoombies.world'
-// export const apiEndpoint = 'http://localhost:3001';
+// export const apiEndpoint = 'http://localhost:3000';
 
 export const ZoombiesTestingEndpoint = `https://moonbase.zoombies.world`
 export const ZoombiesStableEndpoint = 'https://movr.zoombies.world'
@@ -145,4 +146,13 @@ export const CURRENCY_ICONS = {
   DAI: daiLogo,
   USDT: usdtLogo,
   ZOOM: zoomCoin,
+  USDC: usdcCoin,
+}
+
+export const CURRENCY_TYPES = {
+  MOVR: 'MOVR',
+  ZOOM: 'ZOOM',
+  DAI: 'DAI',
+  USDC: 'USDC',
+  // USDT: 'USDT'
 }

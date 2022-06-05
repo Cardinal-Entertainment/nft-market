@@ -18,6 +18,7 @@ import {
   NFT_CONTRACTS,
   CHAIN_ID_TO_NETWORK,
   CURRENCY_ICONS,
+  CURRENCY_TYPES,
 } from '../constants'
 import {
   useFetchUserNFTQuery,
@@ -38,6 +39,7 @@ import AntSwitch from '../components/AntSwitch'
 import Stack from '@mui/material/Stack'
 
 import '../assets/scss/Newlisting.scss'
+import { getCurrencyAddress } from 'utils/currencies'
 
 const Container = styled.div`
   flex: 1;
@@ -172,32 +174,6 @@ const StyledLogo = styled.img`
   margin-left: 4px;
 `
 
-const CURRENCY_TYPES = {
-  MOVR: 'MOVR',
-  ZOOM: 'ZOOM',
-  // USDT: 'USDT',
-  DAI: 'DAI',
-}
-
-const tokenAddresses = {
-  1285: {
-    [CURRENCY_TYPES.MOVR]: '0x98878B06940aE243284CA214f92Bb71a2b032B8A',
-    [CURRENCY_TYPES.ZOOM]: '0x8bd5180Ccdd7AE4aF832c8C03e21Ce8484A128d4',
-    // [CURRENCY_TYPES.USDT]: '0xB44a9B6905aF7c801311e8F4E76932ee959c663C',
-    [CURRENCY_TYPES.DAI]: '0xEc95c10d4DD55741DE9491751407DEA41A3eF5f1',
-  },
-  1287: {
-    [CURRENCY_TYPES.MOVR]: '0x372d0695E75563D9180F8CE31c9924D7e8aaac47',
-    [CURRENCY_TYPES.ZOOM]: '0x8e21404bAd3A1d2327cc6D2B2118f47911a1f316',
-    // [CURRENCY_TYPES.USDT]: '0x0b77D7BDd78b2a4C2c50980968166D99e321DfB6',
-    [CURRENCY_TYPES.DAI]: '0xEc95c10d4DD55741DE9491751407DEA41A3eF5f1',
-  },
-}
-
-const getCurrencyAddress = (currency, networkId) => {
-  return tokenAddresses[networkId]?.[currency]
-}
-
 const renderUserNFTs = (
   userNFTs,
   chainId,
@@ -288,7 +264,7 @@ const NewListing = () => {
       }
     }
 
-    getIsApprovedForAll().then()
+    getIsApprovedForAll()
   }, [wallet.address, contracts.nftContracts, selectedNFT, marketAddress])
 
   const handleCardClicked = (cardId) => {
@@ -304,7 +280,7 @@ const NewListing = () => {
     }
   }
 
-  const handeDateError = (err) => {
+  const handleDateError = (err) => {
     if (err) {
       setIsDateError(true)
     } else {
@@ -314,15 +290,21 @@ const NewListing = () => {
 
   const createListing = async () => {
     setCreateInProgress(true)
+
+    let listingPrice = ethers.utils.parseEther(listPrice)
+    if (selectedCurrency === CURRENCY_TYPES.USDC) {
+      listingPrice = ethers.utils.parseUnits(listPrice, 'mwei')
+    }
+    console.log(listingPrice.toString())
     try {
       await contracts.MarketContract.listItem(
         instantAuction
           ? 0
           : parseInt((new Date(dateTime).getTime() / 1000).toFixed(0)),
-        ethers.utils.parseEther(listPrice),
+        listingPrice.toNumber(),
         Object.keys(selectedCards).map((id) => parseInt(id)),
         selectedNFT,
-        getCurrencyAddress(selectedCurrency, wallet.chainId)
+        getCurrencyAddress(network, selectedCurrency)
       )
       setCreateInProgress(false)
       history.push(`/${network}`)
@@ -361,7 +343,7 @@ const NewListing = () => {
   }
 
   const onKeyDown = (e) => {
-    if (selectedCurrency === 'ZOOM') {
+    if (selectedCurrency === CURRENCY_TYPES.ZOOM) {
       if (e.keyCode === 69 || e.keyCode === 190 || e.keyCode === 188) {
         // 'e', '.', ',' charaters
         e.preventDefault()
@@ -373,7 +355,10 @@ const NewListing = () => {
     const value = e.target.value
 
     let isDecimalOverflow = false
-    if (selectedCurrency === 'MOVR' && value.toString().includes('.')) {
+    if (
+      selectedCurrency === CURRENCY_TYPES.MOVR &&
+      value.toString().includes('.')
+    ) {
       if (value.toString().split('.')[1].length > 4) {
         isDecimalOverflow = true
       }
@@ -398,7 +383,7 @@ const NewListing = () => {
   )
 
   const numberOfSelectedCards = Object.keys(selectedCards).length || 0
-  const haveEnoughZoom =
+  const haveEnoughZoomBurn =
     compareAsBigNumbers(
       parseInt(wallet?.zoomBalance),
       numberOfSelectedCards * data?.zoomBurnFee
@@ -454,7 +439,7 @@ const NewListing = () => {
               onChange={handleAmountChanged}
               onKeyDown={onKeyDown}
               min={0}
-              step={selectedCurrency === 'MOVR' ? 0.0001 : 1}
+              step={selectedCurrency === CURRENCY_TYPES.MOVR ? 0.0001 : 1}
             />
             <Select
               value={selectedCurrency}
@@ -462,7 +447,7 @@ const NewListing = () => {
             >
               {Object.keys(CURRENCY_TYPES).map((value) => (
                 <MenuItem value={value} key={value}>
-                  <div className='new-listing-dropdown-item'>
+                  <div className="new-listing-dropdown-item">
                     <img src={CURRENCY_ICONS[value]} alt="" />
                     {CURRENCY_TYPES[value]}
                   </div>
@@ -496,7 +481,7 @@ const NewListing = () => {
               disabled={instantAuction}
               minDateTime={new Date(new Date().getTime() + 3600000)}
               maxDateTime={new Date(new Date().getTime() + 86400000 * 14)}
-              onError={handeDateError}
+              onError={handleDateError}
             />
           )}
         </FlexRow>
@@ -608,7 +593,7 @@ const NewListing = () => {
               (isDateError && !instantAuction) ||
               listPrice === '' ||
               parseFloat(listPrice) <= 0 ||
-              !haveEnoughZoom ||
+              !haveEnoughZoomBurn ||
               !isApprovedForAll ||
               exceedZoomAllowance
             }

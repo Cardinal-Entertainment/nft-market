@@ -4,6 +4,7 @@ import moment from 'moment'
 import { EVENT_TYPES } from '../constants'
 import { getCardData } from './cardsUtil'
 import marketContractJSON from '../contracts/ZoombiesMarketPlace.json'
+import { formatBigNumberAmount } from './currencies'
 
 const marketInterface = new ethers.utils.Interface(marketContractJSON.abi)
 
@@ -48,6 +49,7 @@ async function bidEventCallback(eventLogs, collectionName, networkName) {
   const { args } = marketInterface.parseLog(eventLogs)
   const bidEvent = {
     itemNumber: args[0].toNumber(),
+    // This prob need the contract to be updated.
     bidAmount: Number(ethers.utils.formatEther(args[1].toString())),
     bidder: args[2],
     timestamp: moment().unix(),
@@ -74,7 +76,11 @@ async function itemListedCallback(
 
   if (!readOnlyContract) return
 
-  const minPrice = Number(ethers.utils.formatEther(args.minPrice))
+  const minPrice = formatBigNumberAmount(
+    args.minPrice,
+    args.saleToken,
+    networkName
+  )
   const cards = await Promise.all(
     tokenIds.map((tokenId) =>
       getCardData(tokenId, readOnlyContract, networkName)
@@ -110,8 +116,16 @@ async function settledCallback(
   const { args } = marketInterface.parseLog(eventLogs)
   const itemNumber = args.itemNumber.toNumber()
 
-  const bidAmount = Number(ethers.utils.formatEther(args.bidAmount))
-  const royaltyAmount = Number(ethers.utils.formatEther(args.royaltyAmount))
+  const bidAmount = formatBigNumberAmount(
+    args.bidAmount,
+    args.saleToken,
+    networkName
+  )
+  const royaltyAmount = formatBigNumberAmount(
+    args.royaltyAmount,
+    args.saleToken,
+    networkName
+  )
 
   const tokenIds = args.tokenIds.map((tokenId) => {
     return tokenId.toNumber()

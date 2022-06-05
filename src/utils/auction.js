@@ -1,5 +1,6 @@
-import { apiEndpoint, NETWORKS } from '../constants'
+import { apiEndpoint, CURRENCY_TYPES, NETWORKS } from '../constants'
 import moment from 'moment'
+import { ethers } from 'ethers'
 
 export const getTokenSymbol = (saleToken, networkName) => {
   const {
@@ -7,6 +8,7 @@ export const getTokenSymbol = (saleToken, networkName) => {
     wmovrContractAddress,
     usdtContractAddress,
     daiContractAddress,
+    usdcContractAddress,
   } = NETWORKS[networkName]
   switch (saleToken) {
     case zoomContractAddress:
@@ -17,6 +19,8 @@ export const getTokenSymbol = (saleToken, networkName) => {
       return 'USDT'
     case daiContractAddress:
       return 'DAI'
+    case usdcContractAddress:
+      return 'USDC'
     default:
       return 'Unknown'
   }
@@ -84,4 +88,24 @@ export const fetchHighestBids = async (itemNumber, chainId) => {
   } catch (error) {
     console.error('Failed to fetch highest bids: ', error)
   }
+}
+
+export const getMinOfferAmount = (auctionItem, coinType, minIncrement) => {
+  if (coinType === CURRENCY_TYPES.USDC) {
+    return auctionItem.numBids === 0
+      ? ethers.utils
+          .parseEther(auctionItem.minPrice.toString())
+          .add(minIncrement)
+      : ethers.utils
+          .parseEther(auctionItem.highestBid.toString())
+          .add(minIncrement)
+  }
+
+  return auctionItem.numBids === 0
+    ? ethers.utils
+        .parseEther(auctionItem?.minPrice.toString())
+        .add(minIncrement)
+    : ethers.utils
+        .parseEther(auctionItem?.highestBid.toString())
+        .add(minIncrement)
 }
