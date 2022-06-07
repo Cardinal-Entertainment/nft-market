@@ -27,7 +27,7 @@ import {
 import { useFetchProfileQuery } from './hooks/useProfile'
 import { store } from 'store/store'
 import NotificationAddon from './components/NotificationAddon'
-import { setupEthers, setupEthListeners } from 'hooks/useBlockchain'
+import { setupEthers } from 'hooks/useBlockchain'
 import { getNetworkNameFromURL } from 'utils/networkUtil'
 import './assets/scss/App.scss'
 import NetworkModal from 'components/NetworkModal'
@@ -160,8 +160,7 @@ const App = () => {
         setIsNetworkModalOpen(false)
         const queryCache = new QueryCache()
         queryCache.clear()
-        await setupEthers(dispatch, chainName)
-        await setupEthListeners(dispatch, queryClient, chainName)
+        await setupEthers(dispatch, queryClient, chainName)
       }
     }
     setupWallet()

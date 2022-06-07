@@ -11,7 +11,7 @@ import {
   faShoppingBag,
 } from '@fortawesome/free-solid-svg-icons'
 
-import { setupEthers, setupEthListeners } from '../hooks/useBlockchain'
+import { setupEthers } from '../hooks/useBlockchain'
 import {
   addAssetToMetamask,
   formatAddress,
@@ -175,8 +175,7 @@ const ButtonGroupContainer = styled1('div')({
 })
 
 const onConnect = async (dispatch, networkName, queryClient) => {
-  await setupEthers(dispatch, networkName)
-  await setupEthListeners(dispatch, queryClient, networkName)
+  await setupEthers(dispatch, queryClient, networkName)
 }
 
 const renderUserBalanceSection = (
