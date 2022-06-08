@@ -39,7 +39,7 @@ import AntSwitch from '../components/AntSwitch'
 import Stack from '@mui/material/Stack'
 
 import '../assets/scss/Newlisting.scss'
-import { getCurrencyAddress } from 'utils/currencies'
+import { getCurrencyAddress, parseAmountToBigNumber } from 'utils/currencies'
 
 const Container = styled.div`
   flex: 1;
@@ -291,17 +291,19 @@ const NewListing = () => {
   const createListing = async () => {
     setCreateInProgress(true)
 
-    let listingPrice = ethers.utils.parseEther(listPrice)
-    if (selectedCurrency === CURRENCY_TYPES.USDC) {
-      listingPrice = ethers.utils.parseUnits(listPrice, 'mwei')
-    }
-    console.log(listingPrice.toString())
+    const currencyAddress = getCurrencyAddress(network, selectedCurrency)
+    const listingPrice = parseAmountToBigNumber(
+      listPrice,
+      currencyAddress,
+      network
+    )
+
     try {
       await contracts.MarketContract.listItem(
         instantAuction
           ? 0
           : parseInt((new Date(dateTime).getTime() / 1000).toFixed(0)),
-        listingPrice.toNumber(),
+        listingPrice.toString(),
         Object.keys(selectedCards).map((id) => parseInt(id)),
         selectedNFT,
         getCurrencyAddress(network, selectedCurrency)
