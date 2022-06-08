@@ -109,3 +109,17 @@ export const getMinOfferAmount = (auctionItem, coinType, minIncrement) => {
         .parseEther(auctionItem?.highestBid.toString())
         .add(minIncrement)
 }
+
+// TODO(mchi): Modify this method so it checks query cache first.
+export const getListingItemFromAPI = async (itemNumber, chainId) => {
+  const result = await fetch(
+    `${apiEndpoint}/item/${itemNumber}?chainId=${chainId}`
+  )
+
+  if (result.ok) {
+    const json = await result.json()
+    return json
+  }
+
+  return null
+}

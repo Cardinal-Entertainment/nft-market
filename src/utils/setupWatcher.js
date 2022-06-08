@@ -49,8 +49,7 @@ async function bidEventCallback(eventLogs, collectionName, networkName) {
   const { args } = marketInterface.parseLog(eventLogs)
   const bidEvent = {
     itemNumber: args[0].toNumber(),
-    // This prob need the contract to be updated.
-    bidAmount: Number(ethers.utils.formatEther(args[1].toString())),
+    bidAmount: args[1].toString(),
     bidder: args[2],
     timestamp: moment().unix(),
     networkName,
