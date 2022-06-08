@@ -1,13 +1,17 @@
 import { v4 as uuidv4 } from 'uuid'
 import {
-  apiEndpoint,
   CHAIN_ID_TO_NETWORK,
   EVENT_TYPES,
   QUERY_KEYS,
 } from '../constants'
 import PubSub from 'pubsub-js'
-import { fetchHighestBids, getTokenSymbol } from './auction'
+import {
+  fetchHighestBids,
+  getListingItemFromAPI,
+  getTokenSymbol,
+} from './auction'
 import { ethers } from 'ethers'
+import { formatBigNumberAmount } from './currencies'
 
 export const OBSERVER_EVENT_TYPES = {
   otherBidPlaced: 'otherBidPlaced',
@@ -25,7 +29,7 @@ export const SELF_EVENT_TYPES = {
   selfBidPlaced: 'selfBidPlaced',
   selfAuctionWon: 'selfAuctionWon',
   outBid: 'outBid',
-  cancelledListing: 'cancelListing'
+  cancelledListing: 'cancelListing',
 }
 
 export const newBidEventForListing = (
@@ -34,10 +38,17 @@ export const newBidEventForListing = (
   marketContract,
   chainId
 ) => {
-  const token = PubSub.subscribe(EVENT_TYPES.Bid, (msg, data) => {
+  const token = PubSub.subscribe(EVENT_TYPES.Bid, async (msg, data) => {
     const randomId = uuidv4()
+    const listing = await getListingItemFromAPI(auctionId, chainId)
+    const formattedBid = formatBigNumberAmount(
+      data.bidAmount,
+      listing.saleToken,
+      CHAIN_ID_TO_NETWORK[chainId]
+    )
     const bidWithId = {
       ...data,
+      bidAmount: formattedBid,
       _id: randomId,
     }
 
@@ -68,7 +79,7 @@ export const newBidEventForListing = (
           {
             ...currentListing,
             bids: [...currentListing.bids, bidWithId],
-            highestBid: data.bidAmount,
+            highestBid: formattedBid,
           }
         )
       } else {
@@ -84,7 +95,7 @@ export const newBidEventForListing = (
           {
             ...currentListing,
             bids: [bidWithId],
-            highestBid: data.bidAmount,
+            highestBid: formattedBid,
           }
         )
       }
@@ -95,7 +106,7 @@ export const newBidEventForListing = (
 }
 
 export const newBidEventForListings = (queryClient, chainId, filters) => {
-  const token = PubSub.subscribe(EVENT_TYPES.Bid, (msg, data) => {
+  const token = PubSub.subscribe(EVENT_TYPES.Bid, async (msg, data) => {
     const currentData = queryClient.getQueryData([
       QUERY_KEYS.listings,
       { filters, chainId },
@@ -103,14 +114,23 @@ export const newBidEventForListings = (queryClient, chainId, filters) => {
 
     if (currentData) {
       const auctionId = data.itemNumber
+      const listing = await getListingItemFromAPI(auctionId, chainId)
+
       const currentBidData = queryClient.getQueryData([
         QUERY_KEYS.bids,
         { auctionId, chainId },
       ])
 
+      const formattedBid = formatBigNumberAmount(
+        data.bidAmount,
+        listing.saleToken,
+        CHAIN_ID_TO_NETWORK[chainId]
+      )
+
       const randomId = uuidv4()
       const bidWithId = {
         ...data,
+        bidAmount: formattedBid,
         _id: randomId,
       }
 
@@ -134,7 +154,7 @@ export const newBidEventForListings = (queryClient, chainId, filters) => {
           queryData.pages.map((page) => {
             page.data.map((auction) => {
               if (auction.itemNumber === data.itemNumber) {
-                auction.highestBid = data.bidAmount
+                auction.highestBid = formattedBid
               }
               return auction
             })
@@ -222,7 +242,10 @@ export const newSettledEvent = (queryClient, userAddress, chainId) => {
     const settleType = getSettledEventType(data, userAddress)
 
     const filterKey =
-      data.winner === userAddress || data.winner === ethers.constants.AddressZero ? FEED_TYPE.self : FEED_TYPE.observer
+      data.winner === userAddress ||
+      data.winner === ethers.constants.AddressZero
+        ? FEED_TYPE.self
+        : FEED_TYPE.observer
 
     const settleData = {
       ...data,
@@ -260,12 +283,19 @@ const addLiveFeedItem = (queryClient, liveFeedItem, filterKey, chainId) => {
 
 const getBidEventType = async (bidData, queryClient, userAddress, chainId) => {
   const { itemNumber, bidAmount } = bidData
+
+  const listing = await getListingItemFromAPI(itemNumber, chainId)
   const highestBids = await fetchHighestBids(itemNumber, chainId)
+  const formattedBidAmount = formatBigNumberAmount(
+    bidAmount,
+    listing.saleToken,
+    CHAIN_ID_TO_NETWORK[chainId]
+  )
 
   if (bidData.bidder !== userAddress) {
     if (highestBids && highestBids.length > 0) {
       const numberOfBids = highestBids.length
-      if (bidAmount === highestBids[0].bidAmount) {
+      if (formattedBidAmount === highestBids[0].bidAmount) {
         // Data is already in the DB. Need to check the second highest bid.
         const secondHighestBid = numberOfBids > 1 ? highestBids[1] : null
         if (secondHighestBid && secondHighestBid.bidder === userAddress) {
@@ -300,19 +330,6 @@ const getSettledEventType = (settledData, userAddress) => {
   }
 }
 
-const getListingItemFromAPI = async (itemNumber, chainId) => {
-  const result = await fetch(
-    `${apiEndpoint}/item/${itemNumber}?chainId=${chainId}`
-  )
-
-  if (result.ok) {
-    const json = await result.json()
-    return json
-  }
-
-  return null
-}
-
 /**
  * Bid data:
  * {
@@ -342,6 +359,11 @@ export const addBidEventToFeed = (queryClient, userAddress, chainId) => {
           ...data,
           type: bidType,
           saleToken: listing ? listing.saleToken : null,
+          bidAmount: formatBigNumberAmount(
+            data.bidAmount,
+            listing.saleToken,
+            CHAIN_ID_TO_NETWORK[chainId]
+          ),
         }
 
         const filterKey =
