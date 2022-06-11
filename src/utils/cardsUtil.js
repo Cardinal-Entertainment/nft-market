@@ -1,4 +1,4 @@
-import { NETWORKS } from '../constants'
+import { NETWORKS, QUERY_KEYS } from '../constants'
 
 export const getCardType = async (cardId) => {
   try {
@@ -88,5 +88,36 @@ export const getCardSummary = (cards) => {
     ' (' +
     cards.map((card) => card.name).join(',') +
     ')'
+  )
+}
+
+export const removeUserNFTFromCache = (
+  queryClient,
+  tokenIds,
+  userAddress,
+  nftContract,
+  marketContract,
+  networkName
+) => {
+  queryClient.setQueryData(
+    [
+      QUERY_KEYS.userNFT,
+      {
+        userAddress,
+        nftContract: nftContract?.address,
+        marketContract: marketContract?.address,
+        networkName,
+      },
+    ],
+    (existingData) => {
+      const filteredNFTs = existingData.userNFTs.filter((nft) => {
+        return !tokenIds.includes(nft.id)
+      })
+
+      return {
+        ...existingData,
+        userNFTs: filteredNFTs,
+      }
+    }
   )
 }

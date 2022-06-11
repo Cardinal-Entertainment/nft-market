@@ -7,7 +7,7 @@ import DateTimePicker from '@mui/lab/DateTimePicker'
 import TextField from '@mui/material/TextField'
 import { store } from 'store/store'
 import { omit } from 'lodash'
-import { useHistory, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { ethers } from 'ethers'
 import LazyLoad from 'react-lazyload'
 import { CircularProgress, ListItemIcon, ListItemText } from '@mui/material'
@@ -34,12 +34,20 @@ import Tooltip from '@mui/material/Tooltip'
 import CancelIcon from '@mui/icons-material/Cancel'
 import UserAllowance from '../components/UserAllowance'
 import Typography from '@mui/material/Typography'
+
+import Snackbar from '@mui/material/Snackbar'
+import Slide, { SlideProps } from '@mui/material/Slide'
+
 import { compareAsBigNumbers, toBigNumber } from '../utils/BigNumbers'
 import AntSwitch from '../components/AntSwitch'
 import Stack from '@mui/material/Stack'
 
 import '../assets/scss/Newlisting.scss'
 import { getCurrencyAddress, parseAmountToBigNumber } from 'utils/currencies'
+import { waitForTransaction } from 'utils/transactions'
+import classNames from 'classnames'
+import { removeUserNFTFromCache } from 'utils/cardsUtil'
+import { useQueryClient } from 'react-query'
 
 const Container = styled.div`
   flex: 1;
@@ -174,11 +182,16 @@ const StyledLogo = styled.img`
   margin-left: 4px;
 `
 
+function SlideTransition(props: SlideProps) {
+  return <Slide {...props} direction="up" />
+}
+
 const renderUserNFTs = (
   userNFTs,
   chainId,
   handleCardClicked,
-  selectedCards
+  selectedCards,
+  cardsBeingListed
 ) => {
   if (!userNFTs || !chainId) {
     return null
@@ -208,21 +221,32 @@ const renderUserNFTs = (
 
   return userNFTs.map((card) => (
     <LazyLoad key={card.id} once={true} resize={true}>
-      <CardWrapper onClick={() => handleCardClicked(card.id)} key={card.id}>
+      <CardWrapper
+        className={classNames({
+          'card-image-wrapper-disabled': cardsBeingListed[card.id],
+        })}
+        onClick={() => handleCardClicked(card.id)}
+        key={card.id}
+      >
         <img
           src={card.isNotZoombies ? card.image : `${imageUrl}/${card.id}`}
           alt={`Token #${card.id}`}
+          className={classNames({
+            'card-image-disabled': cardsBeingListed[card.id],
+          })}
         />
         <div>ID: {card.id}</div>
-        <input type="checkbox" checked={!!selectedCards[card.id]} readOnly />
+        <input
+          type="checkbox"
+          checked={!!selectedCards[card.id] || !!cardsBeingListed[card.id]}
+          readOnly
+        />
       </CardWrapper>
     </LazyLoad>
   ))
 }
 
 const NewListing = () => {
-  const history = useHistory()
-
   const { network } = useParams()
   const marketAddress = NETWORKS[network].marketContractAddress
   const nftContracts = NFT_CONTRACTS[network]
@@ -239,8 +263,14 @@ const NewListing = () => {
   )
 
   const [selectedCards, setSelectedCards] = useState({})
+  const [cardsBeingListed, setCardsBeingListed] = useState([])
   const [isApprovedForAll, setIsApprovedForAll] = useState(false)
   const [instantAuction, setInstantAuction] = useState(false)
+
+  const [isNewListingToastOpen, setIsNewListingToastOpen] =
+    React.useState(false)
+
+  const queryClient = useQueryClient()
 
   const {
     state: { contracts, wallet },
@@ -268,6 +298,7 @@ const NewListing = () => {
   }, [wallet.address, contracts.nftContracts, selectedNFT, marketAddress])
 
   const handleCardClicked = (cardId) => {
+    if (cardsBeingListed[cardId]) return
     if (selectedCards[cardId]) {
       setSelectedCards({
         ...omit(selectedCards, cardId),
@@ -299,17 +330,35 @@ const NewListing = () => {
     )
 
     try {
-      await contracts.MarketContract.listItem(
+      const tokenIds = Object.keys(selectedCards).map((id) => parseInt(id))
+      const tx = await contracts.MarketContract.listItem(
         instantAuction
           ? 0
           : parseInt((new Date(dateTime).getTime() / 1000).toFixed(0)),
         listingPrice.toString(),
-        Object.keys(selectedCards).map((id) => parseInt(id)),
+        tokenIds,
         selectedNFT,
         getCurrencyAddress(network, selectedCurrency)
       )
       setCreateInProgress(false)
-      history.push(`/${network}`)
+      const unavailableCards = {
+        ...cardsBeingListed,
+        ...selectedCards,
+      }
+      setSelectedCards({})
+      setCardsBeingListed(unavailableCards)
+
+      setIsNewListingToastOpen(true)
+      await waitForTransaction(tx)
+
+      removeUserNFTFromCache(
+        queryClient,
+        tokenIds,
+        wallet.address,
+        contracts.nftContracts[selectedNFT]?.readOnly,
+        contracts.ReadOnlyMarketContract,
+        network
+      )
     } catch (err) {
       console.error(err)
     } finally {
@@ -398,8 +447,24 @@ const NewListing = () => {
     data?.zoomBurnFee ? numberOfSelectedCards * data?.zoomBurnFee : 0
   ).gt(currentAllowance ? currentAllowance : toBigNumber(0))
 
+  const onClose = () => {
+    setIsNewListingToastOpen(false)
+  }
+
   return (
     <Container>
+      <Snackbar
+        open={isNewListingToastOpen}
+        onClose={onClose}
+        TransitionComponent={SlideTransition}
+        message="Your NFTs are being listed..."
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        autoHideDuration={4000}
+        key={Object.keys(selectedCards).join('-')}
+      />
       <h1>New Listing</h1>
       <Form>
         <FlexRow>
@@ -582,7 +647,8 @@ const NewListing = () => {
               data?.userNFTs,
               wallet?.chainId,
               handleCardClicked,
-              selectedCards
+              selectedCards,
+              cardsBeingListed
             )
           )}
         </NFTContainer>
