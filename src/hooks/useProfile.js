@@ -52,7 +52,7 @@ const getUserNFTs = async (userAddress, nftContract, marketContract, networkName
     }
 
     const cards = await Promise.all(
-      tokensOfOwner.slice(0, 30).map((token) => {
+      tokensOfOwner.map((token) => {
         return getCardData(parseInt(token), nftContract, networkName)
       })
     )

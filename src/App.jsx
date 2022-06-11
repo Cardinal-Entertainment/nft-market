@@ -31,7 +31,7 @@ import { setupEthers } from 'hooks/useBlockchain'
 import { getNetworkNameFromURL } from 'utils/networkUtil'
 import './assets/scss/App.scss'
 import NetworkModal from 'components/NetworkModal'
-import { addBidEventToFeed, newSettledEvent } from 'utils/events'
+import { addBidEventToFeed, newItemListedEvent, newSettledEvent } from 'utils/events'
 
 const Container = styled('div')({
   height: '100vh',
@@ -165,6 +165,14 @@ const App = () => {
     }
     setupWallet()
   }, [dispatch, location, isInitialSetupDone, queryClient])
+
+  useEffect(() => {
+    const token = newItemListedEvent(queryClient, null, chainId, address)
+
+    return () => {
+      PubSub.unsubscribe(token)
+    }
+  }, [queryClient, chainId, address])
 
   const { data: myAuctions } = useFetchProfileQuery(address, chainId)
 
