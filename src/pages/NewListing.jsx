@@ -434,6 +434,7 @@ const NewListing = () => {
   )
 
   const numberOfSelectedCards = Object.keys(selectedCards).length || 0
+  
   const haveEnoughZoomBurn =
     compareAsBigNumbers(
       parseInt(wallet?.zoomBalance),
@@ -582,7 +583,7 @@ const NewListing = () => {
         <FlexRow>
           <FlexColumn>
             <FlexRow>
-              {!exceedZoomAllowance && numberOfSelectedCards > 0 ? (
+              {!exceedZoomAllowance && haveEnoughZoomBurn && numberOfSelectedCards > 0 ? (
                 <CheckCircle color="success" />
               ) : (
                 <CancelIcon color="error" />
