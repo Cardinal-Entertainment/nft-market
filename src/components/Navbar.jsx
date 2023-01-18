@@ -216,6 +216,8 @@ const renderUserBalanceSection = (
     )
   }
 
+  const network = getNetworkNameFromURL();
+
   return (
     <UserBalances>
       <NavItem color={theme.colors.metamaskOrange}>
@@ -232,13 +234,13 @@ const renderUserBalanceSection = (
       </NavItem>
       <NavItem color="white">
         <Tooltip
-          title={<TooltipContent>{balance} MOVR</TooltipContent>}
+          title={<TooltipContent>{balance} {network == 'moonriver' ? 'MOVR' : network == 'moonbase-alpha' ? 'DEV' : 'Undefined'}</TooltipContent>}
           arrow
           placement="right"
         >
           <span>
-            <img src={ CURRENCY_ICONS.MOVR} alt="movr logo" />
-            {Number(balance).toFixed(4)} MOVR
+            <img style={{borderRadius: '50%'}} src={ network == 'moonriver' ? CURRENCY_ICONS.MOVR : network == 'moonbase-alpha' ? NETWORK_ICONS['moonbase-alpha'] : ''} alt="movr logo" />
+            {Number(balance).toFixed(4)} {network == 'moonriver' ? 'MOVR' : network == 'moonbase-alpha' ? 'DEV' : 'Undefined'}
           </span>
         </Tooltip>
       </NavItem>
