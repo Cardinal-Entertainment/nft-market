@@ -40,7 +40,7 @@ export const NETWORKS = {
     name: NETWORK_NAMES.MOONRIVER,
     chainId: 1285,
     websocketRPC: `wss://moonriver.api.onfinality.io/ws?apikey=${process.env['REACT_APP_MOONBEAM_RPC_API_KEY']}`,
-    httpRPC: `https://moonriver.api.onfinality.io/rpc?apikey=${process.env['REACT_APP_MOONBEAM_RPC_API_KEY']}`,
+    httpRPC: `https://moonriver.api.onfinality.io/public`,
     marketContractAddress: '0x0705212aeAA5d0b91c995269863856B2A17874a8',
     zoomContractAddress: '0x8bd5180Ccdd7AE4aF832c8C03e21Ce8484A128d4',
     zoombiesContractAddress: '0x08716e418e68564C96b68192E985762740728018',
