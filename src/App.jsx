@@ -15,6 +15,7 @@ import HelpPage from './pages/Help'
 import Profile from 'pages/Profile'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import AuctionArchive from 'pages/AuctionArchive'
+import Admin from 'pages/Admin'
 import PubSub from 'pubsub-js'
 import { QueryCache, useQueryClient } from 'react-query'
 import {
@@ -309,9 +310,14 @@ const App = () => {
               component={AuctionArchive}
             />
             <Route
+              path={`/:network(${supportedNetworkRegex})/admin`}
+              component={Admin}
+            />
+            <Route
               path={`/:network(${supportedNetworkRegex})/`}
               component={Home}
             />
+            
             <Route exact path="/">
               <Redirect to="/moonbase-alpha" />
             </Route>
