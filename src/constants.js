@@ -7,6 +7,7 @@ import usdtLogo from './assets/usdt.svg'
 import daiLogo from './assets/dai.png'
 import zoomCoin from './assets/zoombies_coin.svg'
 import usdcCoin from './assets/usdc.png'
+import beansLogo from './assets/beansLogo.png'
 
 export const isLocal = process.env.NODE_ENV === 'development'
 
@@ -34,6 +35,7 @@ export const NETWORKS = {
     usdtContractAddress: '0x0b77D7BDd78b2a4C2c50980968166D99e321DfB6',
     usdcContractAddress: '0x0D6f70B9D4fBdfAF630FA90caDe1aa5225232BdA',
     daiContractAddress: '0xEc95c10d4DD55741DE9491751407DEA41A3eF5f1',
+    beansContractAddress: '0x24c5CB884BF3AC3F6ceB0d41F90987B6fe0Dd4A7',
     imageUrl: 'https://moonbase.zoombies.world/nft-image',
   },
   moonriver: {
@@ -51,6 +53,7 @@ export const NETWORKS = {
     daiContractAddress: '0x80A16016cC4A2E6a2CACA8a4a498b1699fF0f844',
     imageUrl: 'https://zoombies.world/nft-image',
     usdcContractAddress: '0xE3F5a90F9cb311505cd691a46596599aA1A0AD7D',
+    beansContractAddress: '0xC2392DD3e3fED2c8Ed9f7f0bDf6026fcd1348453',
   },
 }
 
@@ -147,6 +150,7 @@ export const CURRENCY_ICONS = {
   USDT: usdtLogo,
   ZOOM: zoomCoin,
   USDC: usdcCoin,
+  BEANS: beansLogo,
 }
 
 export const CURRENCY_TYPES = {
@@ -154,5 +158,6 @@ export const CURRENCY_TYPES = {
   ZOOM: 'ZOOM',
   DAI: 'DAI',
   USDC: 'USDC',
+  BEANS: 'BEANS',
   // USDT: 'USDT'
 }

@@ -19,6 +19,7 @@ const initialState = {
     usdtBalance: null,
     daiBalance: null,
     usdcBalance: null,
+    beansBalance: null,
   },
   contracts: {
     ZoomContract: null,
@@ -28,6 +29,7 @@ const initialState = {
     USDTContract: null,
     DAIContract: null,
     USDCContract: null,
+    BEANSContract: null,
     nftContracts: {},
   },
   signer: null,
@@ -41,6 +43,7 @@ const initialState = {
   daiIncrement: 1,
   xcKSMIncrement: 0.006,
   usdcIncrement: 1,
+  beansIncrement: 1,
 }
 
 const store = createContext(initialState)
