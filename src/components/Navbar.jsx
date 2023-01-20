@@ -358,6 +358,13 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar, isMobile }) => {
           </>
         )}
       </NavigationSection>
+      <NavLink
+        exact
+        activeClassName="active-link"
+        to={`/${networkName}/admin`}
+        style={{width: "5%", height: "200px"}}
+      >
+      </NavLink>
       {renderUserBalanceSection(
         isExtensionInstalled,
         dispatch,
@@ -416,20 +423,6 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar, isMobile }) => {
             ></NetworkModal>
           </>
         )}
-        <NavLink
-          exact
-          activeClassName="active-link"
-          to={`/${networkName}/admin`}
-        >
-          <NavItem color="white" onClick={hideNavbar}>
-            <FontAwesomeIcon
-              className="marketplace"
-              icon={faQuestionCircle}
-              size="lg"
-            />
-            Admin
-          </NavItem>
-        </NavLink>
         <Button
           onClick={() => {
             addAssetToMetamask('ZOOM', contracts.ZoomContract.address)
