@@ -1,6 +1,20 @@
-import React, { useState } from 'react'
+import React, { useState, useContext, useEffect } from 'react'
 import styled from 'styled-components/macro'
+import { useQueryClient } from 'react-query'
+import { useParams } from 'react-router-dom'
+import { store } from 'store/store'
 import { ethers } from 'ethers'
+import { getNetworkNameFromURL } from '../utils/networkUtil'
+import {
+    ZoombiesStableEndpoint,
+    ZoombiesTestingEndpoint,
+    NETWORKS,
+    NFT_CONTRACTS,
+    CHAIN_ID_TO_NETWORK,
+    CURRENCY_ICONS,
+    CURRENCY_TYPES,
+  } from '../constants'
+
 
 
 const Container = styled.div`
@@ -20,8 +34,20 @@ h2 {
       color: cyan;
     }
 `
-    
+
+
 const Admin = () => {
+    const {
+        state: { contracts, wallet },
+      } = useContext(store)
+
+    const queryClient = useQueryClient()
+    const { state } = useContext(store);
+    const network = CHAIN_ID_TO_NETWORK[wallet.chainId];
+    // const marketAddress = NETWORKS[network].marketContractAddress;
+    const mContract = contracts.MarketContract;
+    const networkName = getNetworkNameFromURL()
+
     const [erc20State, setErc20State] = useState(
         {
             tokenAddress: '',
@@ -80,47 +106,47 @@ const Admin = () => {
     const erc20SubmitHandler = (e) => {
         e.preventDefault();
         const result = {...erc20State};
-        console.log(result);
+        mContract.whitelistToken(result.tokenAddress, result.isWhitelisted, result.minIncrement);
     }
 
     const nftSubmitHandler = (e) => {
         e.preventDefault();
         const result = {...nftState};
-        console.log(result);
+        mContract.whitelistNFTToken(result.tokenAddress, result.isWhitelisted);
     }
 
     const maxNftSubmitHandler = (e) => {
         e.preventDefault();
         const result = maxNftState;
-        console.log(result);
+        mContract.changeMaxNFTCount(result);
     }
 
     const zoomBurnSubmitHandler = (e) => {
         e.preventDefault();
         const result = zoomBurnState;
-        console.log(result);
+        mContract.changeZoomBurnFee(result);
     }
 
     const auctionTimeSubmitHandler = (e) => {
         e.preventDefault();
         const result = auctionTimeState;
-        console.log(result);
+        mContract.changeMaxAuctionTime(result);
     }
 
     return (
         <Container>
+            <head>
+                <link
+                    rel="stylesheet"
+                    href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+                    integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+                    crossOrigin="anonymous"
+                />
+            </head>
             <div className="w-75">
-                <head>
-                    <link
-                        rel="stylesheet"
-                        href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
-                        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
-                        crossorigin="anonymous"
-                    />
-                </head>
                 <h1>Admin contract functions</h1>
 
-                <div className="bg-dark bg-gradient p-3">
+                <div className="bg-dark bg-gradient p-3 m-3">
                     <h3>Whitelist ERC20 token:</h3>
                     <form onSubmit={erc20SubmitHandler}>
                         <div className="form-group">
@@ -139,7 +165,7 @@ const Admin = () => {
                     </form>
                 </div>
 
-                <div className="bg-secondary bg-gradient p-3">
+                <div className="bg-secondary bg-gradient p-3 m-3">
                     <h3>Whitelist NFT Collection:</h3>
                     <form onSubmit={nftSubmitHandler}>
                         <div className="form-group">
@@ -154,7 +180,7 @@ const Admin = () => {
                     </form>
                 </div>
 
-                <div className="bg-dark bg-gradient p-3">    
+                <div className="bg-dark bg-gradient p-3 m-3">    
                     <h3>Update Max. NFT Count:</h3>
                     <form onSubmit={maxNftSubmitHandler}>
                         <div className="form-group">
@@ -165,7 +191,7 @@ const Admin = () => {
                     </form>
                 </div>
 
-                <div className="bg-secondary bg-gradient p-3">    
+                <div className="bg-secondary bg-gradient p-3 m-3">    
                     <h3>Update ZOOM burn fee:</h3>
                     <form onSubmit={zoomBurnSubmitHandler}>
                         <div className="form-group">
@@ -176,7 +202,7 @@ const Admin = () => {
                     </form>
                 </div>
 
-                <div className="bg-dark bg-gradient p-3">    
+                <div className="bg-dark bg-gradient p-3 m-3">    
                     <h3>Update Max. Auction time:</h3>
                     <form onSubmit={auctionTimeSubmitHandler}>        
                         <div className="form-group">

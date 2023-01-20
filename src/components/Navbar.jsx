@@ -416,6 +416,20 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar, isMobile }) => {
             ></NetworkModal>
           </>
         )}
+        <NavLink
+          exact
+          activeClassName="active-link"
+          to={`/${networkName}/admin`}
+        >
+          <NavItem color="white" onClick={hideNavbar}>
+            <FontAwesomeIcon
+              className="marketplace"
+              icon={faQuestionCircle}
+              size="lg"
+            />
+            Admin
+          </NavItem>
+        </NavLink>
         <Button
           onClick={() => {
             addAssetToMetamask('ZOOM', contracts.ZoomContract.address)
