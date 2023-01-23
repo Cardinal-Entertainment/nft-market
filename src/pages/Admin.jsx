@@ -1,21 +1,8 @@
 import React, { useState, useContext, useEffect } from 'react'
 import styled from 'styled-components/macro'
-import { useQueryClient } from 'react-query'
-import { useParams } from 'react-router-dom'
 import { store } from 'store/store'
+import { BigNumber } from 'ethers'
 import { ethers } from 'ethers'
-import { getNetworkNameFromURL } from '../utils/networkUtil'
-import {
-    ZoombiesStableEndpoint,
-    ZoombiesTestingEndpoint,
-    NETWORKS,
-    NFT_CONTRACTS,
-    CHAIN_ID_TO_NETWORK,
-    CURRENCY_ICONS,
-    CURRENCY_TYPES,
-  } from '../constants'
-
-
 
 const Container = styled.div`
 display: flex;
@@ -35,18 +22,13 @@ h2 {
     }
 `
 
-
 const Admin = () => {
     const {
         state: { contracts, wallet },
       } = useContext(store)
 
-    const queryClient = useQueryClient()
-    const { state } = useContext(store);
-    const network = CHAIN_ID_TO_NETWORK[wallet.chainId];
     // const marketAddress = NETWORKS[network].marketContractAddress;
     const mContract = contracts.MarketContract;
-    const networkName = getNetworkNameFromURL()
 
     const [erc20State, setErc20State] = useState(
         {
@@ -106,7 +88,9 @@ const Admin = () => {
     const erc20SubmitHandler = (e) => {
         e.preventDefault();
         const result = {...erc20State};
-        mContract.whitelistToken(result.tokenAddress, result.isWhitelisted, result.minIncrement);
+        const new_inc = BigNumber.from(ethers.utils.parseUnits(result.minIncrement.toString())).toString();
+        console.log(new_inc);
+        mContract.whitelistToken(result.tokenAddress, result.isWhitelisted, new_inc);
     }
 
     const nftSubmitHandler = (e) => {
