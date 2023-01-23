@@ -117,6 +117,10 @@ const Admin = () => {
         mContract.changeMaxAuctionTime(result);
     }
 
+    // (async () => {
+    //     console.log(await mContract.tokenWhitelist('0x24c5CB884BF3AC3F6ceB0d41F90987B6fe0Dd4A7'));
+    // })()
+
     return (
         <Container>
             <head>
