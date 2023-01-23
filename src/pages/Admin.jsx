@@ -89,7 +89,6 @@ const Admin = () => {
         e.preventDefault();
         const result = {...erc20State};
         const new_inc = BigNumber.from(ethers.utils.parseUnits(result.minIncrement.toString())).toString();
-        console.log(new_inc);
         mContract.whitelistToken(result.tokenAddress, result.isWhitelisted, new_inc);
     }
 
@@ -107,7 +106,7 @@ const Admin = () => {
 
     const zoomBurnSubmitHandler = (e) => {
         e.preventDefault();
-        const result = zoomBurnState;
+        const result = BigNumber.from(ethers.utils.parseUnits(zoomBurnState.toString())).toString();
         mContract.changeZoomBurnFee(result);
     }
 
@@ -120,6 +119,7 @@ const Admin = () => {
     // (async () => {
     //     console.log(await mContract.tokenWhitelist('0x24c5CB884BF3AC3F6ceB0d41F90987B6fe0Dd4A7'));
     // })()
+
 
     return (
         <Container>
@@ -142,7 +142,7 @@ const Admin = () => {
                             <input type="text" id="tokenAddress" name="tokenAddress" value={erc20State.tokenAddress} onChange={erc20Handler} className="form-control w-50"></input>
                         </div>
                         <div className="form-group">
-                            <label>Min Increment</label>
+                            <label>Min Increment (In Eth)</label>
                             <input type="number" id="minIncrement" name="minIncrement" value={erc20State.minIncrement} onChange={erc20Handler} className="form-control w-50"></input>
                         </div>
                         <div className="form-check">
@@ -183,7 +183,7 @@ const Admin = () => {
                     <h3>Update ZOOM burn fee:</h3>
                     <form onSubmit={zoomBurnSubmitHandler}>
                         <div className="form-group">
-                            <label>ZOOM burn fee</label>
+                            <label>ZOOM burn fee (In Eth)</label>
                             <input type="number" id="zoomBurn" name="zoomBurn" max="10000000" min="0" value={zoomBurnState} onChange={zoomBurnHandler} className='form-control w-50'></input>
                         </div>
                         <button type="submit" className="btn btn-primary text-white w-25">Update</button>
