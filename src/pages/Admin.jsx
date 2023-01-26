@@ -3,6 +3,7 @@ import styled from 'styled-components/macro'
 import { store } from 'store/store'
 import { BigNumber } from 'ethers'
 import { ethers } from 'ethers'
+import { formatEther } from '@ethersproject/units'
 
 const Container = styled.div`
 display: flex;
@@ -116,10 +117,13 @@ const Admin = () => {
         mContract.changeMaxAuctionTime(result);
     }
 
-    // (async () => {
-    //     console.log(await mContract.tokenWhitelist('0x24c5CB884BF3AC3F6ceB0d41F90987B6fe0Dd4A7'));
-    // })()
+    (async () => {
+        setMaxNftState( await parseInt(formatEther( await mContract.maxNFTCount())));
+        setZoomBurnState( await parseInt(formatEther( await mContract.zoomBurnFee())));
+        setAuctionTimeState( await parseInt(formatEther( await mContract.maxAuctionTime())));
+    })()
 
+    // console.log(mContract);
 
     return (
         <Container>
