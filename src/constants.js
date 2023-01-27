@@ -6,8 +6,9 @@ import movrLogo from './assets/movr_logo.png'
 import usdtLogo from './assets/usdt.svg'
 import daiLogo from './assets/dai.png'
 import zoomCoin from './assets/zoombies_coin.svg'
-import usdcCoin from './assets/usdc.png'
 import beansLogo from './assets/beansLogo.png'
+import usdcLogo from './assets/usdcLogo.png'
+import xcKSMLogo from './assets/xcksmLogo.webp'
 
 export const isLocal = process.env.NODE_ENV === 'development'
 
@@ -149,8 +150,9 @@ export const CURRENCY_ICONS = {
   DAI: daiLogo,
   USDT: usdtLogo,
   ZOOM: zoomCoin,
-  USDC: usdcCoin,
+  USDC: usdcLogo,
   BEANS: beansLogo,
+  XCKSM: xcKSMLogo,
 }
 
 export const CURRENCY_TYPES = {
@@ -159,5 +161,6 @@ export const CURRENCY_TYPES = {
   DAI: 'DAI',
   USDC: 'USDC',
   BEANS: 'BEANS',
+  XCKSM: 'xcKSM'
   // USDT: 'USDT'
 }

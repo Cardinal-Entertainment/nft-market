@@ -10,6 +10,7 @@ export const getTokenSymbol = (saleToken, networkName) => {
     daiContractAddress,
     usdcContractAddress,
     beansContractAddress,
+    xcKSMContractAddress,
   } = NETWORKS[networkName]
   switch (saleToken) {
     case zoomContractAddress:
@@ -24,6 +25,8 @@ export const getTokenSymbol = (saleToken, networkName) => {
       return 'USDC'
     case beansContractAddress:
       return 'BEANS'
+    case xcKSMContractAddress:
+      return 'xcKSM'
     default:
       return 'Unknown'
   }

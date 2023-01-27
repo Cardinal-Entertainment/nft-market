@@ -29,6 +29,11 @@ export const getWalletBEANSBalance = async (beansContract, address) => {
   return ethers.utils.formatUnits(beansBalance, 'mwei')
 }
 
+export const getWalletxcKSMBalance = async (xcKSMContract, address) => {
+  const xcKSMBalance = await xcKSMContract.balanceOf(address)
+  return ethers.utils.formatUnits(xcKSMBalance, 'mwei')
+}
+
 export const unWrapMOVR = async (wmovrContract, amount) => {
   await wmovrContract.withdraw(ethers.utils.parseEther(amount))
 }

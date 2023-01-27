@@ -20,6 +20,7 @@ const initialState = {
     daiBalance: null,
     usdcBalance: null,
     beansBalance: null,
+    xcKSMBalance: null,
   },
   contracts: {
     ZoomContract: null,
@@ -30,6 +31,7 @@ const initialState = {
     DAIContract: null,
     USDCContract: null,
     BEANSContract: null,
+    xcKSMContract: null,
     nftContracts: {},
   },
   signer: null,
@@ -41,7 +43,7 @@ const initialState = {
   wmovrIncrement: 0.02,
   usdtIncrement: 1,
   daiIncrement: 1,
-  xcKSMIncrement: 0.006,
+  xcKSMIncrement: 0.001,
   usdcIncrement: 1,
   beansIncrement: 1,
 }
@@ -99,6 +101,8 @@ const StateProvider = ({ children }) => {
           wmovrIncrement: payload.wmovrIncrement,
           usdtIncrement: payload.usdtIncrement,
           daiIncrement: payload.daiIncrement,
+          beansIncrement: payload.beansIncrement,
+          xcKSMIncrement: payload.xcKSMIncrement,
         }
       case ActionTypes.CLEAR_WALLET:
         Object.keys(state.contracts).forEach((key) => {

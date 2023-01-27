@@ -20,6 +20,7 @@ import {
   getWalletDAIBalance,
   getWalletUSDCBalance,
   getWalletBEANSBalance,
+  getWalletxcKSMBalance,
 } from '../utils/wallet'
 import watchMarketEvents from 'utils/setupWatcher'
 import WebsocketProvider from 'utils/WebsocketProvider'
@@ -96,6 +97,12 @@ const loadContracts = async (
 
   const BEANSContract = new ethers.Contract(
     network.beansContractAddress,
+    anyERC20JSON.abi,
+    signer
+  )
+
+  const xcKSMContract = new ethers.Contract(
+    network.xcKSMContractAddress,
     anyERC20JSON.abi,
     signer
   )
@@ -194,6 +201,25 @@ const loadContracts = async (
     }
   })
 
+  xcKSMContract.provider.on('block', async () => {
+    if (signer) {
+      const address = await signer.getAddress()
+      const bal = await getWalletxcKSMBalance(xcKSMContract, address)
+
+      dispatch(
+        Actions.walletChanged({
+          xcKSMBalance: bal,
+        })
+      )
+    } else {
+      dispatch(
+        Actions.walletChanged({
+          xcKSMBalance: 0,
+        })
+      )
+    }
+  })
+
   await watchMarketEvents(
     websocketProvider,
     network.marketContractAddress,
@@ -213,6 +239,7 @@ const loadContracts = async (
         nftContracts,
         USDCContract,
         BEANSContract,
+        xcKSMContract,
       },
       signer: signer,
     })
@@ -227,6 +254,7 @@ const loadContracts = async (
     nftContracts,
     USDCContract,
     BEANSContract,
+    xcKSMContract,
   }
 }
 
@@ -315,7 +343,7 @@ export const setupEthers = async (dispatch, queryClient, chainName = 'moonbase-a
 
     websocketProvider.init()
 
-    const { ZoomContract, USDTContract, DAIContract, USDCContract, BEANSContract } =
+    const { ZoomContract, USDTContract, DAIContract, USDCContract, BEANSContract, xcKSMContract } =
       await loadContracts(
         signer,
         dispatch,
@@ -328,6 +356,7 @@ export const setupEthers = async (dispatch, queryClient, chainName = 'moonbase-a
     const daiBalance = await getWalletDAIBalance(DAIContract, address)
     const usdcBalance = await getWalletUSDCBalance(USDCContract, address)
     const beansBalance = await getWalletBEANSBalance(BEANSContract, address)
+    const xcKSMBalance = await getWalletxcKSMBalance(xcKSMContract, address)
 
     dispatch(
       Actions.walletChanged({
@@ -336,6 +365,7 @@ export const setupEthers = async (dispatch, queryClient, chainName = 'moonbase-a
         daiBalance: daiBalance,
         usdcBalance: usdcBalance,
         beansBalance: beansBalance,
+        xcKSMBalance: xcKSMBalance,
       })
     )
 
@@ -345,6 +375,7 @@ export const setupEthers = async (dispatch, queryClient, chainName = 'moonbase-a
       DAIContract,
       USDCContract,
       BEANSContract,
+      xcKSMContract,
     })
     dispatch(Actions.setupDone())
   } catch (err) {
@@ -368,12 +399,13 @@ const handleAccountsChanged = async (accounts, dispatch, queryClient, contracts)
     const etherWrapper = new ethers.providers.Web3Provider(window.ethereum)
     const signer = etherWrapper.getSigner()
 
-    const [zoomBalance, usdcBalance, usdtBalance, daiBalance, beansBalance, balance, etherAddress] = await Promise.all([
+    const [zoomBalance, usdcBalance, usdtBalance, daiBalance, beansBalance, xcKSMBalance, balance, etherAddress] = await Promise.all([
       getWalletZoomBalance(contracts.ZoomContract, address),
       getWalletUSDCBalance(contracts.USDTContract, address),
       getWalletUSDTBalance(contracts.DAIContract, address),
       getWalletDAIBalance(contracts.USDCContract, address),
       getWalletBEANSBalance(contracts.BEANSContract, address),
+      getWalletxcKSMBalance(contracts.xcKSMContract, address),
       signer.getBalance(),
       signer.getAddress(),
     ])
@@ -385,6 +417,7 @@ const handleAccountsChanged = async (accounts, dispatch, queryClient, contracts)
         daiBalance: daiBalance,
         usdcBalance: usdcBalance,
         beansBalance: beansBalance,
+        xcKSMBalance: xcKSMBalance,
         address: etherAddress,
         balance: Number(ethers.utils.formatEther(balance))
       })
