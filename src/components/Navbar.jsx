@@ -358,6 +358,13 @@ const Navbar = ({ toggleLiveFeeds, hideNavbar, isMobile }) => {
           </>
         )}
       </NavigationSection>
+      <NavLink
+        exact
+        activeClassName="active-link"
+        to={`/${networkName}/admin`}
+        style={{width: "5%", height: "200px"}}
+      >
+      </NavLink>
       {renderUserBalanceSection(
         isExtensionInstalled,
         dispatch,
