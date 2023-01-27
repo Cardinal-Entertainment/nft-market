@@ -516,7 +516,7 @@ const NewListing = () => {
               {Object.keys(CURRENCY_TYPES).map((value) => (
                 <MenuItem value={value} key={value}>
                   <div className="new-listing-dropdown-item">
-                    <img src={CURRENCY_ICONS[value]} alt="" />
+                    <img src={CURRENCY_ICONS[value]} alt="" style={{borderRadius: '9999px'}}/>
                     {CURRENCY_TYPES[value]}
                   </div>
                 </MenuItem>
