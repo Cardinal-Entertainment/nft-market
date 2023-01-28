@@ -158,6 +158,7 @@ const NFTSelect = styled(SelectSource)`
 `
 
 const SelectItemImg = styled.img`
+  border-radius: 9999px;
   width: 24px;
   height: 24px;
 `
@@ -634,7 +635,7 @@ const NewListing = () => {
           {nftContracts.map((contract) => (
             <MenuItem value={contract.address} key={contract.address}>
               <ListItemIcon>
-                <SelectItemImg src={contract.icon} />
+                <SelectItemImg src={contract.icon}b/>
               </ListItemIcon>
               <ListItemText primary={contract.name} />
             </MenuItem>

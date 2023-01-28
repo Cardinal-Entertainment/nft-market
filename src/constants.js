@@ -9,6 +9,9 @@ import zoomCoin from './assets/zoombies_coin.svg'
 import beansLogo from './assets/beansLogo.png'
 import usdcLogo from './assets/usdcLogo.png'
 import xcKSMLogo from './assets/xcksmLogo.webp'
+import dpsLogo from './assets/dpsLogo.png'
+import moonsamaLogo from './assets/moonsama.svg'
+import moonbeansLogo from './assets/moonbeans.png'
 
 export const isLocal = process.env.NODE_ENV === 'development'
 
@@ -72,6 +75,12 @@ export const NFT_CONTRACTS = {
       icon: nextGemLogo,
       abiJSON: anyNFTJson,
     },
+    {
+      name: 'Moonbeans',
+      address: '0xd3A9c48Df4d9342dc1A0EE2c185CE50588729Fa9',
+      icon: moonbeansLogo,
+      abiJSON: anyNFTJson,
+    },
   ],
   moonriver: [
     {
@@ -82,8 +91,20 @@ export const NFT_CONTRACTS = {
     },
     {
       name: 'NextGem',
-      address: '0x4c0EaC154AE7cB755b260E835895e9F471B640f3',
+      address: '0xc433f820467107bc5176b95f3a58248C4332F8DE',
       icon: nextGemLogo,
+      abiJSON: anyNFTJson,
+    },
+    {
+      name: 'DamnedPiratesSociety',
+      address: '0xB6E9e605AA159017173CAa6181C522Db455F6661',
+      icon: dpsLogo,
+      abiJSON: anyNFTJson,
+    },  
+    {
+      name: 'Moonsama',
+      address: '0xb654611F84A8dc429BA3cb4FDA9Fad236C505a1a',
+      icon: moonsamaLogo,
       abiJSON: anyNFTJson,
     },
   ],
