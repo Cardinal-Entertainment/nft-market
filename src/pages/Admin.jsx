@@ -51,7 +51,7 @@ const Admin = () => {
     const [zoomBurnState, setZoomBurnState] = useState(0);
 
     const [auctionTimeState, setAuctionTimeState] = useState(0);
-    
+
     const erc20Handler = (e) => {
         const name = e.target.name;
         const value = e.target.value;
@@ -204,6 +204,29 @@ const Admin = () => {
                         <button type="submit" className="btn btn-primary text-white w-25">Update</button>
                     </form>
                 </div>
+
+                <div className="bg-dark bg-gradient p-3 m-3">    
+                    <h3>Check if Token is whitelisted:</h3>
+                    <form onSubmit={checkTokenSubmitHandler}>        
+                        <div className="form-group">
+                            <label>Token to check</label>
+                            <input type="number" id="checkToken" name="checkToken" min="0" value={checkTokenState} onChange={checkTokenHandler} className='form-control w-50'></input>
+                        </div>
+                        <button type="submit" className="btn btn-primary text-white w-25">Check</button>
+                    </form>
+                </div>
+
+                <div className="bg-dark bg-gradient p-3 m-3">    
+                    <h3>Check if NFT is whitelisted:</h3>
+                    <form onSubmit={checkNftSubmitHandler}>        
+                        <div className="form-group">
+                            <label>Nft to check</label>
+                            <input type="number" id="checkNft" name="checkNft" min="0" value={checkNftState} onChange={checkNftHandler} className='form-control w-50'></input>
+                        </div>
+                        <button type="submit" className="btn btn-primary text-white w-25">Check</button>
+                    </form>
+                </div>
+
 
             </div>
         </Container>
