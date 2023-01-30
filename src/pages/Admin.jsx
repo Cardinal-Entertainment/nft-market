@@ -118,9 +118,9 @@ const Admin = () => {
     }
 
     (async () => {
-        setMaxNftState( await parseInt(formatEther( await mContract.maxNFTCount())));
+        setMaxNftState( await parseInt( await mContract.maxNFTCount()));
         setZoomBurnState( await parseInt(formatEther( await mContract.zoomBurnFee())));
-        setAuctionTimeState( await parseInt(formatEther( await mContract.maxAuctionTime())));
+        setAuctionTimeState( await parseInt( await mContract.maxAuctionTime()));
     })()
 
     // console.log(mContract);
