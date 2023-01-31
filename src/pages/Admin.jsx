@@ -4,6 +4,8 @@ import { store } from 'store/store'
 import { BigNumber } from 'ethers'
 import { ethers } from 'ethers'
 import { formatEther } from '@ethersproject/units'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Container = styled.div`
 display: flex;
@@ -52,6 +54,14 @@ const Admin = () => {
 
     const [auctionTimeState, setAuctionTimeState] = useState(0);
     
+    const [checkTokenState, setCheckTokenState] = useState('');
+
+    const [checkTokenRes, setCheckTokenRes] = useState('');
+
+    const [checkNftState, setCheckNftState] = useState('');
+
+    const [checkNftRes, setCheckNftRes] = useState('');
+
     const erc20Handler = (e) => {
         const name = e.target.name;
         const value = e.target.value;
@@ -86,35 +96,98 @@ const Admin = () => {
         setAuctionTimeState(e.target.value);
     };
 
+    const checkTokenHandler = (e) => {
+        setCheckTokenState(e.target.value);
+    };
+
+    const checkNftHandler = (e) => {
+        setCheckNftState(e.target.value);
+    };
+
     const erc20SubmitHandler = (e) => {
         e.preventDefault();
         const result = {...erc20State};
-        const new_inc = BigNumber.from(ethers.utils.parseUnits(result.minIncrement.toString())).toString();
-        mContract.whitelistToken(result.tokenAddress, result.isWhitelisted, new_inc);
+        try {
+            const new_inc = BigNumber.from(ethers.utils.parseUnits(result.minIncrement.toString())).toString();
+            mContract.whitelistToken(result.tokenAddress, result.isWhitelisted, new_inc);
+        }
+        catch(err) {
+            toast('Invalid input');
+        }
     }
 
     const nftSubmitHandler = (e) => {
         e.preventDefault();
-        const result = {...nftState};
-        mContract.whitelistNFTToken(result.tokenAddress, result.isWhitelisted);
+        try {
+            const result = {...nftState};
+            mContract.whitelistNFTToken(result.tokenAddress, result.isWhitelisted);
+        }
+        catch(err) {
+            toast('Invalid input');
+        }
     }
 
     const maxNftSubmitHandler = (e) => {
         e.preventDefault();
-        const result = maxNftState;
-        mContract.changeMaxNFTCount(result);
+        try {
+            const result = maxNftState;
+            mContract.changeMaxNFTCount(result);
+        }
+        catch(err) {
+            toast('Invalid input');
+        }
     }
 
     const zoomBurnSubmitHandler = (e) => {
         e.preventDefault();
-        const result = BigNumber.from(ethers.utils.parseUnits(zoomBurnState.toString())).toString();
-        mContract.changeZoomBurnFee(result);
+        try {
+            const result = BigNumber.from(ethers.utils.parseUnits(zoomBurnState.toString())).toString();
+            mContract.changeZoomBurnFee(result);
+        }
+        catch(err) {
+            toast('Invalid input');
+        }
     }
 
     const auctionTimeSubmitHandler = (e) => {
         e.preventDefault();
-        const result = auctionTimeState;
-        mContract.changeMaxAuctionTime(result);
+        try {
+            const result = auctionTimeState;
+            mContract.changeMaxAuctionTime(result);
+        }
+        catch(err) {
+            toast('Invalid input');
+        }
+    }
+
+    const checkTokenSubmitHandler = async (e) => {
+        e.preventDefault();
+        const result = checkTokenState;
+        try {
+            const res = await mContract.tokenWhitelist(result);
+            if(res == true) {
+                const minInc = await mContract.tokenMinIncrement(result);
+                setCheckTokenRes(ethers.utils.formatEther(minInc.toString()).toString());
+            }
+            else {
+                setCheckTokenRes(res.toString());
+            }
+        }
+        catch(err) {
+            toast('Invalid input');
+        }
+    }
+
+    const checkNftSubmitHandler = async (e) => {
+        e.preventDefault();
+        const result = checkNftState;
+        try {
+            const res = await mContract.nftWhitelist(result);
+            setCheckNftRes(res.toString());
+        }
+        catch(err) {
+            toast('Invalid input');
+        }
     }
 
     (async () => {
@@ -127,6 +200,7 @@ const Admin = () => {
 
     return (
         <Container>
+            <ToastContainer></ToastContainer>
             <head>
                 <link
                     rel="stylesheet"
@@ -198,11 +272,35 @@ const Admin = () => {
                     <h3>Update Max. Auction time:</h3>
                     <form onSubmit={auctionTimeSubmitHandler}>        
                         <div className="form-group">
-                            <input type="number" id="auctionTime" name="auctionTime" min="0" value={auctionTimeState} onChange={auctionTimeHandler} className='form-control w-50'></input>
                             <label>Max Auction time</label>
+                            <input type="number" id="auctionTime" name="auctionTime" min="0" value={auctionTimeState} onChange={auctionTimeHandler} className='form-control w-50'></input>
                         </div>
                         <button type="submit" className="btn btn-primary text-white w-25">Update</button>
                     </form>
+                </div>
+
+                <div className="bg-info bg-gradient p-3 m-3">    
+                    <h3>Check if Token is whitelisted:</h3>
+                    <form onSubmit={checkTokenSubmitHandler}>        
+                        <div className="form-group">
+                            <label>Token to check</label>
+                            <input type="text" id="checkToken" name="checkToken" min="0" value={checkTokenState} onChange={checkTokenHandler} className='form-control w-50'></input>
+                        </div>
+                        <button type="submit" className="btn btn-primary text-white w-25">Check</button>
+                    </form>
+                    <h4>{checkTokenRes}</h4>
+                </div>
+
+                <div className="bg-info bg-gradient p-3 m-3">    
+                    <h3>Check if NFT is whitelisted:</h3>
+                    <form onSubmit={checkNftSubmitHandler}>        
+                        <div className="form-group">
+                            <label>Nft to check</label>
+                            <input type="text" id="checkNft" name="checkNft" min="0" value={checkNftState} onChange={checkNftHandler} className='form-control w-50'></input>
+                        </div>
+                        <button type="submit" className="btn btn-primary text-white w-25">Check</button>
+                    </form>
+                    <h4>{checkNftRes}</h4>
                 </div>
 
             </div>
