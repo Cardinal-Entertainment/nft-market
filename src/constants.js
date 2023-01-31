@@ -185,3 +185,22 @@ export const CURRENCY_TYPES = {
   XCKSM: 'xcKSM'
   // USDT: 'USDT'
 }
+
+export const CURRENCY_TYPES_MOONRIVER = {
+  MOVR: 'MOVR',
+  ZOOM: 'ZOOM',
+  DAI: 'DAI',
+  USDC: 'USDC',
+  BEANS: 'BEANS',
+  XCKSM: 'xcKSM'
+  // USDT: 'USDT'
+}
+
+export const CURRENCY_TYPES_MOONBASE_A = {
+  MOVR: 'MOVR',
+  ZOOM: 'ZOOM',
+  DAI: 'DAI',
+  USDC: 'USDC',
+  BEANS: 'BEANS',
+  // USDT: 'USDT'
+}
