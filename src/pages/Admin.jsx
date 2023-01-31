@@ -4,6 +4,8 @@ import { store } from 'store/store'
 import { BigNumber } from 'ethers'
 import { ethers } from 'ethers'
 import { formatEther } from '@ethersproject/units'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Container = styled.div`
 display: flex;
@@ -105,52 +107,87 @@ const Admin = () => {
     const erc20SubmitHandler = (e) => {
         e.preventDefault();
         const result = {...erc20State};
-        const new_inc = BigNumber.from(ethers.utils.parseUnits(result.minIncrement.toString())).toString();
-        mContract.whitelistToken(result.tokenAddress, result.isWhitelisted, new_inc);
+        try {
+            const new_inc = BigNumber.from(ethers.utils.parseUnits(result.minIncrement.toString())).toString();
+            mContract.whitelistToken(result.tokenAddress, result.isWhitelisted, new_inc);
+        }
+        catch(err) {
+            toast('Invalid input');
+        }
     }
 
     const nftSubmitHandler = (e) => {
         e.preventDefault();
-        const result = {...nftState};
-        mContract.whitelistNFTToken(result.tokenAddress, result.isWhitelisted);
+        try {
+            const result = {...nftState};
+            mContract.whitelistNFTToken(result.tokenAddress, result.isWhitelisted);
+        }
+        catch(err) {
+            toast('Invalid input');
+        }
     }
 
     const maxNftSubmitHandler = (e) => {
         e.preventDefault();
-        const result = maxNftState;
-        mContract.changeMaxNFTCount(result);
+        try {
+            const result = maxNftState;
+            mContract.changeMaxNFTCount(result);
+        }
+        catch(err) {
+            toast('Invalid input');
+        }
     }
 
     const zoomBurnSubmitHandler = (e) => {
         e.preventDefault();
-        const result = BigNumber.from(ethers.utils.parseUnits(zoomBurnState.toString())).toString();
-        mContract.changeZoomBurnFee(result);
+        try {
+            const result = BigNumber.from(ethers.utils.parseUnits(zoomBurnState.toString())).toString();
+            mContract.changeZoomBurnFee(result);
+        }
+        catch(err) {
+            toast('Invalid input');
+        }
     }
 
     const auctionTimeSubmitHandler = (e) => {
         e.preventDefault();
-        const result = auctionTimeState;
-        mContract.changeMaxAuctionTime(result);
+        try {
+            const result = auctionTimeState;
+            mContract.changeMaxAuctionTime(result);
+        }
+        catch(err) {
+            toast('Invalid input');
+        }
     }
 
     const checkTokenSubmitHandler = async (e) => {
         e.preventDefault();
         const result = checkTokenState;
-        const res = await mContract.tokenWhitelist(result);
-        if(res == true) {
-            const minInc = await mContract.tokenMinIncrement(result);
-            setCheckTokenRes(ethers.utils.formatEther(minInc.toString()).toString());
+        try {
+            const res = await mContract.tokenWhitelist(result);
+            if(res == true) {
+                const minInc = await mContract.tokenMinIncrement(result);
+                setCheckTokenRes(ethers.utils.formatEther(minInc.toString()).toString());
+            }
+            else {
+                setCheckTokenRes(res.toString());
+            }
         }
-        else {
-            setCheckTokenRes(res.toString());
+        catch(err) {
+            toast('Invalid input');
         }
     }
 
     const checkNftSubmitHandler = async (e) => {
         e.preventDefault();
         const result = checkNftState;
-        const res = await mContract.nftWhitelist(result);
-        setCheckNftRes(res.toString());
+        try {
+            const res = await mContract.nftWhitelist(result);
+            setCheckNftRes(res.toString());
+        }
+        catch(err) {
+            toast('Invalid input');
+        }
     }
 
     (async () => {
@@ -163,6 +200,7 @@ const Admin = () => {
 
     return (
         <Container>
+            <ToastContainer></ToastContainer>
             <head>
                 <link
                     rel="stylesheet"
