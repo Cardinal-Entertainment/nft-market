@@ -24,6 +24,16 @@ export const getWalletUSDCBalance = async (usdcContract, address) => {
   return ethers.utils.formatUnits(usdcBalance, 'mwei')
 }
 
+export const getWalletBEANSBalance = async (beansContract, address) => {
+  const beansBalance = await beansContract.balanceOf(address)
+  return ethers.utils.formatUnits(beansBalance, 'mwei')
+}
+
+export const getWalletxcKSMBalance = async (xcKSMContract, address) => {
+  const xcKSMBalance = await xcKSMContract.balanceOf(address)
+  return ethers.utils.formatUnits(xcKSMBalance, 'mwei')
+}
+
 export const unWrapMOVR = async (wmovrContract, amount) => {
   await wmovrContract.withdraw(ethers.utils.parseEther(amount))
 }

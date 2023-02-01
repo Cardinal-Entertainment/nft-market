@@ -19,6 +19,8 @@ import {
   CHAIN_ID_TO_NETWORK,
   CURRENCY_ICONS,
   CURRENCY_TYPES,
+  CURRENCY_TYPES_MOONBASE_A,
+  CURRENCY_TYPES_MOONRIVER
 } from '../constants'
 import {
   useFetchUserNFTQuery,
@@ -158,6 +160,7 @@ const NFTSelect = styled(SelectSource)`
 `
 
 const SelectItemImg = styled.img`
+  border-radius: 9999px;
   width: 24px;
   height: 24px;
 `
@@ -512,15 +515,26 @@ const NewListing = () => {
             <Select
               value={selectedCurrency}
               onChange={(e) => setSelectedCurrency(e.target.value)}
-            >
-              {Object.keys(CURRENCY_TYPES).map((value) => (
+            > 
+            {wallet.chainId == '1285' ? 
+              Object.keys(CURRENCY_TYPES_MOONRIVER).map((value) => (
                 <MenuItem value={value} key={value}>
                   <div className="new-listing-dropdown-item">
-                    <img src={CURRENCY_ICONS[value]} alt="" />
+                    <img src={CURRENCY_ICONS[value]} alt="" style={{borderRadius: '9999px'}}/>
                     {CURRENCY_TYPES[value]}
                   </div>
                 </MenuItem>
-              ))}
+              ))
+            :
+              Object.keys(CURRENCY_TYPES_MOONBASE_A).map((value) => (
+                <MenuItem value={value} key={value}>
+                  <div className="new-listing-dropdown-item">
+                    <img src={CURRENCY_ICONS[value]} alt="" style={{borderRadius: '9999px'}}/>
+                    {CURRENCY_TYPES[value]}
+                  </div>
+                </MenuItem>
+              ))
+            }  
             </Select>
           </InputContainer>
         </FlexRow>
@@ -634,7 +648,7 @@ const NewListing = () => {
           {nftContracts.map((contract) => (
             <MenuItem value={contract.address} key={contract.address}>
               <ListItemIcon>
-                <SelectItemImg src={contract.icon} />
+                <SelectItemImg src={contract.icon}b/>
               </ListItemIcon>
               <ListItemText primary={contract.name} />
             </MenuItem>

@@ -1,4 +1,4 @@
-import { NETWORKS, CURRENCY_TYPES } from '../constants'
+import { NETWORKS, CURRENCY_TYPES } from '../constants' 
 import { ethers } from 'ethers'
 import { waitForTransaction } from './transactions'
 
@@ -53,6 +53,26 @@ export const getNotEnoughCurrencyTooltip = (
     }
   }
 
+  if (coinType === 'BEANS') {
+    if (
+      wallet.beansBalance &&
+      parseInt(wallet.beansBalance) <=
+        parseInt(ethers.utils.formatEther(minOfferAmount))
+    ) {
+      return 'You do not have enough BEANS'
+    }
+  }
+
+  if (coinType === 'xcKSM') {
+    if (
+      wallet.xcKSMBalance &&
+      parseInt(wallet.xcKSMBalance) <=
+        parseInt(ethers.utils.formatEther(minOfferAmount))
+    ) {
+      return 'You do not have enough xcKSM'
+    }
+  }
+
   return null
 }
 
@@ -63,6 +83,8 @@ export const getTokenMinIncrement = (saleToken, network, state) => {
     usdtIncrement,
     daiIncrement,
     usdcIncrement,
+    beansIncrement,
+    xcKSMIncrement,
   } = state
 
   switch (saleToken) {
@@ -76,6 +98,10 @@ export const getTokenMinIncrement = (saleToken, network, state) => {
       return daiIncrement
     case NETWORKS[network].usdcContractAddress:
       return usdcIncrement
+    case NETWORKS[network].beansContractAddress:
+      return beansIncrement
+    case NETWORKS[network].xcKSMContractAddress:
+      return xcKSMIncrement
     default:
       return 0
   }
@@ -93,6 +119,10 @@ export const getCurrencyAddress = (network, currency) => {
       return networkAddresses.zoomContractAddress
     case CURRENCY_TYPES.USDC:
       return networkAddresses.usdcContractAddress
+    case CURRENCY_TYPES.BEANS:
+      return networkAddresses.beansContractAddress
+    case CURRENCY_TYPES.xcKSM:
+      return networkAddresses.xcKSMContractAddress
     // case CURRENCY_TYPES.USDT:
     //   return networkAddresses.usdtContractAddress
     default:
@@ -112,6 +142,10 @@ export const getTokenNameFromAddress = (saleToken, network) => {
       return CURRENCY_TYPES.DAI
     case NETWORKS[network].usdcContractAddress:
       return CURRENCY_TYPES.USDC
+    case NETWORKS[network].beansContractAddress:
+      return CURRENCY_TYPES.BEANS
+    case NETWORKS[network].xcKSMContractAddress:
+      return CURRENCY_TYPES.xcKSM
     default:
       return null
   }
@@ -150,12 +184,21 @@ export const getWalletBalance = (wallet, coinType) => {
         return ethers.utils.parseEther(wallet.usdcBalance.toString())
       }
       return null
+    case CURRENCY_TYPES.BEANS:
+      if (wallet.beansBalance) {
+        return ethers.utils.parseEther(wallet.beansBalance.toString())
+      }
+      return null  
+    case CURRENCY_TYPES.xcKSM:
+      if (wallet.xcKSMBalance) {
+        return ethers.utils.parseEther(wallet.xcKSMBalance.toString())
+      }
+      return null    
     case CURRENCY_TYPES.DAI:
       if (wallet.daiBalance) {
         return ethers.utils.parseEther(wallet.daiBalance.toString())
       }
       return null
-
     case CURRENCY_TYPES.MOVR:
       if (wallet.balance) {
         return ethers.utils.parseEther(wallet.balance.toString())
@@ -179,6 +222,18 @@ export const isWalletBalanceEnough = (coinType, wallet, minOffer) => {
         parseInt(wallet.usdcBalance) >
           parseInt(ethers.utils.formatEther(minOffer))
       )
+    case CURRENCY_TYPES.BEANS:
+      return (
+        !!wallet.beansBalance &&
+        parseInt(wallet.beansBalance) >
+          parseInt(ethers.utils.formatEther(minOffer))
+      )  
+    case CURRENCY_TYPES.xcKSM:
+      return (
+        !!wallet.xcKSMBalance &&
+        parseInt(wallet.xcKSMBalance) >
+          parseInt(ethers.utils.formatEther(minOffer))
+      )   
     case CURRENCY_TYPES.DAI:
       return (
         !!wallet.daiBalance &&

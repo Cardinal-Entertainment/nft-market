@@ -6,7 +6,12 @@ import movrLogo from './assets/movr_logo.png'
 import usdtLogo from './assets/usdt.svg'
 import daiLogo from './assets/dai.png'
 import zoomCoin from './assets/zoombies_coin.svg'
-import usdcCoin from './assets/usdc.png'
+import beansLogo from './assets/beansLogo.png'
+import usdcLogo from './assets/usdcLogo.png'
+import xcKSMLogo from './assets/xcksmLogo.webp'
+import dpsLogo from './assets/dpsLogo.png'
+import moonsamaLogo from './assets/moonsama.svg'
+import moonbeansLogo from './assets/moonbeans.png'
 
 export const isLocal = process.env.NODE_ENV === 'development'
 
@@ -34,6 +39,7 @@ export const NETWORKS = {
     usdtContractAddress: '0x0b77D7BDd78b2a4C2c50980968166D99e321DfB6',
     usdcContractAddress: '0x0D6f70B9D4fBdfAF630FA90caDe1aa5225232BdA',
     daiContractAddress: '0xEc95c10d4DD55741DE9491751407DEA41A3eF5f1',
+    beansContractAddress: '0x24c5CB884BF3AC3F6ceB0d41F90987B6fe0Dd4A7',
     imageUrl: 'https://moonbase.zoombies.world/nft-image',
   },
   moonriver: {
@@ -51,6 +57,7 @@ export const NETWORKS = {
     daiContractAddress: '0x80A16016cC4A2E6a2CACA8a4a498b1699fF0f844',
     imageUrl: 'https://zoombies.world/nft-image',
     usdcContractAddress: '0xE3F5a90F9cb311505cd691a46596599aA1A0AD7D',
+    beansContractAddress: '0xC2392DD3e3fED2c8Ed9f7f0bDf6026fcd1348453',
   },
 }
 
@@ -68,6 +75,12 @@ export const NFT_CONTRACTS = {
       icon: nextGemLogo,
       abiJSON: anyNFTJson,
     },
+    {
+      name: 'Moonbeans',
+      address: '0xd3A9c48Df4d9342dc1A0EE2c185CE50588729Fa9',
+      icon: moonbeansLogo,
+      abiJSON: anyNFTJson,
+    },
   ],
   moonriver: [
     {
@@ -78,8 +91,20 @@ export const NFT_CONTRACTS = {
     },
     {
       name: 'NextGem',
-      address: '0x4c0EaC154AE7cB755b260E835895e9F471B640f3',
+      address: '0xc433f820467107bc5176b95f3a58248C4332F8DE',
       icon: nextGemLogo,
+      abiJSON: anyNFTJson,
+    },
+    {
+      name: 'DamnedPiratesSociety',
+      address: '0xB6E9e605AA159017173CAa6181C522Db455F6661',
+      icon: dpsLogo,
+      abiJSON: anyNFTJson,
+    },  
+    {
+      name: 'Moonsama',
+      address: '0xb654611F84A8dc429BA3cb4FDA9Fad236C505a1a',
+      icon: moonsamaLogo,
       abiJSON: anyNFTJson,
     },
   ],
@@ -146,7 +171,9 @@ export const CURRENCY_ICONS = {
   DAI: daiLogo,
   USDT: usdtLogo,
   ZOOM: zoomCoin,
-  USDC: usdcCoin,
+  USDC: usdcLogo,
+  BEANS: beansLogo,
+  XCKSM: xcKSMLogo,
 }
 
 export const CURRENCY_TYPES = {
@@ -154,5 +181,26 @@ export const CURRENCY_TYPES = {
   ZOOM: 'ZOOM',
   DAI: 'DAI',
   USDC: 'USDC',
+  BEANS: 'BEANS',
+  XCKSM: 'xcKSM'
+  // USDT: 'USDT'
+}
+
+export const CURRENCY_TYPES_MOONRIVER = {
+  MOVR: 'MOVR',
+  ZOOM: 'ZOOM',
+  DAI: 'DAI',
+  USDC: 'USDC',
+  BEANS: 'BEANS',
+  XCKSM: 'xcKSM'
+  // USDT: 'USDT'
+}
+
+export const CURRENCY_TYPES_MOONBASE_A = {
+  MOVR: 'MOVR',
+  ZOOM: 'ZOOM',
+  DAI: 'DAI',
+  USDC: 'USDC',
+  BEANS: 'BEANS',
   // USDT: 'USDT'
 }
